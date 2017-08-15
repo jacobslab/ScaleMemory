@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{11C1DF62-7231-E71B-3015-DB84BC08708B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_1;UNITY_5_6;UNITY_5;UNITY_64;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_STANDALONE_OSX;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_VR;ENABLE_CLUSTERINPUT;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;CROSS_PLATFORM_INPUT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Examples\01_Gaze&amp;NewGUISystem\GazeExample_2DGUI.cs" />
+     <Compile Include="Assets\Examples\02_Gaze&amp;Sprites\GazeExample_Sprites.cs" />
+     <Compile Include="Assets\Examples\03_Gaze&amp;LegacyGUI\GazeExample_LegacyGUI.cs" />
+     <Compile Include="Assets\Examples\04_Gaze&amp;3DWorld\GazeExample_3DInteraction.cs" />
+     <Compile Include="Assets\Examples\05_GazeMonoExample\GazeExample_GazeMonoExample.cs" />
+     <Compile Include="Assets\Examples\05_GazeMonoExample\QuitApplication.cs" />
+     <Compile Include="Assets\Examples\Assets\Scripts\GazeSelectableItem.cs" />
+     <Compile Include="Assets\Examples\Assets\Scripts\ParticleSystemDestroyer.cs" />
+     <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
+     <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
+     <Compile Include="Assets\MCP\scripts\Filmic.cs" />
+     <Compile Include="Assets\MyTests\GazeFollower2D.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRCameraRig.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRCommon.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRDisplay.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRManager.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRPluginEvent.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OVRTracker.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\OvrCapi.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRCrosshair.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRGUI.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRGamepadController.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRGridCube.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRMainMenu.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRPlayerController.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRScreenFade.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRUGUI.cs" />
+     <Compile Include="Assets\Oculus\OVR\Scripts\Util\OVRVisionGuide.cs" />
+     <Compile Include="Assets\PrintLists.cs" />
+     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
+     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
+     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
+     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\VisibilityToggler.cs" />
+     <Compile Include="Assets\Scripts\Audio\AudioRecorder.cs" />
+     <Compile Include="Assets\Scripts\Audio\SavWav.cs" />
+     <Compile Include="Assets\Scripts\Audio\SoundtrackController.cs" />
+     <Compile Include="Assets\Scripts\Backend\GazeDataStructs.cs" />
+     <Compile Include="Assets\Scripts\Backend\GazeModel.cs" />
+     <Compile Include="Assets\Scripts\Camera Controls\CameraController.cs" />
+     <Compile Include="Assets\Scripts\Debugging\AlternateFPSScript.cs" />
+     <Compile Include="Assets\Scripts\Debugging\ControllerInputTester.cs" />
+     <Compile Include="Assets\Scripts\Debugging\OnScreenDebugger.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\JsonMessageController.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\Listener.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\AssemblyInfo.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\IJsonWrapper.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonData.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonException.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMapper.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMockWrapper.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonReader.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonWriter.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\Lexer.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\Publisher.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\SyncboxControl.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\TCPServer.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\TCP_Config.cs" />
+     <Compile Include="Assets\Scripts\Environment\EnvironmentController.cs" />
+     <Compile Include="Assets\Scripts\Environment\ObjectController.cs" />
+     <Compile Include="Assets\Scripts\Environment\SpawnableObject.cs" />
+     <Compile Include="Assets\Scripts\Environment\Store.cs" />
+     <Compile Include="Assets\Scripts\Environment\StoreController.cs" />
+     <Compile Include="Assets\Scripts\Environment\Waypoint.cs" />
+     <Compile Include="Assets\Scripts\Environment\WaypointController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\Config.cs" />
+     <Compile Include="Assets\Scripts\Experiment\Experiment.cs" />
+     <Compile Include="Assets\Scripts\Experiment\ExperimentSettings.cs" />
+     <Compile Include="Assets\Scripts\Experiment\GameClock.cs" />
+     <Compile Include="Assets\Scripts\Experiment\InstructionsController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\JuiceController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\Player.cs" />
+     <Compile Include="Assets\Scripts\Experiment\PlayerControls.cs" />
+     <Compile Include="Assets\Scripts\Experiment\SceneController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\ScoreController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\SimpleTimer.cs" />
+     <Compile Include="Assets\Scripts\Experiment\Trial.cs" />
+     <Compile Include="Assets\Scripts\Experiment\TrialController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\UsefulFunctions.cs" />
+     <Compile Include="Assets\Scripts\Eyetracker\EyetrackerLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Eyetracker\GazeMove.cs" />
+     <Compile Include="Assets\Scripts\GUI\AnswerSelector.cs" />
+     <Compile Include="Assets\Scripts\GUI\NumericInputTextLimiter.cs" />
+     <Compile Include="Assets\Scripts\GUI\QuestionUI.cs" />
+     <Compile Include="Assets\Scripts\GUI\ScreenAnchor.cs" />
+     <Compile Include="Assets\Scripts\GUI\TextMeshColorCycler.cs" />
+     <Compile Include="Assets\Scripts\GUI\UIScreen.cs" />
+     <Compile Include="Assets\Scripts\InputMic.cs" />
+     <Compile Include="Assets\Scripts\Logging\AudioLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\CameraLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\CanvasGroupLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\DBStorePoolWriter.cs" />
+     <Compile Include="Assets\Scripts\Logging\EnableChildrenLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\KeyboardLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\LineRendererLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\LogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\Logger_Threading.cs" />
+     <Compile Include="Assets\Scripts\Logging\LogitechControllerLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\MouseLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\ObjectColorLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\ObjectLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\ParticleLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\ScoreLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\StoreControllerLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\TextLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\TextMeshLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\TrialLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\UIImageLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\UIPanelLogTrack.cs" />
+     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\Subject.cs" />
+     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectButton.cs" />
+     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectReaderWriter.cs" />
+     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectSelectionController.cs" />
+     <Compile Include="Assets\Scripts\ThreadedJob.cs" />
+     <Compile Include="Assets\Scripts\VideoPlay.cs" />
+     <Compile Include="Assets\Scripts\VideoRecording\Replay.cs" />
+     <Compile Include="Assets\Scripts\VideoRecording\ScreenRecorder.cs" />
+     <Compile Include="Assets\TestMic.cs" />
+     <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
+     <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
+     <Compile Include="Assets\videotest.cs" />
+     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
+     <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />
+     <None Include="Assets\Standard Assets\Effects\TessellationShaders\Shaders\BumpedSpecularSmooth.shader" />
+     <None Include="Assets\Standard Assets\Effects\Projectors\Guidelines.txt" />
+     <None Include="Assets\Standard Assets\Effects\ImageEffects\Readme.txt" />
+     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />
+     <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasicOutline.shader" />
+     <None Include="Assets\Shaders\TSFOutline.shader" />
+     <None Include="Assets\Standard Assets\Environment\Water (Basic)\Shaders\FXWaterBasic.shader" />
+     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
+     <None Include="Assets\Shaders\TSF.shader" />
+     <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonLitOutline.shader" />
+     <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonLit.shader" />
+     <None Include="Assets\Standard Assets\Effects\Projectors\Shaders\ProjectorLight.shader" />
+     <None Include="Assets\Standard Assets\Environment\Water\Water\Shaders\FXWaterPro.shader" />
+     <None Include="Assets\Shaders\3DTextUnderShader.shader" />
+     <None Include="Assets\Standard Assets\Effects\Projectors\Shaders\ProjectorMultiply.shader" />
+     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
+     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
+     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\WaterInclude.cginc" />
+     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Advanced.shader" />
+     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
+     <None Include="Assets\Standard Assets\Effects\TessellationShaders\Shaders\BumpedSpecularDisplacement.shader" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Networking">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TestRunner">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
+ </Reference>
+ <Reference Include="nunit.framework">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/nunit.framework.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.HoloLens">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VR">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+ </Reference>
+ <Reference Include="LJUDDotNet">
+ <HintPath>/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Assets/Plugins/x86/LJUDDotNet.dll</HintPath>
+ </Reference>
+ <Reference Include="AsyncIO">
+ <HintPath>/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Assets/Plugins/x86_64/AsyncIO.dll</HintPath>
+ </Reference>
+ <Reference Include="NetMQ">
+ <HintPath>/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Assets/Plugins/x86_64/NetMQ.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{11E246E5-EC56-E163-B0C6-1728F599E966}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
