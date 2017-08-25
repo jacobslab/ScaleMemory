@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CardboardBox.cs" />
      <Compile Include="Assets\Examples\01_Gaze&amp;NewGUISystem\GazeExample_2DGUI.cs" />
      <Compile Include="Assets\Examples\02_Gaze&amp;Sprites\GazeExample_Sprites.cs" />
      <Compile Include="Assets\Examples\03_Gaze&amp;LegacyGUI\GazeExample_LegacyGUI.cs" />
@@ -75,6 +76,7 @@
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRVisionGuide.cs" />
      <Compile Include="Assets\MyTests\GazeFollower2D.cs" />
      <Compile Include="Assets\PrintLists.cs" />
+     <Compile Include="Assets\SanityCheck.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
@@ -163,7 +165,9 @@
      <Compile Include="Assets\Scripts\VideoPlay.cs" />
      <Compile Include="Assets\Scripts\VideoRecording\Replay.cs" />
      <Compile Include="Assets\Scripts\VideoRecording\ScreenRecorder.cs" />
+     <Compile Include="Assets\SpawnManager.cs" />
      <Compile Include="Assets\TestMic.cs" />
+     <Compile Include="Assets\TrialManager.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
      <Compile Include="Assets\videotest.cs" />
