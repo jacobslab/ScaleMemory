@@ -4,17 +4,16 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour {
 
-	public GameObject cardboardBox;
-	private float minX=119f;
-	private float maxX=160f;
-	private float minZ=211f;
-	private float maxZ=277f;
-	private float fixedY=1.0f;
-
-	public CardboardBox currentBox;
+	private float minX=120f;
+	private float maxX=236f;
+	private float fixedZ=373f;
+	private float fixedY=3.0f;
+	public float waitTime=1.5f;
 	// Use this for initialization
 	private static SpawnManager _instance;
 	public List<GameObject> spawnList;
+	public Transform carPlayer;
+	private int listLength=3;
 	public static SpawnManager Instance
 	{
 		get
@@ -34,7 +33,6 @@ public class SpawnManager : MonoBehaviour {
 
 	}
 	void Start () {
-		
 	}
 	
 	// Update is called once per frame
@@ -42,10 +40,19 @@ public class SpawnManager : MonoBehaviour {
 		
 	}
 
-	public void SpawnBox()
+	public IEnumerator SpawnBox()
 	{
-		GameObject box = Instantiate (cardboardBox, new Vector3 (Random.Range(minX,maxX), fixedY, Random.Range(minZ,maxZ)), Quaternion.identity) as GameObject;
-		currentBox = box.GetComponent<CardboardBox>();
+			int randInt = Random.Range (0, spawnList.Count - 1);
+			UnityEngine.Debug.Log ("instantiated an item");
+			GameObject box = Instantiate (spawnList [randInt], new Vector3 (Random.Range (minX, maxX), fixedY, fixedZ), Quaternion.identity) as GameObject;
+			box.SetActive (false);
+			while (Vector3.Distance (box.transform.position, carPlayer.transform.position) > 20f) {
+				yield return 0;
+			}
+			box.SetActive (true);
+			yield return new WaitForSeconds (waitTime);
+			box.SetActive (false);
+			yield return StartCoroutine (carPlayer.GetComponent<TrainMover>().WaitTillPlayerStopped ());
 	}
 
 }

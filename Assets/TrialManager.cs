@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class TrialManager : MonoBehaviour {
 	public SpawnManager spawnManager;
-
+	public TrainMover trainMover;
 
 	//ui element
 	public Text harvestText;
 	public Text carInstructionText;
 
 	public int numOfBoxes=3;
-	public GameObject farmPlayer;
-	public GameObject carPlayer;
+	public GameObject topDownPlayer;
+	public GameObject perspPlayer;
 	// Use this for initialization
 
 	private static TrialManager _instance;
@@ -71,26 +71,35 @@ public class TrialManager : MonoBehaviour {
 	}
 	IEnumerator RunTrial()
 	{
+		SetCarInstruction ("Drive to farm");
 		for (int i = 0; i < numOfBoxes; i++) {
-			spawnManager.SpawnBox ();
-			yield return spawnManager.currentBox.WaitForPlayerCollision ();
+			StartCoroutine (trainMover.TrainMove());
+			yield return StartCoroutine(spawnManager.SpawnBox ());
+			Debug.Log ("spawn boxes");
+			trainMover.ResetPlayer ();
+			SwitchPerspective ();
+//			yield return spawnManager.currentBox.WaitForPlayerCollision ();
 		}
-		yield return StartCoroutine("ActivateCarPlayer");
-		yield return StartCoroutine (WaitForCarToReachFarm ());
 
 		yield return null;
 	}
-	IEnumerator ActivateCarPlayer()
+	IEnumerator ActivateTopDown()
 	{
-		farmPlayer.SetActive (false);
-		carPlayer.SetActive (true);
+		
 		SetCarInstruction ("Travel to Farm B");
 		yield return null;
 
 	}
 
-	IEnumerator WaitForCarToReachFarm()
+	void SwitchPerspective()
 	{
-		yield return null;
+		if (perspPlayer.activeSelf) {
+			perspPlayer.SetActive (false);
+			topDownPlayer.SetActive (true);
+		} else {
+			perspPlayer.SetActive (true);
+			topDownPlayer.SetActive (false);
+		}
 	}
+
 }
