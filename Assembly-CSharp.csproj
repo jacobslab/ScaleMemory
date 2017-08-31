@@ -46,7 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\CardboardBox.cs" />
      <Compile Include="Assets\Examples\01_Gaze&amp;NewGUISystem\GazeExample_2DGUI.cs" />
      <Compile Include="Assets\Examples\02_Gaze&amp;Sprites\GazeExample_Sprites.cs" />
      <Compile Include="Assets\Examples\03_Gaze&amp;LegacyGUI\GazeExample_LegacyGUI.cs" />
@@ -75,8 +74,6 @@
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRUGUI.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRVisionGuide.cs" />
      <Compile Include="Assets\MyTests\GazeFollower2D.cs" />
-     <Compile Include="Assets\PrintLists.cs" />
-     <Compile Include="Assets\SanityCheck.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
@@ -87,6 +84,7 @@
      <Compile Include="Assets\Scripts\Backend\GazeDataStructs.cs" />
      <Compile Include="Assets\Scripts\Backend\GazeModel.cs" />
      <Compile Include="Assets\Scripts\Camera Controls\CameraController.cs" />
+     <Compile Include="Assets\Scripts\CardboardBox.cs" />
      <Compile Include="Assets\Scripts\Debugging\AlternateFPSScript.cs" />
      <Compile Include="Assets\Scripts\Debugging\ControllerInputTester.cs" />
      <Compile Include="Assets\Scripts\Debugging\OnScreenDebugger.cs" />
@@ -157,22 +155,24 @@
      <Compile Include="Assets\Scripts\Logging\TrialLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\UIImageLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\UIPanelLogTrack.cs" />
+     <Compile Include="Assets\Scripts\PrintLists.cs" />
+     <Compile Include="Assets\Scripts\SanityCheck.cs" />
+     <Compile Include="Assets\Scripts\SpawnManager.cs" />
      <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\Subject.cs" />
      <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectButton.cs" />
      <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectReaderWriter.cs" />
      <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectSelectionController.cs" />
+     <Compile Include="Assets\Scripts\TestMic.cs" />
      <Compile Include="Assets\Scripts\ThreadedJob.cs" />
+     <Compile Include="Assets\Scripts\TrainMover.cs" />
+     <Compile Include="Assets\Scripts\TrialManager.cs" />
      <Compile Include="Assets\Scripts\VideoPlay.cs" />
      <Compile Include="Assets\Scripts\VideoRecording\Replay.cs" />
      <Compile Include="Assets\Scripts\VideoRecording\ScreenRecorder.cs" />
-     <Compile Include="Assets\SpawnManager.cs" />
-     <Compile Include="Assets\TestMic.cs" />
-     <Compile Include="Assets\TrainMover.cs" />
-     <Compile Include="Assets\TrialManager.cs" />
+     <Compile Include="Assets\Scripts\videotest.cs" />
+     <Compile Include="Assets\Scripts\zmqtest.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
-     <Compile Include="Assets\videotest.cs" />
-     <Compile Include="Assets\zmqtest.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />
      <None Include="Assets\Standard Assets\Effects\TessellationShaders\Shaders\BumpedSpecularSmooth.shader" />
