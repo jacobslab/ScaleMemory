@@ -109,6 +109,7 @@ public class TrialManager : MonoBehaviour {
 	{
 		float distance = Vector3.Distance (objPos, trainPos);
 		Debug.Log ("the distance is: " + distance.ToString ());
+		ChangeHarvestText("Distance is: " + distance.ToString());
 		
 	}
 
@@ -118,6 +119,7 @@ public class TrialManager : MonoBehaviour {
 		name = Regex.Replace( name, "[()]", "" );
 		return name;
 	}
+
 
 	void SwitchPerspective()
 	{
@@ -129,5 +131,7 @@ public class TrialManager : MonoBehaviour {
 			topDownPlayer.SetActive (false);
 		}
 	}
+
+
 
 }
