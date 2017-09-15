@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/MicroMacroTrain.unity
+- path: Assets/race-track-lake/race_track_lake.unity
   isLoaded: 1
   isActive: 1
