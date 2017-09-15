@@ -48,6 +48,10 @@ public class TrialManager : MonoBehaviour {
 		
 	}
 
+	public void ChangeCarInstruction(string text)
+	{
+	}
+
 	public void ChangeHarvestText(string text)
 	{
 		harvestText.enabled = true;
@@ -72,29 +76,32 @@ public class TrialManager : MonoBehaviour {
 	}
 	IEnumerator RunTrial()
 	{
-		SetCarInstruction ("Remember where you pick up farm produce");
-		for (int i = 0; i < numOfBoxes; i++) {
-			StartCoroutine (trainMover.TrainMove());
-			yield return StartCoroutine(spawnManager.SpawnBox ());
-			Debug.Log ("spawn boxes");
-			trainMover.ResetPlayer ();
-			SwitchPerspective ();
+		while (true) {
+			SetCarInstruction ("Remember where you pick up farm produce");
+			for (int i = 0; i < numOfBoxes; i++) {
+				StartCoroutine (trainMover.TrainMove ());
+				yield return StartCoroutine (spawnManager.SpawnBox ());
+				Debug.Log ("spawn boxes");
+				trainMover.ResetPlayer ();
+				SwitchPerspective ();
 //			yield return spawnManager.currentBox.WaitForPlayerCollision ();
+			}
+			for (int j = 0; j < numOfBoxes; j++) {
+				int randInt = Random.Range (0, spawnManager.objSpawned.Count - 1);
+				GameObject retrievalObject = spawnManager.objSpawned [randInt];
+				spawnManager.objSpawned.RemoveAt (randInt);
+				string objName = GetName (retrievalObject.name);
+				SetCarInstruction ("Press (X) where you think you found " + objName);
+				StartCoroutine (trainMover.TrainMove ());
+				yield return StartCoroutine (UsefulFunctions.WaitForActionButton ());
+				MeasureScore (retrievalObject.transform.position, trainMover.transform.position);
+				yield return StartCoroutine (trainMover.WaitTillPlayerStopped ());
+				TurnOffHarvestText ();
+				trainMover.ResetPlayer ();
+				SwitchPerspective ();
+			}
+			yield return 0;
 		}
-		for (int j = 0; j < numOfBoxes; j++) {
-			int randInt = Random.Range (0,spawnManager.objSpawned.Count-1);
-			GameObject retrievalObject = spawnManager.objSpawned [randInt];
-			spawnManager.objSpawned.RemoveAt (randInt);
-			string objName = GetName (retrievalObject.name);
-			SetCarInstruction ("Press (X) where you think you found " + objName);
-			StartCoroutine (trainMover.TrainMove());
-			yield return StartCoroutine (UsefulFunctions.WaitForActionButton ());
-			MeasureScore (retrievalObject.transform.position,trainMover.transform.position);
-			yield return StartCoroutine (trainMover.WaitTillPlayerStopped ());
-			trainMover.ResetPlayer ();
-			SwitchPerspective ();
-		}
-
 		yield return null;
 	}
 	IEnumerator ActivateTopDown()

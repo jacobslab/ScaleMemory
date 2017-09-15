@@ -114,51 +114,53 @@ public class TimelockManager : MonoBehaviour {
 
 	IEnumerator RunTrial()
 	{
+		while(true)
+		{
 		//distance-fixed
-		trialType=TrialType.Distance;
-		speed=ChooseRandomSpeed();
+		trialType = TrialType.Distance;
+		speed = ChooseRandomSpeed ();
 		SetCarInstruction ("Watch carefully at what distance the gear is changed");
 		fixedDistance = ChooseFixedDistance ();
-		while (carBody.transform.position.x<fixedDistance) {
+		while (carBody.transform.position.x < fixedDistance) {
 			
-			carBody.velocity=Vector3.right * speed;
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 		TurnOffCarInstruction ();
-		ChangeHarvestText("TURBO ACTIVATED");
+		ChangeHarvestText ("TURBO ACTIVATED");
 		pp_profile.motionBlur.enabled = true;
-		StartCoroutine(PlayTurboAnim ());
+		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
-		while (Vector3.Distance(carBody.transform.position,endTransform.position)>7f) {
-			carBody.velocity=Vector3.right * speed;
+		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 
 		pp_profile.motionBlur.enabled = false;
-		TurnOffHarvestText();
+		TurnOffHarvestText ();
 		yield return new WaitForSeconds (1.5f);
 		ResetPlayer ();
 
 		//retrieval
-		speed=ChooseRandomSpeed();
+		speed = ChooseRandomSpeed ();
 		SetCarInstruction ("Press (X) where you think the gear was changed");
-		while ((Input.GetAxis ("Action Button") ==0f) && (Vector3.Distance(carBody.transform.position,endTransform.position)>7f)) {
-			carBody.velocity=Vector3.right * speed;
+		while ((Input.GetAxis ("Action Button") == 0f) && (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f)) {
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
-		MeasureScore (carBody.transform.position.x, fixedDistance,trialType);
+		MeasureScore (carBody.transform.position.x, fixedDistance, trialType);
 		TurnOffCarInstruction ();
 		pp_profile.motionBlur.enabled = true;
-		ChangeHarvestText("TURBO ACTIVATED");
-		StartCoroutine(PlayTurboAnim ());
+		ChangeHarvestText ("TURBO ACTIVATED");
+		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
-		while (Vector3.Distance(carBody.transform.position,endTransform.position)>7f) {
-			carBody.velocity=Vector3.right * speed;
+		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 		scoreText.enabled = false;
 		pp_profile.motionBlur.enabled = false;
-		TurnOffHarvestText();
+		TurnOffHarvestText ();
 
 		yield return new WaitForSeconds (1.5f);
 		ResetPlayer ();
@@ -166,58 +168,58 @@ public class TimelockManager : MonoBehaviour {
 
 		//time-fixed
 
-		trialType=TrialType.Time;
-		speed=ChooseRandomSpeed();
+		trialType = TrialType.Time;
+		speed = ChooseRandomSpeed ();
 		SetCarInstruction ("Watch carefully at what time the gear is changed");
-		fixedTime = ChooseFixedTime();
+		fixedTime = ChooseFixedTime ();
 		float timer = 0f;
-		while (timer<fixedTime) {
+		while (timer < fixedTime) {
 			timer += Time.deltaTime;
-			carBody.velocity=Vector3.right * speed;
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 		TurnOffCarInstruction ();
 		pp_profile.motionBlur.enabled = true;
-		ChangeHarvestText("TURBO ACTIVATED");
-		StartCoroutine(PlayTurboAnim ());
+		ChangeHarvestText ("TURBO ACTIVATED");
+		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
-		while (Vector3.Distance(carBody.transform.position,endTransform.position)>7f) {
-			carBody.velocity=Vector3.right * speed;
+		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 
 		pp_profile.motionBlur.enabled = false;
-		TurnOffHarvestText();
+		TurnOffHarvestText ();
 		yield return new WaitForSeconds (1.5f);
 		ResetPlayer ();
 
 		//retrieval
-		speed=ChooseRandomSpeed();
+		speed = ChooseRandomSpeed ();
 		SetCarInstruction ("Press (X) when you think the gear was changed");
 		timer = 0f;
-		while ((Input.GetAxis ("Action Button") ==0f) && (Vector3.Distance(carBody.transform.position,endTransform.position)>7f)) {
+		while ((Input.GetAxis ("Action Button") == 0f) && (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f)) {
 			timer += Time.deltaTime;
-			carBody.velocity=Vector3.right * speed;
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
-		MeasureScore (timer, fixedTime,trialType);
+		MeasureScore (timer, fixedTime, trialType);
 		TurnOffCarInstruction ();
 		pp_profile.motionBlur.enabled = true;
-		ChangeHarvestText("TURBO ACTIVATED");
-		StartCoroutine(PlayTurboAnim ());
+		ChangeHarvestText ("TURBO ACTIVATED");
+		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
-		while (Vector3.Distance(carBody.transform.position,endTransform.position)>7f) {
-			carBody.velocity=Vector3.right * speed;
+		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
+			carBody.velocity = Vector3.right * speed;
 			yield return 0;
 		}
 		scoreText.enabled = false;
 		pp_profile.motionBlur.enabled = false;
-		TurnOffHarvestText();
+		TurnOffHarvestText ();
 		yield return new WaitForSeconds (1.5f);
 		ResetPlayer ();
 
-
-
+		yield return 0;
+	}
 
 		yield return null;
 	}

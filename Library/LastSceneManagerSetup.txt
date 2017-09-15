@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/TimelockedMemory.unity
+- path: Assets/Scenes/MicroMacroTrain.unity
   isLoaded: 1
   isActive: 1
