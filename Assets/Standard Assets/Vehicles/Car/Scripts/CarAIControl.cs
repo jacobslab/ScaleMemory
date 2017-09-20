@@ -45,6 +45,11 @@ namespace UnityStandardAssets.Vehicles.Car
         private float m_AvoidPathOffset;          // direction (-1 or 1) in which to offset path to avoid other car, whilst avoiding
         private Rigidbody m_Rigidbody;
 
+		public void ChangeSpeedFactor(float newSpeedFactor)
+		{
+			m_CautiousSpeedFactor=newSpeedFactor;
+
+		}
 
         private void Awake()
         {

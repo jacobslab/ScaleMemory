@@ -55,6 +55,12 @@ namespace UnityStandardAssets.Vehicles.Car
         public float Revs { get; private set; }
         public float AccelInput { get; private set; }
 
+
+		public void ChangeMaxSpeed(float newMaxSpeed)
+		{
+			m_Topspeed = newMaxSpeed;
+
+		}
         // Use this for initialization
         private void Start()
         {

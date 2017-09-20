@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\ChequeredFlag.cs" />
      <Compile Include="Assets\Examples\01_Gaze&amp;NewGUISystem\GazeExample_2DGUI.cs" />
      <Compile Include="Assets\Examples\02_Gaze&amp;Sprites\GazeExample_Sprites.cs" />
      <Compile Include="Assets\Examples\03_Gaze&amp;LegacyGUI\GazeExample_LegacyGUI.cs" />
@@ -119,6 +120,7 @@
      <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
      <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+     <Compile Include="Assets\RacingTimelocked.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
@@ -166,6 +168,7 @@
      <Compile Include="Assets\Scripts\Experiment\PlayerControls.cs" />
      <Compile Include="Assets\Scripts\Experiment\SceneController.cs" />
      <Compile Include="Assets\Scripts\Experiment\ScoreController.cs" />
+     <Compile Include="Assets\Scripts\Experiment\SimpleDistanceMeasure.cs" />
      <Compile Include="Assets\Scripts\Experiment\SimpleTimer.cs" />
      <Compile Include="Assets\Scripts\Experiment\Trial.cs" />
      <Compile Include="Assets\Scripts\Experiment\TrialController.cs" />
