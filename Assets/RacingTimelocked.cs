@@ -34,12 +34,14 @@ public class RacingTimelocked : MonoBehaviour {
 
 	float distTraveled=0f;
 
+	float responseFactor=1f;
+
 
 	//config 
-	private int lapsToBeFinished=2;
+	private int lapsToBeFinished=1;
 
 	//timer/measure
-	public SimpleTimer timer;
+	public SimpleTimer simpleTimer;
 	public SimpleDistanceMeasure distanceMeasure;
 
 	public ChequeredFlag chequeredFlag;
@@ -133,7 +135,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
-
+//		scoreText.text="current lap time: " + simpleTimer.GetSecondsFloat().ToString("F2");
 
 	}
 
@@ -159,6 +161,7 @@ public class RacingTimelocked : MonoBehaviour {
 				//add this to the list
 				fixedDistanceList.Add (fixedDistance);
 				Debug.Log("fixed distance is: " + fixedDistance.ToString());
+
 				//activate turbo text
 				distanceMeasure.ResetTimer ();
 				distanceMeasure.StartTimer ();
@@ -186,6 +189,8 @@ public class RacingTimelocked : MonoBehaviour {
 				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
 				yield return 0;
 			}
+
+			//reset the laps completed
 			ChequeredFlag.lapsCompleted = 0;
 			//retrieval
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
@@ -211,10 +216,10 @@ public class RacingTimelocked : MonoBehaviour {
 				if (Input.GetAxis ("Action Button") > 0f) {
 					ChangeHarvestText ("TURBO ACTIVATED");
 					pp_profile.motionBlur.enabled = true;
-					MeasureScore (distanceMeasure.GetDistanceFloat(), fixedDistance, trialType);
+					yield return StartCoroutine(MeasureScore (distanceMeasure.GetDistanceFloat(), fixedDistance, trialType));
 
 					StartCoroutine (PlayTurboAnim ());
-					speedFactor += 0.2f;
+					speedFactor += 0.2f * responseFactor;
 
 					//update speedfactor 
 					carAI.ChangeSpeedFactor (speedFactor);
@@ -286,12 +291,13 @@ public class RacingTimelocked : MonoBehaviour {
 		yield return null;
 	}
 
-	void MeasureScore(float playerVal, float fixedVal, TrialType trialType)
+	IEnumerator MeasureScore(float playerVal, float fixedVal, TrialType trialType)
 	{
 		float score = Mathf.Abs (playerVal - fixedVal);
+		responseFactor = 1f -(score/2500f);
 		scoreText.enabled = true;
-		scoreText.text="the " + trialType.ToString() +" score is: " + score.ToString ();
-
+		scoreText.text="Your turbo was boosted by " + (responseFactor*100f).ToString("F1")+ "%";
+		yield return null;
 	}
 
 

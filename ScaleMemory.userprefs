@@ -1,6 +1,6 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Standard Assets/Utility/WaypointCircuit.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/RacingTimelocked.cs">
     <Files>
       <File FileName="Assets/Scripts/SpawnManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TrainMover.cs" Line="1" Column="1" />
@@ -10,7 +10,14 @@
       <File FileName="Assets/Scripts/TimelockManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InputMic.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/CardboardBox.cs" Line="1" Column="1" />
-      <File FileName="Assets/Standard Assets/Utility/WaypointCircuit.cs" Line="374" Column="53" />
+      <File FileName="Assets/Standard Assets/Utility/WaypointCircuit.cs" Line="1" Column="1" />
+      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAudio.cs" Line="1" Column="1" />
+      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAIControl.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/SpeedManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/ChequeredFlag.cs" Line="1" Column="1" />
+      <File FileName="Assets/RacingTimelocked.cs" Line="41" Column="32" />
+      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" Line="1" Column="1" />
+      <File FileName="Assets/PostProcessing/Runtime/PostProcessingProfile.cs" Line="32" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
