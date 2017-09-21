@@ -25,8 +25,8 @@ public class RacingTimelocked : MonoBehaviour {
 	private float maxX=2350f;
 	private float fixedDistance = 0f;
 
-	private float minTime=5f;
-	private float maxTime=12f;
+	private float minTime=10f;
+	private float maxTime=45f;
 	private float fixedTime=0f;
 
 	private List<float> fixedDistanceList;
@@ -149,6 +149,7 @@ public class RacingTimelocked : MonoBehaviour {
 		
 		while(true)
 		{
+			ChequeredFlag.lapsCompleted = 0;
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
 				//distance-fixed
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
@@ -242,48 +243,97 @@ public class RacingTimelocked : MonoBehaviour {
 
 			//time-fixed
 
-			trialType = TrialType.Time;
-			speedFactor = ChooseRandomSpeed ();
-			SetCarInstruction ("Watch carefully at what time the gear is changed");
-			fixedTime = ChooseFixedTime ();
-			float timer = 0f;
-			while (timer < fixedTime) {
-				timer += Time.deltaTime;
-				carBody.velocity = Vector3.right * speedFactor;
+			ChequeredFlag.lapsCompleted = 0;
+
+			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
+				//distance-fixed
+				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
+				trialType = TrialType.Time;
+				speedFactor = ChooseRandomSpeed ();
+				carAI.ChangeSpeedFactor (speedFactor);
+				SetCarInstruction ("Watch carefully at what time the gear is changed");
+				fixedTime = ChooseFixedTime ();
+
+				//add this to the list
+				fixedTimeList.Add (fixedTime);
+				Debug.Log("fixed time is: " + fixedTime.ToString());
+
+				//activate turbo text
+				simpleTimer.ResetTimer ();
+				simpleTimer.StartTimer ();
+				while (simpleTimer.GetSecondsFloat() < fixedTime) {
+					yield return 0;
+				}
+				ChangeHarvestText ("TURBO ACTIVATED");
+				pp_profile.motionBlur.enabled = true;
+				StartCoroutine (PlayTurboAnim ());
+				speedFactor += 0.2f;
+
+				//update speedfactor 
+				carAI.ChangeSpeedFactor (speedFactor);
+
+				//wait for 6 seconds before turning off the turbo text
+				float turboTimer=0f;
+				while (turboTimer<6f) {
+					turboTimer += Time.deltaTime;
+					yield return 0;
+				}
+				pp_profile.motionBlur.enabled = false;
+				TurnOffHarvestText ();
+
+				//wait till car finishes the lap
+				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
 				yield return 0;
 			}
-			TurnOffCarInstruction ();
-			pp_profile.motionBlur.enabled = true;
-			ChangeHarvestText ("TURBO ACTIVATED");
-			StartCoroutine (PlayTurboAnim ());
-			speedFactor += 10f;
-
-			pp_profile.motionBlur.enabled = false;
-			TurnOffHarvestText ();
-			yield return new WaitForSeconds (1.5f);
-			ResetPlayer ();
-
+			//reset the laps completed
+			ChequeredFlag.lapsCompleted = 0;
 			//retrieval
-			speedFactor = ChooseRandomSpeed ();
-			SetCarInstruction ("Press (X) when you think the gear was changed");
-			timer = 0f;
-			while ((Input.GetAxis ("Action Button") == 0f) && (Vector3.Distance (carBody.transform.position, chequeredFlag.gameObject.transform.position) > 7f)) {
-				timer += Time.deltaTime;
-				carBody.velocity = Vector3.right * speedFactor;
+			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
+				//distance-fixed
+				int currentLap=ChequeredFlag.lapsCompleted;
+				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
+				trialType = TrialType.Time;
+				speedFactor = ChooseRandomSpeed ();
+				carAI.ChangeSpeedFactor (speedFactor);
+				SetCarInstruction ("Press (X) when you think the gear was changed");
+				fixedTime = fixedTimeList[currentLap];
+
+				//add this to the list
+
+				Debug.Log("fixed time is: " + fixedTime.ToString());
+				//activate turbo text
+				simpleTimer.ResetTimer ();
+				simpleTimer.StartTimer ();
+
+				while ((Input.GetAxis ("Action Button") == 0f) && currentLap==ChequeredFlag.lapsCompleted) {
+					yield return 0;
+				}
+				if (Input.GetAxis ("Action Button") > 0f) {
+					ChangeHarvestText ("TURBO ACTIVATED");
+					pp_profile.motionBlur.enabled = true;
+					yield return StartCoroutine(MeasureScore (simpleTimer.GetSecondsFloat(), fixedTime, trialType));
+
+					StartCoroutine (PlayTurboAnim ());
+					speedFactor += 0.2f * responseFactor;
+
+					//update speedfactor 
+					carAI.ChangeSpeedFactor (speedFactor);
+
+					//wait for 6 seconds before turning off the turbo text
+					float turboTimer = 0f;
+					while (turboTimer < 6f) {
+						turboTimer += Time.deltaTime;
+						yield return 0;
+					}
+					pp_profile.motionBlur.enabled = false;
+					TurnOffHarvestText ();
+
+					//wait till car finishes the lap
+				}
+				if(currentLap==ChequeredFlag.lapsCompleted)
+					yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
 				yield return 0;
 			}
-			MeasureScore (timer, fixedTime, trialType);
-			TurnOffCarInstruction ();
-			pp_profile.motionBlur.enabled = true;
-			ChangeHarvestText ("TURBO ACTIVATED");
-			StartCoroutine (PlayTurboAnim ());
-			speedFactor += 10f;
-		
-			scoreText.enabled = false;
-			pp_profile.motionBlur.enabled = false;
-			TurnOffHarvestText ();
-			yield return new WaitForSeconds (1.5f);
-			ResetPlayer ();
 
 			yield return 0;
 		}
@@ -293,10 +343,17 @@ public class RacingTimelocked : MonoBehaviour {
 
 	IEnumerator MeasureScore(float playerVal, float fixedVal, TrialType trialType)
 	{
-		float score = Mathf.Abs (playerVal - fixedVal);
-		responseFactor = 1f -(score/2500f);
-		scoreText.enabled = true;
-		scoreText.text="Your turbo was boosted by " + (responseFactor*100f).ToString("F1")+ "%";
+		if (trialType == TrialType.Distance) {
+			float score = Mathf.Abs (playerVal - fixedVal);
+			responseFactor = 1f - (score / 2500f);
+			scoreText.enabled = true;
+			scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
+		} else {
+			float score = Mathf.Abs (playerVal - fixedVal);
+			responseFactor = 1f - (score / (2500f / carController.CurrentSpeed));
+			scoreText.enabled = true;
+			scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
+		}
 		yield return null;
 	}
 
