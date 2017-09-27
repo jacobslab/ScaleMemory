@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.PostProcessing;
 using UnityStandardAssets.Vehicles.Car;
+using UnityStandardAssets.Characters.FirstPerson;
 
 public class RacingTimelocked : MonoBehaviour {
 
@@ -17,34 +18,49 @@ public class RacingTimelocked : MonoBehaviour {
 	public float maxSpeedFactor=20f;
 	public float speedFactor=10f;
 
-	public float maxSpeed=100f;
+	public float maxSpeed=75f;
 	public Rigidbody carBody;
 	public Transform startTransform;
 
-	private float minX=150f;
-	private float maxX=2350f;
+	private float minX=100f;
+	private float maxX=1000f;
 	private float fixedDistance = 0f;
 
-	private float minTime=10f;
-	private float maxTime=45f;
+	private float minTime=5f;
+	private float maxTime=15f;
 	private float fixedTime=0f;
 
 	private List<float> fixedDistanceList;
 	private List<float> fixedTimeList;
 
-	float distTraveled=0f;
+	public List<Transform> chequeredFlagTransforms;
 
+	/// <summary>
+	///  +40 = 0 
+	/// +20 = 1
+	/// 0 = 2
+	/// -20 = 3
+	/// -40 = 4
+	/// </summary>
+	private int currentChequeredFlagIndex=0; 
+
+
+	float distTraveled=0f;
 	float responseFactor=1f;
 
 
 	//config 
-	private int lapsToBeFinished=1;
+	private int lapsToBeFinished=3;
 
 	//timer/measure
 	public SimpleTimer simpleTimer;
 	public SimpleDistanceMeasure distanceMeasure;
 
 	public ChequeredFlag chequeredFlag;
+
+
+	public Camera standardCam;
+	public Camera freeLookCam;
 
 	private PostProcessingProfile pp_profile;
 	private CarController carController;
@@ -84,6 +100,10 @@ public class RacingTimelocked : MonoBehaviour {
 			enabled = false;
 			return;
 		}
+
+		standardCam.enabled = true;
+		freeLookCam.transform.parent.gameObject.GetComponent<FirstPersonController> ().enabled = false;
+		freeLookCam.enabled = false;
 
 		pp_profile = Instantiate(behaviour.profile);
 		behaviour.profile = pp_profile;
@@ -135,7 +155,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
-//		scoreText.text="current lap time: " + simpleTimer.GetSecondsFloat().ToString("F2");
+//		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
 
 	}
 
@@ -143,6 +163,50 @@ public class RacingTimelocked : MonoBehaviour {
 	{
 		carBody.transform.position = startTransform.position;
 	}
+
+	void SwitchToFreeLook(bool status)
+	{
+		if (status) {
+			freeLookCam.transform.localRotation = Quaternion.identity;
+			freeLookCam.transform.parent.gameObject.GetComponent<FirstPersonController> ().enabled = true;
+			freeLookCam.enabled = true;
+			standardCam.enabled = false;
+		} else {
+			freeLookCam.transform.localRotation = Quaternion.identity;
+			freeLookCam.transform.parent.gameObject.GetComponent<FirstPersonController> ().enabled = false;
+			freeLookCam.enabled = false;
+			standardCam.enabled = true;
+		}
+	}
+
+	IEnumerator FreeLookAround()
+	{
+		carController.ChangeMaxSpeed(0f);
+		SwitchToFreeLook (true);
+		yield return new WaitForSeconds (2f);
+		SwitchToFreeLook (false);
+		carController.ChangeMaxSpeed(maxSpeed);
+		yield return null;
+	}
+
+	IEnumerator PickChequeredFlagPosition()
+	{
+		int chosenPosition = currentChequeredFlagIndex;
+		while (currentChequeredFlagIndex == chosenPosition) {
+
+			chosenPosition = Random.Range (0, chequeredFlagTransforms.Count - 1);
+			Debug.Log ("chosen position COULD be: " + chosenPosition.ToString ());
+			yield return 0;
+		}
+		Debug.Log ("chosen position is: " + chosenPosition.ToString ()); 
+		yield return new WaitForSeconds (5f);
+		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
+		currentChequeredFlagIndex = chosenPosition;
+
+		yield return null;
+		
+	}
+
 
 	IEnumerator RunTrial()
 	{
@@ -157,6 +221,8 @@ public class RacingTimelocked : MonoBehaviour {
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
 				SetCarInstruction ("Watch carefully at what distance the gear is changed");
+
+				StartCoroutine(PickChequeredFlagPosition()); //pick chequered flag position first
 				fixedDistance = ChooseFixedDistance ();
 
 				//add this to the list
@@ -169,6 +235,8 @@ public class RacingTimelocked : MonoBehaviour {
 				while (distanceMeasure.GetDistanceFloat() < fixedDistance) {
 					yield return 0;
 				}
+				ChangeHarvestText ("ACTIVATING TURBO...");
+				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 				ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());
@@ -264,6 +332,9 @@ public class RacingTimelocked : MonoBehaviour {
 				while (simpleTimer.GetSecondsFloat() < fixedTime) {
 					yield return 0;
 				}
+
+				ChangeHarvestText ("ACTIVATING TURBO...");
+				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 				ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());

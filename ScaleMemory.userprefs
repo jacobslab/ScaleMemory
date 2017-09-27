@@ -15,9 +15,13 @@
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAIControl.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/SpeedManager.cs" Line="1" Column="1" />
       <File FileName="Assets/ChequeredFlag.cs" Line="1" Column="1" />
-      <File FileName="Assets/RacingTimelocked.cs" Line="152" Column="36" />
+      <File FileName="Assets/RacingTimelocked.cs" Line="191" Column="40" />
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" Line="1" Column="1" />
       <File FileName="Assets/PostProcessing/Runtime/PostProcessingProfile.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/EEG Communication/SyncboxControl.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Experiment/SimpleDistanceMeasure.cs" Line="1" Column="1" />
+      <File FileName="Assets/Standard Assets/Characters/FirstPersonCharacter/Scripts/FirstPersonController.cs" Line="1" Column="1" />
+      <File FileName="Assets/Standard Assets/Characters/FirstPersonCharacter/Scripts/MouseLook.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
