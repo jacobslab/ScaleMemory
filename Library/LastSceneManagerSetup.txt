@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ShorterRacingTimelocked.unity
+- path: Assets/Scenes/ShorterRacingTimelocked.unity
   isLoaded: 1
   isActive: 1

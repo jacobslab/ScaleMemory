@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <LangVersion>4</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
@@ -19,10 +22,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_1;UNITY_5_6;UNITY_5;UNITY_64;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_STANDALONE_OSX;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_VR;ENABLE_CLUSTERINPUT;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;CROSS_PLATFORM_INPUT;UNITY_POST_PROCESSING_STACK_V2</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_1_1;UNITY_2017_1;UNITY_2017;PLATFORM_ARCH_64;UNITY_64;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_DIRECTOR;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_TIMELINE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;ENABLE_SPRITE_MASKING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;ENABLE_MONO_BDWGC;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_VIDEO;ENABLE_RMGUI;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_STYLE_SHEETS;UNITY_STANDALONE_OSX;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_VR;ENABLE_MODULAR_UNITYENGINE_ASSEMBLIES;ENABLE_CLUSTERINPUT;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;CROSS_PLATFORM_INPUT;UNITY_POST_PROCESSING_STACK_V2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -46,7 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\ChequeredFlag.cs" />
      <Compile Include="Assets\Examples\01_Gaze&amp;NewGUISystem\GazeExample_2DGUI.cs" />
      <Compile Include="Assets\Examples\02_Gaze&amp;Sprites\GazeExample_Sprites.cs" />
      <Compile Include="Assets\Examples\03_Gaze&amp;LegacyGUI\GazeExample_LegacyGUI.cs" />
@@ -59,16 +63,16 @@
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
      <Compile Include="Assets\MCP\scripts\Filmic.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRCameraRig.cs" />
+     <Compile Include="Assets\Models\OVR\Scripts\OvrCapi.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRCommon.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRDisplay.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRManager.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRPluginEvent.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\OVRTracker.cs" />
-     <Compile Include="Assets\Models\OVR\Scripts\OvrCapi.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRCrosshair.cs" />
-     <Compile Include="Assets\Models\OVR\Scripts\Util\OVRGUI.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRGamepadController.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRGridCube.cs" />
+     <Compile Include="Assets\Models\OVR\Scripts\Util\OVRGUI.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRMainMenu.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRPlayerController.cs" />
      <Compile Include="Assets\Models\OVR\Scripts\Util\OVRScreenFade.cs" />
@@ -120,7 +124,6 @@
      <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
      <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
-     <Compile Include="Assets\RacingTimelocked.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
@@ -132,6 +135,7 @@
      <Compile Include="Assets\Scripts\Backend\GazeModel.cs" />
      <Compile Include="Assets\Scripts\Camera Controls\CameraController.cs" />
      <Compile Include="Assets\Scripts\CardboardBox.cs" />
+     <Compile Include="Assets\Scripts\ChequeredFlag.cs" />
      <Compile Include="Assets\Scripts\Debugging\AlternateFPSScript.cs" />
      <Compile Include="Assets\Scripts\Debugging\ControllerInputTester.cs" />
      <Compile Include="Assets\Scripts\Debugging\OnScreenDebugger.cs" />
@@ -149,8 +153,8 @@
      <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
      <Compile Include="Assets\Scripts\EEG Communication\Publisher.cs" />
      <Compile Include="Assets\Scripts\EEG Communication\SyncboxControl.cs" />
-     <Compile Include="Assets\Scripts\EEG Communication\TCPServer.cs" />
      <Compile Include="Assets\Scripts\EEG Communication\TCP_Config.cs" />
+     <Compile Include="Assets\Scripts\EEG Communication\TCPServer.cs" />
      <Compile Include="Assets\Scripts\Environment\EnvironmentController.cs" />
      <Compile Include="Assets\Scripts\Environment\ObjectController.cs" />
      <Compile Include="Assets\Scripts\Environment\SpawnableObject.cs" />
@@ -189,9 +193,9 @@
      <Compile Include="Assets\Scripts\Logging\EnableChildrenLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\KeyboardLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\LineRendererLogTrack.cs" />
-     <Compile Include="Assets\Scripts\Logging\LogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\Logger_Threading.cs" />
      <Compile Include="Assets\Scripts\Logging\LogitechControllerLogTrack.cs" />
+     <Compile Include="Assets\Scripts\Logging\LogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\MouseLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\ObjectColorLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\ObjectLogTrack.cs" />
@@ -204,6 +208,7 @@
      <Compile Include="Assets\Scripts\Logging\UIImageLogTrack.cs" />
      <Compile Include="Assets\Scripts\Logging\UIPanelLogTrack.cs" />
      <Compile Include="Assets\Scripts\PrintLists.cs" />
+     <Compile Include="Assets\Scripts\RacingTimelocked.cs" />
      <Compile Include="Assets\Scripts\SanityCheck.cs" />
      <Compile Include="Assets\Scripts\SpawnManager.cs" />
      <Compile Include="Assets\Scripts\SpeedManager.cs" />
@@ -305,16 +310,16 @@
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
  </Reference>
  <Reference Include="nunit.framework">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/nunit.framework.dll</HintPath>
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Timeline">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Analytics">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.HoloLens">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.VR">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="LJUDDotNet">
  <HintPath>/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Assets/Plugins/x86/LJUDDotNet.dll</HintPath>
