@@ -199,7 +199,7 @@ public class RacingTimelocked : MonoBehaviour {
 			yield return 0;
 		}
 		Debug.Log ("chosen position is: " + chosenPosition.ToString ()); 
-		yield return new WaitForSeconds (5f);
+		yield return new WaitForSeconds (8f);
 		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
 		currentChequeredFlagIndex = chosenPosition;
 
