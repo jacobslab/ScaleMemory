@@ -181,11 +181,15 @@ public class RacingTimelocked : MonoBehaviour {
 
 	IEnumerator FreeLookAround()
 	{
+		float prevCurrentSpeed = carController.CurrentSpeed;
+//		carController.enabled = false;
 		carController.ChangeMaxSpeed(0f);
 		SwitchToFreeLook (true);
 		yield return new WaitForSeconds (2f);
 		SwitchToFreeLook (false);
+//		carController.enabled = true;
 		carController.ChangeMaxSpeed(maxSpeed);
+//		carController.SetCurrentSpeed(prevCurrentSpeed);
 		yield return null;
 	}
 

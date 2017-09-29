@@ -55,6 +55,10 @@ namespace UnityStandardAssets.Vehicles.Car
         public float Revs { get; private set; }
         public float AccelInput { get; private set; }
 
+		public void SetCurrentSpeed(float speed)
+		{
+			m_Rigidbody.velocity = speed / 2.2369f * m_Rigidbody.velocity.normalized;
+		}
 
 		public void ChangeMaxSpeed(float newMaxSpeed)
 		{
