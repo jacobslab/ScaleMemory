@@ -10,12 +10,12 @@
       <File FileName="Assets/Scripts/TimelockManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InputMic.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/CardboardBox.cs" Line="1" Column="1" />
-      <File FileName="Assets/Standard Assets/Utility/WaypointCircuit.cs" Line="310" Column="31" />
+      <File FileName="Assets/Standard Assets/Utility/WaypointCircuit.cs" Line="1" Column="1" />
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAudio.cs" Line="1" Column="1" />
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAIControl.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/SpeedManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/RacingTimelocked.cs" Line="184" Column="46" />
-      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" Line="170" Column="63" />
+      <File FileName="Assets/Scripts/RacingTimelocked.cs" Line="1" Column="1" />
+      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" Line="252" Column="64" />
       <File FileName="Assets/PostProcessing/Runtime/PostProcessingProfile.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/EEG Communication/SyncboxControl.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Experiment/SimpleDistanceMeasure.cs" Line="1" Column="1" />
