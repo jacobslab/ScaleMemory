@@ -224,7 +224,7 @@ public class RacingTimelocked : MonoBehaviour {
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Watch carefully at what distance the gear is changed");
+				SetCarInstruction ("Watch carefully at what distance the turbo is activated");
 
 				StartCoroutine(PickChequeredFlagPosition()); //pick chequered flag position first
 				fixedDistance = ChooseFixedDistance ();
@@ -240,7 +240,8 @@ public class RacingTimelocked : MonoBehaviour {
 					yield return 0;
 				}
 				ChangeHarvestText ("ACTIVATING TURBO...");
-				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
+				//TEMPORARILY DISABLING FREELOOKAROUND
+//				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 				ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());
@@ -273,7 +274,7 @@ public class RacingTimelocked : MonoBehaviour {
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Press (X) where you think the gear was changed");
+				SetCarInstruction ("Press (X) where you think the turbo was activated");
 				fixedDistance = fixedDistanceList[currentLap];
 
 				//add this to the list
@@ -323,7 +324,7 @@ public class RacingTimelocked : MonoBehaviour {
 				trialType = TrialType.Time;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Watch carefully at what time the gear is changed");
+				SetCarInstruction ("Watch carefully at what time the turbo is activated");
 				fixedTime = ChooseFixedTime ();
 
 				//add this to the list
@@ -338,7 +339,8 @@ public class RacingTimelocked : MonoBehaviour {
 				}
 
 				ChangeHarvestText ("ACTIVATING TURBO...");
-				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
+				//TEMPORARILY DISABLING FREELOOKAROUND
+//				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 				ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());

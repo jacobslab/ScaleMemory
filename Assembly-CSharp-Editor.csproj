@@ -52,10 +52,6 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Editor\CreatePrefabFromSelected.cs" />
-     <Compile Include="Assets\Models\OVR\Editor\OVRBuild.cs" />
-     <Compile Include="Assets\Models\OVR\Editor\OVRGameView.cs" />
-     <Compile Include="Assets\Models\OVR\Editor\OVRPrefabs.cs" />
-     <Compile Include="Assets\Models\OVR\Editor\OVRShimLoader.cs" />
      <Compile Include="Assets\PostProcessing\Editor\Attributes\PostProcessingModelEditorAttribute.cs" />
      <Compile Include="Assets\PostProcessing\Editor\Models\AmbientOcclusionModelEditor.cs" />
      <Compile Include="Assets\PostProcessing\Editor\Models\AntialiasingModelEditor.cs" />
