@@ -9,6 +9,7 @@ using UnityStandardAssets.Characters.FirstPerson;
 public class RacingTimelocked : MonoBehaviour {
 
 	//ui element
+	public Text lapsCompletedText;
 	public Text harvestText;
 	public Text carInstructionText;
 	public Text scoreText;
@@ -22,8 +23,8 @@ public class RacingTimelocked : MonoBehaviour {
 	public Rigidbody carBody;
 	public Transform startTransform;
 
-	private float minX=100f;
-	private float maxX=1000f;
+	private float minX=50f;
+	private float maxX=350f;
 	private float fixedDistance = 0f;
 
 	private float minTime=5f;
@@ -33,6 +34,7 @@ public class RacingTimelocked : MonoBehaviour {
 	private List<float> fixedDistanceList;
 	private List<float> fixedTimeList;
 
+	private int[] chequeredFlagIndices;
 	public List<Transform> chequeredFlagTransforms;
 
 	/// <summary>
@@ -101,6 +103,8 @@ public class RacingTimelocked : MonoBehaviour {
 			return;
 		}
 
+		chequeredFlagIndices = new int[3];
+
 		standardCam.enabled = true;
 		freeLookCam.transform.parent.gameObject.GetComponent<FirstPersonController> ().enabled = false;
 		freeLookCam.enabled = false;
@@ -124,6 +128,7 @@ public class RacingTimelocked : MonoBehaviour {
 	void Start () {
 		ChequeredFlag.lapsCompleted = 0;
 		scoreText.text = "";
+		TurnOffLapText ();
 		TurnOffHarvestText ();
 		TurnOffCarInstruction ();
 		StartCoroutine ("RunTrial");
@@ -138,6 +143,19 @@ public class RacingTimelocked : MonoBehaviour {
 	{
 		harvestText.text = "";
 		harvestText.enabled = false;
+	}
+
+	void ChangeLapText(string text)
+	{
+		lapsCompletedText.enabled = true;
+		lapsCompletedText.text = text;
+	}
+
+	void TurnOffLapText()
+	{
+		lapsCompletedText.text = "";
+		lapsCompletedText.enabled = false;
+		
 	}
 
 	public void SetCarInstruction(string text)
@@ -155,7 +173,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
-//		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
+		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
 
 	}
 
@@ -193,6 +211,8 @@ public class RacingTimelocked : MonoBehaviour {
 		yield return null;
 	}
 
+
+	//used during encoding to move chequered flag to randomly chosen location
 	IEnumerator PickChequeredFlagPosition()
 	{
 		int chosenPosition = currentChequeredFlagIndex;
@@ -203,6 +223,7 @@ public class RacingTimelocked : MonoBehaviour {
 			yield return 0;
 		}
 		Debug.Log ("chosen position is: " + chosenPosition.ToString ()); 
+		chequeredFlagIndices [ChequeredFlag.lapsCompleted] = chosenPosition; //store the chequered flag index in the array to be retrieved later
 		yield return new WaitForSeconds (8f);
 		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
 		currentChequeredFlagIndex = chosenPosition;
@@ -211,14 +232,32 @@ public class RacingTimelocked : MonoBehaviour {
 		
 	}
 
+	//used during retrieval to move chequered flag to previously chosen location during encoding
+	IEnumerator SetChequeredFlagPosition()
+	{
+		int chosenPosition = chequeredFlagIndices [ChequeredFlag.lapsCompleted];
+		yield return new WaitForSeconds (8f);
+		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
 
+		yield return null;
+	}
+
+	IEnumerator ShowLapCompletion()
+	{
+		ChangeLapText ("Laps Completed: \n" + ChequeredFlag.lapsCompleted.ToString () + " / " + lapsToBeFinished.ToString ());
+		yield return new WaitForSeconds (4f);
+		TurnOffLapText ();
+	}
+
+	//main logic of the trial
 	IEnumerator RunTrial()
 	{
 		
-		while(true)
-		{
+		while(true){
 			ChequeredFlag.lapsCompleted = 0;
+
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
+				
 				//distance-fixed
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
 				trialType = TrialType.Distance;
@@ -240,8 +279,10 @@ public class RacingTimelocked : MonoBehaviour {
 					yield return 0;
 				}
 				ChangeHarvestText ("ACTIVATING TURBO...");
+
 				//TEMPORARILY DISABLING FREELOOKAROUND
 //				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
+
 				ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());
@@ -261,6 +302,7 @@ public class RacingTimelocked : MonoBehaviour {
 
 				//wait till car finishes the lap
 				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
+				StartCoroutine (ShowLapCompletion ());
 				yield return 0;
 			}
 
@@ -276,7 +318,7 @@ public class RacingTimelocked : MonoBehaviour {
 				carAI.ChangeSpeedFactor (speedFactor);
 				SetCarInstruction ("Press (X) where you think the turbo was activated");
 				fixedDistance = fixedDistanceList[currentLap];
-
+				StartCoroutine (SetChequeredFlagPosition ());
 				//add this to the list
 
 				Debug.Log("fixed distance is: " + fixedDistance.ToString());
