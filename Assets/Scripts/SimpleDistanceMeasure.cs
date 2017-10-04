@@ -28,7 +28,7 @@ public class SimpleDistanceMeasure : MonoBehaviour {
 	}
 
 	void UpdateTimer(){
-		distance += carController.CurrentSpeed * Time.deltaTime;
+		distance += carController.CurrentSpeed/2.23693629f * Time.deltaTime;
 
 		if(distanceText != null){
 			distanceText.text = distance.ToString ("F2");

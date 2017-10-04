@@ -18,7 +18,7 @@ public class DistanceCalculator : MonoBehaviour {
 	{
 		float totalDistance = 0f;
 		Vector3 p1, p2;
-		for (int i = 0; i < 35; i++) {
+		for (int i = 0; i <waypointParent.transform.childCount ; i++) {
 			if (i == waypointParent.transform.childCount - 1) {
 				p1 = waypointParent.transform.GetChild (i).position;
 				p2 = waypointParent.transform.GetChild (0).position;

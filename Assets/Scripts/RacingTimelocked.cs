@@ -24,7 +24,7 @@ public class RacingTimelocked : MonoBehaviour {
 	public Transform startTransform;
 
 	private float minX=50f;
-	private float maxX=350f;
+	private float maxX=330f;
 	private float fixedDistance = 0f;
 
 	private float minTime=5f;
@@ -47,7 +47,6 @@ public class RacingTimelocked : MonoBehaviour {
 	private int currentChequeredFlagIndex=0; 
 
 
-	float distTraveled=0f;
 	float responseFactor=1f;
 
 
@@ -173,7 +172,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
-		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
+//		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
 
 	}
 
