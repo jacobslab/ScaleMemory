@@ -123,7 +123,7 @@ public class TimelockManager : MonoBehaviour {
 		fixedDistance = ChooseFixedDistance ();
 		while (carBody.transform.position.x < fixedDistance) {
 			
-			carBody.velocity = Vector3.right * speed;
+			carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		TurnOffCarInstruction ();
@@ -132,7 +132,7 @@ public class TimelockManager : MonoBehaviour {
 		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
 		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 
@@ -145,7 +145,7 @@ public class TimelockManager : MonoBehaviour {
 		speed = ChooseRandomSpeed ();
 		SetCarInstruction ("Press (X) where you think the gear was changed");
 		while ((Input.GetAxis ("Action Button") == 0f) && (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f)) {
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		MeasureScore (carBody.transform.position.x, fixedDistance, trialType);
@@ -155,7 +155,7 @@ public class TimelockManager : MonoBehaviour {
 		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
 		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		scoreText.enabled = false;
@@ -175,7 +175,7 @@ public class TimelockManager : MonoBehaviour {
 		float timer = 0f;
 		while (timer < fixedTime) {
 			timer += Time.deltaTime;
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		TurnOffCarInstruction ();
@@ -184,7 +184,7 @@ public class TimelockManager : MonoBehaviour {
 		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
 		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 
@@ -199,7 +199,7 @@ public class TimelockManager : MonoBehaviour {
 		timer = 0f;
 		while ((Input.GetAxis ("Action Button") == 0f) && (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f)) {
 			timer += Time.deltaTime;
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		MeasureScore (timer, fixedTime, trialType);
@@ -209,7 +209,7 @@ public class TimelockManager : MonoBehaviour {
 		StartCoroutine (PlayTurboAnim ());
 		speed += 10f;
 		while (Vector3.Distance (carBody.transform.position, endTransform.position) > 7f) {
-			carBody.velocity = Vector3.right * speed;
+				carBody.velocity = Vector3.forward * speed;
 			yield return 0;
 		}
 		scoreText.enabled = false;
