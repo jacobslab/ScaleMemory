@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.PostProcessing;
 using UnityStandardAssets.Vehicles.Car;
 using UnityStandardAssets.Characters.FirstPerson;
-
+using UnityStandardAssets.Utility;
 public class RacingTimelocked : MonoBehaviour {
 
 	//ui element
@@ -46,7 +46,8 @@ public class RacingTimelocked : MonoBehaviour {
 	/// </summary>
 	private int currentChequeredFlagIndex=0; 
 
-
+	private int currentCircuit=1; //setting center lane to be default
+	public List<WaypointCircuit> waypoints; // 0 is left, 1 is center and 2 is right
 	float responseFactor=1f;
 
 
@@ -65,6 +66,7 @@ public class RacingTimelocked : MonoBehaviour {
 
 	private PostProcessingProfile pp_profile;
 	private CarController carController;
+	private WaypointProgressTracker waypointTracker;
 	private CarAIControl carAI;
 	enum TrialType {
 		Distance,
@@ -117,6 +119,8 @@ public class RacingTimelocked : MonoBehaviour {
 		carAI = carBody.gameObject.GetComponent<CarAIControl> ();
 		carAI.ChangeSpeedFactor (speedFactor);
 
+		waypointTracker = carBody.gameObject.GetComponent<WaypointProgressTracker> ();
+		waypointTracker.circuit = waypoints[currentCircuit]; //setting the center lane as default
 		//instantiate the lists
 		fixedDistanceList=new List<float>();
 		fixedTimeList = new List<float> ();
@@ -174,6 +178,30 @@ public class RacingTimelocked : MonoBehaviour {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
 //		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
 
+		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+			MoveLeft ();
+		}
+		if (Input.GetKeyDown (KeyCode.RightArrow)) {
+			MoveRight ();
+		}
+
+	}
+
+	void MoveLeft()
+	{
+		if(currentCircuit>0)
+			waypointTracker.circuit = waypoints [--currentCircuit];
+		Debug.Log ("current circuit is: " + currentCircuit.ToString ());
+		
+	}
+
+
+	void MoveRight()
+	{
+		if(currentCircuit<2)
+			waypointTracker.circuit = waypoints [++currentCircuit];
+
+		Debug.Log ("current circuit is: " + currentCircuit.ToString ());
 	}
 
 	public void ResetPlayer()

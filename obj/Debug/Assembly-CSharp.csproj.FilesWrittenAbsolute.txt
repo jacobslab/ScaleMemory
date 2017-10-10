@@ -25,3 +25,6 @@
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.CecilTools.dll
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Mono.Cecil.Pdb.dll
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Mono.Cecil.Mdb.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.Timeline.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/ExCSS.Unity.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.Legacy.NRefactory.dll
