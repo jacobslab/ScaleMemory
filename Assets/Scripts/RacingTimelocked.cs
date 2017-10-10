@@ -59,7 +59,7 @@ public class RacingTimelocked : MonoBehaviour {
 	public SimpleDistanceMeasure distanceMeasure;
 
 	public ChequeredFlag chequeredFlag;
-
+	private int coinsCollected=0;
 
 	public Camera standardCam;
 	public Camera freeLookCam;
@@ -137,6 +137,12 @@ public class RacingTimelocked : MonoBehaviour {
 		StartCoroutine ("RunTrial");
 	}
 
+	public void IncreaseCoinCount()
+	{
+		coinsCollected++;
+
+	}
+
 	public void ChangeHarvestText(string text)
 	{
 		harvestText.enabled = true;
@@ -177,6 +183,7 @@ public class RacingTimelocked : MonoBehaviour {
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
 //		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
+		scoreText.text="Coins Collected: " + coinsCollected.ToString();
 
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			MoveLeft ();
@@ -383,103 +390,7 @@ public class RacingTimelocked : MonoBehaviour {
 				yield return 0;
 			}
 
-			//time-fixed
-
-			ChequeredFlag.lapsCompleted = 0;
-
-			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-				//distance-fixed
-				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
-				trialType = TrialType.Time;
-				speedFactor = ChooseRandomSpeed ();
-				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Watch carefully at what time the turbo is activated");
-				fixedTime = ChooseFixedTime ();
-
-				//add this to the list
-				fixedTimeList.Add (fixedTime);
-				Debug.Log("fixed time is: " + fixedTime.ToString());
-
-				//activate turbo text
-				simpleTimer.ResetTimer ();
-				simpleTimer.StartTimer ();
-				while (simpleTimer.GetSecondsFloat() < fixedTime) {
-					yield return 0;
-				}
-
-				ChangeHarvestText ("ACTIVATING TURBO...");
-				//TEMPORARILY DISABLING FREELOOKAROUND
-//				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
-				ChangeHarvestText ("TURBO ACTIVATED");
-				pp_profile.motionBlur.enabled = true;
-				StartCoroutine (PlayTurboAnim ());
-				speedFactor += 0.2f;
-
-				//update speedfactor 
-				carAI.ChangeSpeedFactor (speedFactor);
-
-				//wait for 6 seconds before turning off the turbo text
-				float turboTimer=0f;
-				while (turboTimer<6f) {
-					turboTimer += Time.deltaTime;
-					yield return 0;
-				}
-				pp_profile.motionBlur.enabled = false;
-				TurnOffHarvestText ();
-
-				//wait till car finishes the lap
-				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
-				yield return 0;
-			}
-			//reset the laps completed
-			ChequeredFlag.lapsCompleted = 0;
-			//retrieval
-			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-				//distance-fixed
-				int currentLap=ChequeredFlag.lapsCompleted;
-				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
-				trialType = TrialType.Time;
-				speedFactor = ChooseRandomSpeed ();
-				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Press (X) when you think the gear was changed");
-				fixedTime = fixedTimeList[currentLap];
-
-				//add this to the list
-
-				Debug.Log("fixed time is: " + fixedTime.ToString());
-				//activate turbo text
-				simpleTimer.ResetTimer ();
-				simpleTimer.StartTimer ();
-
-				while ((Input.GetAxis ("Action Button") == 0f) && currentLap==ChequeredFlag.lapsCompleted) {
-					yield return 0;
-				}
-				if (Input.GetAxis ("Action Button") > 0f) {
-					ChangeHarvestText ("TURBO ACTIVATED");
-					pp_profile.motionBlur.enabled = true;
-					yield return StartCoroutine(MeasureScore (simpleTimer.GetSecondsFloat(), fixedTime, trialType));
-
-					StartCoroutine (PlayTurboAnim ());
-					speedFactor += 0.2f * responseFactor;
-
-					//update speedfactor 
-					carAI.ChangeSpeedFactor (speedFactor);
-
-					//wait for 6 seconds before turning off the turbo text
-					float turboTimer = 0f;
-					while (turboTimer < 6f) {
-						turboTimer += Time.deltaTime;
-						yield return 0;
-					}
-					pp_profile.motionBlur.enabled = false;
-					TurnOffHarvestText ();
-
-					//wait till car finishes the lap
-				}
-				if(currentLap==ChequeredFlag.lapsCompleted)
-					yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
-				yield return 0;
-			}
+		
 
 			yield return 0;
 		}

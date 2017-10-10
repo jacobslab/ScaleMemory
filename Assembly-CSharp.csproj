@@ -51,8 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\BarrierManager.cs" />
-     <Compile Include="Assets\DistanceCalculator.cs" />
+     <Compile Include="Assets\Configuration.cs" />
+     <Compile Include="Assets\Experiment.cs" />
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
      <Compile Include="Assets\MCP\scripts\Filmic.cs" />
@@ -101,9 +101,14 @@
      <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
      <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+     <Compile Include="Assets\Scripts\BarrierManager.cs" />
      <Compile Include="Assets\Scripts\CardboardBox.cs" />
      <Compile Include="Assets\Scripts\ChequeredFlag.cs" />
+     <Compile Include="Assets\Scripts\CoinSpawner.cs" />
+     <Compile Include="Assets\Scripts\DistanceCalculator.cs" />
+     <Compile Include="Assets\Scripts\PlayerCollision.cs" />
      <Compile Include="Assets\Scripts\PrintLists.cs" />
+     <Compile Include="Assets\Scripts\PullObject.cs" />
      <Compile Include="Assets\Scripts\RacingTimelocked.cs" />
      <Compile Include="Assets\Scripts\SanityCheck.cs" />
      <Compile Include="Assets\Scripts\SimpleDistanceMeasure.cs" />
@@ -113,9 +118,11 @@
      <Compile Include="Assets\Scripts\TestMic.cs" />
      <Compile Include="Assets\Scripts\ThreadedJob.cs" />
      <Compile Include="Assets\Scripts\TimelockManager.cs" />
+     <Compile Include="Assets\Scripts\TornadoVortex.cs" />
      <Compile Include="Assets\Scripts\TrainMover.cs" />
      <Compile Include="Assets\Scripts\TrialManager.cs" />
      <Compile Include="Assets\Scripts\UsefulFunctions.cs" />
+     <Compile Include="Assets\TimedEventManager.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
      <None Include="Assets\PostProcessing\Resources\Shaders\DepthOfField.shader" />
@@ -136,7 +143,7 @@
      <None Include="Assets\PostProcessing\Resources\Shaders\Tonemapping.cginc" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Readme.txt" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
-     <None Include="Assets\readme.txt" />
+     <None Include="Assets\race-track-lake\readme.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Uber.shader" />
      <None Include="Assets\Standard Assets\Vehicles\Car\Shaders\DiffuseReflectiveShader.shader" />
      <None Include="Assets\race-track-lake\readmore.txt" />
