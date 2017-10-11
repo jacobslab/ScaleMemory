@@ -253,7 +253,9 @@ public class RacingTimelocked : MonoBehaviour {
 
 	IEnumerator ShowLapCompletion()
 	{
-		uiController.ChangeLapText ("Laps Completed: \n" + ChequeredFlag.lapsCompleted.ToString () + " / " + lapsToBeFinished.ToString ());
+		
+		uiController.ChangeLapText (simpleTimer.GetSecondsFloat());
+		simpleTimer.ResetTimer ();
 		yield return new WaitForSeconds (4f);
 		uiController.TurnOffLapText ();
 	}
@@ -266,7 +268,8 @@ public class RacingTimelocked : MonoBehaviour {
 			ChequeredFlag.lapsCompleted = 0;
 
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-				
+
+				simpleTimer.StartTimer ();
 				//distance-fixed
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
 				trialType = TrialType.Distance;

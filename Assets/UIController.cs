@@ -11,7 +11,10 @@ public class UIController : MonoBehaviour {
 	public Text scoreText;
 	public CanvasGroup tornadoWarning;
 	public Text tornadoWarningText;
+	public CanvasGroup lapInfo;
+	public Text lapTimeText;
 
+	private float prevLapTime=0f;
 	// Use this for initialization
 	void Start () {
 		scoreText.text = "";
@@ -31,13 +34,13 @@ public class UIController : MonoBehaviour {
 		tornadoWarning.alpha = 1f;
 		switch (laneNum) {
 		case 0:
-			tornadoWarningText.text = "Tornado imminent in LEFT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
+			tornadoWarningText.text = "Imminent in LEFT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
 			break;
 		case 1:
-			tornadoWarningText.text = "Tornado imminent in CENTER lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
+			tornadoWarningText.text = "Imminent in CENTER lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
 			break;
 		case 2:
-			tornadoWarningText.text = "Tornado imminent in RIGHT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
+			tornadoWarningText.text = "Imminent in RIGHT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
 			break;
 		}
 	}
@@ -59,16 +62,28 @@ public class UIController : MonoBehaviour {
 		harvestText.enabled = false;
 	}
 
-	public void ChangeLapText(string text)
+	public void ChangeLapText(float lapTime)
 	{
-		lapsCompletedText.enabled = true;
-		lapsCompletedText.text = text;
+		string splitSign = "+";
+		float splitTime = 0f;
+		if (prevLapTime != 0f) {
+			splitTime= lapTime-prevLapTime;
+		}
+		if (prevLapTime > lapTime)
+			splitSign = "-";
+		else
+			splitSign = "+";
+		prevLapTime = lapTime;
+		lapTimeText.text = "Lap Time: \n" + lapTime.ToString ("F2") + "( " + splitSign + splitTime.ToString ("F2") + ")";
+		lapInfo.alpha = 1f;
+		lapsCompletedText.text = "Laps Completed: \n" + ChequeredFlag.lapsCompleted.ToString () + " / " + Configuration.lapsToBeCompleted.ToString ();
 	}
 
 	public void TurnOffLapText()
 	{
+		lapInfo.alpha = 0f;
+		lapTimeText.text = "";
 		lapsCompletedText.text = "";
-		lapsCompletedText.enabled = false;
 
 	}
 
