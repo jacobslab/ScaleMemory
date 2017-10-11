@@ -9,10 +9,6 @@ using UnityStandardAssets.Utility;
 public class RacingTimelocked : MonoBehaviour {
 
 	//ui element
-	public Text lapsCompletedText;
-	public Text harvestText;
-	public Text carInstructionText;
-	public Text scoreText;
 
 	//speed
 	public float minSpeedFactor=8f;
@@ -64,6 +60,7 @@ public class RacingTimelocked : MonoBehaviour {
 	public Camera standardCam;
 	public Camera freeLookCam;
 
+	public UIController uiController;
 	private PostProcessingProfile pp_profile;
 	private CarController carController;
 	private WaypointProgressTracker waypointTracker;
@@ -130,10 +127,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ChequeredFlag.lapsCompleted = 0;
-		scoreText.text = "";
-		TurnOffLapText ();
-		TurnOffHarvestText ();
-		TurnOffCarInstruction ();
+
 		StartCoroutine ("RunTrial");
 	}
 
@@ -143,47 +137,12 @@ public class RacingTimelocked : MonoBehaviour {
 
 	}
 
-	public void ChangeHarvestText(string text)
-	{
-		harvestText.enabled = true;
-		harvestText.text = text;
-	}
-	public void TurnOffHarvestText()
-	{
-		harvestText.text = "";
-		harvestText.enabled = false;
-	}
-
-	void ChangeLapText(string text)
-	{
-		lapsCompletedText.enabled = true;
-		lapsCompletedText.text = text;
-	}
-
-	void TurnOffLapText()
-	{
-		lapsCompletedText.text = "";
-		lapsCompletedText.enabled = false;
-		
-	}
-
-	public void SetCarInstruction(string text)
-	{
-		carInstructionText.enabled = true;
-		carInstructionText.text = text;
-	}
-
-	public void TurnOffCarInstruction()
-	{
-		carInstructionText.text = "";
-		carInstructionText.enabled = false;
-	}
 
 	// Update is called once per frame
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
 //		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
-		scoreText.text="Coins Collected: " + coinsCollected.ToString();
+		uiController.scoreText.text="Coins Collected: " + coinsCollected.ToString();
 
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			MoveLeft ();
@@ -192,6 +151,14 @@ public class RacingTimelocked : MonoBehaviour {
 			MoveRight ();
 		}
 
+	}
+
+	public bool CheckTornadoLane(int tornadoLane)
+	{
+		if (currentCircuit == tornadoLane)
+			return true;
+		else
+			return false;
 	}
 
 	void MoveLeft()
@@ -214,6 +181,14 @@ public class RacingTimelocked : MonoBehaviour {
 	public void ResetPlayer()
 	{
 		carBody.transform.position = startTransform.position;
+	}
+
+	public IEnumerator TemporarilyHaltCar(float haltTime)
+	{
+		carController.ChangeMaxSpeed(0f);
+		yield return new WaitForSeconds (haltTime);
+		carController.ChangeMaxSpeed (maxSpeed);
+		yield return null;
 	}
 
 	void SwitchToFreeLook(bool status)
@@ -278,9 +253,9 @@ public class RacingTimelocked : MonoBehaviour {
 
 	IEnumerator ShowLapCompletion()
 	{
-		ChangeLapText ("Laps Completed: \n" + ChequeredFlag.lapsCompleted.ToString () + " / " + lapsToBeFinished.ToString ());
+		uiController.ChangeLapText ("Laps Completed: \n" + ChequeredFlag.lapsCompleted.ToString () + " / " + lapsToBeFinished.ToString ());
 		yield return new WaitForSeconds (4f);
-		TurnOffLapText ();
+		uiController.TurnOffLapText ();
 	}
 
 	//main logic of the trial
@@ -297,7 +272,7 @@ public class RacingTimelocked : MonoBehaviour {
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Watch carefully at what distance the turbo is activated");
+				uiController.SetCarInstruction ("Watch carefully at what distance the turbo is activated");
 
 				StartCoroutine(PickChequeredFlagPosition()); //pick chequered flag position first
 				fixedDistance = ChooseFixedDistance ();
@@ -312,12 +287,12 @@ public class RacingTimelocked : MonoBehaviour {
 				while (distanceMeasure.GetDistanceFloat() < fixedDistance) {
 					yield return 0;
 				}
-				ChangeHarvestText ("ACTIVATING TURBO...");
+				uiController.ChangeHarvestText ("ACTIVATING TURBO...");
 
 				//TEMPORARILY DISABLING FREELOOKAROUND
 //				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 
-				ChangeHarvestText ("TURBO ACTIVATED");
+				uiController.ChangeHarvestText ("TURBO ACTIVATED");
 				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());
 				speedFactor += 0.2f;
@@ -332,7 +307,7 @@ public class RacingTimelocked : MonoBehaviour {
 					yield return 0;
 				}
 				pp_profile.motionBlur.enabled = false;
-				TurnOffHarvestText ();
+				uiController.TurnOffHarvestText ();
 
 				//wait till car finishes the lap
 				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
@@ -350,7 +325,7 @@ public class RacingTimelocked : MonoBehaviour {
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				SetCarInstruction ("Press (X) where you think the turbo was activated");
+				uiController.SetCarInstruction ("Press (X) where you think the turbo was activated");
 				fixedDistance = fixedDistanceList[currentLap];
 				StartCoroutine (SetChequeredFlagPosition ());
 				//add this to the list
@@ -364,7 +339,7 @@ public class RacingTimelocked : MonoBehaviour {
 					yield return 0;
 				}
 				if (Input.GetAxis ("Action Button") > 0f) {
-					ChangeHarvestText ("TURBO ACTIVATED");
+					uiController.ChangeHarvestText ("TURBO ACTIVATED");
 					pp_profile.motionBlur.enabled = true;
 					yield return StartCoroutine(MeasureScore (distanceMeasure.GetDistanceFloat(), fixedDistance, trialType));
 
@@ -381,7 +356,7 @@ public class RacingTimelocked : MonoBehaviour {
 						yield return 0;
 					}
 					pp_profile.motionBlur.enabled = false;
-					TurnOffHarvestText ();
+					uiController.TurnOffHarvestText ();
 				
 				//wait till car finishes the lap
 				}
@@ -403,13 +378,13 @@ public class RacingTimelocked : MonoBehaviour {
 		if (trialType == TrialType.Distance) {
 			float score = Mathf.Abs (playerVal - fixedVal);
 			responseFactor = 1f - (score / 2500f);
-			scoreText.enabled = true;
-			scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
+			uiController.scoreText.enabled = true;
+			uiController.scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
 		} else {
 			float score = Mathf.Abs (playerVal - fixedVal);
 			responseFactor = 1f - (score / (2500f / carController.CurrentSpeed));
-			scoreText.enabled = true;
-			scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
+			uiController.scoreText.enabled = true;
+			uiController.scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
 		}
 		yield return null;
 	}
@@ -418,9 +393,9 @@ public class RacingTimelocked : MonoBehaviour {
 	IEnumerator PlayTurboAnim()
 	{
 		float t = 0f;
-		while (harvestText.enabled) {
+		while (uiController.harvestText.enabled) {
 			t += Time.deltaTime;
-			harvestText.color = Color.Lerp (Color.red, Color.blue,t);
+			uiController.harvestText.color = Color.Lerp (Color.red, Color.blue,t);
 			if (t >= 1f)
 				t = 0f;
 			yield return 0;
