@@ -71,6 +71,8 @@ public class RacingTimelocked : MonoBehaviour {
 
 	private TrialType trialType;
 
+
+
 	//singleton
 	private static RacingTimelocked _instance;
 	public static RacingTimelocked Instance
@@ -134,6 +136,7 @@ public class RacingTimelocked : MonoBehaviour {
 	public void IncreaseCoinCount()
 	{
 		coinsCollected++;
+		uiController.UpdateCoinText (coinsCollected);
 
 	}
 
@@ -142,7 +145,7 @@ public class RacingTimelocked : MonoBehaviour {
 	void Update () {
 //		Debug.Log ("current speed: " + carController.CurrentSpeed.ToString());
 //		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
-		uiController.scoreText.text="Coins Collected: " + coinsCollected.ToString();
+
 
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			MoveLeft ();
@@ -163,15 +166,16 @@ public class RacingTimelocked : MonoBehaviour {
 
 	void MoveLeft()
 	{
+		carBody.GetComponent<WaypointProgressTracker> ().IncreaseProgressNum ();
 		if(currentCircuit>0)
 			waypointTracker.circuit = waypoints [--currentCircuit];
 		Debug.Log ("current circuit is: " + currentCircuit.ToString ());
 		
 	}
 
-
 	void MoveRight()
 	{
+		carBody.GetComponent<WaypointProgressTracker> ().IncreaseProgressNum ();
 		if(currentCircuit<2)
 			waypointTracker.circuit = waypoints [++currentCircuit];
 
@@ -322,6 +326,7 @@ public class RacingTimelocked : MonoBehaviour {
 			ChequeredFlag.lapsCompleted = 0;
 			//retrieval
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
+				simpleTimer.StartTimer ();
 				//distance-fixed
 				int currentLap=ChequeredFlag.lapsCompleted;
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
@@ -363,8 +368,10 @@ public class RacingTimelocked : MonoBehaviour {
 				
 				//wait till car finishes the lap
 				}
-				if(currentLap==ChequeredFlag.lapsCompleted)
-					yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
+				if (currentLap == ChequeredFlag.lapsCompleted) {
+					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
+					StartCoroutine (ShowLapCompletion ());
+				}
 				yield return 0;
 			}
 

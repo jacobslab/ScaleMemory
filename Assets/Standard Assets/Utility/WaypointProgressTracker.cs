@@ -79,6 +79,11 @@ namespace UnityStandardAssets.Utility
             }
         }
 
+		public void IncreaseProgressNum()
+		{
+			progressNum = (progressNum + 1)%circuit.Waypoints.Length;
+		}
+
 
         private void Update()
         {

@@ -14,10 +14,17 @@ public class UIController : MonoBehaviour {
 	public CanvasGroup lapInfo;
 	public Text lapTimeText;
 
+
+	//coin-related
+	public Text coinText;
+	public Image coinIcon;
+	private Vector3 originalScale = new Vector3 (0.304f, 0.304f, 0.304f);
+
 	private float prevLapTime=0f;
 	// Use this for initialization
 	void Start () {
 		scoreText.text = "";
+		UpdateCoinText (0);
 		TurnOffLapText ();
 		TurnOffHarvestText ();
 		TurnOffCarInstruction ();
@@ -27,6 +34,22 @@ public class UIController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
+	}
+
+	public IEnumerator PulseCoinImage()
+	{
+		float timer = 0f;
+		while (timer < 0.5f) {
+			timer += Time.deltaTime;
+			coinIcon.transform.localScale = Vector3.Lerp (coinIcon.transform.localScale, originalScale * 2, timer);
+			yield return 0;
+		}
+		while (timer > 0.5f) {
+			timer -= Time.deltaTime;
+			coinIcon.transform.localScale = Vector3.Lerp (coinIcon.transform.localScale, originalScale, timer);
+			yield return 0;
+		}
+		yield return null;
 	}
 
 	public void SetTornadoWarningText(int laneNum)
@@ -45,6 +68,13 @@ public class UIController : MonoBehaviour {
 		}
 	}
 
+	public void SetTornadoArrivalText()
+	{
+		tornadoWarning.alpha = 1f;
+		tornadoWarningText.text = "Turning off the car temporarily!";
+
+	}
+
 	public void TurnOffTornadoWarning()
 	{
 		tornadoWarning.alpha = 0f;
@@ -60,6 +90,11 @@ public class UIController : MonoBehaviour {
 	{
 		harvestText.text = "";
 		harvestText.enabled = false;
+	}
+
+	public void UpdateCoinText(int coinCount)
+	{
+		coinText.text=coinCount.ToString();
 	}
 
 	public void ChangeLapText(float lapTime)

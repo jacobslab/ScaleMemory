@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.Utility;
+using UnityEngine.VR;
 public class TimedEventManager : MonoBehaviour {
 
 
@@ -9,6 +10,8 @@ public class TimedEventManager : MonoBehaviour {
 	public RacingTimelocked racingTimelocked;
 	private List<WaypointCircuit> waypoints;
 	private int tornadoLane = 0;
+
+
 
 	public GameObject tornadoObj;
 	// Use this for initialization
@@ -22,6 +25,7 @@ public class TimedEventManager : MonoBehaviour {
 
 	IEnumerator RunTimedEvents()
 	{
+		
 		while (true) {
 			float randWaitTime = Random.Range (Configuration.minTornadoWaitTime, Configuration.maxTornadoWaitTime);
 			yield return new WaitForSeconds (randWaitTime);
@@ -63,8 +67,11 @@ public class TimedEventManager : MonoBehaviour {
 
 			//attach it to the car's transform
 			tornadoObj.transform.position = racingTimelocked.carBody.transform.position + racingTimelocked.carBody.transform.forward * 3f;
+			//display tornado arrival message
+			racingTimelocked.uiController.SetTornadoArrivalText();
 			//halt the car and wait for the penalty time
 			yield return StartCoroutine (racingTimelocked.TemporarilyHaltCar (Configuration.tornadoPenaltyTime));
+			racingTimelocked.uiController.TurnOffTornadoWarning ();
 		} 
 		// car is not in the tornado lane, so adjust its position accordingly
 		else {
