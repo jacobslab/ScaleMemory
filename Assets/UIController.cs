@@ -27,7 +27,7 @@ public class UIController : MonoBehaviour {
 		UpdateCoinText (0);
 		TurnOffLapText ();
 		TurnOffHarvestText ();
-		TurnOffCarInstruction ();
+//		TurnOffCarInstruction ();
 		TurnOffTornadoWarning ();
 	}
 	
@@ -99,13 +99,14 @@ public class UIController : MonoBehaviour {
 
 	public void ChangeLapText(float lapTime)
 	{
+		lapInfo.alpha = 1f;
 		string splitSign = "+";
 		float splitTime = 0f;
 		if (prevLapTime != 0f) {
 			splitTime= lapTime-prevLapTime;
 		}
 		if (prevLapTime > lapTime)
-			splitSign = "-";
+			splitSign = ""; //no sign as it will be negative on its own
 		else
 			splitSign = "+";
 		prevLapTime = lapTime;

@@ -60,6 +60,8 @@ public class RacingTimelocked : MonoBehaviour {
 	public Camera standardCam;
 	public Camera freeLookCam;
 
+	public CoinSpawner coinSpawner;
+
 	public UIController uiController;
 	private PostProcessingProfile pp_profile;
 	private CarController carController;
@@ -154,6 +156,10 @@ public class RacingTimelocked : MonoBehaviour {
 			MoveRight ();
 		}
 
+		if (Input.GetKeyDown (KeyCode.R)) {
+			ResetVehicle ();
+		}
+
 	}
 
 	public bool CheckTornadoLane(int tornadoLane)
@@ -162,6 +168,11 @@ public class RacingTimelocked : MonoBehaviour {
 			return true;
 		else
 			return false;
+	}
+
+	void ResetVehicle()
+	{
+		carBody.transform.position = waypointTracker.target.position;
 	}
 
 	void MoveLeft()
@@ -272,7 +283,7 @@ public class RacingTimelocked : MonoBehaviour {
 			ChequeredFlag.lapsCompleted = 0;
 
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-
+				coinSpawner.SpawnCoins ();
 				simpleTimer.StartTimer ();
 				//distance-fixed
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
@@ -319,6 +330,7 @@ public class RacingTimelocked : MonoBehaviour {
 				//wait till car finishes the lap
 				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
 				StartCoroutine (ShowLapCompletion ());
+				coinSpawner.CleanUpCoins ();
 				yield return 0;
 			}
 
@@ -326,6 +338,8 @@ public class RacingTimelocked : MonoBehaviour {
 			ChequeredFlag.lapsCompleted = 0;
 			//retrieval
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
+				
+				coinSpawner.SpawnCoins ();
 				simpleTimer.StartTimer ();
 				//distance-fixed
 				int currentLap=ChequeredFlag.lapsCompleted;
@@ -371,6 +385,7 @@ public class RacingTimelocked : MonoBehaviour {
 				if (currentLap == ChequeredFlag.lapsCompleted) {
 					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
 					StartCoroutine (ShowLapCompletion ());
+					coinSpawner.CleanUpCoins ();
 				}
 				yield return 0;
 			}
