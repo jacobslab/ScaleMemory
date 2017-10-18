@@ -42,8 +42,6 @@ public class RacingTimelocked : MonoBehaviour {
 	/// </summary>
 	private int currentChequeredFlagIndex=0; 
 
-	private int currentCircuit=1; //setting center lane to be default
-	public List<WaypointCircuit> waypoints; // 0 is left, 1 is center and 2 is right
 	float responseFactor=1f;
 
 
@@ -121,7 +119,6 @@ public class RacingTimelocked : MonoBehaviour {
 		carAI.ChangeSpeedFactor (speedFactor);
 
 		waypointTracker = carBody.gameObject.GetComponent<WaypointProgressTracker> ();
-		waypointTracker.circuit = waypoints[currentCircuit]; //setting the center lane as default
 		//instantiate the lists
 		fixedDistanceList=new List<float>();
 		fixedTimeList = new List<float> ();
@@ -149,12 +146,6 @@ public class RacingTimelocked : MonoBehaviour {
 //		scoreText.text="distance covered: " + distanceMeasure.GetDistanceFloat().ToString("F2");
 
 
-		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-			MoveLeft ();
-		}
-		if (Input.GetKeyDown (KeyCode.RightArrow)) {
-			MoveRight ();
-		}
 
 		if (Input.GetKeyDown (KeyCode.R)) {
 			ResetVehicle ();
@@ -162,36 +153,12 @@ public class RacingTimelocked : MonoBehaviour {
 
 	}
 
-	public bool CheckTornadoLane(int tornadoLane)
-	{
-		if (currentCircuit == tornadoLane)
-			return true;
-		else
-			return false;
-	}
-
 	void ResetVehicle()
 	{
 		carBody.transform.position = waypointTracker.target.position;
 	}
 
-	void MoveLeft()
-	{
-		carBody.GetComponent<WaypointProgressTracker> ().IncreaseProgressNum ();
-		if(currentCircuit>0)
-			waypointTracker.circuit = waypoints [--currentCircuit];
-		Debug.Log ("current circuit is: " + currentCircuit.ToString ());
-		
-	}
 
-	void MoveRight()
-	{
-		carBody.GetComponent<WaypointProgressTracker> ().IncreaseProgressNum ();
-		if(currentCircuit<2)
-			waypointTracker.circuit = waypoints [++currentCircuit];
-
-		Debug.Log ("current circuit is: " + currentCircuit.ToString ());
-	}
 
 	public void ResetPlayer()
 	{
@@ -360,11 +327,12 @@ public class RacingTimelocked : MonoBehaviour {
 				while ((Input.GetAxis ("Action Button") == 0f) && currentLap==ChequeredFlag.lapsCompleted) {
 					yield return 0;
 				}
+
+				//if button was pressed, activate the turbo and then wait for the car to 
 				if (Input.GetAxis ("Action Button") > 0f) {
 					uiController.ChangeHarvestText ("TURBO ACTIVATED");
 					pp_profile.motionBlur.enabled = true;
 					yield return StartCoroutine(MeasureScore (distanceMeasure.GetDistanceFloat(), fixedDistance, trialType));
-
 					StartCoroutine (PlayTurboAnim ());
 					speedFactor += 0.2f * responseFactor;
 
@@ -382,8 +350,12 @@ public class RacingTimelocked : MonoBehaviour {
 				
 				//wait till car finishes the lap
 				}
+				Debug.Log ("current lap: " + currentLap.ToString () + " laps completed: " + ChequeredFlag.lapsCompleted.ToString ());
 				if (currentLap == ChequeredFlag.lapsCompleted) {
 					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
+					StartCoroutine (ShowLapCompletion ());
+					coinSpawner.CleanUpCoins ();
+				} else {
 					StartCoroutine (ShowLapCompletion ());
 					coinSpawner.CleanUpCoins ();
 				}
@@ -425,6 +397,7 @@ public class RacingTimelocked : MonoBehaviour {
 				t = 0f;
 			yield return 0;
 		}
+		uiController.TurnOffLapText ();
 	}
 	float ChooseRandomSpeed()
 	{

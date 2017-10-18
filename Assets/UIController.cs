@@ -92,6 +92,11 @@ public class UIController : MonoBehaviour {
 		harvestText.enabled = false;
 	}
 
+	public void TurnOffScoreText()
+	{
+		scoreText.enabled = false;
+	}
+
 	public void UpdateCoinText(int coinCount)
 	{
 		coinText.text=coinCount.ToString();
