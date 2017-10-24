@@ -21,14 +21,11 @@ public class RacingTimelocked : MonoBehaviour {
 
 	private float minX=50f;
 	private float maxX=330f;
-	private float fixedDistance = 0f;
+	private Vector3 fixedDistance = Vector3.zero;
 
 	private float minTime=5f;
 	private float maxTime=15f;
 	private float fixedTime=0f;
-
-	private List<float> fixedDistanceList;
-	private List<float> fixedTimeList;
 
 	private int[] chequeredFlagIndices;
 	public List<Transform> chequeredFlagTransforms;
@@ -58,8 +55,8 @@ public class RacingTimelocked : MonoBehaviour {
 	public Camera standardCam;
 	public Camera freeLookCam;
 
-	public CoinSpawner coinSpawner;
 
+	public CameraController camController;
 	public UIController uiController;
 	private PostProcessingProfile pp_profile;
 	private CarController carController;
@@ -119,9 +116,6 @@ public class RacingTimelocked : MonoBehaviour {
 		carAI.ChangeSpeedFactor (speedFactor);
 
 		waypointTracker = carBody.gameObject.GetComponent<WaypointProgressTracker> ();
-		//instantiate the lists
-		fixedDistanceList=new List<float>();
-		fixedTimeList = new List<float> ();
 
 	}
 
@@ -215,9 +209,9 @@ public class RacingTimelocked : MonoBehaviour {
 		}
 		Debug.Log ("chosen position is: " + chosenPosition.ToString ()); 
 		chequeredFlagIndices [ChequeredFlag.lapsCompleted] = chosenPosition; //store the chequered flag index in the array to be retrieved later
-		yield return new WaitForSeconds (8f);
-		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
-		currentChequeredFlagIndex = chosenPosition;
+//		yield return new WaitForSeconds (8f);
+//		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
+//		currentChequeredFlagIndex = chosenPosition;
 
 		yield return null;
 		
@@ -227,9 +221,11 @@ public class RacingTimelocked : MonoBehaviour {
 	IEnumerator SetChequeredFlagPosition()
 	{
 		int chosenPosition = chequeredFlagIndices [ChequeredFlag.lapsCompleted];
-		yield return new WaitForSeconds (8f);
 		chequeredFlag.transform.position = chequeredFlagTransforms [chosenPosition].position;
-
+		chequeredFlag.transform.eulerAngles = chequeredFlagTransforms [chosenPosition].eulerAngles;
+		carBody.transform.position = carController.carStartPosList [chosenPosition].position;
+		carBody.transform.eulerAngles = carController.carStartPosList [chosenPosition].eulerAngles;
+		waypointTracker.SetProgressNum (carController.carNearestWaypointList [chosenPosition]);
 		yield return null;
 	}
 
@@ -238,8 +234,25 @@ public class RacingTimelocked : MonoBehaviour {
 		
 		uiController.ChangeLapText (simpleTimer.GetSecondsFloat());
 		simpleTimer.ResetTimer ();
-		yield return new WaitForSeconds (4f);
+		yield return new WaitForSeconds (Configuration.timeBetweenLaps);
 		uiController.TurnOffLapText ();
+	}
+
+	IEnumerator SpecialActivationAnim()
+	{
+		uiController.ChangeHarvestText ("STEEL TYRES ACTIVATED");
+		pp_profile.motionBlur.enabled = true;
+
+		speedFactor += 0.2f * responseFactor;
+
+		//update speedfactor 
+		carAI.ChangeSpeedFactor (speedFactor);
+
+		//wait for 6 seconds before turning off the turbo text
+		yield return new WaitForSeconds(6f);
+		pp_profile.motionBlur.enabled = false;
+		uiController.TurnOffHarvestText ();
+		yield return null;
 	}
 
 	//main logic of the trial
@@ -249,116 +262,148 @@ public class RacingTimelocked : MonoBehaviour {
 		while(true){
 			ChequeredFlag.lapsCompleted = 0;
 
-			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-				coinSpawner.SpawnCoins ();
+
+			//just one lap of encoding needed to show the fixed spatial location
+			while (ChequeredFlag.lapsCompleted < 1) {
 				simpleTimer.StartTimer ();
 				//distance-fixed
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				uiController.SetCarInstruction ("Watch carefully at what distance the turbo is activated");
+				uiController.SetCarInstruction ("Watch carefully at what distance the steel tyres are activated");
 
 				StartCoroutine(PickChequeredFlagPosition()); //pick chequered flag position first
 				fixedDistance = ChooseFixedDistance ();
 
-				//add this to the list
-				fixedDistanceList.Add (fixedDistance);
+			
+//				fixedDistanceList.Add (fixedDistance); //we only have one value, so this list is no longer needed
 				Debug.Log("fixed distance is: " + fixedDistance.ToString());
 
 				//activate turbo text
 				distanceMeasure.ResetTimer ();
 				distanceMeasure.StartTimer ();
-				while (distanceMeasure.GetDistanceFloat() < fixedDistance) {
+
+				//wait till the car is close enough to the "puncture zone"
+				while (Vector3.Distance(fixedDistance,carBody.transform.position)>Configuration.distanceThreshold) {
+//					Debug.Log (Vector3.Distance (fixedDistance, carBody.transform.position).ToString());
 					yield return 0;
 				}
-				uiController.ChangeHarvestText ("ACTIVATING TURBO...");
 
 				//TEMPORARILY DISABLING FREELOOKAROUND
 //				yield return StartCoroutine (FreeLookAround ());    //allow free-look around
 
-				uiController.ChangeHarvestText ("TURBO ACTIVATED");
-				pp_profile.motionBlur.enabled = true;
 				StartCoroutine (PlayTurboAnim ());
-				speedFactor += 0.2f;
-
-				//update speedfactor 
-				carAI.ChangeSpeedFactor (speedFactor);
-
-				//wait for 6 seconds before turning off the turbo text
-				float turboTimer=0f;
-				while (turboTimer<6f) {
-					turboTimer += Time.deltaTime;
-					yield return 0;
-				}
-				pp_profile.motionBlur.enabled = false;
-				uiController.TurnOffHarvestText ();
-
+				StartCoroutine (SpecialActivationAnim ());
 				//wait till car finishes the lap
 				yield return StartCoroutine(chequeredFlag.WaitForCarToLap()); 
+				carController.ChangeMaxSpeed (0f);
 				StartCoroutine (ShowLapCompletion ());
-				coinSpawner.CleanUpCoins ();
 				yield return 0;
 			}
 
 			//reset the laps completed
 			ChequeredFlag.lapsCompleted = 0;
-			//retrieval
+
+
+
+			//retrieval will take place for the actual number of laps to be tested for
 			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
 				
-				coinSpawner.SpawnCoins ();
+				//blackout and wait for required time between laps
+
+				carController.ChangeMaxSpeed (0f); //turn off the car speed
+				camController.EnableBlackout();
+				yield return new WaitForSeconds (Configuration.timeBetweenLaps);
+
+				//transport to new chequered flag location
+				StartCoroutine (SetChequeredFlagPosition ());
+
+				//disable blackout
+				camController.DisableBlackout ();
+				carController.ChangeMaxSpeed (maxSpeed);
+
+				//start the lap timer
 				simpleTimer.StartTimer ();
+
 				//distance-fixed
 				int currentLap=ChequeredFlag.lapsCompleted;
 				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.	ToString());
 				trialType = TrialType.Distance;
 				speedFactor = ChooseRandomSpeed ();
 				carAI.ChangeSpeedFactor (speedFactor);
-				uiController.SetCarInstruction ("Press (X) where you think the turbo was activated");
-				fixedDistance = fixedDistanceList[currentLap];
+				uiController.SetCarInstruction ("Press (X) where you think the steel tyres are activated");
+//				fixedDistance = fixedDistanceList[currentLap];
 				StartCoroutine (SetChequeredFlagPosition ());
-				//add this to the list
 
+
+				//fixed distance is now constant within trial
 				Debug.Log("fixed distance is: " + fixedDistance.ToString());
 				//activate turbo text
 				distanceMeasure.ResetTimer ();
 				distanceMeasure.StartTimer ();
 	
-				while ((Input.GetAxis ("Action Button") == 0f) && currentLap==ChequeredFlag.lapsCompleted) {
+				while ((Input.GetAxis ("Action Button") == 0f) && Vector3.Distance(fixedDistance,carBody.transform.position)>Configuration.distanceThreshold) {
 					yield return 0;
 				}
 
-				//if button was pressed, activate the turbo and then wait for the car to 
+				//if button was pressed
 				if (Input.GetAxis ("Action Button") > 0f) {
-					uiController.ChangeHarvestText ("TURBO ACTIVATED");
-					pp_profile.motionBlur.enabled = true;
-					yield return StartCoroutine(MeasureScore (distanceMeasure.GetDistanceFloat(), fixedDistance, trialType));
-					StartCoroutine (PlayTurboAnim ());
-					speedFactor += 0.2f * responseFactor;
 
-					//update speedfactor 
-					carAI.ChangeSpeedFactor (speedFactor);
+					//check if it is within the puncture zone
+					if (Vector3.Distance (fixedDistance, carBody.transform.position) < Configuration.distanceThreshold) {
 
-					//wait for 6 seconds before turning off the turbo text
-					float turboTimer = 0f;
-					while (turboTimer < 6f) {
-						turboTimer += Time.deltaTime;
-						yield return 0;
+						Debug.Log ("button pressed in puncture zone");
+						//check score and show effects
+						yield return StartCoroutine (MeasureScore (carBody.transform.position, fixedDistance, trialType));
+						StartCoroutine (PlayTurboAnim ());
+						StartCoroutine(SpecialActivationAnim());
+
+
+						Debug.Log ("waiting for lap to be completed");
+						//and then wait for lap to be completed
+						yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
+						StartCoroutine (ShowLapCompletion ());
+					} 
+					//else if it was not in the puncture zone when the button was pressed
+					else {
+						Debug.Log ("not in puncture zone when button was pressed");
+						//show negative feedback
+						StartCoroutine("DisplayText","STEEL TYRES ACTIVATED");
+
+						Debug.Log ("waiting for car to be in puncture zone");
+						//wait for the car to enter the puncture zone
+						while (Vector3.Distance (fixedDistance, carBody.transform.position) > Configuration.distanceThreshold) {
+							yield return 0;
+						}
+						//show negative effect
+						StartCoroutine(PuncturedCar());
+						StartCoroutine("DisplayText", "TYRES PUNCTURED");
+
+						Debug.Log ("waiting for lap to be completed");
+						//wait for the lap to be completed
+						yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
+						StartCoroutine (ShowLapCompletion ());
 					}
-					pp_profile.motionBlur.enabled = false;
-					uiController.TurnOffHarvestText ();
-				
-				//wait till car finishes the lap
+
 				}
-				Debug.Log ("current lap: " + currentLap.ToString () + " laps completed: " + ChequeredFlag.lapsCompleted.ToString ());
-				if (currentLap == ChequeredFlag.lapsCompleted) {
+				//if no button was pressed, then we are in the puncture zone
+				else if (Vector3.Distance(fixedDistance,carBody.transform.position)<Configuration.distanceThreshold) {
+					Debug.Log ("no button was pressed, we are in the puncture zone");
+					//show puncture sequence
+					//show negative effect
+					StartCoroutine(PuncturedCar());
+					StartCoroutine("DisplayText", "TYRES PUNCTURED");
+
+
+					Debug.Log ("waiting for lap to be completed");
+					//wait for lap to be completed
 					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
 					StartCoroutine (ShowLapCompletion ());
-					coinSpawner.CleanUpCoins ();
 				} else {
 					StartCoroutine (ShowLapCompletion ());
-					coinSpawner.CleanUpCoins ();
 				}
+
 				yield return 0;
 			}
 
@@ -370,19 +415,29 @@ public class RacingTimelocked : MonoBehaviour {
 		yield return null;
 	}
 
-	IEnumerator MeasureScore(float playerVal, float fixedVal, TrialType trialType)
+	public IEnumerator PuncturedCar()
 	{
-		if (trialType == TrialType.Distance) {
-			float score = Mathf.Abs (playerVal - fixedVal);
-			responseFactor = 1f - (score / 2500f);
+		carController.ChangeMaxSpeed (0f);
+		yield return new WaitForSeconds (3f);
+		carController.ChangeMaxSpeed (maxSpeed);
+		yield return null;
+	}
+
+	public IEnumerator DisplayText(string text)
+	{
+		uiController.ChangeHarvestText (text);
+		yield return new WaitForSeconds (3f);
+		uiController.TurnOffHarvestText ();
+		yield return null;
+	}
+
+	IEnumerator MeasureScore(Vector3 playerVal, Vector3 fixedVal, TrialType trialType)
+	{
+		float score = Vector3.Distance(playerVal,fixedVal);
+			responseFactor = 1f - (score /100f);
 			uiController.scoreText.enabled = true;
 			uiController.scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
-		} else {
-			float score = Mathf.Abs (playerVal - fixedVal);
-			responseFactor = 1f - (score / (2500f / carController.CurrentSpeed));
-			uiController.scoreText.enabled = true;
-			uiController.scoreText.text = "Your turbo was boosted by " + (responseFactor * 100f).ToString ("F1") + "%";
-		}
+		
 		yield return null;
 	}
 
@@ -404,9 +459,10 @@ public class RacingTimelocked : MonoBehaviour {
 		return Random.Range (minSpeedFactor, maxSpeedFactor);
 	}
 
-	float ChooseFixedDistance()
+	Vector3 ChooseFixedDistance()
 	{
-		return Random.Range (minX, maxX);
+		Transform[] waypointList = waypointTracker.circuit.waypointList.items;
+		return waypointList [Random.Range (0, waypointList.Length - 1)].position;
 	}
 	float ChooseFixedTime()
 	{

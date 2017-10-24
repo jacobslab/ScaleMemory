@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -36,6 +37,9 @@ namespace UnityStandardAssets.Vehicles.Car
 		[SerializeField] private float m_RevRangeBoundary = 1f;
 		[SerializeField] private float m_SlipLimit;
 		[SerializeField] private float m_BrakeTorque;
+
+		public List<Transform> carStartPosList;
+		public List<int> carNearestWaypointList; //nearest target waypoints to the corresponding starting positions
 
 		private Quaternion[] m_WheelMeshLocalRotations;
 		private Vector3 m_Prevpos, m_Pos;

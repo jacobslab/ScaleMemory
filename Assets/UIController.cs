@@ -52,26 +52,16 @@ public class UIController : MonoBehaviour {
 		yield return null;
 	}
 
-	public void SetTornadoWarningText(int laneNum)
+	public void SetPunctureWarningText()
 	{
 		tornadoWarning.alpha = 1f;
-		switch (laneNum) {
-		case 0:
-			tornadoWarningText.text = "Imminent in LEFT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
-			break;
-		case 1:
-			tornadoWarningText.text = "Imminent in CENTER lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
-			break;
-		case 2:
-			tornadoWarningText.text = "Imminent in RIGHT lane in " + Configuration.tornadoArrivalTime.ToString () + " seconds";
-			break;
-		}
+		tornadoWarningText.text = "Sharp objects approaching in around " + Configuration.tornadoArrivalTime.ToString () + " seconds";
 	}
 
-	public void SetTornadoArrivalText()
+	public void SetTyreActivationText()
 	{
 		tornadoWarning.alpha = 1f;
-		tornadoWarningText.text = "Turning off the car temporarily!";
+		tornadoWarningText.text = "Activating Steel Tyres!";
 
 	}
 

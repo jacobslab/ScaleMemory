@@ -66,6 +66,11 @@ namespace UnityStandardAssets.Utility
             Reset();
         }
 
+		public void SetProgressNum(int newProgressNum)
+		{
+			progressNum = newProgressNum;
+		}
+
 
         // reset the object to sensible values
         public void Reset()
