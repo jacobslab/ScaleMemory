@@ -51,9 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\CameraController.cs" />
-     <Compile Include="Assets\Configuration.cs" />
-     <Compile Include="Assets\Experiment.cs" />
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
      <Compile Include="Assets\MCP\scripts\Filmic.cs" />
@@ -103,10 +100,14 @@
      <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
      <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
      <Compile Include="Assets\Scripts\BarrierManager.cs" />
+     <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\CardboardBox.cs" />
      <Compile Include="Assets\Scripts\ChequeredFlag.cs" />
      <Compile Include="Assets\Scripts\CoinSpawner.cs" />
+     <Compile Include="Assets\Scripts\Configuration.cs" />
      <Compile Include="Assets\Scripts\DistanceCalculator.cs" />
+     <Compile Include="Assets\Scripts\Experiment.cs" />
+     <Compile Include="Assets\Scripts\ObjectManager.cs" />
      <Compile Include="Assets\Scripts\PlayerCollision.cs" />
      <Compile Include="Assets\Scripts\PrintLists.cs" />
      <Compile Include="Assets\Scripts\PullObject.cs" />
@@ -118,15 +119,15 @@
      <Compile Include="Assets\Scripts\SpeedManager.cs" />
      <Compile Include="Assets\Scripts\TestMic.cs" />
      <Compile Include="Assets\Scripts\ThreadedJob.cs" />
+     <Compile Include="Assets\Scripts\TimedEventManager.cs" />
      <Compile Include="Assets\Scripts\TimelockManager.cs" />
      <Compile Include="Assets\Scripts\TornadoVortex.cs" />
      <Compile Include="Assets\Scripts\TrainMover.cs" />
      <Compile Include="Assets\Scripts\TrialManager.cs" />
+     <Compile Include="Assets\Scripts\UIController.cs" />
      <Compile Include="Assets\Scripts\UsefulFunctions.cs" />
-     <Compile Include="Assets\TimedEventManager.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
-     <Compile Include="Assets\UIController.cs" />
      <None Include="Assets\PostProcessing\Resources\Shaders\DepthOfField.shader" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/NailsRacingTimelocked.unity
+- path: Assets/Scenes/SequentialMemory.unity
   isLoaded: 1
   isActive: 1
