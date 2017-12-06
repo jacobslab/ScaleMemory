@@ -7,7 +7,8 @@ public class Experiment : MonoBehaviour {
 	//EXPERIMENT IS A SINGLETON
 	private static Experiment _instance;
 	public ObjectManager objManager;
-
+	public RacingTimelocked raceManager;
+	public UIController uiController;
 	public static Experiment Instance{
 		get{
 			return _instance;

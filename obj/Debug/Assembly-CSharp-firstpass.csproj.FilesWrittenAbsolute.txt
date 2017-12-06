@@ -26,3 +26,10 @@
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.Timeline.dll
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/ExCSS.Unity.dll
 /Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.Legacy.NRefactory.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.UIAutomation.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.GoogleAudioSpatializer.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.SpatialTracking.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/UnityEngine.Purchasing.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.Cecil.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.Cecil.Pdb.dll
+/Users/anshpatel/Desktop/Unity Projects/ScaleMemory/Temp/bin/Debug/Unity.Cecil.Mdb.dll

@@ -18,8 +18,9 @@ public class Configuration : MonoBehaviour {
 
 	public static float minTornadoWaitTime=7f;
 	public static float maxTornadoWaitTime=15f;
+	public static int spawnCount=3;
+	public static float itemPresentationTime=1.5f;
 
-	public static int sequenceLength=2;
 	// Use this for initialization
 	void Start () {
 		

@@ -20,12 +20,12 @@ public class CameraController : MonoBehaviour {
 	public void EnableBlackout()
 	{
 		blackoutCam.SetActive (true);
-		canvas.SetActive (false);
+//		canvas.SetActive (false);
 	}
 
 	public void DisableBlackout()
 	{
 		blackoutCam.SetActive (false);
-		canvas.SetActive (true);
+//		canvas.SetActive (true);
 	}
 }

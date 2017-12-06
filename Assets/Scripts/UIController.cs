@@ -20,6 +20,26 @@ public class UIController : MonoBehaviour {
 	public Image coinIcon;
 	private Vector3 originalScale = new Vector3 (0.304f, 0.304f, 0.304f);
 
+	//item-presentation related
+	public CanvasGroup encodingGroup;
+	public CanvasGroup objGroup;
+	public Text objNameText;
+
+	//item-retrieval
+	public CanvasGroup retrievalQuestionGroup;
+	public CanvasGroup retrievalOptionA;
+	public CanvasGroup retrievalOptionX;
+	public Text retrievalQuestion;
+	public Text retrievalObjectNameX;
+	public Text retrievalObjectNameA;
+
+	public string temporalQuestionText;
+	public string spatialQuestionText;
+
+	//response-related
+	public CanvasGroup correctResponseGroup;
+	public CanvasGroup wrongResponseGroup;
+
 	private float prevLapTime=0f;
 	// Use this for initialization
 	void Start () {
@@ -27,13 +47,64 @@ public class UIController : MonoBehaviour {
 		UpdateCoinText (0);
 		TurnOffLapText ();
 		TurnOffHarvestText ();
+		EnableEncodingGroup ();
 //		TurnOffCarInstruction ();
 		TurnOffTornadoWarning ();
+		DisableObjectRetrieval ();
+		correctResponseGroup.alpha = 0f;
+		wrongResponseGroup.alpha = 0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
+	}
+
+	public void EnableEncodingGroup()
+	{
+		encodingGroup.alpha = 1f;
+	}
+	public void DisableEncodingGroup()
+	{
+		encodingGroup.alpha = 0f;
+	}
+
+	public void DisableObjectRetrieval()
+	{
+		retrievalQuestionGroup.alpha = 0f;
+		retrievalOptionA.alpha = 0f;
+		retrievalOptionX.alpha = 0f;
+	}
+	public void EnableObjectPresentation(string objName)
+	{
+		objGroup.alpha = 1f;
+		objNameText.text = objName.ToUpper ();
+	}
+
+	public void DisableObjectPresentation()
+	{
+		objGroup.alpha = 0f;
+		objNameText.text = "";
+	}
+
+	public IEnumerator ShowCorrectResponse()
+	{
+		correctResponseGroup.alpha = 1f;
+		yield return new WaitForSeconds (2f);
+		correctResponseGroup.alpha = 0f;
+		DisableObjectRetrieval ();
+		EnableEncodingGroup ();
+		yield return null;
+	}
+
+	public IEnumerator ShowWrongResponse()
+	{
+		wrongResponseGroup.alpha = 1f;
+		yield return new WaitForSeconds (2f);
+		wrongResponseGroup.alpha = 0f;
+		DisableObjectRetrieval ();
+		EnableEncodingGroup ();
+		yield return null;
 	}
 
 	public IEnumerator PulseCoinImage()

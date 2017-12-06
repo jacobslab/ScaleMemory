@@ -57,6 +57,7 @@ public class RacingTimelocked : MonoBehaviour {
 	public Camera standardCam;
 	public Camera freeLookCam;
 
+	public Transform objSpawnTransform;
 
 	public CameraController camController;
 	public UIController uiController;
@@ -124,7 +125,7 @@ public class RacingTimelocked : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ChequeredFlag.lapsCompleted = 0;
-
+		exp.uiController.DisableObjectPresentation ();
 		StartCoroutine ("RunTrial");
 	}
 
@@ -147,6 +148,28 @@ public class RacingTimelocked : MonoBehaviour {
 			ResetVehicle ();
 		}
 
+	}
+
+	public int ReturnClosestObject(Transform landmarkTransform, Transform objA_Transform, Transform objB_Transform)
+	{
+		if (Vector3.Distance (landmarkTransform.position, objA_Transform.position) > Vector3.Distance (landmarkTransform.position, objB_Transform.position))
+			return 1;
+		else
+			return 0;
+	}
+
+	public int ReturnFirstObject(List<GameObject> spawnedObj,GameObject optionA, GameObject optionB)
+	{
+		for (int i = 0; i < spawnedObj.Count; i++) {
+			if (optionA.name == spawnedObj [i].name)
+				return 0;
+			else if (optionB.name == spawnedObj [i].name)
+				return 1;
+			else
+				return 0;
+			
+		}
+		return 0;
 	}
 
 	void ResetVehicle()
@@ -259,8 +282,6 @@ public class RacingTimelocked : MonoBehaviour {
 		
 		while(true){
 			ChequeredFlag.lapsCompleted = 0;
-
-
 			//just one lap of encoding needed to show the fixed spatial location
 			while (ChequeredFlag.lapsCompleted < 1) {
 				simpleTimer.StartTimer ();
@@ -273,7 +294,7 @@ public class RacingTimelocked : MonoBehaviour {
 
 				yield return StartCoroutine(exp.objManager.SelectSpawnSequence());
 				StartCoroutine (PickChequeredFlagPosition ()); //pick chequered flag position first
-				Vector3[] fixedDistance = new Vector3[2];
+				Vector3[] fixedDistance = new Vector3[Configuration.spawnCount];
 				fixedDistance = ChooseFixedDistance ();
 
 			
@@ -284,28 +305,30 @@ public class RacingTimelocked : MonoBehaviour {
 				distanceMeasure.ResetTimer ();
 				distanceMeasure.StartTimer ();
 				int currentIndex = 0;
-				while (currentIndex < 2) {
+				while (currentIndex < Configuration.spawnCount) {
 
-					//wait till the car is close enough to the "puncture zone"
+					//wait till the car is close enough to the "item presentation" zone
 					while (Vector3.Distance (fixedDistance [currentIndex], carBody.transform.position) > Configuration.distanceThreshold) {
-//					Debug.Log (Vector3.Distance (fixedDistance, carBody.transform.position).ToString());
 						yield return 0;
 					}
-				
+
+					//halt the car first 
 					carController.ChangeMaxSpeed(0f);
-					//show the objects
-					exp.objManager.SpawnAtLocation(currentIndex,carBody.transform.position);
-					yield return new WaitForSeconds (2f);
+					//show the object and enable object presentation text
+					exp.objManager.SpawnAtLocation(currentIndex);
+					//wait for the required time
+					yield return new WaitForSeconds (Configuration.itemPresentationTime);
+					exp.objManager.EndObjectPresentation ();
+					//set back to the old speed
 					carController.ChangeMaxSpeed(maxSpeed);
 
-//					StartCoroutine (PlayTurboAnim ());
-//					StartCoroutine (SpecialActivationAnim ());
-
-						}
+					currentIndex++;
+					yield return 0;
+				}
 					//wait till car finishes the lap
 					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
 					carController.ChangeMaxSpeed (0f);
-					StartCoroutine (ShowLapCompletion ());
+//					StartCoroutine (ShowLapCompletion ());
 					yield return 0;
 			}
 			
@@ -313,110 +336,13 @@ public class RacingTimelocked : MonoBehaviour {
 			//reset the laps completed
 			ChequeredFlag.lapsCompleted = 0;
 
+			//new retrieval
 
-
-			//retrieval will take place for the actual number of laps to be tested for
-			while (ChequeredFlag.lapsCompleted < lapsToBeFinished) {
-				
-				//blackout and wait for required time between laps
-
-				carController.ChangeMaxSpeed (0f); //turn off the car speed
-				camController.EnableBlackout();
-				yield return new WaitForSeconds (Configuration.timeBetweenLaps);
-
-				//transport to new chequered flag location
-				StartCoroutine (SetChequeredFlagPosition ());
-
-				//disable blackout
-				camController.DisableBlackout ();
-				carController.ChangeMaxSpeed (maxSpeed);
-
-				//start the lap timer
-				simpleTimer.StartTimer ();
-
-				//distance-fixed
-				int currentLap=ChequeredFlag.lapsCompleted;
-				Debug.Log("on lap: " + ChequeredFlag.lapsCompleted.ToString());
-				trialType = TrialType.Distance;
-				speedFactor = ChooseRandomSpeed ();
-				carAI.ChangeSpeedFactor (speedFactor);
-				uiController.SetCarInstruction ("Press (X) where you think the steel tyres are activated");
-//				fixedDistance = fixedDistanceList[currentLap];
-				StartCoroutine (SetChequeredFlagPosition ());
-
-
-				//fixed distance is now constant within trial
-				Debug.Log("fixed distance is: " + fixedDistance.ToString());
-				//activate turbo text
-				distanceMeasure.ResetTimer ();
-				distanceMeasure.StartTimer ();
-	
-				while ((Input.GetAxis ("Action Button") == 0f) && Vector3.Distance(fixedDistance,carBody.transform.position)>Configuration.distanceThreshold) {
-					yield return 0;
-				}
-
-				//if button was pressed
-				if (Input.GetAxis ("Action Button") > 0f) {
-
-					//check if it is within the puncture zone
-					if (Vector3.Distance (fixedDistance, carBody.transform.position) < Configuration.distanceThreshold) {
-
-						Debug.Log ("button pressed in puncture zone");
-						//check score and show effects
-						yield return StartCoroutine (MeasureScore (carBody.transform.position, fixedDistance, trialType));
-						StartCoroutine (PlayTurboAnim ());
-						StartCoroutine(SpecialActivationAnim());
-
-
-						Debug.Log ("waiting for lap to be completed");
-						//and then wait for lap to be completed
-						yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
-						StartCoroutine (ShowLapCompletion ());
-					} 
-					//else if it was not in the puncture zone when the button was pressed
-					else {
-						Debug.Log ("not in puncture zone when button was pressed");
-						//show negative feedback
-						StartCoroutine("DisplayText","STEEL TYRES ACTIVATED");
-
-						Debug.Log ("waiting for car to be in puncture zone");
-						//wait for the car to enter the puncture zone
-						while (Vector3.Distance (fixedDistance, carBody.transform.position) > Configuration.distanceThreshold) {
-							yield return 0;
-						}
-						//show negative effect
-						StartCoroutine(PuncturedCar());
-						StartCoroutine("DisplayText", "TYRES PUNCTURED BY ZONE");
-
-						Debug.Log ("waiting for lap to be completed");
-						//wait for the lap to be completed
-						yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
-						StartCoroutine (ShowLapCompletion ());
-					}
-
-				}
-				//if no button was pressed, then we are in the puncture zone
-				else if (Vector3.Distance(fixedDistance,carBody.transform.position)<Configuration.distanceThreshold) {
-					Debug.Log ("no button was pressed, we are in the puncture zone");
-					//show puncture sequence
-					//show negative effect
-					StartCoroutine(PuncturedCar());
-					StartCoroutine("DisplayText", "TYRES PUNCTURED BY ZONE");
-
-
-					Debug.Log ("waiting for lap to be completed");
-					//wait for lap to be completed
-					yield return StartCoroutine (chequeredFlag.WaitForCarToLap ()); 
-					StartCoroutine (ShowLapCompletion ());
-				} else {
-					StartCoroutine (ShowLapCompletion ());
-				}
-
-				yield return 0;
-			}
-
-		
-
+			carController.ChangeMaxSpeed (0f); //turn off the car speed
+			camController.EnableBlackout();
+			yield return StartCoroutine(exp.objManager.BeginObjectRetrieval());
+			camController.DisableBlackout ();
+			carController.ChangeMaxSpeed (maxSpeed);
 			yield return 0;
 		}
 
@@ -470,11 +396,13 @@ public class RacingTimelocked : MonoBehaviour {
 	Vector3[] ChooseFixedDistance()
 	{
 		Transform[] waypointList = waypointTracker.circuit.waypointList.items;
-		Vector3[] chosenDistance = new Vector3[2];
-		int firstWaypoint = Random.Range (0, waypointList.Length - 3);
-		int secondWaypoint = Random.Range (firstWaypoint + 1, waypointList.Length - 1);
+		Vector3[] chosenDistance = new Vector3[Configuration.spawnCount];
+		int firstWaypoint = Random.Range (0, waypointList.Length - 4);
+		int secondWaypoint = Random.Range (firstWaypoint + 1, waypointList.Length - 3);
+		int thirdWaypoint = Random.Range (secondWaypoint + 1, waypointList.Length - 1);
 		chosenDistance[0]=waypointList [firstWaypoint].position;
 		chosenDistance [1] = waypointList [secondWaypoint].position;
+		chosenDistance [2] = waypointList [thirdWaypoint].position;
 		return chosenDistance;
 	}
 	float ChooseFixedTime()
