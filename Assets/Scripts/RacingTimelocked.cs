@@ -152,19 +152,25 @@ public class RacingTimelocked : MonoBehaviour {
 
 	public int ReturnClosestObject(Transform landmarkTransform, Transform objA_Transform, Transform objB_Transform)
 	{
-		if (Vector3.Distance (landmarkTransform.position, objA_Transform.position) > Vector3.Distance (landmarkTransform.position, objB_Transform.position))
-			return 1;
-		else
+		if (Vector3.Distance (landmarkTransform.position, objA_Transform.position) > Vector3.Distance (landmarkTransform.position, objB_Transform.position)) {
+			Debug.Log (objB_Transform.gameObject.name + " is closer");
 			return 0;
+		} else {
+			Debug.Log (objA_Transform.gameObject.name + " is closer");
+			return 1;
+		}
 	}
 
 	public int ReturnFirstObject(List<GameObject> spawnedObj,GameObject optionA, GameObject optionB)
 	{
 		for (int i = 0; i < spawnedObj.Count; i++) {
-			if (optionA.name == spawnedObj [i].name)
+			if (optionA.name == spawnedObj [i].name) {
+				Debug.Log (optionA.name + " came first");
 				return 0;
-			else if (optionB.name == spawnedObj [i].name)
+			} else if (optionB.name == spawnedObj [i].name) {
+				Debug.Log (optionB.name + " came first");
 				return 1;
+			}
 			else
 				return 0;
 			
@@ -281,6 +287,7 @@ public class RacingTimelocked : MonoBehaviour {
 	{
 		
 		while(true){
+			Debug.Log ("starting new trial");
 			ChequeredFlag.lapsCompleted = 0;
 			//just one lap of encoding needed to show the fixed spatial location
 			while (ChequeredFlag.lapsCompleted < 1) {
@@ -306,9 +313,10 @@ public class RacingTimelocked : MonoBehaviour {
 				distanceMeasure.StartTimer ();
 				int currentIndex = 0;
 				while (currentIndex < Configuration.spawnCount) {
-
+					Debug.Log ("we have collected " + currentIndex.ToString () + " objects so far");
 					//wait till the car is close enough to the "item presentation" zone
 					while (Vector3.Distance (fixedDistance [currentIndex], carBody.transform.position) > Configuration.distanceThreshold) {
+//						Debug.Log ("distance is: " + Vector3.Distance (fixedDistance [currentIndex], carBody.transform.position));
 						yield return 0;
 					}
 
@@ -316,6 +324,7 @@ public class RacingTimelocked : MonoBehaviour {
 					carController.ChangeMaxSpeed(0f);
 					//show the object and enable object presentation text
 					exp.objManager.SpawnAtLocation(currentIndex);
+					exp.objManager.spawnTransformSequence [currentIndex].position = fixedDistance [currentIndex];
 					//wait for the required time
 					yield return new WaitForSeconds (Configuration.itemPresentationTime);
 					exp.objManager.EndObjectPresentation ();
@@ -337,12 +346,14 @@ public class RacingTimelocked : MonoBehaviour {
 			ChequeredFlag.lapsCompleted = 0;
 
 			//new retrieval
-
+			Debug.Log("starting retrieval");
 			carController.ChangeMaxSpeed (0f); //turn off the car speed
 			camController.EnableBlackout();
 			yield return StartCoroutine(exp.objManager.BeginObjectRetrieval());
 			camController.DisableBlackout ();
 			carController.ChangeMaxSpeed (maxSpeed);
+
+			Debug.Log("finished retrieval");
 			yield return 0;
 		}
 

@@ -7,7 +7,7 @@ public class ObjectManager : MonoBehaviour {
 	Experiment exp { get { return Experiment.Instance; } }
 	public List<GameObject> spawnables;
 	public List<GameObject> spawnSequence;
-
+	public List<Transform> spawnTransformSequence;
 	private List<GameObject> spawnedObjects;
 	public Transform landmarkTransform;
 	public List<GameObject> retrievalSpawnTransform;
@@ -23,6 +23,9 @@ public class ObjectManager : MonoBehaviour {
 	public void PopulateSpawnList()
 	{
 		Object[] spawnArr = Resources.LoadAll ("Prefabs/Objects");
+
+		//clear any leftovers
+		spawnables.Clear ();
 		for (int i = 0; i < spawnArr.Length; i++) {
 			spawnables.Add ((GameObject)spawnArr [i]);
 		}
@@ -35,6 +38,7 @@ public class ObjectManager : MonoBehaviour {
 
 	public IEnumerator SelectSpawnSequence()
 	{
+		spawnTransformSequence= new List<Transform>();
 		//make sure we clear any previous spawn sequence
 		spawnSequence.Clear ();
 		spawnedObjects.Clear ();
@@ -42,6 +46,7 @@ public class ObjectManager : MonoBehaviour {
 
 		//check if spawnables needs to be respawned
 		if (spawnables.Count < Configuration.spawnCount) {
+			Debug.Log ("populating spawn list");
 			PopulateSpawnList ();
 		}
 
@@ -55,6 +60,7 @@ public class ObjectManager : MonoBehaviour {
 			GameObject seqObj = tempList [seqInt];
 			tempList.RemoveAt (seqInt);
 			spawnSequence.Add (seqObj);
+			spawnTransformSequence.Add (seqObj.transform);
 			currentSequenceIndex++;
 			yield return 0;
 		}
@@ -80,6 +86,7 @@ public class ObjectManager : MonoBehaviour {
 		List<GameObject> tempList = new List<GameObject> ();
 		for (int i = 0; i < spawnedObj.Count; i++) {
 			tempList.Add (spawnedObj [i]);
+			tempList [i].transform.position = spawnTransformSequence [i].position;
 		}
 
 		Debug.Log ("tempList Count: " + tempList.Count.ToString());
@@ -173,6 +180,7 @@ public class ObjectManager : MonoBehaviour {
 		//have one second of blackout
 		randomList[0].SetActive(false);
 		randomList [1].SetActive (false);
+		exp.uiController.encodingGroup.alpha = 0f;
 		exp.uiController.retrievalQuestionGroup.alpha = 0f;
 		exp.uiController.retrievalOptionX.alpha = 0f;
 		exp.uiController.retrievalOptionA.alpha = 0f;
@@ -183,6 +191,17 @@ public class ObjectManager : MonoBehaviour {
 
 		//create a separate randomize list for spatial retrieval
 		randomList = GetRandomObjects (spawnedObjects, 2);
+
+		Transform[] randTransform = new Transform[2];
+		randTransform [0] = randomList [0].transform;
+		randTransform [1] = randomList [1].transform;
+
+		//make duplicates
+		List<GameObject> duplicateObjList=new List<GameObject>();
+		for (int i = 0; i < 2; i++) {
+			GameObject duplicate = Instantiate (randomList [i], randTransform [i].position, Quaternion.identity) as GameObject;
+			duplicateObjList.Add (duplicate);
+		}
 
 		//then do spatial retrieval
 		correctAnswer = -1;
@@ -201,7 +220,10 @@ public class ObjectManager : MonoBehaviour {
 			randomList [0].transform.position = retrievalSpawnTransform [0].transform.position;
 			randomList [0].SetActive (true);
 			exp.uiController.retrievalOptionX.alpha = 1f;
-			correctAnswer = exp.raceManager.ReturnClosestObject(landmarkTransform,randomList[0].transform,randomList[1].transform);
+			Debug.Log ("transforms A : " + duplicateObjList [0].transform.position + " and  B: " + duplicateObjList [1].transform.position);
+			correctAnswer = exp.raceManager.ReturnClosestObject(landmarkTransform,duplicateObjList[0].transform,duplicateObjList[1].transform);
+			correctAnswer = correctAnswer == 1 ? 0 : 1;
+			Debug.Log ("correct answer FLIPPED is: " + correctAnswer.ToString ());
 		}
 		else {
 			exp.uiController.DisableEncodingGroup ();
@@ -217,9 +239,10 @@ public class ObjectManager : MonoBehaviour {
 			randomList [1].transform.position = retrievalSpawnTransform [0].transform.position;
 			randomList [1].SetActive (true);
 			exp.uiController.retrievalOptionX.alpha = 1f;
+			Debug.Log ("transforms A : " + duplicateObjList [0].transform.position + " and  B: " + duplicateObjList [1].transform.position);
 
-			correctAnswer = exp.raceManager.ReturnClosestObject(landmarkTransform,randomList[1].transform,randomList[0].transform);
-
+			correctAnswer = exp.raceManager.ReturnClosestObject(landmarkTransform,duplicateObjList[0].transform,duplicateObjList[1].transform);
+			Debug.Log ("correct answer is: " + correctAnswer.ToString ());
 		}
 		UnityEngine.Debug.Log ("waiting for key response");
 		while (!Input.GetKeyDown (KeyCode.X) && !Input.GetKeyDown (KeyCode.A)) {
@@ -227,13 +250,17 @@ public class ObjectManager : MonoBehaviour {
 		}
 		UnityEngine.Debug.Log ("key pressed");
 		chosenAnswer = -1;
+		//left side object was chosen
 		if(Input.GetKey(KeyCode.X))
 		{
+			Debug.Log ("left side object was chosen");
 			UnityEngine.Debug.Log ("X was pressed");
 			chosenAnswer = 0;
 		}
 		if(Input.GetKey(KeyCode.A))
 		{
+
+			Debug.Log ("right side object was chosen");
 			UnityEngine.Debug.Log ("A was pressed");
 			chosenAnswer = 1;
 		}
@@ -248,6 +275,8 @@ public class ObjectManager : MonoBehaviour {
 		for (int i = 0; i < spawnedObjects.Count; i++) {
 			Destroy (spawnedObjects [i]);
 		}
+
+		exp.uiController.encodingGroup.alpha = 1f;
 		yield return null;
 	}
 }
