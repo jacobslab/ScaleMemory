@@ -1,0 +1,121 @@
+fileFormatVersion: 2
+guid: dcad4fd58016d4a51bea30a400125abe
+timeCreated: 1447283042
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: Specs_L_leg
+    100002: Specs_L_rim
+    100004: Specs_linkpiece
+    100006: Specs_Llens
+    100008: Specs_nosepiece01
+    100010: Specs_nosepiece_holder
+    100012: Specs_nosepiece_holder01
+    100014: Specs_R_leg
+    100016: Specs_R_rim
+    100018: Specs_Rlens
+    100020: //RootNode
+    400000: Specs_L_leg
+    400002: Specs_L_rim
+    400004: Specs_linkpiece
+    400006: Specs_Llens
+    400008: Specs_nosepiece01
+    400010: Specs_nosepiece_holder
+    400012: Specs_nosepiece_holder01
+    400014: Specs_R_leg
+    400016: Specs_R_rim
+    400018: Specs_Rlens
+    400020: //RootNode
+    2300000: Specs_L_leg
+    2300002: Specs_L_rim
+    2300004: Specs_linkpiece
+    2300006: Specs_Llens
+    2300008: Specs_nosepiece01
+    2300010: Specs_nosepiece_holder
+    2300012: Specs_nosepiece_holder01
+    2300014: Specs_R_leg
+    2300016: Specs_R_rim
+    2300018: Specs_Rlens
+    3300000: Specs_L_leg
+    3300002: Specs_L_rim
+    3300004: Specs_linkpiece
+    3300006: Specs_Llens
+    3300008: Specs_nosepiece01
+    3300010: Specs_nosepiece_holder
+    3300012: Specs_nosepiece_holder01
+    3300014: Specs_R_leg
+    3300016: Specs_R_rim
+    3300018: Specs_Rlens
+    4300000: Specs_L_leg
+    4300002: Specs_L_rim
+    4300004: Specs_linkpiece
+    4300006: Specs_Llens
+    4300008: Specs_nosepiece01
+    4300010: Specs_nosepiece_holder
+    4300012: Specs_nosepiece_holder01
+    4300014: Specs_R_leg
+    4300016: Specs_R_rim
+    4300018: Specs_Rlens
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,111 @@
+fileFormatVersion: 2
+guid: 391095fc3283b4831babe7e19d31ac3a
+timeCreated: 1441397790
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: body_095032shell
+    100002: //RootNode
+    100004: claw
+    100006: claw_095032arm
+    100008: claw_095032joint
+    100010: eyeball
+    100012: foot
+    100014: shin
+    100016: thigh
+    400000: body_095032shell
+    400002: //RootNode
+    400004: claw
+    400006: claw_095032arm
+    400008: claw_095032joint
+    400010: eyeball
+    400012: foot
+    400014: shin
+    400016: thigh
+    2300000: body_095032shell
+    2300002: claw
+    2300004: claw_095032arm
+    2300006: claw_095032joint
+    2300008: eyeball
+    2300010: foot
+    2300012: shin
+    2300014: thigh
+    3300000: body_095032shell
+    3300002: claw
+    3300004: claw_095032arm
+    3300006: claw_095032joint
+    3300008: eyeball
+    3300010: foot
+    3300012: shin
+    3300014: thigh
+    4300000: body_095032shell
+    4300002: claw
+    4300004: claw_095032arm
+    4300006: claw_095032joint
+    4300008: eyeball
+    4300010: foot
+    4300012: shin
+    4300014: thigh
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

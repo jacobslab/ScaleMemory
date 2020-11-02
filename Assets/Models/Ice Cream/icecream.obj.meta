@@ -1,0 +1,171 @@
+fileFormatVersion: 2
+guid: 5ff26deeceb764eb2b9653bc1ee3ce4e
+timeCreated: 1445898985
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: Cube
+    100002: //RootNode
+    100004: Lathe_NURBS
+    100006: Null_Object2_Boole_Estrusione_NURBS_12
+    100008: Null_Object2_Boole_HyperNURBS_1_Cube_1
+    100010: Null_Object2_Cube_11
+    100012: Null_Object2_Cube_2
+    100014: Null_Object2_Cube_3
+    100016: Null_Object2_Cube_4
+    100018: Null_Object2_Cube_5
+    100020: Null_Object2_Cube_6
+    100022: Null_Object2_Cube_7
+    100024: Null_Object2_Estrusione_NURBS
+    100026: Null_Object2_Estrusione_NURBSEE2
+    100028: Null_Object_1_Estrusione_NURBS1
+    100030: Null_Object_1_Estrusione_NURBS_11
+    100032: Null_Object_1_Estrusione_NURBSEE1
+    100034: Null_Object_Null_Object1_Estrusione_NURBS2
+    100036: Null_Object_Null_Object1_Estrusione_NURBS_1
+    100038: Null_Object_Null_Object1_Estrusione_NURBSEE
+    100040: Sphere
+    400000: Cube
+    400002: //RootNode
+    400004: Lathe_NURBS
+    400006: Null_Object2_Boole_Estrusione_NURBS_12
+    400008: Null_Object2_Boole_HyperNURBS_1_Cube_1
+    400010: Null_Object2_Cube_11
+    400012: Null_Object2_Cube_2
+    400014: Null_Object2_Cube_3
+    400016: Null_Object2_Cube_4
+    400018: Null_Object2_Cube_5
+    400020: Null_Object2_Cube_6
+    400022: Null_Object2_Cube_7
+    400024: Null_Object2_Estrusione_NURBS
+    400026: Null_Object2_Estrusione_NURBSEE2
+    400028: Null_Object_1_Estrusione_NURBS1
+    400030: Null_Object_1_Estrusione_NURBS_11
+    400032: Null_Object_1_Estrusione_NURBSEE1
+    400034: Null_Object_Null_Object1_Estrusione_NURBS2
+    400036: Null_Object_Null_Object1_Estrusione_NURBS_1
+    400038: Null_Object_Null_Object1_Estrusione_NURBSEE
+    400040: Sphere
+    2300000: Cube
+    2300002: Lathe_NURBS
+    2300004: Null_Object2_Boole_Estrusione_NURBS_12
+    2300006: Null_Object2_Boole_HyperNURBS_1_Cube_1
+    2300008: Null_Object2_Cube_11
+    2300010: Null_Object2_Cube_2
+    2300012: Null_Object2_Cube_3
+    2300014: Null_Object2_Cube_4
+    2300016: Null_Object2_Cube_5
+    2300018: Null_Object2_Cube_6
+    2300020: Null_Object2_Cube_7
+    2300022: Null_Object2_Estrusione_NURBS
+    2300024: Null_Object2_Estrusione_NURBSEE2
+    2300026: Null_Object_1_Estrusione_NURBS1
+    2300028: Null_Object_1_Estrusione_NURBS_11
+    2300030: Null_Object_1_Estrusione_NURBSEE1
+    2300032: Null_Object_Null_Object1_Estrusione_NURBS2
+    2300034: Null_Object_Null_Object1_Estrusione_NURBS_1
+    2300036: Null_Object_Null_Object1_Estrusione_NURBSEE
+    2300038: Sphere
+    3300000: Cube
+    3300002: Lathe_NURBS
+    3300004: Null_Object2_Boole_Estrusione_NURBS_12
+    3300006: Null_Object2_Boole_HyperNURBS_1_Cube_1
+    3300008: Null_Object2_Cube_11
+    3300010: Null_Object2_Cube_2
+    3300012: Null_Object2_Cube_3
+    3300014: Null_Object2_Cube_4
+    3300016: Null_Object2_Cube_5
+    3300018: Null_Object2_Cube_6
+    3300020: Null_Object2_Cube_7
+    3300022: Null_Object2_Estrusione_NURBS
+    3300024: Null_Object2_Estrusione_NURBSEE2
+    3300026: Null_Object_1_Estrusione_NURBS1
+    3300028: Null_Object_1_Estrusione_NURBS_11
+    3300030: Null_Object_1_Estrusione_NURBSEE1
+    3300032: Null_Object_Null_Object1_Estrusione_NURBS2
+    3300034: Null_Object_Null_Object1_Estrusione_NURBS_1
+    3300036: Null_Object_Null_Object1_Estrusione_NURBSEE
+    3300038: Sphere
+    4300000: Cube
+    4300002: Lathe_NURBS
+    4300004: Null_Object2_Boole_Estrusione_NURBS_12
+    4300006: Null_Object2_Boole_HyperNURBS_1_Cube_1
+    4300008: Null_Object2_Cube_11
+    4300010: Null_Object2_Cube_2
+    4300012: Null_Object2_Cube_3
+    4300014: Null_Object2_Cube_4
+    4300016: Null_Object2_Cube_5
+    4300018: Null_Object2_Cube_6
+    4300020: Null_Object2_Cube_7
+    4300022: Null_Object2_Estrusione_NURBS
+    4300024: Null_Object2_Estrusione_NURBSEE2
+    4300026: Null_Object_1_Estrusione_NURBS1
+    4300028: Null_Object_1_Estrusione_NURBS_11
+    4300030: Null_Object_1_Estrusione_NURBSEE1
+    4300032: Null_Object_Null_Object1_Estrusione_NURBS2
+    4300034: Null_Object_Null_Object1_Estrusione_NURBS_1
+    4300036: Null_Object_Null_Object1_Estrusione_NURBSEE
+    4300038: Sphere
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

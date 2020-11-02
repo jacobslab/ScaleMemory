@@ -1,0 +1,195 @@
+fileFormatVersion: 2
+guid: f32968f48761140b28e5393eb2081d70
+timeCreated: 1467149174
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: burnerTray_original
+    100002: grate_original
+    100004: ground
+    100006: light_highlights
+    100008: //RootNode
+    100010: oven_burner
+    100012: oven_burner_small
+    100014: oven_burnerTray
+    100016: oven_controlPanel
+    100018: oven_door
+    100020: oven_drawer
+    100022: oven_grate
+    100024: oven_knob
+    100026: oven_knob_001
+    100028: oven_knob_002
+    100030: oven_knob_003
+    100032: oven_main
+    100034: oven_main_001
+    100036: oven_stoveTop
+    100038: oven_top
+    100040: oven_top_display
+    100042: oven_vent_front
+    100044: oven_vent_front_001
+    100046: oven_vent_front_002
+    100048: top_original
+    400000: burnerTray_original
+    400002: grate_original
+    400004: ground
+    400006: light_highlights
+    400008: //RootNode
+    400010: oven_burner
+    400012: oven_burner_small
+    400014: oven_burnerTray
+    400016: oven_controlPanel
+    400018: oven_door
+    400020: oven_drawer
+    400022: oven_grate
+    400024: oven_knob
+    400026: oven_knob_001
+    400028: oven_knob_002
+    400030: oven_knob_003
+    400032: oven_main
+    400034: oven_main_001
+    400036: oven_stoveTop
+    400038: oven_top
+    400040: oven_top_display
+    400042: oven_vent_front
+    400044: oven_vent_front_001
+    400046: oven_vent_front_002
+    400048: top_original
+    2300000: burnerTray_original
+    2300002: grate_original
+    2300004: ground
+    2300006: light_highlights
+    2300008: oven_burner
+    2300010: oven_burner_small
+    2300012: oven_burnerTray
+    2300014: oven_controlPanel
+    2300016: oven_door
+    2300018: oven_drawer
+    2300020: oven_grate
+    2300022: oven_knob
+    2300024: oven_knob_001
+    2300026: oven_knob_002
+    2300028: oven_knob_003
+    2300030: oven_main
+    2300032: oven_main_001
+    2300034: oven_stoveTop
+    2300036: oven_top
+    2300038: oven_top_display
+    2300040: oven_vent_front
+    2300042: oven_vent_front_001
+    2300044: oven_vent_front_002
+    2300046: top_original
+    3300000: burnerTray_original
+    3300002: grate_original
+    3300004: ground
+    3300006: light_highlights
+    3300008: oven_burner
+    3300010: oven_burner_small
+    3300012: oven_burnerTray
+    3300014: oven_controlPanel
+    3300016: oven_door
+    3300018: oven_drawer
+    3300020: oven_grate
+    3300022: oven_knob
+    3300024: oven_knob_001
+    3300026: oven_knob_002
+    3300028: oven_knob_003
+    3300030: oven_main
+    3300032: oven_main_001
+    3300034: oven_stoveTop
+    3300036: oven_top
+    3300038: oven_top_display
+    3300040: oven_vent_front
+    3300042: oven_vent_front_001
+    3300044: oven_vent_front_002
+    3300046: top_original
+    4300000: oven_main_001
+    4300002: oven_knob_003
+    4300004: oven_knob_002
+    4300006: oven_knob_001
+    4300008: oven_knob
+    4300010: oven_burner_small
+    4300012: oven_burner
+    4300014: oven_vent_front_002
+    4300016: oven_vent_front_001
+    4300018: oven_top_display
+    4300020: light_highlights
+    4300022: ground
+    4300024: top_original
+    4300026: oven_controlPanel
+    4300028: oven_top
+    4300030: oven_main
+    4300032: oven_drawer
+    4300034: oven_door
+    4300036: oven_vent_front
+    4300038: oven_burnerTray
+    4300040: grate_original
+    4300042: burnerTray_original
+    4300044: oven_stoveTop
+    4300046: oven_grate
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

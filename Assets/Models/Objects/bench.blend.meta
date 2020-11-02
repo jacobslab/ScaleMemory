@@ -1,0 +1,207 @@
+fileFormatVersion: 2
+guid: a86d10e1e017d4f3baa7b568a889444e
+timeCreated: 1467149137
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: ___DUMMY_bench
+    100002: //RootNode
+    100004: Camera01
+    100006: ChamferB10
+    100008: ChamferB11
+    100010: ChamferB12
+    100012: ChamferB13
+    100014: ChamferB14
+    100016: ChamferB15
+    100018: ChamferB16
+    100020: ChamferBo0
+    100022: ChamferBo1
+    100024: ChamferBo2
+    100026: ChamferBo3
+    100028: ChamferBo4
+    100030: ChamferBo5
+    100032: ChamferBo6
+    100034: ChamferBo7
+    100036: ChamferBo8
+    100038: ChamferBo9
+    100040: ChamferBox
+    100042: Line01
+    100044: Line02
+    100046: Line03
+    100048: Line04
+    100050: Line05
+    100052: Plane01
+    100054: Spot01
+    400000: ___DUMMY_bench
+    400002: //RootNode
+    400004: Camera01
+    400006: ChamferB10
+    400008: ChamferB11
+    400010: ChamferB12
+    400012: ChamferB13
+    400014: ChamferB14
+    400016: ChamferB15
+    400018: ChamferB16
+    400020: ChamferBo0
+    400022: ChamferBo1
+    400024: ChamferBo2
+    400026: ChamferBo3
+    400028: ChamferBo4
+    400030: ChamferBo5
+    400032: ChamferBo6
+    400034: ChamferBo7
+    400036: ChamferBo8
+    400038: ChamferBo9
+    400040: ChamferBox
+    400042: Line01
+    400044: Line02
+    400046: Line03
+    400048: Line04
+    400050: Line05
+    400052: Plane01
+    400054: Spot01
+    2300000: Camera01
+    2300002: ChamferB10
+    2300004: ChamferB11
+    2300006: ChamferB12
+    2300008: ChamferB13
+    2300010: ChamferB14
+    2300012: ChamferB15
+    2300014: ChamferB16
+    2300016: ChamferBo0
+    2300018: ChamferBo1
+    2300020: ChamferBo2
+    2300022: ChamferBo3
+    2300024: ChamferBo4
+    2300026: ChamferBo5
+    2300028: ChamferBo6
+    2300030: ChamferBo7
+    2300032: ChamferBo8
+    2300034: ChamferBo9
+    2300036: ChamferBox
+    2300038: Line01
+    2300040: Line02
+    2300042: Line03
+    2300044: Line04
+    2300046: Line05
+    2300048: Plane01
+    2300050: Spot01
+    3300000: Camera01
+    3300002: ChamferB10
+    3300004: ChamferB11
+    3300006: ChamferB12
+    3300008: ChamferB13
+    3300010: ChamferB14
+    3300012: ChamferB15
+    3300014: ChamferB16
+    3300016: ChamferBo0
+    3300018: ChamferBo1
+    3300020: ChamferBo2
+    3300022: ChamferBo3
+    3300024: ChamferBo4
+    3300026: ChamferBo5
+    3300028: ChamferBo6
+    3300030: ChamferBo7
+    3300032: ChamferBo8
+    3300034: ChamferBo9
+    3300036: ChamferBox
+    3300038: Line01
+    3300040: Line02
+    3300042: Line03
+    3300044: Line04
+    3300046: Line05
+    3300048: Plane01
+    3300050: Spot01
+    4300000: Spot01
+    4300002: Camera01
+    4300004: Plane01
+    4300006: ChamferBox
+    4300008: ChamferBo0
+    4300010: ChamferBo1
+    4300012: ChamferBo2
+    4300014: ChamferBo3
+    4300016: ChamferBo4
+    4300018: ChamferBo5
+    4300020: ChamferBo6
+    4300022: ChamferBo7
+    4300024: ChamferBo8
+    4300026: ChamferBo9
+    4300028: ChamferB10
+    4300030: ChamferB11
+    4300032: ChamferB12
+    4300034: ChamferB13
+    4300036: ChamferB14
+    4300038: ChamferB15
+    4300040: ChamferB16
+    4300042: Line01
+    4300044: Line02
+    4300046: Line03
+    4300048: Line04
+    4300050: Line05
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

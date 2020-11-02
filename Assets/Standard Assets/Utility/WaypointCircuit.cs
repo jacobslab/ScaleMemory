@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEditor.Experimental;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -36,6 +37,9 @@ namespace UnityStandardAssets.Utility
         private Vector3 P2;
         private Vector3 P3;
 
+
+        
+
         // Use this for initialization
         private void Awake()
         {
@@ -44,6 +48,12 @@ namespace UnityStandardAssets.Utility
                 CachePositionsAndDistances();
             }
             numPoints = Waypoints.Length;
+        }
+
+
+        public void ResetPoint()
+        {
+            
         }
 
 

@@ -1,0 +1,135 @@
+fileFormatVersion: 2
+guid: 5d4005466b1b24dba93992b656a74e01
+timeCreated: 1467149071
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Axle_002
+    100002: Barrel_002
+    100004: //RootNode
+    100006: MetalBelt_012
+    100008: MetalBelt_013
+    100010: MetalBelt_014
+    100012: MetalBelt_015
+    100014: MetalBelt_016
+    100016: MetalBelt_017
+    100018: Wheel_004
+    100020: Wheel_005
+    100022: WheelBelt_002
+    100024: WoodFrame_002
+    400000: Axle_002
+    400002: Barrel_002
+    400004: //RootNode
+    400006: MetalBelt_012
+    400008: MetalBelt_013
+    400010: MetalBelt_014
+    400012: MetalBelt_015
+    400014: MetalBelt_016
+    400016: MetalBelt_017
+    400018: Wheel_004
+    400020: Wheel_005
+    400022: WheelBelt_002
+    400024: WoodFrame_002
+    2300000: Axle_002
+    2300002: Barrel_002
+    2300004: MetalBelt_012
+    2300006: MetalBelt_013
+    2300008: MetalBelt_014
+    2300010: MetalBelt_015
+    2300012: MetalBelt_016
+    2300014: MetalBelt_017
+    2300016: Wheel_004
+    2300018: Wheel_005
+    2300020: WheelBelt_002
+    2300022: WoodFrame_002
+    3300000: Axle_002
+    3300002: Barrel_002
+    3300004: MetalBelt_012
+    3300006: MetalBelt_013
+    3300008: MetalBelt_014
+    3300010: MetalBelt_015
+    3300012: MetalBelt_016
+    3300014: MetalBelt_017
+    3300016: Wheel_004
+    3300018: Wheel_005
+    3300020: WheelBelt_002
+    3300022: WoodFrame_002
+    4300000: MetalBelt_012
+    4300002: MetalBelt_013
+    4300004: MetalBelt_014
+    4300006: Axle_002
+    4300008: Barrel_002
+    4300010: MetalBelt_015
+    4300012: MetalBelt_016
+    4300014: MetalBelt_017
+    4300016: Wheel_004
+    4300018: Wheel_005
+    4300020: WheelBelt_002
+    4300022: WoodFrame_002
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

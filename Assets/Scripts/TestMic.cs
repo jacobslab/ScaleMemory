@@ -32,7 +32,7 @@ public class TestMic : MonoBehaviour
     }
 
 
-    AudioClip _clipRecord = new AudioClip();
+    AudioClip _clipRecord;
     int _sampleWindow = 128;
 
     //get data from microphone into audioclip

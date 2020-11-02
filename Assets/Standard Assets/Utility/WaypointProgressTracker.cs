@@ -11,7 +11,10 @@ namespace UnityStandardAssets.Utility
         // This script manages the amount to look ahead along the route,
         // and keeps track of progress and laps.
 
-        [SerializeField] public WaypointCircuit circuit; // A reference to the waypoint-based route we should follow
+        [SerializeField] public WaypointCircuit leftCircuit; // A reference to the waypoint-based route we should follow
+        [SerializeField] public WaypointCircuit rightCircuit; // A reference to the waypoint-based route we should follow
+
+        private WaypointCircuit currentCircuit;
 
         [SerializeField] private float lookAheadForTargetOffset = 5;
         // The offset ahead along the route that the we will aim for
@@ -37,6 +40,14 @@ namespace UnityStandardAssets.Utility
             PointToPoint,
         }
 
+        public enum TrackDirection
+        {
+            Left,
+            Right
+        }
+
+        public TrackDirection currentDirection;
+
         // these are public, readable by other objects - i.e. for an AI to know where to head!
         public WaypointCircuit.RoutePoint targetPoint { get; private set; }
         public WaypointCircuit.RoutePoint speedPoint { get; private set; }
@@ -52,6 +63,9 @@ namespace UnityStandardAssets.Utility
         // setup script properties
         private void Start()
         {
+            //default start direction
+            SetActiveDirection(TrackDirection.Left);
+
             // we use a transform to represent the point to aim for, and the point which
             // is considered for upcoming changes-of-speed. This allows this component
             // to communicate this information to the AI without requiring further dependencies.
@@ -64,6 +78,23 @@ namespace UnityStandardAssets.Utility
             }
 
             Reset();
+        }
+
+        public void SetActiveDirection(TrackDirection newDirection)
+        {
+            switch(newDirection)
+            {
+                case TrackDirection.Left:
+                    currentDirection = TrackDirection.Left;
+                    currentCircuit = leftCircuit;
+                    break;
+                case TrackDirection.Right:
+                    currentDirection = TrackDirection.Right;
+                    currentCircuit = rightCircuit;
+                    break;
+                default:
+                    break;
+            }
         }
 
 		public void SetProgressNum(int newProgressNum)
@@ -79,8 +110,8 @@ namespace UnityStandardAssets.Utility
             progressNum = 0;
             if (progressStyle == ProgressStyle.PointToPoint)
             {
-                target.position = circuit.Waypoints[progressNum].position;
-                target.rotation = circuit.Waypoints[progressNum].rotation;
+                target.position = currentCircuit.Waypoints[progressNum].position;
+                target.rotation = currentCircuit.Waypoints[progressNum].rotation;
             }
         }
 
@@ -100,16 +131,17 @@ namespace UnityStandardAssets.Utility
                                        Time.deltaTime);
                 }
                 target.position =
-                    circuit.GetRoutePoint(progressDistance + lookAheadForTargetOffset + lookAheadForTargetFactor*speed)
+                    currentCircuit.GetRoutePoint(progressDistance + lookAheadForTargetOffset + lookAheadForTargetFactor*speed)
                            .position;
                 target.rotation =
                     Quaternion.LookRotation(
-                        circuit.GetRoutePoint(progressDistance + lookAheadForSpeedOffset + lookAheadForSpeedFactor*speed)
+                        currentCircuit.GetRoutePoint(progressDistance + lookAheadForSpeedOffset + lookAheadForSpeedFactor*speed)
                                .direction);
 
+              //  UnityEngine.Debug.Log("progress distance: " + progressDistance.ToString());
 
                 // get our current progress along the route
-                progressPoint = circuit.GetRoutePoint(progressDistance);
+                progressPoint = currentCircuit.GetRoutePoint(progressDistance);
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
@@ -117,6 +149,8 @@ namespace UnityStandardAssets.Utility
                 }
 
                 lastPosition = transform.position;
+
+
             }
             else
             {
@@ -125,15 +159,15 @@ namespace UnityStandardAssets.Utility
                 Vector3 targetDelta = target.position - transform.position;
                 if (targetDelta.magnitude < pointToPointThreshold)
                 {
-                    progressNum = (progressNum + 1)%circuit.Waypoints.Length;
+                    progressNum = (progressNum + 1)% currentCircuit.Waypoints.Length;
                 }
 
 
-                target.position = circuit.Waypoints[progressNum].position;
-                target.rotation = circuit.Waypoints[progressNum].rotation;
+                target.position = currentCircuit.Waypoints[progressNum].position;
+                target.rotation = currentCircuit.Waypoints[progressNum].rotation;
 
                 // get our current progress along the route
-                progressPoint = circuit.GetRoutePoint(progressDistance);
+                progressPoint = currentCircuit.GetRoutePoint(progressDistance);
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
@@ -150,7 +184,7 @@ namespace UnityStandardAssets.Utility
             {
                 Gizmos.color = Color.green;
                 Gizmos.DrawLine(transform.position, target.position);
-                Gizmos.DrawWireSphere(circuit.GetRoutePosition(progressDistance), 1);
+                Gizmos.DrawWireSphere(currentCircuit.GetRoutePosition(progressDistance), 1);
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(target.position, target.position + target.forward);
             }

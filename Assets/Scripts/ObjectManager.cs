@@ -12,12 +12,14 @@ public class ObjectManager : MonoBehaviour {
 	public Transform landmarkTransform;
 	public List<GameObject> retrievalSpawnTransform;
 
+
 	private GameObject currentSpawnedObj;
 	// Use this for initialization
 	void Awake()
 	{
 		PopulateSpawnList ();
 		spawnedObjects = new List<GameObject> ();
+		StartCoroutine("SelectSpawnSequence");
 	}
 
 	public void PopulateSpawnList()
@@ -66,19 +68,12 @@ public class ObjectManager : MonoBehaviour {
 		}
 	}
 
-	public void SpawnAtLocation(int currentIndex)
-	{
-		exp.uiController.EnableObjectPresentation (spawnSequence [currentIndex].name);
-		currentSpawnedObj = Instantiate (spawnSequence [currentIndex], exp.raceManager.objSpawnTransform.position, Quaternion.identity) as GameObject;
-		Debug.Log (currentSpawnedObj.name);
-	}
 		
 	public void EndObjectPresentation()
 	{
 		Debug.Log (currentSpawnedObj.name);
 		spawnedObjects.Add (currentSpawnedObj);
 		currentSpawnedObj.SetActive (false);
-		exp.uiController.DisableObjectPresentation ();
 	}
 
 	public List<GameObject> GetRandomObjects(List<GameObject> spawnedObj, int count)
@@ -101,7 +96,7 @@ public class ObjectManager : MonoBehaviour {
 		Debug.Log ("temp list count: " + tempList.Count.ToString ());
 		return randList;
 	}
-
+	/*
 	public IEnumerator BeginObjectRetrieval()
 	{
 		for (int i = 0; i < 2; i++) {
@@ -279,4 +274,5 @@ public class ObjectManager : MonoBehaviour {
 		exp.uiController.encodingGroup.alpha = 1f;
 		yield return null;
 	}
+	*/
 }
