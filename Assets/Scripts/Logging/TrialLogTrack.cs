@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using System.Runtime.InteropServices;
+//using UnityEditor.Experimental.GraphView;
 
 public class TrialLogTrack : LogTrack {
 
@@ -66,6 +67,30 @@ public class TrialLogTrack : LogTrack {
 	{ 
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLACKROCK_CONNECTION_ATTEMPT");
 	}
+
+	public void LogEncodingStartPosition(Vector3 pos)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ENCODING_START_POSITION" + separator + pos.x.ToString() + separator + pos.y.ToString() + separator + pos.z.ToString());
+
+	}
+
+	public void LogItemPresentation(string objName)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ITEM_PRESENTATION" + separator + objName);
+
+	}
+
+
+	public void LogRetrievalStartPosition(Vector3 pos)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_START_POSITION" + separator + pos.x.ToString() + separator + pos.y.ToString() + separator + pos.z.ToString());
+
+	}
+	public void LogVerbalRetrievalAttempt(GameObject objQueried, string fileName)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "VERBAL_RETRIEVAL_ATTEMPT" + separator + objQueried.name + separator + fileName);
+
+	}
 	public void LogBlackrockConnectionSuccess()
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLACKROCK_CONNECTION_SUCCESSFUL");
@@ -103,8 +128,11 @@ public class TrialLogTrack : LogTrack {
 	public void LogRetrievalAttempt(GameObject targetObj, GameObject car)
 	{
 		string targetObjName = targetObj.gameObject.name.Split('(')[0];
-		
+		float dist = Vector3.Distance(targetObj.transform.position, car.transform.position);
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_ATTEMPT" + separator + targetObjName + separator + car.transform.position.x.ToString() + separator + car.transform.position.y.ToString() + separator + car.transform.position.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_ATTEMPT_DISTANCE_ERROR" + separator + targetObjName + separator + dist.ToString());
+
+
 	}
 
 	public void LogTrafficLightVisibility(bool isVisible)

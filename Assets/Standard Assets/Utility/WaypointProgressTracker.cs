@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using UnityEditor.Experimental;
 using UnityEngine;
 
 namespace UnityStandardAssets.Utility
@@ -12,7 +14,7 @@ namespace UnityStandardAssets.Utility
         // and keeps track of progress and laps.
 
         [SerializeField] public WaypointCircuit leftCircuit; // A reference to the waypoint-based route we should follow
-        [SerializeField] public WaypointCircuit rightCircuit; // A reference to the waypoint-based route we should follow
+        [SerializeField] public WaypointCircuit reverseCircuit; // A reference to the waypoint-based route we should follow
 
         private WaypointCircuit currentCircuit;
 
@@ -43,7 +45,8 @@ namespace UnityStandardAssets.Utility
         public enum TrackDirection
         {
             Left,
-            Right
+            Right,
+            Reverse
         }
 
         public TrackDirection currentDirection;
@@ -53,7 +56,11 @@ namespace UnityStandardAssets.Utility
         public WaypointCircuit.RoutePoint speedPoint { get; private set; }
         public WaypointCircuit.RoutePoint progressPoint { get; private set; }
 
+        WaypointCircuit.RoutePoint tempPoint;
+
         public Transform target;
+        private bool reversed = false;
+
 
         private float progressDistance; // The progress round the route, used in smooth mode.
         private int progressNum; // the current waypoint number, used in point-to-point mode.
@@ -87,16 +94,42 @@ namespace UnityStandardAssets.Utility
                 case TrackDirection.Left:
                     currentDirection = TrackDirection.Left;
                     currentCircuit = leftCircuit;
+                    reversed = false;
                     break;
-                case TrackDirection.Right:
-                    currentDirection = TrackDirection.Right;
-                    currentCircuit = rightCircuit;
+                case TrackDirection.Reverse:
+                  //  currentDirection = TrackDirection.Reverse;
+                  //  currentCircuit = reverseCircuit;
+                    reversed = true;
                     break;
                 default:
+                    currentDirection = TrackDirection.Left;
+                    currentCircuit = leftCircuit;
+                    reversed = false;
                     break;
             }
-        }
 
+         //   Reset();
+        }
+        /*
+        WaypointCircuit.RoutePoint GetNearestPoint()
+        {
+            WaypointCircuit.RoutePoint targetPoint;
+
+            float minDist = 1000f;
+            int minIndex = 0;
+            for(int i=0;i<currentCircuit.Waypoints.Length;i++)
+            {
+                float dist = Vector3.Distance(currentCircuit.Waypoints[i].position, gameObject.transform.position);
+                if(dist<minDist)
+                {
+                    minDist = dist;
+                    minIndex = i;
+                }
+            }
+            targetPoint = currentCircuit.getro
+            return targetPoint;
+        }
+        */
 		public void SetProgressNum(int newProgressNum)
 		{
 			progressNum = newProgressNum;
@@ -120,6 +153,9 @@ namespace UnityStandardAssets.Utility
 
         private void Update()
         {
+
+           // UnityEngine.Debug.Log("progress point " + progressPoint.position.ToString());
+           // UnityEngine.Debug.Log("progress distance " + progressDistance.ToString());
             if (progressStyle == ProgressStyle.SmoothAlongRoute)
             {
                 // determine the position we should currently be aiming for
@@ -138,16 +174,24 @@ namespace UnityStandardAssets.Utility
                         currentCircuit.GetRoutePoint(progressDistance + lookAheadForSpeedOffset + lookAheadForSpeedFactor*speed)
                                .direction);
 
-              //  UnityEngine.Debug.Log("progress distance: " + progressDistance.ToString());
+                //  UnityEngine.Debug.Log("progress distance: " + progressDistance.ToString());
 
                 // get our current progress along the route
-                progressPoint = currentCircuit.GetRoutePoint(progressDistance);
+                if (!reversed)
+                {
+                    progressPoint = currentCircuit.GetRoutePoint(progressDistance);
+                }
+                else
+                {
+                    tempPoint = currentCircuit.GetRoutePoint(progressDistance);
+                    tempPoint.direction *= -1;
+                    progressPoint = tempPoint;
+                }
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
                     progressDistance += progressDelta.magnitude*0.5f;
                 }
-
                 lastPosition = transform.position;
 
 

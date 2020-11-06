@@ -25,6 +25,7 @@ public class UIController : MonoBehaviour {
 
 	//retrieval panel
 	public CanvasGroup retrievalPanel;
+	public CanvasGroup verbalRetrievalPanel;
 	public Text itemOneName;
 	public Text itemTwoName;
 
@@ -53,6 +54,7 @@ public class UIController : MonoBehaviour {
 	//crash notification
 	public CanvasGroup crashNotification;
 
+	public CanvasGroup verbalInstruction;
 
 	//black screen
 	public CanvasGroup blackScreen;

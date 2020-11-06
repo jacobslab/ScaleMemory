@@ -61,7 +61,22 @@ namespace UnityStandardAssets.Utility
         {
             // position and direction
             Vector3 p1 = GetRoutePosition(dist);
+         //   UnityEngine.Debug.Log("p1 " + p1.ToString());
+          
             Vector3 p2 = GetRoutePosition(dist + 0.1f);
+         //   UnityEngine.Debug.Log("p2 " + p2.ToString());
+            Vector3 delta = p2 - p1;
+            return new RoutePoint(p1, delta.normalized);
+        }
+
+        public RoutePoint GetReverseRoutePoint(float dist)
+        {
+
+            // position and direction
+            Vector3 p1 = GetRoutePosition(dist);
+      //      UnityEngine.Debug.Log("p1 " + p1.ToString());
+            Vector3 p2 = GetRoutePosition(dist - 0.1f);
+      //      UnityEngine.Debug.Log("p2 " + p2.ToString());
             Vector3 delta = p2 - p1;
             return new RoutePoint(p1, delta.normalized);
         }

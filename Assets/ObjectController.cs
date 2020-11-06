@@ -13,10 +13,12 @@ public class ObjectController : MonoBehaviour
 	public GameObject textPrefab;
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update
-	void Start()
-    {
+	void Awake()
+	{
+		spawnableObjectList = new List<GameObject>();
+		CreateSpecialObjectList(spawnableObjectList);
 
-    }
+	}
 
 	void CreateSpecialObjectList(List<GameObject> gameObjectListToFill)
 	{
@@ -84,26 +86,31 @@ public class ObjectController : MonoBehaviour
 
 	public IEnumerator SelectEncodingItems()
 	{
-		spawnableObjectList = new List<GameObject>();
 		encodingList = new List<GameObject>();
-		CreateSpecialObjectList(spawnableObjectList);
 		List<int> allInts = new List<int>();
 		List<int> randInts = new List<int>();
 		for (int i=0;i<spawnableObjectList.Count;i++)
 		{
 			allInts.Add(i);
 		}
-		for(int j=0;j<Experiment.itemsPerBlock;j++)
+		for(int j=0;j<Experiment.listLength;j++)
 		{
-			int randomIndex = UnityEngine.Random.Range(0, allInts.Count);
+			int randomIndex = UnityEngine.Random.Range(0, allInts.Count-1);
 			randInts.Add(allInts[randomIndex]);
 			allInts.RemoveAt(randomIndex);
 		}
 
 		for(int i=0;i<randInts.Count;i++)
 		{
-			encodingList.Add(spawnableObjectList[randInts[i]]);
-			UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
+			if (randInts[i] >= spawnableObjectList.Count)
+			{
+				encodingList.Add(spawnableObjectList[spawnableObjectList.Count - 1]);
+			}
+			else
+			{
+				encodingList.Add(spawnableObjectList[randInts[i]]);
+				UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
+			}
 			spawnableObjectList.RemoveAt(randInts[i]);
 		}
 

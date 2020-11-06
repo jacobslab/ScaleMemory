@@ -38,21 +38,21 @@ public class TrafficLightController : MonoBehaviour
         {
             case TrafficLights.Red:
           
-                UnityEngine.Debug.Log("setting to RED");
+              //  UnityEngine.Debug.Log("setting to RED");
                 gameObject.GetComponent<MeshRenderer>().materials[4].EnableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[3].DisableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[2].DisableKeyword("_EMISSION");
                 break;
 
             case TrafficLights.Yellow:
-                UnityEngine.Debug.Log("setting to YELLOW");
+               // UnityEngine.Debug.Log("setting to YELLOW");
                 gameObject.GetComponent<MeshRenderer>().materials[4].DisableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[3].EnableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[2].DisableKeyword("_EMISSION");
                 break;
 
             case TrafficLights.Green:
-                UnityEngine.Debug.Log("setting to GREEN");
+               // UnityEngine.Debug.Log("setting to GREEN");
                 gameObject.GetComponent<MeshRenderer>().materials[4].DisableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[3].DisableKeyword("_EMISSION");
                 gameObject.GetComponent<MeshRenderer>().materials[2].EnableKeyword("_EMISSION");

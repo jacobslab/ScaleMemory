@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+//using System.Runtime.Remoting;
 
 public class FacePosition : MonoBehaviour {
 	
@@ -7,10 +8,11 @@ public class FacePosition : MonoBehaviour {
 	public bool ShouldFacePlayer = false;
 	public bool ShouldFlip180 = false; //text meshes have their forward direction 180 degrees flipped...
 
-
 	// Use this for initialization
 	void Start () {
-	
+	//	if(gameObject.componen)
+	if(gameObject.GetComponent<VisibilityToggler>()!=null)
+		gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
 	}
 	
 	// Update is called once per frame
@@ -26,8 +28,11 @@ public class FacePosition : MonoBehaviour {
 		else {
 			FaceThePosition (Experiment.Instance.player.transform);
 		}
+
+		
 	}
 
+	
 	public void FaceItemScreeningCam()
 	{
 		FaceThePosition(Experiment.Instance.itemScreeningCam.transform);

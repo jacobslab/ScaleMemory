@@ -39,6 +39,16 @@ public class AudioLogTrack : LogTrack {
 		}
 	}
 
+
+	public void LogRecording(string fileName, bool status)
+	{
+		if (status)
+			subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RECORDING_STARTED" + separator + fileName);
+		else
+			subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RECORDING_ENDED" + separator + fileName);
+	}
+
+
 	void LogAudioPlaying(AudioClip audioClip, Vector3 audioLocation){
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), GetNameToLog() + separator + "AUDIO_PLAYING" + separator + audioSource.name + separator + audioClip.name + separator + "IS_LOOPING" + separator + audioSource.loop + separator + audioLocation.x + separator + audioLocation.y + separator + audioLocation.z);
 	}

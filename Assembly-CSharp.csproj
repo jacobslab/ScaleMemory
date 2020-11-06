@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CarStopper.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Camera_particale.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate_2.cs" />
@@ -127,6 +128,7 @@
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ParticleAutoDestroy.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\VisibilityToggler.cs" />
+     <Compile Include="Assets\Scripts\AudioRecorder.cs" />
      <Compile Include="Assets\Scripts\BarrierManager.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\CardboardBox.cs" />
@@ -175,6 +177,7 @@
      <Compile Include="Assets\Scripts\PrintLists.cs" />
      <Compile Include="Assets\Scripts\PullObject.cs" />
      <Compile Include="Assets\Scripts\SanityCheck.cs" />
+     <Compile Include="Assets\Scripts\SavWav.cs" />
      <Compile Include="Assets\Scripts\SimpleDistanceMeasure.cs" />
      <Compile Include="Assets\Scripts\SimpleTimer.cs" />
      <Compile Include="Assets\Scripts\SpawnManager.cs" />

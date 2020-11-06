@@ -19,8 +19,8 @@ public class Experiment : MonoBehaviour {
 	private GameObject slowZoneObj;
 	private GameObject speedZoneObj;
 
-	public List<Transform> leftSpawnableWaypoints;
-	public List<Transform> rightSpawnableWaypoints;
+	public List<Transform> spawnableWaypoints;
+	//public List<Transform> rightSpawnableWaypoints;
 
 
 	//traffic light controller
@@ -43,14 +43,18 @@ public class Experiment : MonoBehaviour {
 	private List<GameObject> retrievalObjList;
 	private List<Vector3> retrievalPositions;
 
+	public List<Transform> startableTransforms;
+
 
 	public Camera itemScreeningCam;
 
 	public WaypointCircuit waypointCircuit;
 
-	public static int blockLength = 2;
+	public static int recallTime = 6;
 
-	public static int itemsPerBlock = 2;
+	public static int blockLength = 24;
+
+	public static int listLength = 4;
 
 	private List<GameObject> itemScreeningSeq;
 
@@ -70,6 +74,8 @@ public class Experiment : MonoBehaviour {
 	public static string ExpName = "T2";
 	public static string BuildVersion = "0.9.8";
 	public static bool isSystem2 = false;
+
+	public bool verbalRetrieval = false;
 
 
 	//logging
@@ -112,9 +118,11 @@ public class Experiment : MonoBehaviour {
 
 	public SimpleTimer lapTimer;
 
+	public GameObject chequeredFlag;
+
 	private float fixedTime = 1f;
 
-	private int maxLaps = 12;
+	private int maxLaps = 1;
 
 	private float prevLapTime = 0f;
 	private float bestLapTime = 1000f;
@@ -122,6 +130,11 @@ public class Experiment : MonoBehaviour {
 
 	public TrialLogTrack trialLogTrack;
 	private int objLapper = 0;
+
+	public AudioRecorder audioRecorder;
+	private int retCount = 0;
+	private int trialCount = 0;
+
 
 	public TCPServer tcpServer;
 	public static Experiment Instance{
@@ -368,6 +381,7 @@ public class Experiment : MonoBehaviour {
 
 	IEnumerator SpawnZones()
     {
+		/*
 		int leftRandInt = Random.Range(0, leftSpawnableWaypoints.Count - 1);
 		int rightRandInt = Random.Range(0, rightSpawnableWaypoints.Count - 1);
 
@@ -392,6 +406,7 @@ public class Experiment : MonoBehaviour {
 			speedZoneObj = Instantiate(speedZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
 			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
 		}
+		*/
 
 		yield return null;
 
@@ -447,12 +462,11 @@ public class Experiment : MonoBehaviour {
 		}
 
 		trialLogTrack.LogBlackrockConnectionSuccess();
-		//	yield return StartCoroutine(objController.SelectEncodingItems());
 		//yield return StartCoroutine("BeginItemScreening");
 		//	StartCoroutine("RandomizeTravelSpeed");
 		//	yield return StartCoroutine("BeginTrackScreening");
 
-		yield return StartCoroutine("SpawnZones");
+	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
 		yield return StartCoroutine("BeginTaskBlock");
 
@@ -520,7 +534,7 @@ public class Experiment : MonoBehaviour {
 	IEnumerator GenerateRandomItemScreeningSequence()
 	{
 		List<GameObject> tempList = new List<GameObject>();
-		for(int i=0;i<itemsPerBlock;i++)
+		for(int i=0;i<listLength;i++)
 		{
 			tempList.Add(objController.encodingList[i]);
 		}
@@ -634,6 +648,14 @@ public class Experiment : MonoBehaviour {
 		uiController.encodingPanel.alpha = 0f;
 		yield return null;
 	}
+	IEnumerator ShowVerbalRetrievalInstructions()
+	{
+		uiController.verbalRetrievalPanel.alpha = 1f;
+		yield return StartCoroutine(WaitForActionButton());
+		uiController.verbalRetrievalPanel.alpha = 0f;
+		yield return null;
+	}
+
 
 	IEnumerator ShowRetrievalInstructions()
 	{
@@ -685,34 +707,58 @@ public class Experiment : MonoBehaviour {
     }
 	IEnumerator BeginTaskBlock()
 	{
-		currentStage = TaskStage.Encoding;
-		trialLogTrack.LogTaskStage(currentStage, true);
+
+		verbalRetrieval = false;
+
 
 		SetCarBrakes(true);
 		//show instructions
 		for (int i = 0; i < blockLength; i++)
 		{
+
+			currentStage = TaskStage.Encoding;
+			trialLogTrack.LogTaskStage(currentStage, true);
+			trialCount = i + 1;
 			LapCounter.lapCount = 0;
+			yield return StartCoroutine(objController.SelectEncodingItems());
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
 			yield return StartCoroutine(ShowEncodingInstructions());
 			trialLogTrack.LogInstructions(false);
-		//	yield return StartCoroutine(PickEncodingLocations());
-		//	yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
-			trafficLightController.MakeVisible(true);
-			yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-			SetCarBrakes(false);
-			trafficLightController.MakeVisible(false);
-
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+			yield return StartCoroutine(PickEncodingLocations());
+			yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
 
 
-			while (LapCounter.lapCount < 12)
+			while (LapCounter.lapCount < 1)
 			{
+				
+				List<Transform> validTransforms = GetValidStartTransforms();
+
+				int randStartWaypoint = UnityEngine.Random.Range(0, validTransforms.Count - 1);
+
+				Transform randTransform = validTransforms[randStartWaypoint];
+
+				player.transform.position = randTransform.position;
+				player.transform.rotation = randTransform.rotation;
+				chequeredFlag.transform.position = randTransform.position;
+				chequeredFlag.transform.rotation = randTransform.rotation;
+
+				trialLogTrack.LogEncodingStartPosition(player.transform.position);
+				
+
+				player.GetComponent<WaypointProgressTracker>().Reset();
+
+				trafficLightController.MakeVisible(true);
+				yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+				SetCarBrakes(false);
+				trafficLightController.MakeVisible(false);
+
 				//reset lap timer and show display
 				ResetLapDisplay();
+				//player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 
-				//switch direction
+
+				/*//switch direction
 				if (player.GetComponent<WaypointProgressTracker>().currentDirection == WaypointProgressTracker.TrackDirection.Left)
 				{
 					UnityEngine.Debug.Log("chose right direction");
@@ -723,7 +769,7 @@ public class Experiment : MonoBehaviour {
 					UnityEngine.Debug.Log("chose left direction");
 					player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 				}
-
+				*/
 				UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
 				SetCarBrakes(false);
 				LapCounter.canStop = false;
@@ -766,129 +812,231 @@ public class Experiment : MonoBehaviour {
 
 			//retrieval time
 
+			HideLapDisplay();
 			//hide encoding objects and text
 			for (int j=0;j< spawnedObjects.Count;j++)
 			{
-				spawnedObjects[j].gameObject.SetActive(false);
+				//spawnedObjects[j].gameObject.SetActive(false);
+				spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
 				
 			}
 
 			//	uiController.itemOneName.text = spawnedObjects[0].name.Split('(')[0];
 			//	uiController.itemTwoName.text = spawnedObjects[1].name.Split('(')[0];
 
-			slowZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-			speedZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
+			//slowZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
+		//	speedZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
 			trialLogTrack.LogTaskStage(currentStage, false);
 			currentStage = Experiment.TaskStage.Retrieval;
 			trialLogTrack.LogTaskStage(currentStage, true);
-			trialLogTrack.LogInstructions(true);
-			player.transform.position = startTransform.position;
-			yield return StartCoroutine(ShowRetrievalInstructions());
-			trialLogTrack.LogInstructions(false);
+
+			//pick a randomized starting retrieval position
+			List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
+			int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
+
+			Transform randStartTransform = validStartTransforms[randWaypoint];
+
+			player.transform.position = randStartTransform.position;
+			player.transform.rotation = randStartTransform.rotation;
+			chequeredFlag.transform.position = randStartTransform.position;
+			chequeredFlag.transform.rotation = randStartTransform.rotation;
+
+			trialLogTrack.LogRetrievalStartPosition(player.transform.position);
+
+			player.GetComponent<WaypointProgressTracker>().Reset();
+
 			LapCounter.lapCount = 0; //reset lap count for retrieval 
 
 			string targetNames = "";
-			int targetMode = 0;
-			while (LapCounter.lapCount < 18)
+
+
+			if (trialCount%1==0)
+				verbalRetrieval = true;
+			
+			bool finishedRetrieval = false;
+			retCount = 0;
+
+
+			while (LapCounter.lapCount < 10 && !finishedRetrieval)
 			{
-				targetMode = LapCounter.lapCount % 3;
-				switch (targetMode)
-                {
-					case 0:
-						UnityEngine.Debug.Log("slow zone is target");
-						slowZoneObj.SetActive(true);
-						speedZoneObj.SetActive(false);
-						uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
-						targetNames = "OIL PATCH (Press Z)";
-						break;
-					case 1:
-						UnityEngine.Debug.Log("speed zone is target");
-						slowZoneObj.SetActive(false);
-						speedZoneObj.SetActive(true);
-						uiController.zRetrievalText.text = "SPEED ZONE:\n Press M";
-						targetNames = "SPEED ZONE (Press M)";
-						break;
-					case 2:
-						UnityEngine.Debug.Log("both zones are the target");
-						slowZoneObj.SetActive(true);
-						speedZoneObj.SetActive(true);
-						targetNames = "OIL PATCH (Press Z)\n and \n SPEED ZONE (Press M)";
-						uiController.zRetrievalText.text = "OIL PATCH : Press Z \n SPEED ZONE: Press M";
-						break;
-                }
-
-				uiController.zRetrievalText.color = Color.white;
-				uiController.retrievalTextPanel.alpha = 1f;
-				uiController.itemName.text = targetNames;
-				yield return StartCoroutine(WaitForActionButton());
-				uiController.retrievalTextPanel.alpha = 0f;
-
-
-				trafficLightController.MakeVisible(true);
-			yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-			SetCarBrakes(false);
-
-			//reset lap timer and show display
-			ResetLapDisplay();
-
-			trafficLightController.MakeVisible(false);
-			uiController.targetTextPanel.alpha = 1f;
-		//	uiController.zRetrievalText.text = spawnedObjects[0].name.Split('(')[0] + " : Z";
-		//	uiController.zRetrievalText.color = Color.white;
-		//	uiController.mRetrievalText.text =  spawnedObjects[1].name.Split('(')[0] + " : M";
-		//	uiController.mRetrievalText.color = Color.white;
-
-				while (!LapCounter.canStop)
+				if (verbalRetrieval)
 				{
-					yield return 0;
+					trialLogTrack.LogInstructions(true);
+					yield return StartCoroutine(ShowVerbalRetrievalInstructions());
+					trialLogTrack.LogInstructions(false);
+					trafficLightController.MakeVisible(true);
+					yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+					SetCarBrakes(false);
+
+					//reset lap timer and show display
+					ResetLapDisplay();
+					HideLapDisplay();
+
+					trafficLightController.MakeVisible(false);
+
+					while(retCount < listLength)
+                    {
+						yield return 0;
+                    }
+					verbalRetrieval = false;
+					SetCarBrakes(true);
+					UpdateLapDisplay();
+					HideLapDisplay();
+
+					trafficLightController.MakeVisible(false);
+					yield return new WaitForSeconds(1f);
+
+					finishedRetrieval = true;
 				}
-				LapCounter.canStop = false;
-				//can press spacebar to stop
-				float forceStopTimer = 0f;
-				trafficLightController.MakeVisible(true);
-				yield return StartCoroutine(trafficLightController.ShowRed());
-				bool forceStopped = false;
-				while (!Input.GetKeyDown(KeyCode.Space) && !forceStopped)
+				else
 				{
-					forceStopTimer += Time.deltaTime;
-					if (forceStopTimer > 1.15f)
+					UnityEngine.Debug.Log("beginning spatial retrieval");
+
+					trialLogTrack.LogInstructions(true);
+					yield return StartCoroutine(ShowRetrievalInstructions());
+					trialLogTrack.LogInstructions(false);
+					chequeredFlag.SetActive(false);
+
+					//spatial retrieval
+					List<int> intPool = new List<int>();
+					List<int> randIndex = new List<int>();
+					for (int j = 0; j < listLength; j++)
 					{
-						forceStopTimer = 0f;
-						forceStopped = true;
+						intPool.Add(j);
 					}
+					for (int j = 0; j < listLength; j++)
+					{
+						int randInt = UnityEngine.Random.Range(0, intPool.Count - 1);
+						randIndex.Add(intPool[randInt]);
+						intPool.RemoveAt(randInt);
+					}
+
+					trafficLightController.MakeVisible(true);
+					yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+					SetCarBrakes(false);
+
+					//reset lap timer and show display
+					ResetLapDisplay();
+					HideLapDisplay();
+
+					trafficLightController.MakeVisible(false);
+					for (int j = 0; j < listLength; j++)
+					{
+						UnityEngine.Debug.Log("retrieval num " + j.ToString());
+						targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
+						uiController.zRetrievalText.color = Color.white;
+						uiController.zRetrievalText.text = targetNames;
+
+						uiController.targetTextPanel.alpha = 1f;
+
+						while (!Input.GetKeyDown(KeyCode.X))
+						{
+							yield return 0;
+						}
+						trialLogTrack.LogRetrievalAttempt(spawnedObjects[randIndex[j]].gameObject, player);
+						yield return new WaitForSeconds(0.2f);
+
+					}
+					UnityEngine.Debug.Log("finished all retrievals");
+
+
+					SetCarBrakes(true);
+					finishedRetrieval = true;
+
+					UpdateLapDisplay();
+					HideLapDisplay();
+
+					trafficLightController.MakeVisible(false);
+					yield return new WaitForSeconds(1f);
+					/*
+					player.transform.position = startTransform.position;
+					yield return StartCoroutine(ShowFixation());
+					player.transform.position = startTransform.position;
+					*/
+
 					yield return 0;
 				}
-				forceStopped = false;
-				SetCarBrakes(true);
-
-
-				UpdateLapDisplay();
-				HideLapDisplay();
-
-				trafficLightController.MakeVisible(false);
-				yield return new WaitForSeconds(1f);
-				player.transform.position = startTransform.position;
-				yield return StartCoroutine(ShowFixation());
-				player.transform.position = startTransform.position;
-
-			yield return 0;
 			}
+			finishedRetrieval = false;
 
+
+			for(int k=0;k<spawnedObjects.Count;k++)
+            {
+				Destroy(spawnedObjects[k]);
+            }
 
 			//reset everything before the next block begins
 			spawnLocations.Clear();
 			spawnedObjects.Clear();
-		//	objController.encodingList.Clear();
+
+
+			chequeredFlag.SetActive(true);
+
+			//	objController.encodingList.Clear();
 			LapCounter.lapCount = 0;
 			player.transform.position = startTransform.position;
 			uiController.targetTextPanel.alpha = 0f;
 
+			SetCarBrakes(true);
 			trialLogTrack.LogTaskStage(currentStage, false);
 		}
 		yield return null;
 	}
 
+	public IEnumerator StartVerbalRetrieval(GameObject objectQueried)
+	{
+		SetCarBrakes(true);
+		uiController.verbalInstruction.alpha = 1f;
+		string fileName = trialCount.ToString() + "_" + retCount.ToString();
+		audioRecorder.beepHigh.Play();
+
+
+		//start recording
+		yield return StartCoroutine(audioRecorder.Record(sessionDirectory + "audio", fileName, recallTime));
+		trialLogTrack.LogVerbalRetrievalAttempt(objectQueried, fileName);
+		//play off beep
+		audioRecorder.beepLow.Play();
+
+		retCount++;
+		uiController.verbalInstruction.alpha = 0f;
+		SetCarBrakes(false);
+		yield return null;
+    }
+
+	List<Transform> GetValidStartTransforms()
+    {
+		List<Transform> result = new List<Transform>();
+	//	WaypointCircuit currentCircuit = player.GetComponent<WaypointProgressTracker>().leftCircuit;
+
+		List<int> excludedIndex = new List<int>();
+		for(int i=0;i<listLength;i++)
+        {
+            for (int j = 0; j < startableTransforms.Count; j++)
+            {
+                float dist = Vector3.Distance(startableTransforms[j].position, spawnedObjects[i].transform.position);
+                if (dist < 1f)
+				{
+					excludedIndex.Add(j);
+					j = startableTransforms.Count;
+                }
+
+
+            }
+        }
+
+		for(int i=0;i<startableTransforms.Count;i++)
+        {
+			result.Add(startableTransforms[i]);
+        }
+
+		for(int i=0;i<excludedIndex.Count;i++)
+        {
+			result.RemoveAt(excludedIndex[i]);
+        }
+
+		return result;
+    }
 	public void ShowPathDirection()
     {
 		switch(player.GetComponent<WaypointProgressTracker>().currentDirection)
@@ -917,7 +1065,7 @@ public class Experiment : MonoBehaviour {
 		trialLogTrack.LogFixation(false);
 		yield return null;
 	}
-	/*
+	
 	IEnumerator PickEncodingLocations()
 	{
 		List<int> intPicker = new List<int>();
@@ -929,11 +1077,20 @@ public class Experiment : MonoBehaviour {
 			waypointLocations.Add(spawnableWaypoints[i].position);
 		}
 
-		for(int i=0;i<itemsPerBlock;i++)
+		List<int> tempStorage = new List<int>();
+
+		UnityEngine.Debug.Log("list length is " + listLength.ToString());
+		for(int i=0;i< listLength; i++)
 		{
-			int randInt = UnityEngine.Random.Range(3, intPicker.Count-3); // we won't be picking too close to beginning/end
+			UnityEngine.Debug.Log("int picker count " + intPicker.Count.ToString());
+			int randInt = UnityEngine.Random.Range(0, intPicker.Count-1); // we won't be picking too close to beginning/end
+
+			UnityEngine.Debug.Log("rand int " + randInt.ToString());
+			UnityEngine.Debug.Log("waypoint location count " + waypointLocations.Count.ToString());
 			chosenEncodingLocations.Add(waypointLocations[randInt]);
+			intPicker.RemoveAt(randInt);
 			waypointLocations.RemoveAt(randInt);
+			/*
 			if(randInt > 0)
 			{
 				waypointLocations.RemoveAt(randInt - 1);
@@ -942,12 +1099,27 @@ public class Experiment : MonoBehaviour {
 			{
 				waypointLocations.RemoveAt(randInt + 1);
 			}
+			*/
+			tempStorage.Add(randInt);
 			spawnLocations.Add(chosenEncodingLocations[i]);
 		}
+		for(int i=0;i<tempStorage.Count;i++)
+        {
+
+        }
+
+
+
 		yield return null;
 	}
-	*/
-
+	
+	public IEnumerator StopCarTemporarily()
+    {
+		SetCarBrakes(true);
+		yield return new WaitForSeconds(1.5f);
+		SetCarBrakes(false);
+		yield return null;
+    }
 	IEnumerator SpawnEncodingObjects()
 	{
 		UnityEngine.Debug.Log("number of spawn locations " + spawnLocations.Count.ToString());
@@ -985,11 +1157,11 @@ public class Experiment : MonoBehaviour {
 	{
 		List<int> tempList = new List<int>();
 		List<int> retrievalSeqList = new List<int>();
-		for (int i = 0; i < itemsPerBlock; i++)
+		for (int i = 0; i < listLength; i++)
 		{
 			tempList.Add(i);
 		}
-		for(int j=0;j< itemsPerBlock; j++)
+		for(int j=0;j< listLength; j++)
         {
 			int randIndex = UnityEngine.Random.Range(0, tempList.Count);
 			retrievalSeqList.Add(tempList[randIndex]);
@@ -1109,6 +1281,7 @@ public class Experiment : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		/*
 		if (currentStage == Experiment.TaskStage.Retrieval)
 		{
 			if (Input.GetKeyDown(KeyCode.Z))
@@ -1122,10 +1295,33 @@ public class Experiment : MonoBehaviour {
 
 				trialLogTrack.LogRetrievalAttempt(speedZoneObj,player.gameObject);
 			}
+			
+			if(Input.GetKeyDown(KeyCode.UpArrow))
+            {
+				player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+            }
+			else if(Input.GetKeyDown(KeyCode.DownArrow))
+            {
+
+				player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
+			}
+			
 		}
-
-
 		
+		if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+		}
+		else if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
+		}
+		
+		*/
+
+
+
 	}
 
 	public void OnExit()
