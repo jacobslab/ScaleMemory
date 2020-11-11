@@ -124,6 +124,8 @@ public class Experiment : MonoBehaviour {
 
 	private int maxLaps = 1;
 
+	public Transform targetWaypoint;
+
 	private float prevLapTime = 0f;
 	private float bestLapTime = 1000f;
 
@@ -731,7 +733,7 @@ public class Experiment : MonoBehaviour {
 
 			while (LapCounter.lapCount < 1)
 			{
-				
+			/*	
 				List<Transform> validTransforms = GetValidStartTransforms();
 
 				int randStartWaypoint = UnityEngine.Random.Range(0, validTransforms.Count - 1);
@@ -748,6 +750,7 @@ public class Experiment : MonoBehaviour {
 
 				player.GetComponent<WaypointProgressTracker>().Reset();
 
+				*/
 				trafficLightController.MakeVisible(true);
 				yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 				SetCarBrakes(false);
@@ -1281,6 +1284,17 @@ public class Experiment : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		if(Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+			player.GetComponent<CarAIControl>().ForwardMovement();
+		}
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
+			player.GetComponent<CarAIControl>().ReverseMovement();
+
+		}
 		/*
 		if (currentStage == Experiment.TaskStage.Retrieval)
 		{

@@ -16,7 +16,7 @@ namespace UnityStandardAssets.Utility
         [SerializeField] public WaypointCircuit leftCircuit; // A reference to the waypoint-based route we should follow
         [SerializeField] public WaypointCircuit reverseCircuit; // A reference to the waypoint-based route we should follow
 
-        private WaypointCircuit currentCircuit;
+        public WaypointCircuit currentCircuit;
 
         [SerializeField] private float lookAheadForTargetOffset = 5;
         // The offset ahead along the route that the we will aim for
@@ -97,8 +97,8 @@ namespace UnityStandardAssets.Utility
                     reversed = false;
                     break;
                 case TrackDirection.Reverse:
-                  //  currentDirection = TrackDirection.Reverse;
-                  //  currentCircuit = reverseCircuit;
+                    currentDirection = TrackDirection.Reverse;
+                    currentCircuit = reverseCircuit;
                     reversed = true;
                     break;
                 default:
@@ -166,6 +166,7 @@ namespace UnityStandardAssets.Utility
                     speed = Mathf.Lerp(speed, (lastPosition - transform.position).magnitude/Time.deltaTime,
                                        Time.deltaTime);
                 }
+                /*
                 target.position =
                     currentCircuit.GetRoutePoint(progressDistance + lookAheadForTargetOffset + lookAheadForTargetFactor*speed)
                            .position;
@@ -173,7 +174,9 @@ namespace UnityStandardAssets.Utility
                     Quaternion.LookRotation(
                         currentCircuit.GetRoutePoint(progressDistance + lookAheadForSpeedOffset + lookAheadForSpeedFactor*speed)
                                .direction);
-
+                
+                */
+             //  target.position = currentCircuit.Waypoints[]
                 //  UnityEngine.Debug.Log("progress distance: " + progressDistance.ToString());
 
                 // get our current progress along the route

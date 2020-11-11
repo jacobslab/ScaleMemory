@@ -105,13 +105,14 @@ public class ObjectController : MonoBehaviour
 			if (randInts[i] >= spawnableObjectList.Count)
 			{
 				encodingList.Add(spawnableObjectList[spawnableObjectList.Count - 1]);
+				spawnableObjectList.RemoveAt(spawnableObjectList.Count-1);
 			}
 			else
 			{
 				encodingList.Add(spawnableObjectList[randInts[i]]);
+				spawnableObjectList.RemoveAt(randInts[i]);
 				UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
 			}
-			spawnableObjectList.RemoveAt(randInts[i]);
 		}
 
 
