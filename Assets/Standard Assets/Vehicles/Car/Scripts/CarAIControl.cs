@@ -38,7 +38,7 @@ namespace UnityStandardAssets.Vehicles.Car
         [SerializeField] private Transform m_Target;                                              // 'target' the target object to aim for.
         [SerializeField] private bool m_StopWhenTargetReached;                                    // should we stop driving when we reach the target?
         [SerializeField] private float m_ReachTargetThreshold = 2;                                // proximity to target to consider we 'reached' it, and stop driving.
-
+        
         private float m_RandomPerlin;             // A random value for the car to base its wander on (so that AI cars don't all wander in the same pattern)
         private CarController m_CarController;    // Reference to actual car controller we are controlling
         private float m_AvoidOtherCarTime;        // time until which to avoid the car we recently collided with
@@ -50,8 +50,11 @@ namespace UnityStandardAssets.Vehicles.Car
         private float distToTarget = 0f;  // to determine if we should pick the next waypoint
 
         public bool isReverse = false;
+        public GameObject skyCar;
+        public GameObject forwardRotHelper;
+        public GameObject reverseRotHelper;
 
-		public void ChangeSpeedFactor(float newSpeedFactor)
+        public void ChangeSpeedFactor(float newSpeedFactor)
 		{
 			m_CautiousSpeedFactor=newSpeedFactor;
 
@@ -68,53 +71,116 @@ namespace UnityStandardAssets.Vehicles.Car
             m_Rigidbody = GetComponent<Rigidbody>();
         }
 
+        public void ResetTargetToStart()
+        {
+            int tempWaypointIndex = 2;
+            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[tempWaypointIndex], tempWaypointIndex);
+        }
+
 
 
         public void SetNextTarget()
         {
+            
+            int tempIndex = currentWaypointIndex;
             UnityEngine.Debug.Log("waypoint arr size " + gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length.ToString());
-            if((currentWaypointIndex + 1) < gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length)
+            if((tempIndex + 1) < gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length)
             {
                 UnityEngine.Debug.Log("incremented waypoint index");
-                currentWaypointIndex++;
+                tempIndex++;
                 
             }
             else
             {
                 UnityEngine.Debug.Log("reset waypoint index");
-                currentWaypointIndex = 0;
+                tempIndex = 0;
             }
-            UnityEngine.Debug.Log("set new waypoint target: " + currentWaypointIndex.ToString());
-            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[currentWaypointIndex]);
+            UnityEngine.Debug.Log("set new waypoint target: " + tempIndex.ToString());
+            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[tempIndex],tempIndex);
+        }
+
+        //called from the main task block for random start positions during the retrieval phase
+        public int FindSubsequentWaypointIndexFromStart(Transform startTransform)
+        {
+            Transform[] tempWaypoint = new Transform[gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length];
+            tempWaypoint = gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints;
+            float minDist = 1000f;
+            int minIndex = -1;
+            //find the closest waypoint to our random starting position
+            for (int i = 0; i < tempWaypoint.Length; i++)
+            {
+                float tempDist = Vector3.Distance(startTransform.position, tempWaypoint[i].position);
+                if (tempDist < minDist)
+                {
+                    minDist = tempDist;
+                    minIndex = i;
+                }
+
+            }
+            if (minIndex + 1 > tempWaypoint.Length)
+            {
+                return (minIndex + 1);
+            }
+            else
+            {
+                return minIndex;
+            }
         }
 
         public void ForwardMovement()
         {
-            isReverse = false;
-            int tempWaypointIndex = currentWaypointIndex;
-            int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length - currentWaypointIndex);
+            //only activate if it is currently going in reverse
+            if (isReverse)
+            {
+                isReverse = false;
+                int tempWaypointIndex = currentWaypointIndex;
 
-            currentWaypointIndex = newWaypointIndex;
-            UnityEngine.Debug.Log("FORWARD! set new waypoint target: " + currentWaypointIndex.ToString());
-            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[currentWaypointIndex]);
+                // int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length - currentWaypointIndex);
+                int newWaypointIndex = FindSubsequentWaypointIndexFromStart(gameObject.transform);
+                gameObject.transform.rotation = reverseRotHelper.transform.rotation;
+                skyCar.transform.rotation = forwardRotHelper.transform.rotation;
+                if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length)
+                {
+                    newWaypointIndex += 2; //make sure we set it to a waypoint slightly further away to avoid the car-circling issue
+                }
+                else
+                {
+                    newWaypointIndex = 0;
+                }
+                UnityEngine.Debug.Log("FORWARD! set new waypoint target: " + newWaypointIndex.ToString());
+                SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[newWaypointIndex], newWaypointIndex);
+            }
         }
 
         public void ReverseMovement()
         {
-            isReverse = true;
-            int tempWaypointIndex = currentWaypointIndex;
-            int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length - currentWaypointIndex);
+            //only activate if it is not already in reverse mode
+            if (!isReverse)
+            {
+                isReverse = true;
+                int tempWaypointIndex = currentWaypointIndex;
+                int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length - currentWaypointIndex);
 
-            currentWaypointIndex = newWaypointIndex;
-            UnityEngine.Debug.Log("REVERSED! set new waypoint target: " + currentWaypointIndex.ToString());
-            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[currentWaypointIndex]);
+                gameObject.transform.rotation = reverseRotHelper.transform.rotation;
+                skyCar.transform.rotation = reverseRotHelper.transform.rotation;
+                if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length)
+                {
+                    newWaypointIndex += 2; //make sure we set it to a waypoint slightly further away to avoid the issue of car-circling around a waypoint it just passed
+                }
+                else
+                {
+                    newWaypointIndex = 0;
+                }
+                UnityEngine.Debug.Log("REVERSED! set new waypoint target: " + newWaypointIndex.ToString());
+                SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[newWaypointIndex], newWaypointIndex);
+            }
         }
 
 
         private void FixedUpdate()
         {
             distToTarget = Vector3.Distance(m_Target.position, gameObject.transform.position);
-            UnityEngine.Debug.Log("dist to target " + distToTarget.ToString());
+           // UnityEngine.Debug.Log("dist to target " + distToTarget.ToString());
             if (distToTarget < 15f)
             {
                 SetNextTarget();
@@ -234,10 +300,10 @@ namespace UnityStandardAssets.Vehicles.Car
                   float steer = Mathf.Clamp(targetAngle*m_SteerSensitivity, -1, 1)*Mathf.Sign(m_CarController.CurrentSpeed);
                
                 // feed input to the car controller.
-                if(!isReverse)
+             //   if(!isReverse)
                     m_CarController.Move(steer, accel, accel, 0f);
-                else
-                    m_CarController.Move(steer, 0f, -accel, 0f);
+             //   else
+               //     m_CarController.Move(steer, -accel, 0f, 0f);
 
 
                 // if appropriate, stop driving when we're close enough to the target.
@@ -282,8 +348,9 @@ namespace UnityStandardAssets.Vehicles.Car
         }
 
 
-        public void SetTarget(Transform target)
+        public void SetTarget(Transform target, int waypointIndex)
         {
+            currentWaypointIndex = waypointIndex;
             m_Target = target;
             m_Driving = true;
         }

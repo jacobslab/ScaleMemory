@@ -153,11 +153,10 @@ namespace UnityStandardAssets.Vehicles.Car
 
 			//clamp input values
 			steering = Mathf.Clamp(steering, -1, 1);
-			if(!gameObject.GetComponent<CarAIControl>().isReverse)
-				AccelInput = accel = Mathf.Clamp(accel, 0, 1);
-			else
-
-				AccelInput = accel = Mathf.Clamp(accel, -1, 0);
+		//	if(!gameObject.GetComponent<CarAIControl>().isReverse)
+			AccelInput = accel = Mathf.Clamp(accel, 0, 1);
+	//	else
+		//	AccelInput = accel = Mathf.Clamp(accel, -1, 0);
 			BrakeInput = footbrake = -1*Mathf.Clamp(footbrake, -1, 0);
 			handbrake = Mathf.Clamp(handbrake, 0, 1);
 
@@ -196,14 +195,12 @@ namespace UnityStandardAssets.Vehicles.Car
 			switch (m_SpeedType)
 			{
 			case SpeedType.MPH:
-					if(!gameObject.GetComponent<CarAIControl>().isReverse)
+				//	if(!gameObject.GetComponent<CarAIControl>().isReverse)
 						speed *= 2.23693629f;
-					else
-						speed *= -2.23693629f;
-					UnityEngine.Debug.Log("the speed is " + speed.ToString());
+					//UnityEngine.Debug.Log("the speed is " + speed.ToString());
 					if (speed > m_Topspeed)
 					{
-						UnityEngine.Debug.Log("speed capped");
+					//	UnityEngine.Debug.Log("speed capped");
 						m_Rigidbody.velocity = (m_Topspeed / 2.23693629f) * m_Rigidbody.velocity.normalized;
 					}
 				break;
@@ -219,14 +216,14 @@ namespace UnityStandardAssets.Vehicles.Car
 
 		private void ApplyDrive(float accel, float footbrake)
 		{
-			UnityEngine.Debug.Log("accel is : " + accel.ToString());
-			UnityEngine.Debug.Log("footbrake is : " + footbrake.ToString());
+			//UnityEngine.Debug.Log("accel is : " + accel.ToString());
+			//UnityEngine.Debug.Log("footbrake is : " + footbrake.ToString());
 			float thrustTorque;
 			switch (m_CarDriveType)
 			{
 			case CarDriveType.FourWheelDrive:
 				thrustTorque = accel * (m_CurrentTorque / 4f);
-				UnityEngine.Debug.Log("thrust torque is : " + thrustTorque.ToString());
+				//UnityEngine.Debug.Log("thrust torque is : " + thrustTorque.ToString());
 				for (int i = 0; i < 4; i++)
 				{
 					m_WheelColliders[i].motorTorque = thrustTorque;
@@ -253,7 +250,7 @@ namespace UnityStandardAssets.Vehicles.Car
 				}
 				else if (footbrake > 0)
 				{
-					UnityEngine.Debug.Log("in reverse");
+					//UnityEngine.Debug.Log("in reverse");
 					m_WheelColliders[i].brakeTorque = 0f;
 					m_WheelColliders[i].motorTorque = -m_ReverseTorque*footbrake;
 				}

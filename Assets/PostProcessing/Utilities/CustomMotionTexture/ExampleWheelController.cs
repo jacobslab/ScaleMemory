@@ -22,8 +22,8 @@ public class ExampleWheelController : MonoBehaviour
     {
         if (Input.GetKey (KeyCode.UpArrow)) // Rotate forward
             m_Rigidbody.AddRelativeTorque(new Vector3(-1 * acceleration, 0, 0), ForceMode.Acceleration); // Add forward torque to mesh
-        else if (Input.GetKey (KeyCode.DownArrow)) // Rotate backward
-            m_Rigidbody.AddRelativeTorque(new Vector3(1 * acceleration, 0, 0), ForceMode.Acceleration); // Add backward torque to mesh
+     //   else if (Input.GetKey (KeyCode.DownArrow)) // Rotate backward
+      //      m_Rigidbody.AddRelativeTorque(new Vector3(1 * acceleration, 0, 0), ForceMode.Acceleration); // Add backward torque to mesh
 
         float m = -m_Rigidbody.angularVelocity.x / 100; // Calculate multiplier for motion vector texture
 

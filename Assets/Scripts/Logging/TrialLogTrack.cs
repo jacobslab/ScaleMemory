@@ -192,10 +192,24 @@ public class TrialLogTrack : LogTrack {
 			case Experiment.TaskStage.Encoding:
 				subjectLog.Log(GameClock.SystemTime_Milliseconds, "ENCODING" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 				break;
-			case Experiment.TaskStage.Retrieval:
-				subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+			case Experiment.TaskStage.SpatialRetrieval:
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_SPATIAL" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+				break;
+			case Experiment.TaskStage.VerbalRetrieval:
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_VERBAL" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 				break;
 		}
+	}
+
+	public void LogForwardMovement(bool hasStarted)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "FORWARD_MOVEMENT" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	}
+	
+	public void LogReverseMovement(bool hasStarted)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_MOVEMENT" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 	}
 
 	public void LogItemSpawn(bool hasStarted)

@@ -31,7 +31,8 @@ public class Experiment : MonoBehaviour {
 		ItemScreening,
 		TrackScreening,
 		Encoding,
-		Retrieval,
+		SpatialRetrieval,
+		VerbalRetrieval,
 		PostTaskScreening
 	}
 
@@ -466,7 +467,7 @@ public class Experiment : MonoBehaviour {
 		trialLogTrack.LogBlackrockConnectionSuccess();
 		//yield return StartCoroutine("BeginItemScreening");
 		//	StartCoroutine("RandomizeTravelSpeed");
-		//	yield return StartCoroutine("BeginTrackScreening");
+		yield return StartCoroutine("BeginTrackScreening");
 
 	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
@@ -565,7 +566,7 @@ public class Experiment : MonoBehaviour {
 	{
 		currentStage = TaskStage.TrackScreening;
 		trialLogTrack.LogTaskStage(currentStage, true);
-		player.gameObject.SetActive(false);
+		SetCarBrakes(true);
 		uiController.itemScreeningPanel.alpha = 0f;
 		uiController.trackScreeningPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
@@ -707,11 +708,13 @@ public class Experiment : MonoBehaviour {
     {
 		uiController.lapTimePanel.alpha = 0f;
     }
+
 	IEnumerator BeginTaskBlock()
 	{
 
 		verbalRetrieval = false;
 
+		//yield return StartCoroutine("BeginTrackScreening");
 
 		SetCarBrakes(true);
 		//show instructions
@@ -725,6 +728,14 @@ public class Experiment : MonoBehaviour {
 			yield return StartCoroutine(objController.SelectEncodingItems());
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
+			player.transform.rotation = startTransform.rotation;
+			int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
+			player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
+
+			chequeredFlag.transform.position = startTransform.position;
+			chequeredFlag.transform.rotation = startTransform.rotation;
+
+			player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
 			yield return StartCoroutine(ShowEncodingInstructions());
 			trialLogTrack.LogInstructions(false);
 			yield return StartCoroutine(PickEncodingLocations());
@@ -831,15 +842,15 @@ public class Experiment : MonoBehaviour {
 		//	speedZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
 			trialLogTrack.LogTaskStage(currentStage, false);
-			currentStage = Experiment.TaskStage.Retrieval;
-			trialLogTrack.LogTaskStage(currentStage, true);
+		//	currentStage = Experiment.TaskStage.Retrieval;
 
 			//pick a randomized starting retrieval position
 			List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
 			int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
 
 			Transform randStartTransform = validStartTransforms[randWaypoint];
-
+			targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(randStartTransform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
+			player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
 			player.transform.position = randStartTransform.position;
 			player.transform.rotation = randStartTransform.rotation;
 			chequeredFlag.transform.position = randStartTransform.position;
@@ -854,9 +865,19 @@ public class Experiment : MonoBehaviour {
 			string targetNames = "";
 
 
-			if (trialCount%1==0)
+			if (trialCount % 2 == 0)
+			{
 				verbalRetrieval = true;
-			
+
+				currentStage = TaskStage.VerbalRetrieval;
+			}
+			else
+            {
+				currentStage = TaskStage.SpatialRetrieval;
+            }
+
+			//log the retrieval stage
+			trialLogTrack.LogTaskStage(currentStage, true);
 			bool finishedRetrieval = false;
 			retCount = 0;
 
@@ -895,7 +916,6 @@ public class Experiment : MonoBehaviour {
 				else
 				{
 					UnityEngine.Debug.Log("beginning spatial retrieval");
-
 					trialLogTrack.LogInstructions(true);
 					yield return StartCoroutine(ShowRetrievalInstructions());
 					trialLogTrack.LogInstructions(false);
@@ -952,6 +972,7 @@ public class Experiment : MonoBehaviour {
 
 					trafficLightController.MakeVisible(false);
 					yield return new WaitForSeconds(1f);
+					MoveForward(); //we'll reset the movement to forward for the next navigation/encoding phase
 					/*
 					player.transform.position = startTransform.position;
 					yield return StartCoroutine(ShowFixation());
@@ -986,6 +1007,7 @@ public class Experiment : MonoBehaviour {
 		}
 		yield return null;
 	}
+
 
 	public IEnumerator StartVerbalRetrieval(GameObject objectQueried)
 	{
@@ -1082,14 +1104,14 @@ public class Experiment : MonoBehaviour {
 
 		List<int> tempStorage = new List<int>();
 
-		UnityEngine.Debug.Log("list length is " + listLength.ToString());
+		//UnityEngine.Debug.Log("list length is " + listLength.ToString());
 		for(int i=0;i< listLength; i++)
 		{
-			UnityEngine.Debug.Log("int picker count " + intPicker.Count.ToString());
+			//UnityEngine.Debug.Log("int picker count " + intPicker.Count.ToString());
 			int randInt = UnityEngine.Random.Range(0, intPicker.Count-1); // we won't be picking too close to beginning/end
 
-			UnityEngine.Debug.Log("rand int " + randInt.ToString());
-			UnityEngine.Debug.Log("waypoint location count " + waypointLocations.Count.ToString());
+			//UnityEngine.Debug.Log("rand int " + randInt.ToString());
+			//UnityEngine.Debug.Log("waypoint location count " + waypointLocations.Count.ToString());
 			chosenEncodingLocations.Add(waypointLocations[randInt]);
 			intPicker.RemoveAt(randInt);
 			waypointLocations.RemoveAt(randInt);
@@ -1132,7 +1154,7 @@ public class Experiment : MonoBehaviour {
 			spawnedObjects.Add(encodingObj);
 			trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
 			encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
-			GameObject textObj = Instantiate(objController.textPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y + 3f, spawnLocations[i].z), Quaternion.identity) as GameObject;
+			GameObject textObj = Instantiate(objController.textPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y + 4f, spawnLocations[i].z), Quaternion.identity) as GameObject;
 			textObj.transform.parent = encodingObj.transform;
 			textObj.transform.GetChild(0).GetComponent<TextMeshPro>().text = encodingObj.name.Split('(')[0];
 			encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
@@ -1281,19 +1303,39 @@ public class Experiment : MonoBehaviour {
 		uiController.mRetrievalText.color = Color.gray;
 	}
 
+	void MoveForward()
+    {
+
+		player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+		player.GetComponent<CarAIControl>().ForwardMovement();
+		trialLogTrack.LogReverseMovement(false);
+		trialLogTrack.LogForwardMovement(true);
+	}
+	
+	void MoveReverse()
+    {
+
+		player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
+		player.GetComponent<CarAIControl>().ReverseMovement();
+		trialLogTrack.LogForwardMovement(false);
+		trialLogTrack.LogReverseMovement(true);
+	}
+
 
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.UpArrow))
+		if (currentStage == TaskStage.SpatialRetrieval)
 		{
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-			player.GetComponent<CarAIControl>().ForwardMovement();
-		}
-		if (Input.GetKeyDown(KeyCode.DownArrow))
-		{
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
-			player.GetComponent<CarAIControl>().ReverseMovement();
+			if (Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				MoveForward();
 
+			}
+			if (Input.GetKeyDown(KeyCode.DownArrow))
+			{
+				MoveReverse();
+
+			}
 		}
 		/*
 		if (currentStage == Experiment.TaskStage.Retrieval)
