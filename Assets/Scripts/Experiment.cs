@@ -86,6 +86,8 @@ public class Experiment : MonoBehaviour {
 
 	public SubjectReaderWriter subjectReaderWriter;
 
+	public GameObject chequeredFlag;
+
 	private bool ipAddressEntered = false;
 
 	public IPAddress targetAddress;
@@ -380,17 +382,21 @@ public class Experiment : MonoBehaviour {
 
 			slowZoneObj = Instantiate(slowZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
 			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
+			leftSpawnObj = slowZoneObj;
 
 			speedZoneObj = Instantiate(speedZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
 			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
+			rightSpawnObj = speedZoneObj;
 		}
 		else
 		{
 			slowZoneObj = Instantiate(slowZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
 			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
+			rightSpawnObj = slowZoneObj;
 
 			speedZoneObj = Instantiate(speedZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
 			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
+			leftSpawnObj = speedZoneObj;
 		}
 
 		yield return null;
@@ -569,7 +575,7 @@ public class Experiment : MonoBehaviour {
 		yield return null;
 	}
 
-	public void ShowTurnDirection(WaypointProgressTracker.TrackDirection turnDirection)
+	public void ShowTurnDirection(WaypointProgressTracker.TrackDirection turnDirection,GameObject associatedTurnZone)
     {
 		switch (turnDirection)
         {
@@ -598,18 +604,21 @@ public class Experiment : MonoBehaviour {
 
 	public IEnumerator BeginCrashSequence(Transform crashZone)
 	{
+		UnityEngine.Debug.Log("beginning crash sequence");
 		SetCarBrakes(true);
 		Vector3 origTransform = player.transform.position;
 		float lerpTimer = 0f;
 
 		while(lerpTimer < 2f)
         {
+			//UnityEngine.Debug.Log("crash lerp " + lerpTimer.ToString());
 			lerpTimer += Time.deltaTime;
 			player.transform.position = Vector3.Lerp(origTransform, crashZone.position, lerpTimer/2f);
 			yield return 0;
         }
 		uiController.crashNotification.alpha = 1f;
 		yield return new WaitForSeconds(2f);
+		UnityEngine.Debug.Log("finished crashing");
 
 		uiController.crashNotification.alpha = 0f;
 
@@ -621,6 +630,7 @@ public class Experiment : MonoBehaviour {
 
 		player.GetComponent<WaypointProgressTracker>().Reset(); //reset the waypoint system to begin from the beginning
 
+		UnityEngine.Debug.Log("moved back to start");
 		uiController.blackScreen.alpha = 0f;
 		SetCarBrakes(false);
 		//	player.GetComponent<CarController>().SetCurrentSpeed(0f);
@@ -679,6 +689,11 @@ public class Experiment : MonoBehaviour {
         }
     }
 
+	public void SetChequeredFlagStatus(bool isActive)
+    {
+		chequeredFlag.SetActive(isActive);
+    }
+
 	void HideLapDisplay()
     {
 		uiController.lapTimePanel.alpha = 0f;
@@ -705,27 +720,37 @@ public class Experiment : MonoBehaviour {
 			trafficLightController.MakeVisible(false);
 
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-
+			bool canChangeDirection = true;
 
 			while (LapCounter.lapCount < 12)
 			{
 				//reset lap timer and show display
 				ResetLapDisplay();
-
-				//switch direction
-				if (player.GetComponent<WaypointProgressTracker>().currentDirection == WaypointProgressTracker.TrackDirection.Left)
+				if (canChangeDirection)
 				{
-					UnityEngine.Debug.Log("chose right direction");
-					player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
+					//switch direction
+					if (player.GetComponent<WaypointProgressTracker>().currentDirection == WaypointProgressTracker.TrackDirection.Left)
+					{
+						leftSpawnObj.SetActive(false);
+						rightSpawnObj.SetActive(true);
+						UnityEngine.Debug.Log("chose right direction");
+						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
+					}
+					else
+					{
+						leftSpawnObj.SetActive(true);
+						rightSpawnObj.SetActive(false);
+						UnityEngine.Debug.Log("chose left direction");
+						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+					}
 				}
-				else
-				{
-					UnityEngine.Debug.Log("chose left direction");
-					player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-				}
-
 				UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
+
+				//turn off chequered flag temporarily
+				SetChequeredFlagStatus(false);
+
 				SetCarBrakes(false);
+				
 				LapCounter.canStop = false;
 				while (!LapCounter.canStop)
 				{
