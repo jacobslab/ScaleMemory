@@ -171,7 +171,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 // get the amount of steering needed to aim the car towards the target
                 float steer = Mathf.Clamp(targetAngle*m_SteerSensitivity, -1, 1)*Mathf.Sign(m_CarController.CurrentSpeed);
-
+                UnityEngine.Debug.Log("accel " + accel.ToString());
                 // feed input to the car controller.
                 m_CarController.Move(steer, accel, accel, 0f);
 

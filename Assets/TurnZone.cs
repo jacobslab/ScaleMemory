@@ -29,7 +29,7 @@ public class TurnZone : MonoBehaviour
     void Update()
     {
 
-        if(canTurn)
+        if(canTurn && !Experiment.isCrashing)
         {
             //is it on straight part of a track; indicating the turn is a fork
        //     if (isStraightLine)
@@ -109,7 +109,10 @@ public class TurnZone : MonoBehaviour
     {
 
         UnityEngine.Debug.Log("CRASH!!! Failed to take the turn");
+        Experiment.isCrashing = true;
         yield return StartCoroutine(Experiment.Instance.BeginCrashSequence(associatedCrashZone));
+        Experiment.isCrashing = false;
+
         yield return null;
     }
 

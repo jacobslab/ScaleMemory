@@ -107,12 +107,12 @@ namespace UnityStandardAssets.Utility
         public void Reset()
         {
             progressDistance = 0;
-            progressNum = 0;
-            if (progressStyle == ProgressStyle.PointToPoint)
-            {
+            progressNum = 2;
+          //  if (progressStyle == ProgressStyle.PointToPoint)
+          //  {
                 target.position = currentCircuit.Waypoints[progressNum].position;
                 target.rotation = currentCircuit.Waypoints[progressNum].rotation;
-            }
+         //   }
         }
 
 	
@@ -143,6 +143,8 @@ namespace UnityStandardAssets.Utility
                 // get our current progress along the route
                 progressPoint = currentCircuit.GetRoutePoint(progressDistance);
                 Vector3 progressDelta = progressPoint.position - transform.position;
+                UnityEngine.Debug.Log("progress point: " + progressPoint.position.ToString());
+                UnityEngine.Debug.Log("progress delta " + progressDelta.ToString());
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
                     progressDistance += progressDelta.magnitude*0.5f;

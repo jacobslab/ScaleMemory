@@ -114,6 +114,8 @@ public class Experiment : MonoBehaviour {
 
 	public SimpleTimer lapTimer;
 
+	public static bool isCrashing = false; //activated by one of the turn zones when you fail to press a turn prompted keypress in time
+
 	private float fixedTime = 1f;
 
 	private int maxLaps = 12;
@@ -719,7 +721,7 @@ public class Experiment : MonoBehaviour {
 			SetCarBrakes(false);
 			trafficLightController.MakeVisible(false);
 
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			bool canChangeDirection = true;
 
 			while (LapCounter.lapCount < 12)
@@ -1149,8 +1151,19 @@ public class Experiment : MonoBehaviour {
 			}
 		}
 
+#if UNITY_EDITOR
+		if(Input.GetKeyDown(KeyCode.L))
+        {
+			SetCarBrakes(false);
+        }
+		if (Input.GetKeyDown(KeyCode.H))
+		{
+			SetCarBrakes(true);
+		}
+#endif
 
-		
+
+
 	}
 
 	public void OnExit()
