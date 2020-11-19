@@ -132,6 +132,7 @@ namespace UnityStandardAssets.Vehicles.Car
             //only activate if it is currently going in reverse
             if (isReverse)
             {
+                
                 isReverse = false;
                 int tempWaypointIndex = currentWaypointIndex;
 

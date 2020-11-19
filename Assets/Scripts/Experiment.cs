@@ -78,6 +78,16 @@ public class Experiment : MonoBehaviour {
 
 	public bool verbalRetrieval = false;
 
+	//track screening
+	public GameObject overheadCam;
+	public GameObject overheadInsetQuad;
+	public GameObject playerIndicatorSphere;
+
+	//spatial retrieval
+	public GameObject correctIndicator;
+	public GameObject wrongIndicator;
+	private List<bool> spatialFeedbackStatus;
+	private List<Vector3> spatialFeedbackPosition;
 
 	//logging
 	public static bool isLogging = true;
@@ -158,6 +168,8 @@ public class Experiment : MonoBehaviour {
 	// Use this for initialization
 	void Start()
 	{
+		spatialFeedbackStatus = new List<bool>();
+		spatialFeedbackPosition = new List<Vector3>();
 		SetCarBrakes(true);
 		StartCoroutine("BeginExperiment");
 		spawnedObjects = new List<GameObject>();
@@ -564,7 +576,11 @@ public class Experiment : MonoBehaviour {
 
 	IEnumerator BeginTrackScreening()
 	{
+
 		currentStage = TaskStage.TrackScreening;
+		overheadCam.SetActive(true);
+		overheadInsetQuad.SetActive(true);
+		playerIndicatorSphere.SetActive(true);
 		trialLogTrack.LogTaskStage(currentStage, true);
 		SetCarBrakes(true);
 		uiController.itemScreeningPanel.alpha = 0f;
@@ -581,7 +597,10 @@ public class Experiment : MonoBehaviour {
 			yield return 0;
 		}
 		LapCounter.lapCount = 0;
-		SetCarBrakes(true);
+		SetCarBrakes(true); 
+		overheadCam.SetActive(false);
+		overheadInsetQuad.SetActive(false);
+		playerIndicatorSphere.SetActive(false);
 		trialLogTrack.LogTaskStage(currentStage,false);
 		yield return null;
 	}
@@ -915,6 +934,8 @@ public class Experiment : MonoBehaviour {
 				}
 				else
 				{
+					spatialFeedbackStatus.Clear();
+					spatialFeedbackStatus = new List<bool>();
 					UnityEngine.Debug.Log("beginning spatial retrieval");
 					trialLogTrack.LogInstructions(true);
 					yield return StartCoroutine(ShowRetrievalInstructions());
@@ -957,7 +978,19 @@ public class Experiment : MonoBehaviour {
 						{
 							yield return 0;
 						}
+						float dist = Vector3.Distance(spawnedObjects[randIndex[j]].transform.position, player.transform.position);
+						UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
+						if(dist<15f)
+                        {
+							spatialFeedbackStatus.Add(true);
+                        }
+						else
+                        {
+							spatialFeedbackStatus.Add(false);
+                        }
+						spatialFeedbackPosition.Add(player.transform.position);
 						trialLogTrack.LogRetrievalAttempt(spawnedObjects[randIndex[j]].gameObject, player);
+
 						yield return new WaitForSeconds(0.2f);
 
 					}
@@ -965,6 +998,11 @@ public class Experiment : MonoBehaviour {
 
 
 					SetCarBrakes(true);
+
+					uiController.targetTextPanel.alpha = 0f;
+					uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
+					yield return StartCoroutine("PerformSpatialFeedback");
+					uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
 					finishedRetrieval = true;
 
 					UpdateLapDisplay();
@@ -1000,18 +1038,68 @@ public class Experiment : MonoBehaviour {
 			//	objController.encodingList.Clear();
 			LapCounter.lapCount = 0;
 			player.transform.position = startTransform.position;
-			uiController.targetTextPanel.alpha = 0f;
 
+			uiController.targetTextPanel.alpha = 0f;
 			SetCarBrakes(true);
 			trialLogTrack.LogTaskStage(currentStage, false);
 		}
 		yield return null;
 	}
 
+	IEnumerator PerformSpatialFeedback()
+    {
+		List<GameObject> indicatorsList = new List<GameObject>();
+		overheadCam.SetActive(true);
+		overheadInsetQuad.SetActive(true);
+		for (int k = 0; k < spawnedObjects.Count; k++)
+		{
+			spawnedObjects[k].GetComponent<VisibilityToggler>().TurnVisible(true);
+			//spawnedObjects[k].GetComponent<FacePosition>().ShouldFacePlayer = false;
+			//spawnedObjects[k].GetComponent<FacePosition>().TargetPositionTransform = overheadCam.transform;
+			//spawnedObjects[k].GetComponent<FacePosition>().ShouldFaceOverheadCam = true;
+
+			int childCount = spawnedObjects[k].transform.childCount;
+			spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().ShouldFacePlayer = false;
+			spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().TargetPositionTransform = overheadCam.transform;
+            spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().ShouldFaceOverheadCam = true;
+
+			spawnedObjects[k].transform.GetChild(childCount - 1).localScale *= 10f;
+			GameObject prefabToSpawn = null;
+			if(spatialFeedbackStatus[k])
+            {
+				prefabToSpawn = correctIndicator;
+            }
+			else
+            {
+				prefabToSpawn = wrongIndicator;
+            }
+			GameObject indicatorObj = Instantiate(prefabToSpawn, spatialFeedbackPosition[k], Quaternion.identity) as GameObject;
+			indicatorsList.Add(indicatorObj);
+
+		}
+
+		while(!Input.GetKeyDown(KeyCode.Space))
+        {
+			yield return 0;
+        }
+
+		for(int i=0;i<indicatorsList.Count;i++)
+        {
+			Destroy(indicatorsList[i]);
+        }
+		indicatorsList.Clear();
+
+		overheadCam.SetActive(false);
+		overheadInsetQuad.SetActive(false);
+		yield return null;
+
+    }
+
 
 	public IEnumerator StartVerbalRetrieval(GameObject objectQueried)
 	{
 		SetCarBrakes(true);
+		yield return new WaitForSeconds(1f);
 		uiController.verbalInstruction.alpha = 1f;
 		string fileName = trialCount.ToString() + "_" + retCount.ToString();
 		audioRecorder.beepHigh.Play();
@@ -1115,6 +1203,19 @@ public class Experiment : MonoBehaviour {
 			chosenEncodingLocations.Add(waypointLocations[randInt]);
 			intPicker.RemoveAt(randInt);
 			waypointLocations.RemoveAt(randInt);
+			UnityEngine.Debug.Log("pre count " + intPicker.Count.ToString());
+			if(randInt-3>0 && randInt +3 < intPicker.Count-1)
+            {
+				intPicker.RemoveAt(randInt-1);
+				intPicker.RemoveAt(randInt-2);
+				intPicker.RemoveAt(randInt +1);
+				intPicker.RemoveAt(randInt + 2);
+				waypointLocations.RemoveAt(randInt-1);
+				waypointLocations.RemoveAt(randInt-2);
+				waypointLocations.RemoveAt(randInt +1);
+				waypointLocations.RemoveAt(randInt + 2);
+				UnityEngine.Debug.Log("post count " + intPicker.Count.ToString());
+			}
 			/*
 			if(randInt > 0)
 			{
@@ -1303,22 +1404,38 @@ public class Experiment : MonoBehaviour {
 		uiController.mRetrievalText.color = Color.gray;
 	}
 
-	void MoveForward()
+	IEnumerator MoveForward()
     {
+		if (player.GetComponent<CarAIControl>().isReverse)
+		{
+			SetCarBrakes(true);
 
-		player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-		player.GetComponent<CarAIControl>().ForwardMovement();
-		trialLogTrack.LogReverseMovement(false);
-		trialLogTrack.LogForwardMovement(true);
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+
+			player.GetComponent<CarAIControl>().ForwardMovement();
+			trialLogTrack.LogReverseMovement(false);
+			trialLogTrack.LogForwardMovement(true);
+			yield return new WaitForSeconds(0.25f);
+			SetCarBrakes(false);
+		}
+		yield return null;
 	}
-	
-	void MoveReverse()
-    {
 
-		player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
-		player.GetComponent<CarAIControl>().ReverseMovement();
-		trialLogTrack.LogForwardMovement(false);
-		trialLogTrack.LogReverseMovement(true);
+	IEnumerator MoveReverse()
+    {
+		if (!player.GetComponent<CarAIControl>().isReverse)
+		{
+			SetCarBrakes(true);
+
+
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
+			player.GetComponent<CarAIControl>().ReverseMovement();
+			trialLogTrack.LogForwardMovement(false);
+			trialLogTrack.LogReverseMovement(true);
+			yield return new WaitForSeconds(0.25f);
+			SetCarBrakes(false);
+		}
+		yield return null;
 	}
 
 
@@ -1328,12 +1445,12 @@ public class Experiment : MonoBehaviour {
 		{
 			if (Input.GetKeyDown(KeyCode.UpArrow))
 			{
-				MoveForward();
+				StartCoroutine("MoveForward");
 
 			}
 			if (Input.GetKeyDown(KeyCode.DownArrow))
 			{
-				MoveReverse();
+				StartCoroutine("MoveReverse");
 
 			}
 		}

@@ -28,6 +28,7 @@ public class UIController : MonoBehaviour {
 	public CanvasGroup verbalRetrievalPanel;
 	public Text itemOneName;
 	public Text itemTwoName;
+	public CanvasGroup spatialRetrievalFeedbackPanel;
 
 	//fixation panel
 	public CanvasGroup fixationPanel;
