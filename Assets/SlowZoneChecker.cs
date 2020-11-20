@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityStandardAssets.Utility;
 using UnityEngine;
 
 public class SlowZoneChecker : MonoBehaviour
 {
     private bool isZoneActive = false;
     private bool didPress = false;
+    public Transform dodgeTarget;
     // Start is called before the first frame update
 
     void Start()
@@ -22,6 +24,7 @@ public class SlowZoneChecker : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.Z) && !didPress)
             {
                 Experiment.Instance.ActivateSlowZone(true);
+                Experiment.Instance.PushCarTowardsTarget(dodgeTarget);
                 didPress = true;
 
             }

@@ -471,6 +471,13 @@ public class Experiment : MonoBehaviour {
 		yield return null;
 	}
 
+
+	public void PushCarTowardsTarget(Transform moveTarget)
+    {
+		Vector3 dir =  moveTarget.position - player.transform.position;
+		player.gameObject.GetComponent<Rigidbody>().AddForce(dir * 100f, ForceMode.Acceleration);
+    }
+
 	IEnumerator RandomizeTravelSpeed()
 	{
 		while (currentStage != Experiment.TaskStage.PostTaskScreening)
@@ -627,7 +634,7 @@ public class Experiment : MonoBehaviour {
 		//conceal the transformation
 		uiController.blackScreen.alpha = 1f;
 		//make sure we transport the car back to the starting transform
-		player.transform.position = startTransform.position;
+		player.transform.position = startTransform.position + (Vector3.up * 5f);
 		player.transform.rotation = startTransform.rotation;
 
 		player.GetComponent<WaypointProgressTracker>().Reset(); //reset the waypoint system to begin from the beginning

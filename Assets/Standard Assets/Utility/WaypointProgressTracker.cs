@@ -102,6 +102,12 @@ namespace UnityStandardAssets.Utility
 			progressNum = newProgressNum;
 		}
 
+        public void SetTarget(Transform newTarget)
+        {
+            target.position = newTarget.position;
+            target.rotation = newTarget.rotation;
+        }
+
 
         // reset the object to sensible values
         public void Reset()
