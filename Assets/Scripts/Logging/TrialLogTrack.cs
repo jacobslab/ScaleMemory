@@ -43,6 +43,12 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "E" + separator + "Logging Ends");
 	}
 
+	public void LogIntroInstruction(bool isActive)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "INTRO_INSTRUCTIONS" + separator + ((isActive) ? "STARTED" : "ENDED"));
+
+	}
+
 	public void LogPauseEvent(bool isPaused)
 	{
 		Debug.Log ("game paused");

@@ -22,6 +22,8 @@ public class Experiment : MonoBehaviour {
 	public List<Transform> spawnableWaypoints;
 	//public List<Transform> rightSpawnableWaypoints;
 
+	private float carSpeed = 0f; //this is used exclusively to control car speed directly during spatial retrieval phase
+
 
 	//traffic light controller
 	public TrafficLightController trafficLightController;
@@ -80,7 +82,8 @@ public class Experiment : MonoBehaviour {
 
 	//track screening
 	public GameObject overheadCam;
-	public GameObject overheadInsetQuad;
+	public GameObject trackFamiliarizationQuad;
+	public GameObject feedbackQuad;
 	public GameObject playerIndicatorSphere;
 
 	//spatial retrieval
@@ -164,6 +167,7 @@ public class Experiment : MonoBehaviour {
 		_instance = this;
 		tcpServer.gameObject.SetActive(false);
 		defaultLoggingPath = Application.dataPath;
+		carSpeed = 0f;
 	}
 	// Use this for initialization
 	void Start()
@@ -475,8 +479,14 @@ public class Experiment : MonoBehaviour {
 		{
 			uiController.blackrockConnectionPanel.alpha = 0f;
 		}
-
 		trialLogTrack.LogBlackrockConnectionSuccess();
+		trialLogTrack.LogIntroInstruction(true);
+		uiController.taskIntroPanel.alpha = 1f;
+
+		yield return StartCoroutine(WaitForActionButton());
+		uiController.taskIntroPanel.alpha = 0f;
+		trialLogTrack.LogIntroInstruction(false);
+
 		//yield return StartCoroutine("BeginItemScreening");
 		//	StartCoroutine("RandomizeTravelSpeed");
 		yield return StartCoroutine("BeginTrackScreening");
@@ -579,7 +589,7 @@ public class Experiment : MonoBehaviour {
 
 		currentStage = TaskStage.TrackScreening;
 		overheadCam.SetActive(true);
-		overheadInsetQuad.SetActive(true);
+		trackFamiliarizationQuad.SetActive(true);
 		playerIndicatorSphere.SetActive(true);
 		trialLogTrack.LogTaskStage(currentStage, true);
 		SetCarBrakes(true);
@@ -599,7 +609,7 @@ public class Experiment : MonoBehaviour {
 		LapCounter.lapCount = 0;
 		SetCarBrakes(true); 
 		overheadCam.SetActive(false);
-		overheadInsetQuad.SetActive(false);
+		trackFamiliarizationQuad.SetActive(false);
 		playerIndicatorSphere.SetActive(false);
 		trialLogTrack.LogTaskStage(currentStage,false);
 		yield return null;
@@ -815,8 +825,9 @@ public class Experiment : MonoBehaviour {
 				float forceStopTimer = 0f;
 				trafficLightController.MakeVisible(true);
 				yield return StartCoroutine(trafficLightController.ShowRed());
+				
 				bool forceStopped = false;
-				while (!Input.GetKeyDown(KeyCode.Space) && !forceStopped)
+				while (!forceStopped)
 				{
 					forceStopTimer += Time.deltaTime;
 					if (forceStopTimer > 1.15f)
@@ -826,6 +837,7 @@ public class Experiment : MonoBehaviour {
 					}
 					yield return 0;
 				}
+				
 				forceStopped = false;
 
 
@@ -934,6 +946,7 @@ public class Experiment : MonoBehaviour {
 				}
 				else
 				{
+					carSpeed = 0f;
 					spatialFeedbackStatus.Clear();
 					spatialFeedbackStatus = new List<bool>();
 					UnityEngine.Debug.Log("beginning spatial retrieval");
@@ -1033,6 +1046,7 @@ public class Experiment : MonoBehaviour {
 			spawnedObjects.Clear();
 
 
+			player.GetComponent<CarController>().ChangeMaxSpeed(40f);
 			chequeredFlag.SetActive(true);
 
 			//	objController.encodingList.Clear();
@@ -1050,7 +1064,9 @@ public class Experiment : MonoBehaviour {
     {
 		List<GameObject> indicatorsList = new List<GameObject>();
 		overheadCam.SetActive(true);
-		overheadInsetQuad.SetActive(true);
+		feedbackQuad.SetActive(true);
+
+
 		for (int k = 0; k < spawnedObjects.Count; k++)
 		{
 			spawnedObjects[k].GetComponent<VisibilityToggler>().TurnVisible(true);
@@ -1076,21 +1092,23 @@ public class Experiment : MonoBehaviour {
 			GameObject indicatorObj = Instantiate(prefabToSpawn, spatialFeedbackPosition[k], Quaternion.identity) as GameObject;
 			indicatorsList.Add(indicatorObj);
 
+			yield return new WaitForSeconds(1f);
+
 		}
 
 		while(!Input.GetKeyDown(KeyCode.Space))
         {
 			yield return 0;
-        }
+		}
 
-		for(int i=0;i<indicatorsList.Count;i++)
+		for (int i=0;i<indicatorsList.Count;i++)
         {
 			Destroy(indicatorsList[i]);
         }
 		indicatorsList.Clear();
 
 		overheadCam.SetActive(false);
-		overheadInsetQuad.SetActive(false);
+		feedbackQuad.SetActive(false);
 		yield return null;
 
     }
@@ -1196,26 +1214,38 @@ public class Experiment : MonoBehaviour {
 		for(int i=0;i< listLength; i++)
 		{
 			//UnityEngine.Debug.Log("int picker count " + intPicker.Count.ToString());
-			int randInt = UnityEngine.Random.Range(0, intPicker.Count-1); // we won't be picking too close to beginning/end
-
+			int randIndex= UnityEngine.Random.Range(0, intPicker.Count-1); // we won't be picking too close to beginning/end
+			int randInt = intPicker[randIndex];
 			//UnityEngine.Debug.Log("rand int " + randInt.ToString());
 			//UnityEngine.Debug.Log("waypoint location count " + waypointLocations.Count.ToString());
+			//UnityEngine.Debug.Log("randindex " + randIndex.ToString());
+			//UnityEngine.Debug.Log("randint " + randInt.ToString());
 			chosenEncodingLocations.Add(waypointLocations[randInt]);
-			intPicker.RemoveAt(randInt);
-			waypointLocations.RemoveAt(randInt);
-			UnityEngine.Debug.Log("pre count " + intPicker.Count.ToString());
-			if(randInt-3>0 && randInt +3 < intPicker.Count-1)
+			//waypointLocations.RemoveAt(randIndex);
+			string temp = "";
+			for(int j=0;j<intPicker.Count;j++)
             {
-				intPicker.RemoveAt(randInt-1);
-				intPicker.RemoveAt(randInt-2);
-				intPicker.RemoveAt(randInt +1);
-				intPicker.RemoveAt(randInt + 2);
-				waypointLocations.RemoveAt(randInt-1);
-				waypointLocations.RemoveAt(randInt-2);
-				waypointLocations.RemoveAt(randInt +1);
-				waypointLocations.RemoveAt(randInt + 2);
-				UnityEngine.Debug.Log("post count " + intPicker.Count.ToString());
+				temp += intPicker[j].ToString() + ",";
+            }
+			uiController.debugText.text = temp;
+			//UnityEngine.Debug.Log("pre count " + intPicker.Count.ToString());
+
+			//UnityEngine.Debug.Log("picked " + randInt.ToString());
+
+			//UnityEngine.Debug.Log("removing  " + intPicker[randIndex].ToString());
+			intPicker.RemoveAt(randIndex);
+		//	yield return StartCoroutine(WaitForActionButton());
+			if(randIndex - 2>0 && randIndex + 2 < intPicker.Count - 1)
+            {
+				//UnityEngine.Debug.Log("removing " + intPicker[randIndex].ToString() + " and " + intPicker[randIndex+1].ToString());
+				intPicker.RemoveAt(randIndex);
+				intPicker.RemoveAt(randIndex);
+				//UnityEngine.Debug.Log("removing " + intPicker[randIndex -1].ToString() + " and " + intPicker[randIndex-2].ToString());
+				intPicker.RemoveAt(randIndex-1);
+				intPicker.RemoveAt(randIndex - 1);
 			}
+
+			//UnityEngine.Debug.Log("post count " + intPicker.Count.ToString());
 			/*
 			if(randInt > 0)
 			{
@@ -1260,6 +1290,7 @@ public class Experiment : MonoBehaviour {
 			textObj.transform.GetChild(0).GetComponent<TextMeshPro>().text = encodingObj.name.Split('(')[0];
 			encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
 			textObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
+			encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 		}
 		yield return null;
 	}
@@ -1441,18 +1472,43 @@ public class Experiment : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (currentStage == TaskStage.SpatialRetrieval)
-		{
-			if (Input.GetKeyDown(KeyCode.UpArrow))
+			if (currentStage == TaskStage.SpatialRetrieval)
+			{
+			if (Input.GetKey(KeyCode.UpArrow))
 			{
 				StartCoroutine("MoveForward");
-
-			}
-			if (Input.GetKeyDown(KeyCode.DownArrow))
+				carSpeed += 0.5f;
+			if (carSpeed > 40f)
 			{
-				StartCoroutine("MoveReverse");
+				//UnityEngine.Debug.Log("exceeded max speed");
+				carSpeed = player.GetComponent<CarController>().MaxSpeed;
+			}
+			//UnityEngine.Debug.Log("increasing speed " + carSpeed.ToString());
+
 
 			}
+			else if (Input.GetKey(KeyCode.DownArrow))
+			{
+				StartCoroutine("MoveReverse"); 
+				carSpeed += 0.5f;
+				if (carSpeed > 40f)
+				{
+					//UnityEngine.Debug.Log("exceeded max speed");
+					carSpeed = player.GetComponent<CarController>().MaxSpeed;
+				}
+				//UnityEngine.Debug.Log("increasing speed " + carSpeed.ToString());
+
+			}
+			else
+            {
+				carSpeed-=0.5f;
+				if (carSpeed <= 0f)
+				carSpeed = 0f;
+		}
+		//	carSpeed = Mathf.Clamp(carSpeed,0f, player.GetComponent<CarController>().MaxSpeed);
+		//UnityEngine.Debug.Log("clamped speed " + carSpeed.ToString());
+		player.GetComponent<CarController>().ChangeMaxSpeed(carSpeed);
+		//UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
 		}
 		/*
 		if (currentStage == Experiment.TaskStage.Retrieval)

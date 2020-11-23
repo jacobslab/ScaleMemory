@@ -68,7 +68,7 @@ namespace UnityStandardAssets.Utility
             Vector3 delta = p2 - p1;
             return new RoutePoint(p1, delta.normalized);
         }
-
+        /*
         public RoutePoint GetReverseRoutePoint(float dist)
         {
 
@@ -80,6 +80,7 @@ namespace UnityStandardAssets.Utility
             Vector3 delta = p2 - p1;
             return new RoutePoint(p1, delta.normalized);
         }
+        */
 
 
         public Vector3 GetRoutePosition(float dist)

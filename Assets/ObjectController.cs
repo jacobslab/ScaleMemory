@@ -111,7 +111,7 @@ public class ObjectController : MonoBehaviour
 			{
 				encodingList.Add(spawnableObjectList[randInts[i]]);
 				spawnableObjectList.RemoveAt(randInts[i]);
-				UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
+			//	UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
 			}
 		}
 

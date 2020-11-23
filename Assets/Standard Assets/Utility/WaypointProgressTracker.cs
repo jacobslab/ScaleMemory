@@ -184,12 +184,14 @@ namespace UnityStandardAssets.Utility
                 {
                     progressPoint = currentCircuit.GetRoutePoint(progressDistance);
                 }
+                /*
                 else
                 {
                     tempPoint = currentCircuit.GetRoutePoint(progressDistance);
                     tempPoint.direction *= -1;
                     progressPoint = tempPoint;
                 }
+                */
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
