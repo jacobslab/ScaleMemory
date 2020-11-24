@@ -32,6 +32,20 @@ public class UIController : MonoBehaviour {
 	public CanvasGroup fixationPanel;
 	public CanvasGroup fixationCross;
 
+	//turn decision
+	public CanvasGroup leftArrowProgress;
+	public CanvasGroup rightArrowProgress;
+	public CanvasGroup leftArrow;
+	public CanvasGroup rightArrow;
+	public CanvasGroup choiceOrPanel;
+	public CanvasGroup leftCorrectImagePanel;
+	public CanvasGroup rightCorrectImagePanel;
+	public CanvasGroup leftIncorrectImagePanel;
+	public CanvasGroup rightIncorrectImagePanel;
+	public CanvasGroup youChoseLeft;
+	public CanvasGroup youChoseRight;
+	
+
 	//blackrock connection
 	public CanvasGroup blackrockConnectionPanel;
 	public Text connectionText;
@@ -46,9 +60,6 @@ public class UIController : MonoBehaviour {
 	public Text bestLapTimeText;
 	public Text timeSplitText;
 
-	//arrow
-	public CanvasGroup leftTurnArrow;
-	public CanvasGroup rightTurnArrow;
 
 	//crash notification
 	public CanvasGroup crashNotification;

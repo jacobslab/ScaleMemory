@@ -43,7 +43,8 @@ namespace UnityStandardAssets.Utility
         public enum TrackDirection
         {
             Left,
-            Right
+            Right,
+            None //used as a dummy variable for initialization
         }
 
         public TrackDirection currentDirection;
@@ -149,8 +150,8 @@ namespace UnityStandardAssets.Utility
                 // get our current progress along the route
                 progressPoint = currentCircuit.GetRoutePoint(progressDistance);
                 Vector3 progressDelta = progressPoint.position - transform.position;
-                UnityEngine.Debug.Log("progress point: " + progressPoint.position.ToString());
-                UnityEngine.Debug.Log("progress delta " + progressDelta.ToString());
+              //  UnityEngine.Debug.Log("progress point: " + progressPoint.position.ToString());
+               // UnityEngine.Debug.Log("progress delta " + progressDelta.ToString());
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
                     progressDistance += progressDelta.magnitude*0.5f;

@@ -89,6 +89,22 @@ public class TurnZone : MonoBehaviour
             yield return null;
     }
 
+    void SeekTurnDecision()
+    {
+        if (isStraightLine)
+        {
+            turnDirection = Experiment.Instance.player.GetComponent<WaypointProgressTracker>().currentDirection;
+
+        }
+        else
+        {
+            //do nothing as the direction has already been set via editor
+        }
+
+
+        StartCoroutine(Experiment.Instance.WaitForTurnChoice(turnDirection,associatedCrashZone));
+    }
+
     void ConfigureTurnDirection()
     {
         if (isStraightLine)
@@ -119,32 +135,41 @@ public class TurnZone : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        UnityEngine.Debug.Log("entered zone " + transform.parent.gameObject.name.ToString());
-        canTurn = true;
-        ConfigureTurnDirection();
-
+        if (!isStraightLine)
+        {
+                UnityEngine.Debug.Log("entered zone " + transform.parent.gameObject.name.ToString());
+                canTurn = true;
+                ConfigureTurnDirection();
+        }
+        else
+        {
+            SeekTurnDecision();
+        } 
     }
 
     void OnTriggerExit(Collider col)
     {
         Experiment.Instance.HideTurnDirection(turnDirection);
-        UnityEngine.Debug.Log("exited zone; performed turn? " + performedTurn.ToString());
-       
-
-        if (performedTurn)
+        if (!isStraightLine)
         {
-            UnityEngine.Debug.Log("successfully took the turn " + transform.parent.gameObject.name);
+            UnityEngine.Debug.Log("exited zone; performed turn? " + performedTurn.ToString());
 
-            //if this is the final corner AND we turned successfully, only then we turn on the chequered flag
-            if (finalCorner)
+
+            if (performedTurn)
             {
-                Experiment.Instance.SetChequeredFlagStatus(true);
-            }
-        }
-        else
+                UnityEngine.Debug.Log("successfully took the turn " + transform.parent.gameObject.name);
 
-        {
-            StartCoroutine("InitiateCrash");
+                //if this is the final corner AND we turned successfully, only then we turn on the chequered flag
+                if (finalCorner)
+                {
+                    Experiment.Instance.SetChequeredFlagStatus(true);
+                }
+            }
+            else
+
+            {
+                StartCoroutine("InitiateCrash");
+            }
         }
         canTurn = false;
         performedTurn = false;       

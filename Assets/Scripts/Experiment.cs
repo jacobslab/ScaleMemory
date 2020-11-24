@@ -589,10 +589,10 @@ public class Experiment : MonoBehaviour {
 		switch (turnDirection)
         {
 			case WaypointProgressTracker.TrackDirection.Left:
-				uiController.leftTurnArrow.alpha = 1f;
+				uiController.leftArrowProgress.alpha = 1f;
 				break;
 			case WaypointProgressTracker.TrackDirection.Right:
-				uiController.rightTurnArrow.alpha = 1f;
+				uiController.rightArrowProgress.alpha = 1f;
 				break;
         }
     }
@@ -602,10 +602,10 @@ public class Experiment : MonoBehaviour {
 		switch (turnDirection)
 		{
 			case WaypointProgressTracker.TrackDirection.Left:
-				uiController.leftTurnArrow.alpha = 0f;
+				uiController.leftArrowProgress.alpha = 0f;
 				break;
 			case WaypointProgressTracker.TrackDirection.Right:
-				uiController.rightTurnArrow.alpha = 0f;
+				uiController.rightArrowProgress.alpha = 0f;
 				break;
 		}
 
@@ -634,7 +634,7 @@ public class Experiment : MonoBehaviour {
 		//conceal the transformation
 		uiController.blackScreen.alpha = 1f;
 		//make sure we transport the car back to the starting transform
-		player.transform.position = startTransform.position + (Vector3.up * 5f);
+		player.transform.position = startTransform.position + (Vector3.up * 15f);
 		player.transform.rotation = startTransform.rotation;
 
 		player.GetComponent<WaypointProgressTracker>().Reset(); //reset the waypoint system to begin from the beginning
@@ -661,6 +661,94 @@ public class Experiment : MonoBehaviour {
 		uiController.retrievalPanel.alpha = 0f;
 		yield return null;
 	}
+
+
+	public IEnumerator WaitForTurnChoice(WaypointProgressTracker.TrackDirection correctDirection, Transform associatedCrashZone)
+    {
+		SetCarBrakes(true);
+		yield return new WaitForSeconds(0.5f);
+		uiController.leftArrow.alpha = 1f;
+		uiController.rightArrow.alpha = 1f;
+		uiController.choiceOrPanel.alpha = 1f;
+		bool turnedCorrectly = false;
+
+		WaypointProgressTracker.TrackDirection chosenDirection = WaypointProgressTracker.TrackDirection.None;
+		while(!Input.GetKeyDown(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
+        {
+			yield return 0;
+		}
+		if (Input.GetKey(KeyCode.LeftArrow))
+		{
+			UnityEngine.Debug.Log("chose left");
+			chosenDirection = WaypointProgressTracker.TrackDirection.Left;
+		}
+		else if (Input.GetKey(KeyCode.RightArrow))
+		{
+			UnityEngine.Debug.Log("chose right");
+			chosenDirection = WaypointProgressTracker.TrackDirection.Right;
+		}
+		if (chosenDirection == correctDirection)
+        {
+			UnityEngine.Debug.Log("turned correctly");
+			turnedCorrectly = true;
+			if(chosenDirection == WaypointProgressTracker.TrackDirection.Left)
+            {
+				uiController.youChoseLeft.alpha = 1f;
+				uiController.leftCorrectImagePanel.alpha = 1f;
+				uiController.rightIncorrectImagePanel.alpha = 1f;
+            }
+			else if(chosenDirection==WaypointProgressTracker.TrackDirection.Right)
+			{
+				uiController.youChoseRight.alpha = 1f;
+				uiController.rightCorrectImagePanel.alpha = 1f;
+				uiController.leftIncorrectImagePanel.alpha = 1f;
+
+			}
+			else
+            {
+				UnityEngine.Debug.Log("WARNING, KEYPRESS NOT REGISTERED PROPERLY");
+            }
+        }
+		else
+		{
+			UnityEngine.Debug.Log("WRONG turn");
+			turnedCorrectly = false; 
+			if (chosenDirection == WaypointProgressTracker.TrackDirection.Left)
+			{
+				uiController.youChoseLeft.alpha = 1f;
+				uiController.leftIncorrectImagePanel.alpha = 1f;
+				uiController.rightCorrectImagePanel.alpha = 1f;
+			}
+			else
+			{
+				uiController.youChoseRight.alpha = 1f;
+				uiController.rightIncorrectImagePanel.alpha = 1f;
+				uiController.leftCorrectImagePanel.alpha = 1f;
+
+			}
+		}
+
+		yield return new WaitForSeconds(1f);
+
+
+		//reset everything
+		uiController.leftArrow.alpha = 0f;
+		uiController.rightArrow.alpha = 0f;
+		uiController.choiceOrPanel.alpha = 0f;
+		uiController.youChoseRight.alpha = 0f;
+		uiController.youChoseLeft.alpha = 0f;
+		uiController.leftIncorrectImagePanel.alpha = 0f;
+		uiController.rightCorrectImagePanel.alpha = 0f;
+		uiController.rightIncorrectImagePanel.alpha = 0f;
+		uiController.leftCorrectImagePanel.alpha = 0f;
+		
+		SetCarBrakes(false);
+		
+		if(!turnedCorrectly)
+			yield return StartCoroutine(BeginCrashSequence(associatedCrashZone));
+
+		yield return null;
+    }
 
 	string FormatTime(float timeInSeconds)
     {
@@ -731,10 +819,11 @@ public class Experiment : MonoBehaviour {
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			bool canChangeDirection = true;
 
-			while (LapCounter.lapCount < 12)
+			while (LapCounter.lapCount < 2)
 			{
 				//reset lap timer and show display
 				ResetLapDisplay();
+
 				if (canChangeDirection)
 				{
 					//switch direction
@@ -824,25 +913,49 @@ public class Experiment : MonoBehaviour {
 
 			string targetNames = "";
 			int targetMode = 0;
-			while (LapCounter.lapCount < 18)
+			while (LapCounter.lapCount < 16)
 			{
-				targetMode = LapCounter.lapCount % 3;
+				targetMode = LapCounter.lapCount % 2;
 				switch (targetMode)
                 {
 					case 0:
-						UnityEngine.Debug.Log("slow zone is target");
-						slowZoneObj.SetActive(true);
-						speedZoneObj.SetActive(false);
-						uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
-						targetNames = "OIL PATCH (Press Z)";
+
+						leftSpawnObj.SetActive(true);
+						rightSpawnObj.SetActive(false);
+						UnityEngine.Debug.Log("chose left direction");
+						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+						if(leftSpawnObj==slowZoneObj)
+                        {
+
+							uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
+							targetNames = "OIL PATCH (Press Z)";
+						}
+						else
+						{
+							uiController.zRetrievalText.text = "SPEED ZONE :\n Press M";
+							targetNames = "SPEED ZONE (Press M)";
+
+						}
 						break;
 					case 1:
-						UnityEngine.Debug.Log("speed zone is target");
-						slowZoneObj.SetActive(false);
-						speedZoneObj.SetActive(true);
-						uiController.zRetrievalText.text = "SPEED ZONE:\n Press M";
-						targetNames = "SPEED ZONE (Press M)";
+						leftSpawnObj.SetActive(false);
+						rightSpawnObj.SetActive(true);
+						UnityEngine.Debug.Log("chose right direction");
+						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
+						if (rightSpawnObj == slowZoneObj)
+						{
+
+							uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
+							targetNames = "OIL PATCH (Press Z)";
+						}
+						else
+						{
+							uiController.zRetrievalText.text = "SPEED ZONE :\n Press M";
+							targetNames = "SPEED ZONE (Press M)";
+
+						}
 						break;
+						/*
 					case 2:
 						UnityEngine.Debug.Log("both zones are the target");
 						slowZoneObj.SetActive(true);
@@ -850,6 +963,7 @@ public class Experiment : MonoBehaviour {
 						targetNames = "OIL PATCH (Press Z)\n and \n SPEED ZONE (Press M)";
 						uiController.zRetrievalText.text = "OIL PATCH : Press Z \n SPEED ZONE: Press M";
 						break;
+						*/
                 }
 
 				uiController.zRetrievalText.color = Color.white;
@@ -859,7 +973,7 @@ public class Experiment : MonoBehaviour {
 				uiController.retrievalTextPanel.alpha = 0f;
 
 
-				trafficLightController.MakeVisible(true);
+			trafficLightController.MakeVisible(true);
 			yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 			SetCarBrakes(false);
 
