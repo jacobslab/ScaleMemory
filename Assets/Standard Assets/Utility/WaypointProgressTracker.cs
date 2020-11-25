@@ -180,10 +180,10 @@ namespace UnityStandardAssets.Utility
                 //  UnityEngine.Debug.Log("progress distance: " + progressDistance.ToString());
 
                 // get our current progress along the route
-                if (!reversed)
-                {
+              //  if (!reversed)
+               // {
                     progressPoint = currentCircuit.GetRoutePoint(progressDistance);
-                }
+               // }
                 /*
                 else
                 {
@@ -197,6 +197,7 @@ namespace UnityStandardAssets.Utility
                 {
                     progressDistance += progressDelta.magnitude*0.5f;
                 }
+             //   UnityEngine.Debug.Log("progress distance " + progressDistance.ToString());
                 lastPosition = transform.position;
 
 

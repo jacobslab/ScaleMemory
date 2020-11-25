@@ -65,6 +65,10 @@ public class Experiment : MonoBehaviour {
 
 	public Transform startTransform;
 
+	private bool wasMovingForward = false;
+    private bool wasMovingReverse = false;
+	private float movementTimer = 0f;
+
 	//prefabs
 	public GameObject slowZonePrefab;
 	public GameObject speedZonePrefab;
@@ -172,6 +176,7 @@ public class Experiment : MonoBehaviour {
 	// Use this for initialization
 	void Start()
 	{
+		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
 		spatialFeedbackStatus = new List<bool>();
 		spatialFeedbackPosition = new List<Vector3>();
 		SetCarBrakes(true);
@@ -1472,10 +1477,34 @@ public class Experiment : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		//UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());
+		UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
 			if (currentStage == TaskStage.SpatialRetrieval)
 			{
 			if (Input.GetKey(KeyCode.UpArrow))
+		{
+			SetCarBrakes(false);
+			if (wasMovingReverse)
+				{
+					carSpeed = 0f;
+					movementTimer = 0f;
+					wasMovingReverse = false;
+				}
+			/*
+				if(movementTimer>1f && player.GetComponent<CarController>().CurrentSpeed < 1f)
 			{
+				UnityEngine.Debug.Log("force rotated");
+				//player.transform.Rotate(2f, 2f, 2f, Space.Self);
+				player.transform.position = new Vector3(player.transform.position.x,player.transform.position.y + 3f, player.transform.position.z);
+				player.GetComponent<CarController>().SetCurrentSpeed(2f);
+				movementTimer = 0f;
+
+				}
+				movementTimer += Time.deltaTime;
+			*/
+				wasMovingForward = true;
+				//UnityEngine.Debug.Log("moving forward");
+				StopCoroutine("MoveReverse");
 				StartCoroutine("MoveForward");
 				carSpeed += 0.5f;
 			if (carSpeed > 40f)
@@ -1488,7 +1517,30 @@ public class Experiment : MonoBehaviour {
 
 			}
 			else if (Input.GetKey(KeyCode.DownArrow))
+		{
+			SetCarBrakes(false);
+			if (wasMovingForward)
+                {
+					carSpeed = 0f;
+					movementTimer = 0f;
+					wasMovingForward = false;
+                }
+				wasMovingReverse = true;
+			/*
+				if (movementTimer > 1f && player.GetComponent<CarController>().CurrentSpeed < 1f)
 			{
+				UnityEngine.Debug.Log("force rotated");
+				//player.transform.Rotate(2f, 2f, 2f, Space.Self);
+				player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 3f, player.transform.position.z);
+				player.GetComponent<CarController>().SetCurrentSpeed(2f);
+					movementTimer = 0f;
+					
+
+				}
+				movementTimer += Time.deltaTime;
+			*/
+				//UnityEngine.Debug.Log("moving reverse");
+				StopCoroutine("MoveForward");
 				StartCoroutine("MoveReverse"); 
 				carSpeed += 0.5f;
 				if (carSpeed > 40f)
@@ -1501,13 +1553,22 @@ public class Experiment : MonoBehaviour {
 			}
 			else
             {
+			SetCarBrakes(true);
 				carSpeed-=0.5f;
 				if (carSpeed <= 0f)
 				carSpeed = 0f;
-		}
+			}
 		//	carSpeed = Mathf.Clamp(carSpeed,0f, player.GetComponent<CarController>().MaxSpeed);
 		//UnityEngine.Debug.Log("clamped speed " + carSpeed.ToString());
-		player.GetComponent<CarController>().ChangeMaxSpeed(carSpeed);
+		/*
+		if (carSpeed >= 0.5f)
+			player.GetComponent<CarController>().ChangeMaxSpeed(carSpeed);
+		else
+		{
+			carSpeed = 0.2f;
+			player.GetComponent<CarController>().ChangeMaxSpeed(carSpeed);
+		}
+		*/
 		//UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
 		}
 		/*

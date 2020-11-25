@@ -138,6 +138,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 // int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length - currentWaypointIndex);
                 int newWaypointIndex = FindSubsequentWaypointIndexFromStart(gameObject.transform);
+              //  gameObject.transform.Rotate(0f,180f,0f,Space.Self);
+              //  skyCar.transform.Rotate(0f, 180f, 0f, Space.Self);
                 gameObject.transform.rotation = reverseRotHelper.transform.rotation;
                 skyCar.transform.rotation = forwardRotHelper.transform.rotation;
                 if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length)
@@ -161,7 +163,8 @@ namespace UnityStandardAssets.Vehicles.Car
                 isReverse = true;
                 int tempWaypointIndex = currentWaypointIndex;
                 int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length - currentWaypointIndex);
-
+               // gameObject.transform.Rotate(0f, 180f, 0f, Space.Self);
+               // skyCar.transform.Rotate(0f, 180f, 0f, Space.Self);
                 gameObject.transform.rotation = reverseRotHelper.transform.rotation;
                 skyCar.transform.rotation = reverseRotHelper.transform.rotation;
                 if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length)
@@ -299,9 +302,11 @@ namespace UnityStandardAssets.Vehicles.Car
              //   float steer = 0f;
             //    if(!isReverse)
                   float steer = Mathf.Clamp(targetAngle*m_SteerSensitivity, -1, 1)*Mathf.Sign(m_CarController.CurrentSpeed);
-               
+
                 // feed input to the car controller.
-             //   if(!isReverse)
+                //   if(!isReverse)
+               // UnityEngine.Debug.Log("accel " + accel.ToString());
+
                     m_CarController.Move(steer, accel, accel, 0f);
              //   else
                //     m_CarController.Move(steer, -accel, 0f, 0f);
