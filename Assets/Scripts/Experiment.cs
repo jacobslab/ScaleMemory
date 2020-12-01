@@ -35,6 +35,7 @@ public class Experiment : MonoBehaviour {
 		Encoding,
 		SpatialRetrieval,
 		VerbalRetrieval,
+        Feedback,
 		PostTaskScreening
 	}
 
@@ -754,7 +755,7 @@ public class Experiment : MonoBehaviour {
 		//show instructions
 		for (int i = 0; i < blockLength; i++)
 		{
-
+            UnityEngine.Debug.Log("in encoding now");
 			currentStage = TaskStage.Encoding;
 			trialLogTrack.LogTaskStage(currentStage, true);
 			trialCount = i + 1;
@@ -1012,23 +1013,26 @@ public class Experiment : MonoBehaviour {
 						yield return new WaitForSeconds(0.2f);
 
 					}
+                    currentStage = TaskStage.Feedback;
 					UnityEngine.Debug.Log("finished all retrievals");
 
 
-					SetCarBrakes(true);
+                    finishedRetrieval = true;
+                    SetCarBrakes(true);
 
 					uiController.targetTextPanel.alpha = 0f;
 					uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
 					yield return StartCoroutine("PerformSpatialFeedback");
+                    UnityEngine.Debug.Log("finished spatial feedback");
 					uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
-					finishedRetrieval = true;
 
 					UpdateLapDisplay();
 					HideLapDisplay();
 
 					trafficLightController.MakeVisible(false);
 					yield return new WaitForSeconds(1f);
-					MoveForward(); //we'll reset the movement to forward for the next navigation/encoding phase
+					yield return StartCoroutine("MoveForward");
+					//MoveForward(); //we'll reset the movement to forward for the next navigation/encoding phase
 					/*
 					player.transform.position = startTransform.position;
 					yield return StartCoroutine(ShowFixation());
@@ -1478,7 +1482,7 @@ public class Experiment : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());
-		UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
+		//UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
 			if (currentStage == TaskStage.SpatialRetrieval)
 			{
 			if (Input.GetKey(KeyCode.UpArrow))

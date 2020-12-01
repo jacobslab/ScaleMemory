@@ -83,19 +83,19 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             
             int tempIndex = currentWaypointIndex;
-            UnityEngine.Debug.Log("waypoint arr size " + gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length.ToString());
+            //UnityEngine.Debug.Log("waypoint arr size " + gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length.ToString());
             if((tempIndex + 1) < gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length)
             {
-                UnityEngine.Debug.Log("incremented waypoint index");
+               // UnityEngine.Debug.Log("incremented waypoint index");
                 tempIndex++;
                 
             }
             else
             {
-                UnityEngine.Debug.Log("reset waypoint index");
+              //  UnityEngine.Debug.Log("reset waypoint index");
                 tempIndex = 0;
             }
-            UnityEngine.Debug.Log("set new waypoint target: " + tempIndex.ToString());
+           // UnityEngine.Debug.Log("set new waypoint target: " + tempIndex.ToString());
             SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[tempIndex],tempIndex);
         }
 
