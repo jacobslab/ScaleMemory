@@ -60,9 +60,21 @@ public class UIController : MonoBehaviour {
 	public Text bestLapTimeText;
 	public Text timeSplitText;
 
+	// chest notifications
+	public CanvasGroup correctChestPanel;
+	public CanvasGroup incorrectChestPanel;
+
+	//alternate turn reminder
+	public CanvasGroup alternateReminderPanel;
 
 	//crash notification
 	public CanvasGroup crashNotification;
+
+	//feedback panels
+	public CanvasGroup wrongLocationCorrectTurnPanel;
+	public CanvasGroup correctLocationPanel;
+	public CanvasGroup wrongTurnPanel;
+	public CanvasGroup wrongTurnWrongLocationPanel;
 
 
 	//black screen
@@ -73,6 +85,8 @@ public class UIController : MonoBehaviour {
 
 	// info text
 	public TextMeshPro infoText;
+
+	public Text rewardText;
 	
 
 	// Use this for initialization
@@ -85,6 +99,30 @@ public class UIController : MonoBehaviour {
 	void Update () {
 	}
 
-	
+	public IEnumerator ShowCorrectChest()
+    {
+		IncrementAndUpdateReward();
+		correctChestPanel.alpha = 1f;
+		yield return new WaitForSeconds(2f);
+		correctChestPanel.alpha = 0f;
+		yield return null;
+    }
+
+	public void IncrementAndUpdateReward()
+    {
+		Experiment.Instance.reward += 100;
+		rewardText.text = Experiment.Instance.reward.ToString();
+    }
+
+	public IEnumerator ShowIncorrectChest()
+	{
+		incorrectChestPanel.alpha = 1f;
+		yield return new WaitForSeconds(2f);
+		incorrectChestPanel.alpha = 0f;
+		yield return null;
+    }
+
+
+
 
 }

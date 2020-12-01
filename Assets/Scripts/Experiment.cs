@@ -19,6 +19,8 @@ public class Experiment : MonoBehaviour {
 	private GameObject slowZoneObj;
 	private GameObject speedZoneObj;
 
+	public static bool onCorrectArm = false; //this will be read by treasure chest on each arm to determine its contents if player is on correct arm (reward) or not (empty)
+
 	public List<Transform> leftSpawnableWaypoints;
 	public List<Transform> rightSpawnableWaypoints;
 
@@ -43,6 +45,18 @@ public class Experiment : MonoBehaviour {
 	private List<GameObject> retrievalObjList;
 	private List<Vector3> retrievalPositions;
 
+	public GameObject treasureChestPrefab;
+	private GameObject leftChest;
+	private GameObject rightChest;
+
+	private Vector3 leftSpawnPos;
+	private Vector3 rightSpawnPos;
+
+	public AudioSource feedbackAudio;
+	public AudioClip magicWand;
+	public AudioClip smokePoof;
+	public GameObject coinPrefab;
+
 
 	public Camera itemScreeningCam;
 
@@ -65,7 +79,8 @@ public class Experiment : MonoBehaviour {
 	private GameObject leftSpawnObj;
 	private GameObject rightSpawnObj;
 
-
+	private bool pickOnce = false;
+	private GameObject correctChest;
 	//blackrock variables
 	public static string ExpName = "T2";
 	public static string BuildVersion = "0.9.8";
@@ -87,6 +102,8 @@ public class Experiment : MonoBehaviour {
 	public SubjectReaderWriter subjectReaderWriter;
 
 	public GameObject chequeredFlag;
+
+	public int reward = 0;
 
 	private bool ipAddressEntered = false;
 
@@ -375,35 +392,58 @@ public class Experiment : MonoBehaviour {
 		int leftRandInt = Random.Range(0, leftSpawnableWaypoints.Count - 1);
 		int rightRandInt = Random.Range(0, rightSpawnableWaypoints.Count - 1);
 
-
-		float yAngle = -180f;
-
-		//randomize which side gets slow and speed zones
-		if (Random.value > 0.5f)
+		/*
+		if (leftRandInt <= 7 || leftRandInt > 26)
 		{
-
-			slowZoneObj = Instantiate(slowZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
-			leftSpawnObj = slowZoneObj;
-
-			speedZoneObj = Instantiate(speedZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
-			rightSpawnObj = speedZoneObj;
+			leftYAngle = 90f;
 		}
 		else
 		{
-			slowZoneObj = Instantiate(slowZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
-			rightSpawnObj = slowZoneObj;
-
-			speedZoneObj = Instantiate(speedZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
-			leftSpawnObj = speedZoneObj;
+			leftYAngle = 0f;
 		}
+
+		if (rightRandInt <= 7 || rightRandInt > 26)
+		{
+			rightYAngle = 90f;
+		}
+		else
+		{
+			rightYAngle = 0f;
+		}
+		*/
+		//randomize which side gets slow and speed zones
+
+		leftSpawnPos = leftSpawnableWaypoints[leftRandInt].position;
+		rightSpawnPos = rightSpawnableWaypoints[rightRandInt].position;
+
+		GameObject chestOne = Instantiate(treasureChestPrefab, leftSpawnableWaypoints[leftRandInt].position, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
+			trialLogTrack.LogTreasureChest(leftSpawnPos);
+			leftChest = chestOne;
+
+			GameObject chestTwo = Instantiate(treasureChestPrefab, rightSpawnableWaypoints[rightRandInt].position, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
+			trialLogTrack.LogTreasureChest(rightSpawnPos);
+			rightChest = chestTwo;
+		
 
 		yield return null;
 
 	}
+
+	IEnumerator SpawnChestAgain()
+    {
+		//destroy existing chests first
+		if (leftChest != null)
+			Destroy(leftChest);
+		if (rightChest != null)
+			Destroy(rightChest);
+
+		GameObject chestOne = Instantiate(treasureChestPrefab, leftSpawnPos, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
+		leftChest = chestOne;
+
+		GameObject chestTwo = Instantiate(treasureChestPrefab, rightSpawnPos, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
+		rightChest = chestTwo;
+		yield return null;
+    }
 
 
 	IEnumerator BeginExperiment()
@@ -460,6 +500,7 @@ public class Experiment : MonoBehaviour {
 		//	StartCoroutine("RandomizeTravelSpeed");
 		//	yield return StartCoroutine("BeginTrackScreening");
 
+		reward = 0;
 		yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
 		yield return StartCoroutine("BeginTaskBlock");
@@ -680,11 +721,14 @@ public class Experiment : MonoBehaviour {
 		if (Input.GetKey(KeyCode.LeftArrow))
 		{
 			UnityEngine.Debug.Log("chose left");
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 			chosenDirection = WaypointProgressTracker.TrackDirection.Left;
 		}
 		else if (Input.GetKey(KeyCode.RightArrow))
 		{
 			UnityEngine.Debug.Log("chose right");
+
+			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			chosenDirection = WaypointProgressTracker.TrackDirection.Right;
 		}
 		if (chosenDirection == correctDirection)
@@ -694,15 +738,14 @@ public class Experiment : MonoBehaviour {
 			if(chosenDirection == WaypointProgressTracker.TrackDirection.Left)
             {
 				uiController.youChoseLeft.alpha = 1f;
-				uiController.leftCorrectImagePanel.alpha = 1f;
-				uiController.rightIncorrectImagePanel.alpha = 1f;
+				//uiController.leftCorrectImagePanel.alpha = 1f;
+				//uiController.rightIncorrectImagePanel.alpha = 1f;
             }
 			else if(chosenDirection==WaypointProgressTracker.TrackDirection.Right)
 			{
 				uiController.youChoseRight.alpha = 1f;
-				uiController.rightCorrectImagePanel.alpha = 1f;
-				uiController.leftIncorrectImagePanel.alpha = 1f;
-
+				//uiController.rightCorrectImagePanel.alpha = 1f;
+				//uiController.leftIncorrectImagePanel.alpha = 1f;
 			}
 			else
             {
@@ -716,14 +759,14 @@ public class Experiment : MonoBehaviour {
 			if (chosenDirection == WaypointProgressTracker.TrackDirection.Left)
 			{
 				uiController.youChoseLeft.alpha = 1f;
-				uiController.leftIncorrectImagePanel.alpha = 1f;
-				uiController.rightCorrectImagePanel.alpha = 1f;
+				//uiController.leftIncorrectImagePanel.alpha = 1f;
+				//uiController.rightCorrectImagePanel.alpha = 1f;
 			}
 			else
 			{
 				uiController.youChoseRight.alpha = 1f;
-				uiController.rightIncorrectImagePanel.alpha = 1f;
-				uiController.leftCorrectImagePanel.alpha = 1f;
+				//uiController.rightIncorrectImagePanel.alpha = 1f;
+				//uiController.leftCorrectImagePanel.alpha = 1f;
 
 			}
 		}
@@ -743,10 +786,12 @@ public class Experiment : MonoBehaviour {
 		uiController.leftCorrectImagePanel.alpha = 0f;
 		
 		SetCarBrakes(false);
-		
+		onCorrectArm = turnedCorrectly;
+		//no crashing
+		/*
 		if(!turnedCorrectly)
 			yield return StartCoroutine(BeginCrashSequence(associatedCrashZone));
-
+		*/
 		yield return null;
     }
 
@@ -819,25 +864,25 @@ public class Experiment : MonoBehaviour {
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			bool canChangeDirection = true;
 
-			while (LapCounter.lapCount < 2)
+			while (LapCounter.lapCount < 3)
 			{
+				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
 				//reset lap timer and show display
 				ResetLapDisplay();
 
+				//both chests are active; whether they're empty or filled with reward depends on player choice at decision point
+				leftChest.SetActive(true);
+				rightChest.SetActive(true);
 				if (canChangeDirection)
 				{
 					//switch direction
 					if (player.GetComponent<WaypointProgressTracker>().currentDirection == WaypointProgressTracker.TrackDirection.Left)
 					{
-						leftSpawnObj.SetActive(false);
-						rightSpawnObj.SetActive(true);
 						UnityEngine.Debug.Log("chose right direction");
 						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 					}
 					else
 					{
-						leftSpawnObj.SetActive(true);
-						rightSpawnObj.SetActive(false);
 						UnityEngine.Debug.Log("chose left direction");
 						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 					}
@@ -845,7 +890,7 @@ public class Experiment : MonoBehaviour {
 				UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
 
 				//turn off chequered flag temporarily
-				SetChequeredFlagStatus(false);
+				//SetChequeredFlagStatus(false);
 
 				SetCarBrakes(false);
 				
@@ -882,6 +927,16 @@ public class Experiment : MonoBehaviour {
 
 				yield return new WaitForSeconds(1f);
 				player.transform.position = startTransform.position;
+				if(!onCorrectArm)
+                {
+					uiController.alternateReminderPanel.alpha = 1f;
+					yield return StartCoroutine(WaitForActionButton());
+					uiController.alternateReminderPanel.alpha = 0f;
+				}
+				//RESET onCorrectArm before restarting the lap
+				onCorrectArm = false;
+				yield return StartCoroutine(SpawnChestAgain());
+
 				yield return StartCoroutine(ShowFixation());
 				player.transform.position = startTransform.position;
 				yield return 0;
@@ -899,8 +954,11 @@ public class Experiment : MonoBehaviour {
 			//	uiController.itemOneName.text = spawnedObjects[0].name.Split('(')[0];
 			//	uiController.itemTwoName.text = spawnedObjects[1].name.Split('(')[0];
 
-			slowZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-			speedZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
+		//	leftChest.GetComponent<VisibilityToggler>().TurnVisible(false);
+		//	rightChest.GetComponent<VisibilityToggler>().TurnVisible(false);
+
+			leftChest.SetActive(false);
+			rightChest.SetActive(false);
 
 			trialLogTrack.LogTaskStage(currentStage, false);
 			currentStage = Experiment.TaskStage.Retrieval;
@@ -913,17 +971,20 @@ public class Experiment : MonoBehaviour {
 
 			string targetNames = "";
 			int targetMode = 0;
+			GameObject targetChest = null;
 			while (LapCounter.lapCount < 16)
 			{
+				pickOnce = false; //reset
 				targetMode = LapCounter.lapCount % 2;
 				switch (targetMode)
                 {
 					case 0:
-
-						leftSpawnObj.SetActive(true);
-						rightSpawnObj.SetActive(false);
-						UnityEngine.Debug.Log("chose left direction");
-						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+						correctChest = leftChest;
+						//	leftChest.SetActive(true);
+						//	rightChest.SetActive(false);
+						//	UnityEngine.Debug.Log("chose left direction");
+						//	player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+						/*
 						if(leftSpawnObj==slowZoneObj)
                         {
 
@@ -936,12 +997,15 @@ public class Experiment : MonoBehaviour {
 							targetNames = "SPEED ZONE (Press M)";
 
 						}
+						*/
 						break;
 					case 1:
-						leftSpawnObj.SetActive(false);
-						rightSpawnObj.SetActive(true);
+					//	leftChest.SetActive(false);
+					//	rightChest.SetActive(true);
 						UnityEngine.Debug.Log("chose right direction");
+						correctChest = rightChest;
 						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
+						/*
 						if (rightSpawnObj == slowZoneObj)
 						{
 
@@ -954,6 +1018,7 @@ public class Experiment : MonoBehaviour {
 							targetNames = "SPEED ZONE (Press M)";
 
 						}
+						*/
 						break;
 						/*
 					case 2:
@@ -966,11 +1031,11 @@ public class Experiment : MonoBehaviour {
 						*/
                 }
 
-				uiController.zRetrievalText.color = Color.white;
-				uiController.retrievalTextPanel.alpha = 1f;
-				uiController.itemName.text = targetNames;
-				yield return StartCoroutine(WaitForActionButton());
-				uiController.retrievalTextPanel.alpha = 0f;
+				//uiController.zRetrievalText.color = Color.white;
+				//uiController.retrievalTextPanel.alpha = 1f;
+				//uiController.itemName.text = targetNames;
+				//yield return StartCoroutine(WaitForActionButton());
+				//uiController.retrievalTextPanel.alpha = 0f;
 
 
 			trafficLightController.MakeVisible(true);
@@ -1129,6 +1194,11 @@ public class Experiment : MonoBehaviour {
 		player.GetComponent<Rigidbody>().isKinematic = shouldStop;
     }
 
+	public IEnumerator WaitForTreasurePause()
+    {
+		yield return null;
+    }
+
 	IEnumerator GenerateRetrievalList()
 	{
 		List<int> tempList = new List<int>();
@@ -1245,6 +1315,11 @@ public class Experiment : MonoBehaviour {
 		yield return null;
     }
 
+	void LockChestAnswer()
+    {
+		//uiController.chestRetrievalText.color = Color.gray;
+    }
+
 	void LockZAnswer()
 	{
 		uiController.zRetrievalText.color = Color.gray;
@@ -1254,11 +1329,76 @@ public class Experiment : MonoBehaviour {
 		uiController.mRetrievalText.color = Color.gray;
 	}
 
+	IEnumerator EvaluateResponse(Vector3 playerLoc)
+    {
+		SetCarBrakes(true);
+		bool turnedCorrectly = Experiment.onCorrectArm;
+		bool guessedLocCorrectly = false;
+
+		float dist = Vector3.Distance(correctChest.transform.position, playerLoc);
+		if(dist<20f)
+        {
+			guessedLocCorrectly = true;
+        }
+
+		bool correctFeedback = false;
+		
+		//turned correctly AND guessed correctly
+		if(guessedLocCorrectly && onCorrectArm)
+        {
+			feedbackAudio.PlayOneShot(magicWand);
+			uiController.IncrementAndUpdateReward();
+			GameObject coinObj = Instantiate(coinPrefab, player.transform.position + player.transform.forward * 5f, Quaternion.Euler(new Vector3(90f, 90f, 0f))) as GameObject;
+			yield return StartCoroutine(ShowFeedbackPanel(uiController.correctLocationPanel));
+			Destroy(coinObj);
+        }
+		//turned correctly but guessed wrong
+		else if(!guessedLocCorrectly && onCorrectArm)
+		{
+			feedbackAudio.PlayOneShot(smokePoof);
+			yield return StartCoroutine(ShowFeedbackPanel(uiController.wrongLocationCorrectTurnPanel));
+
+		}
+		//turned wrong but guessed right
+		else if(guessedLocCorrectly && !onCorrectArm)
+		{
+			feedbackAudio.PlayOneShot(smokePoof);
+			yield return StartCoroutine(ShowFeedbackPanel(uiController.wrongTurnPanel));
+
+		}
+		//did everything wrong
+		else
+        {
+			feedbackAudio.PlayOneShot(smokePoof);
+			yield return StartCoroutine(ShowFeedbackPanel(uiController.wrongTurnWrongLocationPanel));
+		}
+
+		SetCarBrakes(false);
+		yield return null;
+
+    }
+
+	IEnumerator ShowFeedbackPanel(CanvasGroup feedbackPanel)
+    {
+		feedbackPanel.alpha = 1f;
+		yield return StartCoroutine(WaitForActionButton());
+		feedbackPanel.alpha = 0f;
+		yield return null;
+    }
 
 	// Update is called once per frame
 	void Update () {
-		if (currentStage == Experiment.TaskStage.Retrieval)
+		if (currentStage == Experiment.TaskStage.Retrieval && !pickOnce)
 		{
+			if(Input.GetKey(KeyCode.X))
+            {
+				LockChestAnswer();
+				pickOnce = true;
+				Vector3 playerPos = player.transform.position;
+				StartCoroutine("EvaluateResponse", playerPos);
+                trialLogTrack.LogChestRetrievalAttempt(correctChest, player.gameObject);
+			}
+			/*
 			if (Input.GetKeyDown(KeyCode.Z))
 			{
 				LockZAnswer();
@@ -1270,6 +1410,7 @@ public class Experiment : MonoBehaviour {
 
 				trialLogTrack.LogRetrievalAttempt(speedZoneObj,player.gameObject);
 			}
+			*/
 		}
 
 #if UNITY_EDITOR

@@ -56,6 +56,12 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "MIC_TEST");
 	}
 
+	public void LogTreasureChest(Vector3 location)
+    {
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "TREASURE_CHEST_LOCATION" + separator + location.x.ToString() + separator + location.y.ToString() + separator + location.z.ToString());
+	}
+
 	void LogSessionStart(){
 		Debug.Log ("LOGGED SESSION START");
 		string buildVersion = Experiment.BuildVersion.ToString ();
@@ -100,6 +106,12 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "SHOWING_INSTRUCTIONS" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 	}
 
+	public void LogChestRetrievalAttempt(GameObject targetObj, GameObject car)
+	{
+		string targetObjName = targetObj.gameObject.name.Split('(')[0];
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CHEST_RETRIEVAL_ATTEMPT" + separator + ((Experiment.onCorrectArm)? "TURNED_CORRECTLY" : "TURNED_INCORRECTLY") + separator + car.transform.position.x.ToString() + separator + car.transform.position.y.ToString() + separator + car.transform.position.z.ToString());
+	}
 	public void LogRetrievalAttempt(GameObject targetObj, GameObject car)
 	{
 		string targetObjName = targetObj.gameObject.name.Split('(')[0];

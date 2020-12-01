@@ -38,13 +38,24 @@ public class LapCounter : MonoBehaviour
                 canStop = true;
                 if (!isRetrieval)
                 {
+                    /*
                     if ((lapCount + 1) % Experiment.blockLength == 0)
                     {
                         UnityEngine.Debug.Log("retrieval mode active");
                         isRetrieval = true;
                     }
-                    lapCount++;
-                    UnityEngine.Debug.Log("completed a lap");
+                    */
+                    if (Experiment.onCorrectArm)
+                    {
+
+
+                        lapCount++;
+                        UnityEngine.Debug.Log("completed a lap and chose correctly");
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log("repeat this lap since they chose incorrectly");
+                    }
                     return;
                 }
                 else

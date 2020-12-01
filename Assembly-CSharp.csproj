@@ -67,6 +67,7 @@
      <Compile Include="Assets\CyberCity\Script\FPMouseLook.cs" />
      <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
      <Compile Include="Assets\CyberCity\Script\Route\CCVehicle.cs" />
+     <Compile Include="Assets\DefaultItem.cs" />
      <Compile Include="Assets\LapCounter.cs" />
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
@@ -124,6 +125,7 @@
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\CorrectPositionIndicatorController.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
+     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\JuiceController.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ParticleAutoDestroy.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\VisibilityToggler.cs" />
@@ -258,6 +260,7 @@
      <None Include="Assets\Shaders\3DTextUnderShader.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Bloom.shader" />
+     <None Include="Assets\Shaders\DiffuseParticles.shader" />
      <None Include="Assets\CyberCity\Shader\StandardSpecular2Side.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
