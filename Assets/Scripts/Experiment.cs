@@ -418,11 +418,13 @@ public class Experiment : MonoBehaviour {
 
 		GameObject chestOne = Instantiate(treasureChestPrefab, leftSpawnableWaypoints[leftRandInt].position, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
 			trialLogTrack.LogTreasureChest(leftSpawnPos);
+		chestOne.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
 			leftChest = chestOne;
 
 			GameObject chestTwo = Instantiate(treasureChestPrefab, rightSpawnableWaypoints[rightRandInt].position, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
 			trialLogTrack.LogTreasureChest(rightSpawnPos);
-			rightChest = chestTwo;
+		chestTwo.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
+		rightChest = chestTwo;
 		
 
 		yield return null;
@@ -439,9 +441,11 @@ public class Experiment : MonoBehaviour {
 
 		GameObject chestOne = Instantiate(treasureChestPrefab, leftSpawnPos, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
 		leftChest = chestOne;
+		chestOne.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
 
 		GameObject chestTwo = Instantiate(treasureChestPrefab, rightSpawnPos, Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject;
 		rightChest = chestTwo;
+		chestTwo.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
 		yield return null;
     }
 
@@ -864,7 +868,7 @@ public class Experiment : MonoBehaviour {
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			bool canChangeDirection = true;
 
-			while (LapCounter.lapCount < 3)
+			while (LapCounter.lapCount < 2)
 			{
 				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
 				//reset lap timer and show display
@@ -980,6 +984,8 @@ public class Experiment : MonoBehaviour {
                 {
 					case 0:
 						correctChest = leftChest;
+						UnityEngine.Debug.Log("chose left direction");
+						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 						//	leftChest.SetActive(true);
 						//	rightChest.SetActive(false);
 						//	UnityEngine.Debug.Log("chose left direction");
@@ -1046,7 +1052,7 @@ public class Experiment : MonoBehaviour {
 			ResetLapDisplay();
 
 			trafficLightController.MakeVisible(false);
-			uiController.targetTextPanel.alpha = 1f;
+		//	uiController.targetTextPanel.alpha = 1f;
 		//	uiController.zRetrievalText.text = spawnedObjects[0].name.Split('(')[0] + " : Z";
 		//	uiController.zRetrievalText.color = Color.white;
 		//	uiController.mRetrievalText.text =  spawnedObjects[1].name.Split('(')[0] + " : M";
@@ -1095,7 +1101,7 @@ public class Experiment : MonoBehaviour {
 		//	objController.encodingList.Clear();
 			LapCounter.lapCount = 0;
 			player.transform.position = startTransform.position;
-			uiController.targetTextPanel.alpha = 0f;
+			//uiController.targetTextPanel.alpha = 0f;
 
 			trialLogTrack.LogTaskStage(currentStage, false);
 		}

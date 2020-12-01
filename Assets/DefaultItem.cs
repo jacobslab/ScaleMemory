@@ -158,7 +158,7 @@ public class DefaultItem : MonoBehaviour
 			JuiceController.PlayParticles(SpecialParticles);
 			specialCollisionSound.Stop();
 			specialCollisionSound.Play();
-			coin = Instantiate(coinPrefab, new Vector3(transform.position.x, transform.position.y + 4.5f, transform.position.z), Quaternion.Euler(new Vector3(90f,90f,0f))) as GameObject;
+			coin = Instantiate(coinPrefab, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.Euler(new Vector3(90f,90f,0f))) as GameObject;
 			yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause());
 			yield return StartCoroutine(Experiment.Instance.uiController.ShowCorrectChest());
 		}
