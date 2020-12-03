@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\ArmZones.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Camera_particale.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate_2.cs" />

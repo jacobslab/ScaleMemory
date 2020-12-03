@@ -10,13 +10,13 @@ public class TrialLogTrack : LogTrack {
 	bool firstLog = false;
 
 	//log on late update so that everything for that frame gets set first
-	void LateUpdate () {
+	void LateUpdate() {
 		//just log the environment info on the first frame
 		if (Experiment.isLogging && !firstLog) {
 			//presumably testing logging
-//			LogBegin ();
-//			LogEnd ();
-//			LogBegin ();
+			//			LogBegin ();
+			//			LogEnd ();
+			//			LogBegin ();
 			//log session
 			LogSessionStart();
 			//LogMicTest ();
@@ -26,9 +26,47 @@ public class TrialLogTrack : LogTrack {
 	}
 
 	//gets called from trial controller instead of in update!
-	public void Log(int trialNumber){
+	public void Log(int trialNumber) {
 		if (Experiment.isLogging) {
-			LogTrial (trialNumber);
+			LogTrial(trialNumber);
+		}
+	}
+
+	public void LogZoneEntry(string zone)
+	{
+		switch (zone)
+		{
+			case "Left":
+				UnityEngine.Debug.Log("ENTERING LEFT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "LEFT_LOOP" + separator + "ENTER");
+				break;
+			case "Right":
+				UnityEngine.Debug.Log("ENTERING RIGHT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "RIGHT_LOOP" + separator + "ENTER");
+				break;
+			case "Straight":
+				UnityEngine.Debug.Log("ENTERING STRAIGHT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "CENTRAL_STEM" + separator + "ENTER");
+				break;
+		}
+	}
+
+	public void LogZoneExit(string zone)
+    {
+		switch (zone)
+		{
+			case "Left":
+				UnityEngine.Debug.Log("LEAVING LEFT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "LEFT_LOOP" + separator + "EXIT");
+				break;
+			case "Right":
+				UnityEngine.Debug.Log("LEAVING RIGHT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "RIGHT_LOOP" + separator + "EXIT");
+				break;
+			case "Straight":
+				UnityEngine.Debug.Log("LEAVING STRAIGHT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "STRAIGHT_ARM" + separator + "EXIT");
+				break;
 		}
 	}
 

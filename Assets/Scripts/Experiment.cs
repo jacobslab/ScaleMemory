@@ -90,8 +90,8 @@ public class Experiment : MonoBehaviour {
 	private bool pickOnce = false;
 	private GameObject correctChest;
 	//blackrock variables
-	public static string ExpName = "T2";
-	public static string BuildVersion = "0.9.8";
+	public static string ExpName = "T3";
+	public static string BuildVersion = "0.9.9";
 	public static bool isSystem2 = true;
 
 	public GameObject turnDecisionZone;
@@ -618,6 +618,7 @@ public class Experiment : MonoBehaviour {
 	IEnumerator BeginTrackScreening()
 	{
 		turnDecisionZone.SetActive(false);
+		ResetCarToStart();
 		   currentStage = TaskStage.TrackScreening;
 		trialLogTrack.LogTaskStage(currentStage, true);
 		SetCarBrakes(true);
@@ -854,6 +855,15 @@ public class Experiment : MonoBehaviour {
         }
     }
 
+	void ResetCarToStart()
+    {
+		player.transform.position = startTransform.position;
+		player.transform.rotation = startTransform.rotation;
+
+		//repeat the log entry into central zone
+		trialLogTrack.LogZoneEntry("Straight");
+	}
+
 	public void SetChequeredFlagStatus(bool isActive)
     {
 		chequeredFlag.SetActive(isActive);
@@ -874,7 +884,7 @@ public class Experiment : MonoBehaviour {
 		{
 			LapCounter.lapCount = 0;
 			trialLogTrack.LogInstructions(true);
-			player.transform.position = startTransform.position;
+			ResetCarToStart();
 			yield return StartCoroutine(ShowEncodingInstructions());
 			trialLogTrack.LogInstructions(false);
 		//	yield return StartCoroutine(PickEncodingLocations());
@@ -892,6 +902,7 @@ public class Experiment : MonoBehaviour {
 				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
 				//reset lap timer and show display
 				ResetLapDisplay();
+				ResetCarToStart();
 
 				//both chests are active; whether they're empty or filled with reward depends on player choice at decision point
 				leftChest.SetActive(true);
@@ -1001,6 +1012,7 @@ public class Experiment : MonoBehaviour {
 			while (LapCounter.lapCount < 16)
 			{
 				pickOnce = false; //reset
+				ResetCarToStart();
 				targetMode = LapCounter.lapCount % 2;
 				switch (targetMode)
                 {
