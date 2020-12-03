@@ -37,6 +37,14 @@ public class Experiment : MonoBehaviour {
 		PostTaskScreening
 	}
 
+	public enum Keypress
+    {
+		LeftArrow,
+		RightArrow,
+		Spacebar,
+		X
+    }
+
 	public TaskStage currentStage = TaskStage.ItemScreening;
 
 	public List<GameObject> spawnedObjects;
@@ -62,7 +70,7 @@ public class Experiment : MonoBehaviour {
 
 	public WaypointCircuit waypointCircuit;
 
-	public static int blockLength = 2;
+	public static int blockLength = 1;
 
 	public static int itemsPerBlock = 2;
 
@@ -84,7 +92,9 @@ public class Experiment : MonoBehaviour {
 	//blackrock variables
 	public static string ExpName = "T2";
 	public static string BuildVersion = "0.9.8";
-	public static bool isSystem2 = false;
+	public static bool isSystem2 = true;
+
+	public GameObject turnDecisionZone;
 
 
 	//logging
@@ -502,7 +512,7 @@ public class Experiment : MonoBehaviour {
 		//	yield return StartCoroutine(objController.SelectEncodingItems());
 		//yield return StartCoroutine("BeginItemScreening");
 		//	StartCoroutine("RandomizeTravelSpeed");
-		//	yield return StartCoroutine("BeginTrackScreening");
+			yield return StartCoroutine("BeginTrackScreening");
 
 		reward = 0;
 		yield return StartCoroutine("SpawnZones");
@@ -607,9 +617,11 @@ public class Experiment : MonoBehaviour {
 
 	IEnumerator BeginTrackScreening()
 	{
-		currentStage = TaskStage.TrackScreening;
+		turnDecisionZone.SetActive(false);
+		   currentStage = TaskStage.TrackScreening;
 		trialLogTrack.LogTaskStage(currentStage, true);
-		player.gameObject.SetActive(false);
+		SetCarBrakes(true);
+		//player.gameObject.SetActive(false);
 		uiController.itemScreeningPanel.alpha = 0f;
 		uiController.trackScreeningPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
@@ -621,11 +633,14 @@ public class Experiment : MonoBehaviour {
 		trafficLightController.MakeVisible(false);
 		while (LapCounter.lapCount < 2)
 		{
+			if (LapCounter.lapCount >= 1)
+				player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			yield return 0;
 		}
 		LapCounter.lapCount = 0;
 		SetCarBrakes(true);
 		trialLogTrack.LogTaskStage(currentStage,false);
+		turnDecisionZone.SetActive(true);
 		yield return null;
 	}
 
@@ -711,6 +726,7 @@ public class Experiment : MonoBehaviour {
 	public IEnumerator WaitForTurnChoice(WaypointProgressTracker.TrackDirection correctDirection, Transform associatedCrashZone)
     {
 		SetCarBrakes(true);
+		trialLogTrack.LogChoiceEvent(true);
 		yield return new WaitForSeconds(0.5f);
 		uiController.leftArrow.alpha = 1f;
 		uiController.rightArrow.alpha = 1f;
@@ -727,6 +743,7 @@ public class Experiment : MonoBehaviour {
 			UnityEngine.Debug.Log("chose left");
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 			chosenDirection = WaypointProgressTracker.TrackDirection.Left;
+			trialLogTrack.LogChosenDirection(chosenDirection, correctDirection);
 		}
 		else if (Input.GetKey(KeyCode.RightArrow))
 		{
@@ -734,6 +751,7 @@ public class Experiment : MonoBehaviour {
 
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			chosenDirection = WaypointProgressTracker.TrackDirection.Right;
+			trialLogTrack.LogChosenDirection(chosenDirection, correctDirection);
 		}
 		if (chosenDirection == correctDirection)
         {
@@ -788,7 +806,8 @@ public class Experiment : MonoBehaviour {
 		uiController.rightCorrectImagePanel.alpha = 0f;
 		uiController.rightIncorrectImagePanel.alpha = 0f;
 		uiController.leftCorrectImagePanel.alpha = 0f;
-		
+
+		trialLogTrack.LogChoiceEvent(false);
 		SetCarBrakes(false);
 		onCorrectArm = turnedCorrectly;
 		//no crashing
@@ -868,7 +887,7 @@ public class Experiment : MonoBehaviour {
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			bool canChangeDirection = true;
 
-			while (LapCounter.lapCount < 2)
+			while (LapCounter.lapCount < 16)
 			{
 				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
 				//reset lap timer and show display
@@ -911,6 +930,8 @@ public class Experiment : MonoBehaviour {
 				bool forceStopped = false;
 				while (!Input.GetKeyDown(KeyCode.Space) && !forceStopped)
 				{
+					trialLogTrack.LogSpaceKeypress();
+					trialLogTrack.LogForceStop();
 					forceStopTimer += Time.deltaTime;
 					if (forceStopTimer > 1.15f)
 					{
@@ -939,7 +960,8 @@ public class Experiment : MonoBehaviour {
 				}
 				//RESET onCorrectArm before restarting the lap
 				onCorrectArm = false;
-				yield return StartCoroutine(SpawnChestAgain());
+				yield return StartCoroutine(SpawnChestAgain()); 
+				player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
 
 				yield return StartCoroutine(ShowFixation());
 				player.transform.position = startTransform.position;
@@ -1071,6 +1093,7 @@ public class Experiment : MonoBehaviour {
 				while (!Input.GetKeyDown(KeyCode.Space) && !forceStopped)
 				{
 					forceStopTimer += Time.deltaTime;
+					trialLogTrack.LogForceStop();
 					if (forceStopTimer > 1.15f)
 					{
 						forceStopTimer = 0f;
@@ -1189,6 +1212,7 @@ public class Experiment : MonoBehaviour {
 	{
 		while(!Input.GetKeyDown(KeyCode.Space))
 		{
+			trialLogTrack.LogSpaceKeypress();
 			yield return 0;
 		}
 		yield return null;
@@ -1258,6 +1282,7 @@ public class Experiment : MonoBehaviour {
 					uiController.retrievalTextPanel.alpha = 1f;
 					while(!Input.GetKeyDown(KeyCode.Space))
                     {
+						trialLogTrack.LogSpaceKeypress();
 						yield return 0;
 					}  
 					uiController.retrievalTextPanel.alpha = 0f;
@@ -1266,7 +1291,8 @@ public class Experiment : MonoBehaviour {
 					SetCarBrakes(false);
 					yield return new WaitForSeconds(1f);
 					while(!Input.GetKeyDown(KeyCode.Space) && !LapCounter.finishedLap)
-                    {
+					{
+						trialLogTrack.LogSpaceKeypress();
 						yield return 0;
                     }
 					chosenLocations.Add(player.transform.position);
@@ -1392,8 +1418,13 @@ public class Experiment : MonoBehaviour {
 		yield return null;
     }
 
+
+
 	// Update is called once per frame
 	void Update () {
+
+
+
 		if (currentStage == Experiment.TaskStage.Retrieval && !pickOnce)
 		{
 			if(Input.GetKey(KeyCode.X))
@@ -1402,7 +1433,7 @@ public class Experiment : MonoBehaviour {
 				pickOnce = true;
 				Vector3 playerPos = player.transform.position;
 				StartCoroutine("EvaluateResponse", playerPos);
-                trialLogTrack.LogChestRetrievalAttempt(correctChest, player.gameObject);
+				trialLogTrack.LogChestRetrievalAttempt(correctChest, player.gameObject);
 			}
 			/*
 			if (Input.GetKeyDown(KeyCode.Z))

@@ -68,6 +68,7 @@
      <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
      <Compile Include="Assets\CyberCity\Script\Route\CCVehicle.cs" />
      <Compile Include="Assets\DefaultItem.cs" />
+     <Compile Include="Assets\InputLogTrack.cs" />
      <Compile Include="Assets\LapCounter.cs" />
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
@@ -209,7 +210,6 @@
      <None Include="Assets\PostProcessing\Editor Resources\UI\CurveBackground.shader" />
      <None Include="Assets\CyberCity\_HDRP\SETUP.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ScreenSpaceReflection.shader" />
-     <None Include="Assets\subj_00000001600447465713\session_0\subj_00000001600447465713Log.txt" />
      <None Include="Assets\CyberCity\Script\Route\Usage.txt" />
      <None Include="Assets\PostProcessing\Utilities\CustomMotionTexture\Shaders\CustomMotionVectorTexture.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ACES.cginc" />

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.Utility;
 using UnityEditor;
 using System.Runtime.InteropServices;
 
@@ -51,9 +52,48 @@ public class TrialLogTrack : LogTrack {
 			subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "TASK_RESUMED");
 	}
 
+	public void LogChoiceEvent(bool isActive)
+    {
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CHOICE_POINT" + separator + ((isActive) ? "STARTED" : "ENDED"));
+
+	}
+
 	public void LogMicTest()
 	{
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "MIC_TEST");
+	}
+
+	public void LogTurnKeypress(string turn)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "KEY_PRESSED" + separator + ((turn == "Left") ? "LEFT" : "RIGHT"));
+
+
+	}
+
+	public void LogRewardChest(Vector3 position)
+    {
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "REWARD_CHEST_FOUND" + separator + position.x.ToString() + separator + position.y.ToString() + separator + position.z.ToString());
+	}
+
+	public void LogEmptyChest(Vector3 position)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "EMPTY_CHEST_FOUND" + separator + position.x.ToString() + separator + position.y.ToString() + separator + position.z.ToString());
+	}
+	public void LogForceStop()
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "STOP_ZONE");
+	}
+	public void LogSpaceKeypress()
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "KEY_PRESSED" + separator + "SPACEBAR");
+	}
+
+	public void LogChosenDirection(WaypointProgressTracker.TrackDirection chosenDirection, WaypointProgressTracker.TrackDirection correctDirection)
+    {
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CHOSEN_DIRECTION" + separator + chosenDirection.ToString() + separator + "CORRECT_DIRECTION" + correctDirection.ToString());
 	}
 
 	public void LogTreasureChest(Vector3 location)

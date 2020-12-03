@@ -14,7 +14,7 @@ namespace UnityStandardAssets.Utility
         [SerializeField] public WaypointCircuit leftCircuit; // A reference to the waypoint-based route we should follow
         [SerializeField] public WaypointCircuit rightCircuit; // A reference to the waypoint-based route we should follow
 
-        private WaypointCircuit currentCircuit;
+        public WaypointCircuit currentCircuit;
 
         [SerializeField] private float lookAheadForTargetOffset = 5;
         // The offset ahead along the route that the we will aim for
@@ -88,6 +88,7 @@ namespace UnityStandardAssets.Utility
                 case TrackDirection.Left:
                     currentDirection = TrackDirection.Left;
                     currentCircuit = leftCircuit;
+                    
                     break;
                 case TrackDirection.Right:
                     currentDirection = TrackDirection.Right;

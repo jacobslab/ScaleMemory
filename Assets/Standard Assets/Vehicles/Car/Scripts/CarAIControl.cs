@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
+using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
-    [RequireComponent(typeof (CarController))]
+    [RequireComponent(typeof(CarController))]
     public class CarAIControl : MonoBehaviour
     {
         public enum BrakeCondition
@@ -45,11 +46,19 @@ namespace UnityStandardAssets.Vehicles.Car
         private float m_AvoidPathOffset;          // direction (-1 or 1) in which to offset path to avoid other car, whilst avoiding
         private Rigidbody m_Rigidbody;
 
-		public void ChangeSpeedFactor(float newSpeedFactor)
-		{
-			m_CautiousSpeedFactor=newSpeedFactor;
+        public int currentWaypointIndex = 0;
+        private float distToTarget = 0f;  // to determine if we should pick the next waypoint
 
-		}
+        public bool isReverse = false;
+        public GameObject skyCar;
+        public GameObject forwardRotHelper;
+        public GameObject reverseRotHelper;
+
+        public void ChangeSpeedFactor(float newSpeedFactor)
+        {
+            m_CautiousSpeedFactor = newSpeedFactor;
+
+        }
 
         private void Awake()
         {
@@ -57,24 +66,144 @@ namespace UnityStandardAssets.Vehicles.Car
             m_CarController = GetComponent<CarController>();
 
             // give the random perlin a random value
-            m_RandomPerlin = Random.value*100;
+            m_RandomPerlin = Random.value * 100;
 
             m_Rigidbody = GetComponent<Rigidbody>();
         }
 
+        public void ResetTargetToStart()
+        {
+            int tempWaypointIndex = 2;
+            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[tempWaypointIndex], tempWaypointIndex);
+        }
+
+
+
+        public void SetNextTarget()
+        {
+
+            int tempIndex = currentWaypointIndex;
+            //UnityEngine.Debug.Log("waypoint arr size " + gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length.ToString());
+            if ((tempIndex + 1) < gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length)
+            {
+                // UnityEngine.Debug.Log("incremented waypoint index");
+                tempIndex++;
+
+            }
+            else
+            {
+                //  UnityEngine.Debug.Log("reset waypoint index");
+                tempIndex = 0;
+            }
+            // UnityEngine.Debug.Log("set new waypoint target: " + tempIndex.ToString());
+            SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[tempIndex], tempIndex);
+        }
+
+        //called from the main task block for random start positions during the retrieval phase
+        public int FindSubsequentWaypointIndexFromStart(Transform startTransform)
+        {
+            Transform[] tempWaypoint = new Transform[gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints.Length];
+            tempWaypoint = gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints;
+            float minDist = 1000f;
+            int minIndex = -1;
+            //find the closest waypoint to our random starting position
+            for (int i = 0; i < tempWaypoint.Length; i++)
+            {
+                float tempDist = Vector3.Distance(startTransform.position, tempWaypoint[i].position);
+                if (tempDist < minDist)
+                {
+                    minDist = tempDist;
+                    minIndex = i;
+                }
+
+            }
+            if (minIndex + 1 > tempWaypoint.Length)
+            {
+                return (minIndex + 1);
+            }
+            else
+            {
+                return minIndex;
+            }
+        }
+
+        /*
+
+        public void ForwardMovement()
+        {
+            //only activate if it is currently going in reverse
+            if (isReverse)
+            {
+
+                isReverse = false;
+                int tempWaypointIndex = currentWaypointIndex;
+
+                // int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length - currentWaypointIndex);
+                int newWaypointIndex = FindSubsequentWaypointIndexFromStart(gameObject.transform);
+                //  gameObject.transform.Rotate(0f,180f,0f,Space.Self);
+                //  skyCar.transform.Rotate(0f, 180f, 0f, Space.Self);
+                gameObject.transform.rotation = reverseRotHelper.transform.rotation;
+                skyCar.transform.rotation = forwardRotHelper.transform.rotation;
+                if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().leftCircuit.Waypoints.Length)
+                {
+                    newWaypointIndex += 2; //make sure we set it to a waypoint slightly further away to avoid the car-circling issue
+                }
+                else
+                {
+                    newWaypointIndex = 0;
+                }
+                UnityEngine.Debug.Log("FORWARD! set new waypoint target: " + newWaypointIndex.ToString());
+                SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[newWaypointIndex], newWaypointIndex);
+            }
+        }
+
+        public void ReverseMovement()
+        {
+            //only activate if it is not already in reverse mode
+            if (!isReverse)
+            {
+                isReverse = true;
+                int tempWaypointIndex = currentWaypointIndex;
+                int newWaypointIndex = Mathf.Abs(gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length - currentWaypointIndex);
+                // gameObject.transform.Rotate(0f, 180f, 0f, Space.Self);
+                // skyCar.transform.Rotate(0f, 180f, 0f, Space.Self);
+                gameObject.transform.rotation = reverseRotHelper.transform.rotation;
+                skyCar.transform.rotation = reverseRotHelper.transform.rotation;
+                if (newWaypointIndex + 2 < gameObject.GetComponent<WaypointProgressTracker>().reverseCircuit.Waypoints.Length)
+                {
+                    newWaypointIndex += 2; //make sure we set it to a waypoint slightly further away to avoid the issue of car-circling around a waypoint it just passed
+                }
+                else
+                {
+                    newWaypointIndex = 0;
+                }
+                UnityEngine.Debug.Log("REVERSED! set new waypoint target: " + newWaypointIndex.ToString());
+                SetTarget(gameObject.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[newWaypointIndex], newWaypointIndex);
+            }
+        }
+        */
 
         private void FixedUpdate()
         {
+            distToTarget = Vector3.Distance(m_Target.position, gameObject.transform.position);
+            // UnityEngine.Debug.Log("dist to target " + distToTarget.ToString());
+            if (distToTarget < 15f)
+            {
+                SetNextTarget();
+                //distToTarget = 100f;
+            }
             if (m_Target == null || !m_Driving)
             {
                 // Car should not be moving,
                 // use handbrake to stop
                 m_CarController.Move(0, 0, -1f, 1f);
             }
+
             else
             {
+
                 Vector3 fwd = transform.forward;
-                if (m_Rigidbody.velocity.magnitude > m_CarController.MaxSpeed*0.1f)
+                if (m_Rigidbody.velocity.magnitude > m_CarController.MaxSpeed * 0.1f)
                 {
                     fwd = m_Rigidbody.velocity;
                 }
@@ -92,13 +221,13 @@ namespace UnityStandardAssets.Vehicles.Car
                             float approachingCornerAngle = Vector3.Angle(m_Target.forward, fwd);
 
                             // also consider the current amount we're turning, multiplied up and then compared in the same way as an upcoming corner angle
-                            float spinningAngle = m_Rigidbody.angularVelocity.magnitude*m_CautiousAngularVelocityFactor;
+                            float spinningAngle = m_Rigidbody.angularVelocity.magnitude * m_CautiousAngularVelocityFactor;
 
                             // if it's different to our current angle, we need to be cautious (i.e. slow down) a certain amount
                             float cautiousnessRequired = Mathf.InverseLerp(0, m_CautiousMaxAngle,
                                                                            Mathf.Max(spinningAngle,
                                                                                      approachingCornerAngle));
-                            desiredSpeed = Mathf.Lerp(m_CarController.MaxSpeed, m_CarController.MaxSpeed*m_CautiousSpeedFactor,
+                            desiredSpeed = Mathf.Lerp(m_CarController.MaxSpeed, m_CarController.MaxSpeed * m_CautiousSpeedFactor,
                                                       cautiousnessRequired);
                             break;
                         }
@@ -113,12 +242,12 @@ namespace UnityStandardAssets.Vehicles.Car
                             float distanceCautiousFactor = Mathf.InverseLerp(m_CautiousMaxDistance, 0, delta.magnitude);
 
                             // also consider the current amount we're turning, multiplied up and then compared in the same way as an upcoming corner angle
-                            float spinningAngle = m_Rigidbody.angularVelocity.magnitude*m_CautiousAngularVelocityFactor;
+                            float spinningAngle = m_Rigidbody.angularVelocity.magnitude * m_CautiousAngularVelocityFactor;
 
                             // if it's different to our current angle, we need to be cautious (i.e. slow down) a certain amount
                             float cautiousnessRequired = Mathf.Max(
                                 Mathf.InverseLerp(0, m_CautiousMaxAngle, spinningAngle), distanceCautiousFactor);
-                            desiredSpeed = Mathf.Lerp(m_CarController.MaxSpeed, m_CarController.MaxSpeed*m_CautiousSpeedFactor,
+                            desiredSpeed = Mathf.Lerp(m_CarController.MaxSpeed, m_CarController.MaxSpeed * m_CautiousSpeedFactor,
                                                       cautiousnessRequired);
                             break;
                         }
@@ -139,15 +268,16 @@ namespace UnityStandardAssets.Vehicles.Car
                     desiredSpeed *= m_AvoidOtherCarSlowdown;
 
                     // and veer towards the side of our path-to-target that is away from the other car
-                    offsetTargetPos += m_Target.right*m_AvoidPathOffset;
+                    offsetTargetPos += m_Target.right * m_AvoidPathOffset;
                 }
                 else
                 {
                     // no need for evasive action, we can just wander across the path-to-target in a random way,
                     // which can help prevent AI from seeming too uniform and robotic in their driving
-                    offsetTargetPos += m_Target.right*
-                                       (Mathf.PerlinNoise(Time.time*m_LateralWanderSpeed, m_RandomPerlin)*2 - 1)*
-                                       m_LateralWanderDistance;
+                    /* offsetTargetPos += m_Target.right*
+                                        (Mathf.PerlinNoise(Time.time*m_LateralWanderSpeed, m_RandomPerlin)*2 - 1)*
+                                        m_LateralWanderDistance;
+                    */
                 }
 
                 // use different sensitivity depending on whether accelerating or braking:
@@ -156,24 +286,33 @@ namespace UnityStandardAssets.Vehicles.Car
                                                   : m_AccelSensitivity;
 
                 // decide the actual amount of accel/brake input to achieve desired speed.
-                float accel = Mathf.Clamp((desiredSpeed - m_CarController.CurrentSpeed)*accelBrakeSensitivity, -1, 1);
+                float accel = Mathf.Clamp((desiredSpeed - m_CarController.CurrentSpeed) * accelBrakeSensitivity, -1, 1);
 
                 // add acceleration 'wander', which also prevents AI from seeming too uniform and robotic in their driving
                 // i.e. increasing the accel wander amount can introduce jostling and bumps between AI cars in a race
+                /*
                 accel *= (1 - m_AccelWanderAmount) +
                          (Mathf.PerlinNoise(Time.time*m_AccelWanderSpeed, m_RandomPerlin)*m_AccelWanderAmount);
-
+                */
                 // calculate the local-relative position of the target, to steer towards
                 Vector3 localTarget = transform.InverseTransformPoint(offsetTargetPos);
 
                 // work out the local angle towards the target
-                float targetAngle = Mathf.Atan2(localTarget.x, localTarget.z)*Mathf.Rad2Deg;
+                float targetAngle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
 
                 // get the amount of steering needed to aim the car towards the target
-                float steer = Mathf.Clamp(targetAngle*m_SteerSensitivity, -1, 1)*Mathf.Sign(m_CarController.CurrentSpeed);
-                //UnityEngine.Debug.Log("accel " + accel.ToString());
+                //   float steer = 0f;
+                //    if(!isReverse)
+                float steer = Mathf.Clamp(targetAngle * m_SteerSensitivity, -1, 1) * Mathf.Sign(m_CarController.CurrentSpeed);
+
                 // feed input to the car controller.
+                //   if(!isReverse)
+                // UnityEngine.Debug.Log("accel " + accel.ToString());
+
                 m_CarController.Move(steer, accel, accel, 0f);
+                //   else
+                //     m_CarController.Move(steer, -accel, 0f, 0f);
+
 
                 // if appropriate, stop driving when we're close enough to the target.
                 if (m_StopWhenTargetReached && localTarget.magnitude < m_ReachTargetThreshold)
@@ -211,14 +350,15 @@ namespace UnityStandardAssets.Vehicles.Car
                     // away from the other car
                     var otherCarLocalDelta = transform.InverseTransformPoint(otherAI.transform.position);
                     float otherCarAngle = Mathf.Atan2(otherCarLocalDelta.x, otherCarLocalDelta.z);
-                    m_AvoidPathOffset = m_LateralWanderDistance*-Mathf.Sign(otherCarAngle);
+                    m_AvoidPathOffset = m_LateralWanderDistance * -Mathf.Sign(otherCarAngle);
                 }
             }
         }
 
 
-        public void SetTarget(Transform target)
+        public void SetTarget(Transform target, int waypointIndex)
         {
+            currentWaypointIndex = waypointIndex;
             m_Target = target;
             m_Driving = true;
         }

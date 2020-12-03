@@ -155,6 +155,7 @@ public class DefaultItem : MonoBehaviour
 
 		if (Experiment.onCorrectArm)
 		{
+			Experiment.Instance.trialLogTrack.LogRewardChest(transform.position);
 			JuiceController.PlayParticles(SpecialParticles);
 			specialCollisionSound.Stop();
 			specialCollisionSound.Play();
@@ -164,6 +165,7 @@ public class DefaultItem : MonoBehaviour
 		}
 		else
 		{
+			Experiment.Instance.trialLogTrack.LogEmptyChest(transform.position);
 			JuiceController.PlayParticles(DefaultParticles);
 			defaultCollisionSound.Stop();
 			defaultCollisionSound.Play();
