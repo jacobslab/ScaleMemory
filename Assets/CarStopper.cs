@@ -6,6 +6,7 @@ public class CarStopper : MonoBehaviour
 {
     private bool activated = false;
     private bool retActivated = false;
+    public static bool isReadyForVerbal = false;
 
     // Start is called before the first frame update
     void Start()
@@ -18,12 +19,15 @@ public class CarStopper : MonoBehaviour
     {
         if (Experiment.Instance.verbalRetrieval)
         {
-            float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
-            if (distToPlayer < 10f && !retActivated)
+            if (isReadyForVerbal)
             {
-                retActivated = true;
-                UnityEngine.Debug.Log("ret activated for " + gameObject.name);
-                StartCoroutine("PerformVerbalRetrieval");
+                float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
+                if (distToPlayer < 10f && !retActivated)
+                {
+                    retActivated = true;
+                    UnityEngine.Debug.Log("ret activated for " + gameObject.name);
+                    StartCoroutine("PerformVerbalRetrieval");
+                }
             }
 
         }

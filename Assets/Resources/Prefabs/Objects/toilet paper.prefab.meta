@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: 4b2b1135734df4142b93a2aeb9f56ed0
-timeCreated: 1512405005
-licenseType: Free
-NativeFormatImporter:
+PrefabImporter:
   externalObjects: {}
-  mainObjectFileID: 0
   userData: 
-  assetBundleName: 
+  assetBundleName: treasureitems
   assetBundleVariant: 

@@ -19,7 +19,10 @@ public class Experiment : MonoBehaviour {
 	private GameObject slowZoneObj;
 	private GameObject speedZoneObj;
 
-	public List<Transform> spawnableWaypoints;
+    private string enteredSubjName;
+
+
+    public List<Transform> spawnableWaypoints;
 	//public List<Transform> rightSpawnableWaypoints;
 
 	private float carSpeed = 0f; //this is used exclusively to control car speed directly during spatial retrieval phase
@@ -47,7 +50,8 @@ public class Experiment : MonoBehaviour {
 	private List<GameObject> retrievalObjList;
 	private List<Vector3> retrievalPositions;
 
-	public List<Transform> startableTransforms;
+    public WebGLMicrophone audioRec;
+    public List<Transform> startableTransforms;
 
 
 	public Camera itemScreeningCam;
@@ -134,12 +138,13 @@ public class Experiment : MonoBehaviour {
 	private static Subject _currentSubject;
 	public SubjectSelectionController subjectSelectionController;
 
-
+    public Transform cyberCitySpawnPos;
 	public SimpleTimer lapTimer;
 
 	public GameObject chequeredFlag;
 
 	private float fixedTime = 1f;
+    private int micStatus = 0;
 
 	private int maxLaps = 1;
 
@@ -152,7 +157,7 @@ public class Experiment : MonoBehaviour {
 	public TrialLogTrack trialLogTrack;
 	private int objLapper = 0;
 
-	public AudioRecorder audioRecorder;
+//	public AudioRecorder audioRecorder;
 	private int retCount = 0;
 	private int trialCount = 0;
 
@@ -170,14 +175,19 @@ public class Experiment : MonoBehaviour {
 			return;
 		}
 		_instance = this;
-		tcpServer.gameObject.SetActive(false);
+		//tcpServer.gameObject.SetActive(false);
 		defaultLoggingPath = Application.dataPath;
 		carSpeed = 0f;
 	}
 	// Use this for initialization
 	void Start()
 	{
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.Setup();
+#endif
+
+        player.GetComponent<CarController>().ChangeMaxSpeed(40f);
 		spatialFeedbackStatus = new List<bool>();
 		spatialFeedbackPosition = new List<Vector3>();
 		SetCarBrakes(true);
@@ -189,7 +199,104 @@ public class Experiment : MonoBehaviour {
 
 	}
 
-	public void ActivateSpeedZone(bool didPress)
+    IEnumerator SpawnEnv()
+    {
+      //  uiController.loadBar.Value = 0f;
+      //  uiController.loadAssetUI.gameObject.SetActive(true);
+        UnityEngine.Debug.Log("about to spawn env");
+        yield return StartCoroutine(AssetBundleLoader.Instance.InstantiateEnvironment());
+     //   uiController.loadBar.Value = 50f;
+        //	yield return StartCoroutine(AssetBundleLoader.Instance.LoadAudio());
+  //      yield return StartCoroutine(PlayerMovement.Instance.LoadTreasureChest());
+     //   uiController.loadBar.Value = 100f;
+     //   uiController.loadAssetUI.gameObject.SetActive(false);
+        yield return null;
+    }
+
+    public void SetSubjectName()
+    {
+        // enteredSubjName = uiController.subjectNameField.text;
+       enteredSubjName = "subj_" + GameClock.SystemTime_MillisecondsString;
+        UnityEngine.Debug.Log("enteredsubj name " + enteredSubjName);
+
+        if (string.IsNullOrEmpty(enteredSubjName))
+        {
+            UnityEngine.Debug.Log("NO SUBJECT NAME ENTERED");
+         //   StartCoroutine(uiController.ShowSubjectWarning());
+        }
+        else
+        {
+            //uiController.subjectEntryGroup.alpha = 0f;
+
+            uiController.micInstructionsGroup.alpha = 0f;
+            uiController.micSuccessGroup.alpha = 0f;
+            uiController.micTestGroup.alpha = 0f;
+            InitLogging();
+            StartCoroutine("PerformMicTest");
+        }
+
+    }
+
+    IEnumerator PerformMicTest()
+    {
+       // uiController.subjectEntryGroup.gameObject.SetActive(false);
+        uiController.micTestGroup.alpha = 1f;
+        uiController.micSuccessGroup.alpha = 0f;
+        uiController.micInstructionsGroup.alpha = 1f;
+        uiController.micStatusImage.color = Color.red;
+        micStatus = 0;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		while (micStatus == 0)
+		{
+			yield return 0;
+		}
+#endif
+        uiController.micStatusImage.color = Color.green;
+        uiController.micInstructionsGroup.alpha = 0f;
+        uiController.micSuccessGroup.alpha = 1f;
+        yield return new WaitForSeconds(2f);
+        uiController.micSuccessGroup.alpha = 0f;
+        uiController.micTestGroup.alpha = 0f;
+        uiController.micTestGroup.gameObject.SetActive(false);
+
+
+        StartCoroutine("InitLogging");
+
+        yield return null;
+    }
+
+    public void ListenForMicAccess()
+    {
+        UnityEngine.Debug.Log("mic access granted");
+        micStatus = 1;
+
+    }
+
+    void DoMicTest()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+		/*
+		if (micTestIndicator != null) {
+			if (AudioRecorder.CheckForRecordingDevice ()) {
+				micTestIndicator.color = Color.green;
+			} else {
+				micTestIndicator.color = Color.red;
+			}
+		}
+		*/
+#endif
+    }
+
+
+    public void CheckMicAccess()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.CheckMicStatus();
+#endif
+    }
+
+    public void ActivateSpeedZone(bool didPress)
     {
 		if(didPress)
         {
@@ -277,58 +384,83 @@ public class Experiment : MonoBehaviour {
 		ipAddressEntered = true;
 	}
 
-	//TODO: move to logger_threading perhaps? *shrug*
-	IEnumerator InitLogging()
-	{
-		string subjectDirectory = defaultLoggingPath + "/" + subjectName + "/";
-		sessionDirectory = subjectDirectory + "session_0" + "/";
 
-		sessionID = 0;
-		string sessionIDString = "_0";
+    IEnumerator WriteAndSend()
+    {
+        string msg = "";
+        while (Experiment.Instance.subjectLog.myLoggerQueue.logQueue.Count > 0)
+        {
+            msg += Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue() + "\n";
+            yield return 0;
+        }
+       // UnityEngine.Debug.Log("writing " + msg);
 
-		if (!Directory.Exists(subjectDirectory))
-		{
-			Directory.CreateDirectory(subjectDirectory);
-		}
-		while (File.Exists(sessionDirectory + sessionStartedFileName))
-		{//Directory.Exists(sessionDirectory)) {
-			sessionID++;
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.WriteOutput(msg);
+		BrowserPlugin.SendTextFileToS3();
+#endif
+        yield return null;
+    }
 
-			sessionIDString = "_" + sessionID.ToString();
+    void InitLogging()
+    {
+        Debug.Log("beginning initLogging");
+        //string subjName = GameClock.SystemTime_MillisecondsString;
 
-			sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
-		}
+        string subjName = enteredSubjName;
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.SetSubject(subjName);
+#endif
+        string subjectDirectory = defaultLoggingPath + subjName + "/";
+        sessionDirectory = subjectDirectory + "session_0" + "/";
 
-		//delete old files.
-		if (Directory.Exists(sessionDirectory))
-		{
-			DirectoryInfo info = new DirectoryInfo(sessionDirectory);
-			FileInfo[] fileInfo = info.GetFiles();
-			for (int i = 0; i < fileInfo.Length; i++)
-			{
-				File.Delete(fileInfo[i].ToString());
-			}
-		}
-		else
-		{ //if directory didn't exist, make it!
-			Directory.CreateDirectory(sessionDirectory);
-		}
+        sessionID = 0;
+        string sessionIDString = "_0";
+        Debug.Log("about to create directory");
+        if (!Directory.Exists(subjectDirectory))
+        {
+            Directory.CreateDirectory(subjectDirectory);
+        }
+        Debug.Log("does " + sessionDirectory + "and" + sessionStartedFileName + " exist");
+        while (File.Exists(sessionDirectory + sessionStartedFileName))
+        {
+            sessionID++;
 
-		subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
-		eegLog.fileName = sessionDirectory + subjectName + "EEGLog" + ".txt";
+            sessionIDString = "_" + sessionID.ToString();
+
+            sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
+        }
 
 
-		yield return null;
-	}
+        //delete old files.
+        if (Directory.Exists(sessionDirectory))
+        {
+            DirectoryInfo info = new DirectoryInfo(sessionDirectory);
+            FileInfo[] fileInfo = info.GetFiles();
+            for (int i = 0; i < fileInfo.Length; i++)
+            {
+                File.Delete(fileInfo[i].ToString());
+            }
+        }
+        else
+        { //if directory didn't exist, make it!
+            Directory.CreateDirectory(sessionDirectory);
+        }
 
-	//In order to increment the session, this file must be present. Otherwise, the session has not actually started.
-	//This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
-	//Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
-	public void CreateSessionStartedFile()
-	{
-		StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
-	}
-	/*
+        subjectLog.fileName = sessionDirectory + subjName + "Log" + ".txt";
+        eegLog.fileName = sessionDirectory + subjName + "EEGLog" + ".txt";
+        Logger_Threading.canLog = true;
+    }
+
+    //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
+    //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
+    //Gets created in TrialController after any hardware has connected.
+    public void CreateSessionStartedFile()
+    {
+        StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
+    }
+
+    /*
 	IEnumerator SpawnZones()
     {
 		int prevRandom = 0;
@@ -404,7 +536,7 @@ public class Experiment : MonoBehaviour {
 	*/
 
 
-	IEnumerator SpawnZones()
+    IEnumerator SpawnZones()
     {
 		/*
 		int leftRandInt = Random.Range(0, leftSpawnableWaypoints.Count - 1);
@@ -440,52 +572,17 @@ public class Experiment : MonoBehaviour {
 
 	IEnumerator BeginExperiment()
 	{
-		subjectName = "subj_"+GameClock.SystemTime_MillisecondsString;
+        yield return StartCoroutine(SpawnEnv());
+        subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
+        SetSubjectName();
+        /*
 #if !UNITY_EDITOR
 		yield return StartCoroutine(InitLogging());
 #endif
-		UnityEngine.Debug.Log("set subject name: " + subjectName);
-		trialLogTrack.LogBegin();
-		//only run if system2 is expected
-		if (isSystem2)
-		{
-			/*
-			uiController.ipEntryPanel.alpha = 1f;
+*/
+	//	UnityEngine.Debug.Log("set subject name: " + subjectName);
+	//	trialLogTrack.LogBegin();
 
-			while(!ipAddressEntered)
-			{
-				yield return 0;
-			}
-			int portNum = int.Parse(uiController.ipAddrInput.text);
-			UnityEngine.Debug.Log("target port  " + portNum.ToString());
-			TCP_Config.ConnectionPort = portNum;
-			ipAddressEntered = false;
-			uiController.ipEntryPanel.alpha = 0f;
-			*/
-			
-
-			tcpServer.gameObject.SetActive(true);
-			uiController.blackrockConnectionPanel.alpha = 1f;
-			trialLogTrack.LogBlackrockConnectionAttempt();
-			uiController.connectionText.text = "Attempting to connect with server...";
-			//wait till the SYS2 Server connects
-			while (!tcpServer.isConnected)
-			{
-				yield return 0;
-			}
-			uiController.connectionText.text = "Waiting for server to start...";
-			while (!tcpServer.canStartGame)
-			{
-				yield return 0;
-			}
-
-			uiController.blackrockConnectionPanel.alpha = 0f;
-		}
-		else
-		{
-			uiController.blackrockConnectionPanel.alpha = 0f;
-		}
-		trialLogTrack.LogBlackrockConnectionSuccess();
 		trialLogTrack.LogIntroInstruction(true);
 		uiController.taskIntroPanel.alpha = 1f;
 
@@ -618,7 +715,9 @@ public class Experiment : MonoBehaviour {
 		trackFamiliarizationQuad.SetActive(false);
 		playerIndicatorSphere.SetActive(false);
 		trialLogTrack.LogTaskStage(currentStage,false);
-		yield return null;
+
+        StartCoroutine("WriteAndSend");
+        yield return null;
 	}
 
 	public void ShowTurnDirection(WaypointProgressTracker.TrackDirection turnDirection)
@@ -861,9 +960,10 @@ public class Experiment : MonoBehaviour {
 				yield return 0;
 			}
 
-			//retrieval time
+            StartCoroutine("WriteAndSend");
+            //retrieval time
 
-			HideLapDisplay();
+            HideLapDisplay();
 			//hide encoding objects and text
 			for (int j=0;j< spawnedObjects.Count;j++)
 			{
@@ -905,8 +1005,8 @@ public class Experiment : MonoBehaviour {
 			if (trialCount % 2 == 0)
 			{
 				verbalRetrieval = true;
-
-				currentStage = TaskStage.VerbalRetrieval;
+                CarStopper.isReadyForVerbal = false;
+                currentStage = TaskStage.VerbalRetrieval;
 			}
 			else
             {
@@ -930,8 +1030,9 @@ public class Experiment : MonoBehaviour {
 					yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 					SetCarBrakes(false);
 
-					//reset lap timer and show display
-					ResetLapDisplay();
+                    CarStopper.isReadyForVerbal = true;
+                    //reset lap timer and show display
+                    ResetLapDisplay();
 					HideLapDisplay();
 
 					trafficLightController.MakeVisible(false);
@@ -947,8 +1048,8 @@ public class Experiment : MonoBehaviour {
 
 					trafficLightController.MakeVisible(false);
 					yield return new WaitForSeconds(1f);
-
-					finishedRetrieval = true;
+                    CarStopper.isReadyForVerbal = false;
+                    finishedRetrieval = true;
 				}
 				else
 				{
@@ -1065,7 +1166,8 @@ public class Experiment : MonoBehaviour {
 			uiController.targetTextPanel.alpha = 0f;
 			SetCarBrakes(true);
 			trialLogTrack.LogTaskStage(currentStage, false);
-		}
+            StartCoroutine("WriteAndSend");
+        }
 		yield return null;
 	}
 
@@ -1129,14 +1231,17 @@ public class Experiment : MonoBehaviour {
 		yield return new WaitForSeconds(1f);
 		uiController.verbalInstruction.alpha = 1f;
 		string fileName = trialCount.ToString() + "_" + retCount.ToString();
-		audioRecorder.beepHigh.Play();
+		//audioRecorder.beepHigh.Play();
 
 
-		//start recording
-		yield return StartCoroutine(audioRecorder.Record(sessionDirectory + "audio", fileName, recallTime));
-		trialLogTrack.LogVerbalRetrievalAttempt(objectQueried, fileName);
+        //start recording
+#if UNITY_WEBGL && !UNITY_EDITOR
+			yield return StartCoroutine(Experiment.Instance.audioRec.Record(fileName, 5));
+#endif
+        //yield return StartCoroutine(audioRecorder.Record(sessionDirectory + "audio", fileName, recallTime));
+        trialLogTrack.LogVerbalRetrievalAttempt(objectQueried, fileName);
 		//play off beep
-		audioRecorder.beepLow.Play();
+		//audioRecorder.beepLow.Play();
 
 		retCount++;
 		uiController.verbalInstruction.alpha = 0f;
@@ -1281,6 +1386,7 @@ public class Experiment : MonoBehaviour {
 	public IEnumerator StopCarTemporarily()
     {
 		SetCarBrakes(true);
+        gameObject.GetComponent<AudioSource>().PlayOneShot(AssetBundleLoader.Instance.magicWand);
 		yield return new WaitForSeconds(1.5f);
 		SetCarBrakes(false);
 		yield return null;

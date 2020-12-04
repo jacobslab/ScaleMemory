@@ -13,6 +13,7 @@ public class ObjectLogTrack : LogTrack {
 	Vector3 lastScale;
 	bool lastVisibility;
 
+
 	void Awake(){
 		
 	}

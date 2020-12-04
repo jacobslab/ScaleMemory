@@ -23,8 +23,15 @@ public class UIController : MonoBehaviour {
 	//encoding panel
 	public CanvasGroup encodingPanel;
 
-	//retrieval panel
-	public CanvasGroup retrievalPanel;
+    //mic test group
+
+    public CanvasGroup micInstructionsGroup;
+    public CanvasGroup micTestGroup;
+    public CanvasGroup micSuccessGroup;
+    public Image micStatusImage;
+
+    //retrieval panel
+    public CanvasGroup retrievalPanel;
 	public CanvasGroup verbalRetrievalPanel;
 	public Text itemOneName;
 	public Text itemTwoName;
