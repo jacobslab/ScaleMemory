@@ -71,7 +71,7 @@ public class EventQueue
             }
             catch (Exception e)
             {
-                ErrorNotification.Notify(e);
+               // ErrorNotification.Notify(e);
             }
             return true;
         }

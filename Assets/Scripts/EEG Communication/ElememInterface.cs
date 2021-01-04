@@ -113,7 +113,7 @@ public class ElememListener
 
     private void ReportMessage(string message)
     {
-        elemem.Do(new EventBase<string, DateTime>(elemem.HandleMessage, message, DataReporter.TimeStamp()));
+     //   elemem.Do(new EventBase<string, DateTime>(elemem.HandleMessage, message, DataReporter.TimeStamp()));
     }
 }
 
@@ -170,27 +170,35 @@ public class ElememInterface : IHostPC
 
         try
         {
-            IAsyncResult result = elemem.BeginConnect((string)im.GetSetting("ip"), (int)im.GetSetting("port"), null, null);
+            IAsyncResult result = elemem.BeginConnect((string)TCP_Config.HostIPAddress, (int)TCP_Config.ConnectionPort, null, null);
 
             result.AsyncWaitHandle.WaitOne(messageTimeout);
             elemem.EndConnect(result);
         }
         catch (SocketException)
         {    // TODO: set hostpc state on task side
-            im.Do(new EventBase<string>(im.SetHostPCStatus, "ERROR"));
-            throw new OperationCanceledException("Failed to Connect");
+            UnityEngine.Debug.Log("failed to connect");
+           // im.Do(new EventBase<string>(im.SetHostPCStatus, "ERROR"));
+           // throw new OperationCanceledException("Failed to Connect");
         }
 
-        im.Do(new EventBase<string>(im.SetHostPCStatus, "INITIALIZING"));
+      //  im.Do(new EventBase<string>(im.SetHostPCStatus, "INITIALIZING"));
 
         SendMessage("CONNECTED", new Dictionary<string, object>()); // Awake
         WaitForMessage("CONNECTED_OK", messageTimeout);
 
         Dictionary<string, object> configDict = new Dictionary<string, object>();
+
+        configDict.Add("stim_mode", TCP_Config.sessionType.ToString());
+        configDict.Add("experiment", (string)Experiment.ExpName);
+        configDict.Add("subject", (string)Experiment.currentSubject.name.ToString());
+        configDict.Add("session", (int)Experiment.sessionID);
+        /*
         configDict.Add("stim_mode", (string)im.GetSetting("stimMode"));
         configDict.Add("experiment", (string)im.GetSetting("experimentName"));
         configDict.Add("subject", (string)im.GetSetting("participantCode"));
         configDict.Add("session", (int)im.GetSetting("session"));
+        */
         SendMessage("CONFIGURE", configDict);
         WaitForMessage("CONFIGURE_OK", messageTimeout);
 
@@ -198,11 +206,11 @@ public class ElememInterface : IHostPC
         DoLatencyCheck();
 
         // start heartbeats
-        int interval = (int)im.GetSetting("heartbeatInterval");
+        int interval = (int)Configuration.heartbeatInterval;
         DoRepeating(new EventBase(Heartbeat), -1, 0, interval);
 
         SendMessage("READY", new Dictionary<string, object>());
-        im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
+       // im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
     }
 
     private void DoLatencyCheck()
@@ -235,7 +243,7 @@ public class ElememInterface : IHostPC
         dict.Add("mean_latency", mean);
         dict.Add("accuracy", acc);
 
-        im.Do(new EventBase<string, Dictionary<string, object>>(im.ReportEvent, "latency check", dict));
+      //  im.Do(new EventBase<string, Dictionary<string, object>>(im.ReportEvent, "latency check", dict));
     }
 
     public override JObject WaitForMessage(string type, int timeout)
@@ -299,7 +307,7 @@ public class ElememInterface : IHostPC
 
     public override void SendMessage(string type, Dictionary<string, object> data)
     {
-        DataPoint point = new DataPoint(type, DataReporter.TimeStamp(), data);
+        DataPoint point = new DataPoint(type, System.DateTime.UtcNow, data);
         string message = point.ToJSON();
 
         UnityEngine.Debug.Log("Sent Message");
@@ -327,7 +335,7 @@ public class ElememInterface : IHostPC
         messageDataDict.Add("message", message);
         messageDataDict.Add("sent", sent.ToString());
 
-        im.Do(new EventBase<string, Dictionary<string, object>, DateTime>(im.ReportEvent, "network",
-                                messageDataDict, DataReporter.TimeStamp()));
+  //      im.Do(new EventBase<string, Dictionary<string, object>, DateTime>(im.ReportEvent, "network",
+   //                             messageDataDict, DataReporter.TimeStamp()));
     }
 }

@@ -21,8 +21,10 @@ public class Configuration : MonoBehaviour {
 	public static int spawnCount=3;
 	public static float itemPresentationTime=1.5f;
 
-	// Use this for initialization
-	void Start () {
+    public static float heartbeatInterval = 1f;
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
