@@ -84,7 +84,7 @@ public class Experiment : MonoBehaviour {
 
 	//blackrock variables
 	public static string ExpName = "T2";
-	public static string BuildVersion = "0.9.8";
+	public static string BuildVersion = "0.9.9";
 	public static bool isSystem2 = false;
 
 	public bool verbalRetrieval = false;
