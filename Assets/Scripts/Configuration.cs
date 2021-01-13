@@ -21,6 +21,13 @@ public class Configuration : MonoBehaviour {
 	public static int spawnCount=3;
 	public static float itemPresentationTime=1.5f;
 
+    public static float prePlayFadeInterval = 0.5f;
+
+    public static float normalSpeed = 60f; // used for encoding and all other passive movement stages
+    public static float fastSpeed = 100f; // during fast move to retrieval start position
+
+
+    public static int totalTrials = 18;
 	// Use this for initialization
 	void Start () {
 		

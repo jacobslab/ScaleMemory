@@ -36,8 +36,9 @@ public class UIController : MonoBehaviour {
 	public Text itemOneName;
 	public Text itemTwoName;
 	public CanvasGroup spatialRetrievalFeedbackPanel;
+    public CanvasGroup spatialFeedbackContinuePanel;
 
-	public Text debugText;
+    public Text debugText;
 
 	//intro panel
 	public CanvasGroup taskIntroPanel;

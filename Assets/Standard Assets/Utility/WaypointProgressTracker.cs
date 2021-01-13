@@ -30,7 +30,7 @@ namespace UnityStandardAssets.Utility
         [SerializeField] private float lookAheadForSpeedFactor = .2f;
         // A multiplier adding distance ahead along the route for speed adjustments
 
-        [SerializeField] private ProgressStyle progressStyle = ProgressStyle.SmoothAlongRoute;
+        [SerializeField] public ProgressStyle progressStyle = ProgressStyle.SmoothAlongRoute;
         // whether to update the position smoothly along the route (good for curved paths) or just when we reach each waypoint.
 
         [SerializeField] private float pointToPointThreshold = 4;

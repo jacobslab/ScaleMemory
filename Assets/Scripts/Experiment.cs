@@ -60,8 +60,6 @@ public class Experiment : MonoBehaviour {
 
 	public static int recallTime = 6;
 
-	public static int blockLength = 24;
-
 	public static int listLength = 4;
 
 	private List<GameObject> itemScreeningSeq;
@@ -73,6 +71,8 @@ public class Experiment : MonoBehaviour {
 	private bool wasMovingForward = false;
     private bool wasMovingReverse = false;
 	private float movementTimer = 0f;
+
+	private bool expActive = false;
 
 	//prefabs
 	public GameObject slowZonePrefab;
@@ -110,6 +110,8 @@ public class Experiment : MonoBehaviour {
 	public string sessionDirectory;
 	public static string sessionStartedFileName = "sessionStarted.txt";
 	public static int sessionID;
+
+    private int currentRetrievalType = 0;
 
 	public string subjectName = "";
 
@@ -150,7 +152,11 @@ public class Experiment : MonoBehaviour {
 
 	public Transform targetWaypoint;
 
-	private float prevLapTime = 0f;
+    private List<int> shuffledListLength;
+
+    private List<int> retrievalType;
+
+    private float prevLapTime = 0f;
 	private float bestLapTime = 1000f;
 
 
@@ -187,7 +193,7 @@ public class Experiment : MonoBehaviour {
 		BrowserPlugin.Setup();
 #endif
 
-        player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+        player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
 		spatialFeedbackStatus = new List<bool>();
 		spatialFeedbackPosition = new List<Vector3>();
 		SetCarBrakes(true);
@@ -329,7 +335,7 @@ public class Experiment : MonoBehaviour {
 		player.GetComponent<CarController>().ChangeMaxSpeed(70f);
 		yield return StartCoroutine(FlashInfo("You activated \n speed boost", Color.green));
 		yield return new WaitForSeconds(2f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+		player.GetComponent<CarController>().ChangeMaxSpeed(100f);
 		yield return null;
     }
 
@@ -341,7 +347,7 @@ public class Experiment : MonoBehaviour {
 		player.GetComponent<CarController>().ChangeMaxSpeed(20f);
 		yield return StartCoroutine(FlashInfo("You failed to \n activate speed boost", Color.red));
 		yield return new WaitForSeconds(1f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+		player.GetComponent<CarController>().ChangeMaxSpeed(100f);
 		yield return null;
     }
 
@@ -365,7 +371,7 @@ public class Experiment : MonoBehaviour {
 		player.GetComponent<CarController>().ChangeMaxSpeed(1f);
 		yield return StartCoroutine(FlashInfo("You were slowed \n by the oil patch", Color.red));
 		yield return new WaitForSeconds(1f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+		player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
 		yield return null;
     }
 
@@ -600,7 +606,7 @@ public class Experiment : MonoBehaviour {
 
 		uiController.endSessionPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
-
+		expActive = false;
 		Application.Quit();
 		yield return null;
 	}
@@ -747,6 +753,30 @@ public class Experiment : MonoBehaviour {
 
 	}
 
+    public IEnumerator PerformFadeToBlackSequence(float blackScreen_Interval)
+    {
+        float timeElapsed = 0f;
+        while(timeElapsed < 0.5f)
+        {
+            timeElapsed += Time.deltaTime;
+
+            uiController.blackScreen.alpha = timeElapsed * 2f;
+            yield return 0;
+        }
+        uiController.blackScreen.alpha = 1f;
+        yield return new WaitForSeconds(blackScreen_Interval);
+        timeElapsed = 0f;
+        while (timeElapsed < 0.5f)
+        {
+            timeElapsed += Time.deltaTime;
+
+            uiController.blackScreen.alpha = 1f - (timeElapsed * 2f);
+            yield return 0;
+        }
+        uiController.blackScreen.alpha = 0f;
+        yield return null;
+    }
+
 	public IEnumerator BeginCrashSequence(Transform crashZone)
 	{
 		SetCarBrakes(true);
@@ -843,22 +873,105 @@ public class Experiment : MonoBehaviour {
 		uiController.lapTimePanel.alpha = 0f;
     }
 
+    IEnumerator ShuffleRetrievalTypes()
+    {
+        retrievalType = new List<int>();
+        List<int> tempList = new List<int>();
+        for (int i = 0; i < Configuration.totalTrials; i++)
+        {
+            for (int j = 0; j < Configuration.totalTrials /2; j++)
+            {
+                tempList.Add(1);
+                tempList.Add(2);
+            }
+        }
+
+
+        int total = tempList.Count;
+
+        for (int i = 0; i < total; i++)
+        {
+            int randIndex = Random.Range(0, tempList.Count - 1);
+            int randInt = tempList[randIndex];
+            retrievalType.Add(randInt);
+            tempList.RemoveAt(randIndex);
+        }
+        yield return null;
+    }
+
+    IEnumerator ShuffleListLength()
+    {
+        shuffledListLength = new List<int>();
+        List<int> tempList = new List<int>();
+        for (int i = 0; i < Configuration.totalTrials; i++)
+        {
+            for(int j=0;j<Configuration.totalTrials/3;j++)
+            {
+                tempList.Add(4);
+                tempList.Add(5);
+                tempList.Add(6);
+            }
+        }
+        int total = tempList.Count;
+        for(int i=0;i<total;i++)
+        {
+            int randIndex = Random.Range(0, tempList.Count - 1);
+            int randInt = tempList[randIndex];
+            shuffledListLength.Add(randInt);
+            tempList.RemoveAt(randIndex);
+        }
+           yield return null;
+    }
+
+
+    IEnumerator SpeedMoveToRetrievalStart(Transform start, int randInt)
+    {
+        Vector3 targetPos = start.position;
+        player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.fastSpeed);
+        player.GetComponent<WaypointProgressTracker>().progressStyle = WaypointProgressTracker.ProgressStyle.PointToPoint;
+        float distToTarget = Vector3.Distance(targetPos, player.transform.position);
+        SetCarBrakes(false);
+        while (distToTarget >= 10f)
+        {
+            UnityEngine.Debug.Log("target distance " + distToTarget.ToString());
+            distToTarget = Vector3.Distance(targetPos, player.transform.position);
+            yield return 0;
+        }
+        player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
+        player.GetComponent<WaypointProgressTracker>().progressStyle = WaypointProgressTracker.ProgressStyle.SmoothAlongRoute;
+        SetCarBrakes(true);
+        yield return null;
+    }
+
 	IEnumerator BeginTaskBlock()
 	{
 
 		verbalRetrieval = false;
+		expActive = true;
 
-		//yield return StartCoroutine("BeginTrackScreening");
+		StartCoroutine("PeriodicallyWrite");
 
+        //yield return StartCoroutine("BeginTrackScreening");
+        yield return StartCoroutine(ShuffleListLength()); //list lengths will get shuffled here
+        yield return StartCoroutine(ShuffleRetrievalTypes()); //retrieval types will get shuffled here
 		SetCarBrakes(true);
+        
+
+        //select list length
 		//show instructions
-		for (int i = 0; i < blockLength; i++)
+		for (int i = 0; i < Configuration.totalTrials; i++)
 		{
             UnityEngine.Debug.Log("in encoding now");
 			currentStage = TaskStage.Encoding;
 			trialLogTrack.LogTaskStage(currentStage, true);
-			trialCount = i + 1;
-			LapCounter.lapCount = 0;
+            //trialCount = i + 1;
+            trialCount = i;
+
+            listLength = shuffledListLength[trialCount];
+
+            currentRetrievalType = retrievalType[trialCount];
+
+            LapCounter.lapCount = 0;
 			yield return StartCoroutine(objController.SelectEncodingItems());
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
@@ -987,9 +1100,10 @@ public class Experiment : MonoBehaviour {
 
 			Transform randStartTransform = validStartTransforms[randWaypoint];
 			targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(randStartTransform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
-			player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
-			player.transform.position = randStartTransform.position;
-			player.transform.rotation = randStartTransform.rotation;
+            yield return StartCoroutine(SpeedMoveToRetrievalStart(randStartTransform,targetIndex));
+            player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
+		//	player.transform.position = randStartTransform.position;
+		//	player.transform.rotation = randStartTransform.rotation;
 			chequeredFlag.transform.position = randStartTransform.position;
 			chequeredFlag.transform.rotation = randStartTransform.rotation;
 
@@ -1002,7 +1116,7 @@ public class Experiment : MonoBehaviour {
 			string targetNames = "";
 
 
-			if (trialCount % 2 == 0)
+			if (currentRetrievalType == 1)
 			{
 				verbalRetrieval = true;
                 CarStopper.isReadyForVerbal = false;
@@ -1087,7 +1201,9 @@ public class Experiment : MonoBehaviour {
 					trafficLightController.MakeVisible(false);
 					for (int j = 0; j < listLength; j++)
 					{
-						UnityEngine.Debug.Log("retrieval num " + j.ToString());
+                        yield return StartCoroutine(PerformFadeToBlackSequence(Configuration.prePlayFadeInterval));
+
+                        UnityEngine.Debug.Log("retrieval num " + j.ToString());
 						targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
 						uiController.zRetrievalText.color = Color.white;
 						uiController.zRetrievalText.text = targetNames;
@@ -1156,7 +1272,7 @@ public class Experiment : MonoBehaviour {
 			spawnedObjects.Clear();
 
 
-			player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+			player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
 			chequeredFlag.SetActive(true);
 
 			//	objController.encodingList.Clear();
@@ -1170,6 +1286,19 @@ public class Experiment : MonoBehaviour {
         }
 		yield return null;
 	}
+
+	IEnumerator PeriodicallyWrite()
+    {
+		UnityEngine.Debug.Log("periodically writing");
+		while (expActive)
+        {
+            UnityEngine.Debug.Log("writing");
+            yield return StartCoroutine("WriteAndSend");
+			yield return new WaitForSeconds(3f);
+			yield return 0;
+		}
+		yield return null;
+    }
 
 	IEnumerator PerformSpatialFeedback()
     {
@@ -1207,6 +1336,8 @@ public class Experiment : MonoBehaviour {
 
 		}
 
+        uiController.spatialFeedbackContinuePanel.alpha = 1f;
+
 		while(!Input.GetKeyDown(KeyCode.Space))
         {
 			yield return 0;
@@ -1218,7 +1349,8 @@ public class Experiment : MonoBehaviour {
         }
 		indicatorsList.Clear();
 
-		overheadCam.SetActive(false);
+        uiController.spatialFeedbackContinuePanel.alpha = 0f;
+        overheadCam.SetActive(false);
 		feedbackQuad.SetActive(false);
 		yield return null;
 
@@ -1465,7 +1597,7 @@ public class Experiment : MonoBehaviour {
 				SetCarBrakes(true);
 				List<Vector3> chosenLocations = new List<Vector3>();
 				yield return StartCoroutine(GenerateRetrievalList());
-				for (int i = 0; i < blockLength; i++)
+				for (int i = 0; i < Configuration.totalTrials; i++)
 				{
 					UnityEngine.Debug.Log("retrieval loop " + i.ToString());
 					LapCounter.finishedLap = false;
@@ -1617,7 +1749,7 @@ public class Experiment : MonoBehaviour {
 				StopCoroutine("MoveReverse");
 				StartCoroutine("MoveForward");
 				carSpeed += 0.5f;
-			if (carSpeed > 40f)
+			if (carSpeed > Configuration.normalSpeed)
 			{
 				//UnityEngine.Debug.Log("exceeded max speed");
 				carSpeed = player.GetComponent<CarController>().MaxSpeed;

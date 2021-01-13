@@ -240,10 +240,10 @@ public class Logger_Threading : MonoBehaviour
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 		BrowserPlugin.SendTextFileToS3();
-#endif
         UnityEngine.Debug.Log("is running will be false");
         logfile.Flush();
         logfile.Close();
+#endif
         isRunning = false;
         // myLoggerWriter.End ();
     }
