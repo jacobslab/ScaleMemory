@@ -91,7 +91,7 @@ public class Experiment : MonoBehaviour {
 	private GameObject correctChest;
 	//blackrock variables
 	public static string ExpName = "T3";
-	public static string BuildVersion = "0.9.9";
+	public static string BuildVersion = "0.9.91";
 	public static bool isSystem2 = true;
 
 	public GameObject turnDecisionZone;

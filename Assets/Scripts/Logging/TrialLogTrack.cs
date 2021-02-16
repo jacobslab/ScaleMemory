@@ -65,7 +65,7 @@ public class TrialLogTrack : LogTrack {
 				break;
 			case "Straight":
 				UnityEngine.Debug.Log("LEAVING STRAIGHT");
-				subjectLog.Log(GameClock.SystemTime_Milliseconds, "STRAIGHT_ARM" + separator + "EXIT");
+				subjectLog.Log(GameClock.SystemTime_Milliseconds, "CENTRAL_STEM" + separator + "EXIT");
 				break;
 		}
 	}
