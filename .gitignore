@@ -21,3 +21,7 @@
 sysinfo.txt
 Assets/CyberCity/
 Assets/AssetBundles/
+Assets/MTurk.cs
+Assets/mturktest.unity
+Assets/Plugins/AWSSDK.Core.dll
+Assets/Plugins/AWSSDK.MTurk.dll

@@ -3,12 +3,12 @@ using System.Collections;
 
 public class CorrectPositionIndicatorController : MonoBehaviour
 {
-    public TextMesh PointsScoredText;
+   // public TextMesh PointsScoredText;
 
     public Color RightScoreColor;
     public Color WrongScorecolor;
 
-    public Renderer PointsScoredBackground;
+   // public Renderer PointsScoredBackground;
 	public GameObject sphere;
 
     public Color lineRendererStartColor;
@@ -45,13 +45,13 @@ public class CorrectPositionIndicatorController : MonoBehaviour
     }
 	public void ChangeToRightColor()
 	{
-		PointsScoredBackground.material.color = RightScoreColor;
+	//	PointsScoredBackground.material.color = RightScoreColor;
 		//sphere.GetComponent<Renderer> ().material.color = RightScoreColor;
 	}
 
 	public void ChangeToWrongColor()
 	{
-		PointsScoredBackground.material.color = WrongScorecolor;
+		//PointsScoredBackground.material.color = WrongScorecolor;
 		//sphere.GetComponent<Renderer> ().material.color = WrongScorecolor;
 	}
     public void SetLineTarget(Vector3 targetPos, Color targetColor)
@@ -81,7 +81,7 @@ public class CorrectPositionIndicatorController : MonoBehaviour
     {
         return new Vector3(transform.GetChild(3).position.x, transform.GetChild(3).position.y + lineHeight, transform.GetChild(3).position.z);
     }
-
+    /*
     public void SetPointsText(int points)
     {
         if (points <= 0)
@@ -104,4 +104,5 @@ public class CorrectPositionIndicatorController : MonoBehaviour
         }
         PointsScoredText.text = PointsScoredText.text;
     }
+    */
 }

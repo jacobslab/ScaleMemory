@@ -21,6 +21,10 @@ public class Experiment : MonoBehaviour {
 
     private string enteredSubjName;
 
+	string prolific_pid = "";
+    string study_id = "";
+    string session_id = "";
+    bool idAssigned = false;
 
     public List<Transform> spawnableWaypoints;
 	//public List<Transform> rightSpawnableWaypoints;
@@ -110,6 +114,9 @@ public class Experiment : MonoBehaviour {
 	public string sessionDirectory;
 	public static string sessionStartedFileName = "sessionStarted.txt";
 	public static int sessionID;
+
+    //mturk
+ //   public MTurk mTurkController;
 
     private int currentRetrievalType = 0;
 
@@ -238,9 +245,32 @@ public class Experiment : MonoBehaviour {
             uiController.micSuccessGroup.alpha = 0f;
             uiController.micTestGroup.alpha = 0f;
             InitLogging();
+			StartCoroutine("BeginListeningForWorkerID");
             StartCoroutine("PerformMicTest");
+
         }
 
+    }
+
+	IEnumerator BeginListeningForWorkerID()
+    {
+		bool shouldListen = true;
+		while(shouldListen)
+        {
+			int res = 0;
+#if UNITY_WEBGL && !UNITY_EDITOR
+	BrowserPlugin.CheckAssignmentIDStatus();
+#endif
+			if (res == 1)
+			{
+				shouldListen = false;
+				UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " +  study_id);
+			}
+
+			yield return new WaitForSeconds(1f);
+			yield return 0;
+        }
+		yield return null;
     }
 
     IEnumerator PerformMicTest()
@@ -270,6 +300,31 @@ public class Experiment : MonoBehaviour {
         StartCoroutine("InitLogging");
 
         yield return null;
+    }
+
+	public int ListenForAssignmentID(string id)
+    {
+		UnityEngine.Debug.Log("inside unity;listening for assignment ID " + id);
+		if (!idAssigned)
+		{
+			if (id != "")
+			{
+
+                //assignmentID = id;
+                prolific_pid = id.Split(';')[0];
+                study_id = id.Split(';')[1];
+                session_id = id.Split(';')[2];
+
+                idAssigned = true;
+				return 1;
+			}
+			else
+				return 0;
+		}
+		else
+        {
+			return 1;
+        }
     }
 
     public void ListenForMicAccess()
@@ -399,11 +454,11 @@ public class Experiment : MonoBehaviour {
             msg += Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue() + "\n";
             yield return 0;
         }
-       // UnityEngine.Debug.Log("writing " + msg);
+        // UnityEngine.Debug.Log("writing " + msg);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-		BrowserPlugin.WriteOutput(msg);
-		BrowserPlugin.SendTextFileToS3();
+		BrowserPlugin.WriteOutput(msg,subjectName);
+	//	BrowserPlugin.SendTextFileToS3();
 #endif
         yield return null;
     }
@@ -581,31 +636,50 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(SpawnEnv());
         subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
         SetSubjectName();
-        /*
+		/*
 #if !UNITY_EDITOR
 		yield return StartCoroutine(InitLogging());
 #endif
 */
-	//	UnityEngine.Debug.Log("set subject name: " + subjectName);
-	//	trialLogTrack.LogBegin();
+		//	UnityEngine.Debug.Log("set subject name: " + subjectName);
+		//	trialLogTrack.LogBegin();
 
-		trialLogTrack.LogIntroInstruction(true);
+		//going full-screen
+		Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+		Screen.fullScreen = true;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.GoFullScreen();
+#endif
+
+
+
+        trialLogTrack.LogIntroInstruction(true);
 		uiController.taskIntroPanel.alpha = 1f;
 
 		yield return StartCoroutine(WaitForActionButton());
 		uiController.taskIntroPanel.alpha = 0f;
 		trialLogTrack.LogIntroInstruction(false);
 
-		//yield return StartCoroutine("BeginItemScreening");
-		//	StartCoroutine("RandomizeTravelSpeed");
-		yield return StartCoroutine("BeginTrackScreening");
+
+        //yield return StartCoroutine("BeginItemScreening");
+        //	StartCoroutine("RandomizeTravelSpeed");
+        yield return StartCoroutine("BeginTrackScreening");
 
 	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
 		yield return StartCoroutine("BeginTaskBlock");
 
-		uiController.endSessionPanel.alpha = 1f;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        UnityEngine.Debug.Log("submitting assignment");
+		BrowserPlugin.SubmitAssignment();
+#endif
+        uiController.endSessionPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
+
 		expActive = false;
 		Application.Quit();
 		yield return null;
@@ -1321,16 +1395,20 @@ public class Experiment : MonoBehaviour {
 
 			spawnedObjects[k].transform.GetChild(childCount - 1).localScale *= 10f;
 			GameObject prefabToSpawn = null;
+            bool isCorrect = false;
 			if(spatialFeedbackStatus[k])
             {
 				prefabToSpawn = correctIndicator;
+                isCorrect = true;
             }
 			else
             {
 				prefabToSpawn = wrongIndicator;
+                isCorrect = false;
             }
 			GameObject indicatorObj = Instantiate(prefabToSpawn, spatialFeedbackPosition[k], Quaternion.identity) as GameObject;
 			indicatorsList.Add(indicatorObj);
+            indicatorObj.GetComponent<CorrectPositionIndicatorController>().SetLineTarget(spawnedObjects[k].transform.position, (isCorrect) ? Color.green : Color.red);
 
 			yield return new WaitForSeconds(1f);
 
@@ -1851,7 +1929,6 @@ public class Experiment : MonoBehaviour {
 		}
 		
 		*/
-
 
 
 	}

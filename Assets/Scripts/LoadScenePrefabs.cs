@@ -52,8 +52,8 @@ public class LoadScenePrefabs : MonoBehaviour
         //var path = Path.Combine(Application.dataPath, "AssetBundles/WebGL");
         //  var path = "http://orion.bme.columbia.edu/jacobs/heist_task_data/AssetBundles/WebGL";
 
-        var path = "https://spaceheist.s3.us-east-2.amazonaws.com/SPACEHEIST_WA_WEB/SCIFI_Bundles/";
-       // var path = "https://lightnarcissus.com/U01Test/AssetBundles/";
+       var path = "https://spaceheist.s3.us-east-2.amazonaws.com/SPACEHEIST_WA_WEB/SCIFI_Bundles/";
+      //     var path = "https://lightnarcissus.com/U01Test/AssetBundles/";
 
 
         //  string targetBundle = "cube";
