@@ -72,6 +72,7 @@
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
      <Compile Include="Assets\MCP\scripts\Filmic.cs" />
+     <Compile Include="Assets\MTurk.cs" />
      <Compile Include="Assets\ObjectController.cs" />
      <Compile Include="Assets\ObjectSpawner.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
@@ -197,6 +198,8 @@
      <Compile Include="Assets\Scripts\WebGLMicrophone.cs" />
      <Compile Include="Assets\SlowZoneChecker.cs" />
      <Compile Include="Assets\SpeedZoneChecker.cs" />
+     <Compile Include="Assets\testscript.cs" />
+     <Compile Include="Assets\Timechecker.cs" />
      <Compile Include="Assets\TrafficLightController.cs" />
      <Compile Include="Assets\TurnZone.cs" />
      <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
@@ -512,6 +515,12 @@
  </Reference>
  <Reference Include="UnityEngine.XRModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.20f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
+ </Reference>
+ <Reference Include="AWSSDK.Core">
+ <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/AWSSDK.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="AWSSDK.MTurk">
+ <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/AWSSDK.MTurk.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
  <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/Newtonsoft.Json.dll</HintPath>

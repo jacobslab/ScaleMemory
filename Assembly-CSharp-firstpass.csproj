@@ -401,6 +401,12 @@
  <Reference Include="UnityEngine.XRModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.20f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
  </Reference>
+ <Reference Include="AWSSDK.Core">
+ <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/AWSSDK.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="AWSSDK.MTurk">
+ <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/AWSSDK.MTurk.dll</HintPath>
+ </Reference>
  <Reference Include="Newtonsoft.Json">
  <HintPath>C:/Users/Ansh/Desktop/JacobsLab/ScaleMemory/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
  </Reference>

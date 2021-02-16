@@ -22,13 +22,23 @@ namespace UnityEngine
         [DllImport("__Internal")]
         private static extern void RecordStop();
         [DllImport("__Internal")]
-        private static extern void WriteToFile(string str);
+        private static extern void WriteToFile(string str, string subj);
 
         [DllImport("__Internal")]
         private static extern int ReturnMicStatus();
 
+
+        [DllImport("__Internal")]
+        private static extern int makeFullScreen();
+
+        [DllImport("__Internal")]
+        private static extern int submitForm();
+
         [DllImport("__Internal")]
         private static extern void PutTextFile();
+        
+        [DllImport("__Internal")]
+        private static extern void CheckAssignmentID();
 
         [DllImport("__Internal")]
         private static extern void CheckMic();
@@ -103,6 +113,20 @@ UnityEngine.Debug.Log("browser plugin setup");
 Init();
 }
 
+
+
+public static void SubmitAssignment()
+{
+UnityEngine.Debug.Log("submitting assignment");
+submitForm();
+}
+
+public static void GoFullScreen()
+{
+UnityEngine.Debug.Log("going full screen");
+makeFullScreen();
+}
+
 public static int InquireMicStatus()
 {
 UnityEngine.Debug.Log("inquiring mic status");
@@ -112,12 +136,18 @@ micStatus = ReturnMicStatus();
 return micStatus;
 }
 
-public static void WriteOutput(string outputLine)
+public static void WriteOutput(string outputLine,string subj)
 {
 //UnityEngine.Debug.Log("writing : " + outputLine);
 string line = outputLine + "\n";
-WriteToFile(line);
+WriteToFile(line,subj);
 
+}
+
+public static void CheckAssignmentIDStatus()
+{
+UnityEngine.Debug.Log("checking assignment ID status");
+CheckAssignmentID();
 }
 
 public static void CheckMicStatus()
