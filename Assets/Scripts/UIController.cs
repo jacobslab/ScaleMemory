@@ -43,8 +43,17 @@ public class UIController : MonoBehaviour {
 	//intro panel
 	public CanvasGroup taskIntroPanel;
 
-	//fixation panel
-	public CanvasGroup fixationPanel;
+    //consent panel
+    public CanvasGroup consentPanel;
+
+
+
+    //prolific info
+    public CanvasGroup prolificInfoPanel;
+    public CanvasGroup failProlificPanel;
+
+    //fixation panel
+    public CanvasGroup fixationPanel;
 	public CanvasGroup fixationCross;
 
 	//blackrock connection
@@ -68,7 +77,10 @@ public class UIController : MonoBehaviour {
 	//crash notification
 	public CanvasGroup crashNotification;
 
-	public CanvasGroup verbalInstruction;
+    //fast drive message
+    public CanvasGroup fastDriveMessage;
+
+    public CanvasGroup verbalInstruction;
 
 	//black screen
 	public CanvasGroup blackScreen;

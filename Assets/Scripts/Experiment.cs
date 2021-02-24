@@ -21,6 +21,11 @@ public class Experiment : MonoBehaviour {
 
     private string enteredSubjName;
 
+	string prolific_pid = "";
+    string study_id = "";
+    string session_id = "";
+    bool idAssigned = false;
+    bool givenConsent = false;
 
     public List<Transform> spawnableWaypoints;
 	//public List<Transform> rightSpawnableWaypoints;
@@ -111,6 +116,9 @@ public class Experiment : MonoBehaviour {
 	public static string sessionStartedFileName = "sessionStarted.txt";
 	public static int sessionID;
 
+    //mturk
+ //   public MTurk mTurkController;
+
     private int currentRetrievalType = 0;
 
 	public string subjectName = "";
@@ -159,6 +167,7 @@ public class Experiment : MonoBehaviour {
     private float prevLapTime = 0f;
 	private float bestLapTime = 1000f;
 
+    private bool canProceed = false;
 
 	public TrialLogTrack trialLogTrack;
 	private int objLapper = 0;
@@ -238,9 +247,85 @@ public class Experiment : MonoBehaviour {
             uiController.micSuccessGroup.alpha = 0f;
             uiController.micTestGroup.alpha = 0f;
             InitLogging();
-            StartCoroutine("PerformMicTest");
+            StartCoroutine("InitialSetup");
+
         }
 
+    }
+
+    
+
+    IEnumerator InitialSetup()
+    {
+        //show consent and wait till they agree to it
+        yield return StartCoroutine(ShowConsentScreen());
+
+
+        uiController.prolificInfoPanel.alpha = 1f;
+#if !UNITY_EDITOR
+        yield return StartCoroutine("BeginListeningForWorkerID");
+#endif
+        uiController.prolificInfoPanel.alpha = 0f;
+        yield return StartCoroutine("PerformMicTest");
+        yield return null;
+    }
+
+    IEnumerator ShowConsentScreen()
+    {
+        UnityEngine.Debug.Log("showing consent screen");
+        uiController.consentPanel.alpha = 1f;
+        trialLogTrack.LogUIEvent("CONSENT_SCREEN", true);
+
+        //wait until consent button is pressed
+        while (!givenConsent)
+        {
+            yield return 0;
+
+        }
+        UnityEngine.Debug.Log("given consent");
+
+        trialLogTrack.LogUIEvent("CONSENT_SCREEN", false);
+        uiController.consentPanel.alpha = 0f;
+        yield return null;
+    }
+
+    //initiated by UI button on screen during the consent panel
+    public void GiveConsent()
+    {
+        givenConsent = true;
+    }
+
+	IEnumerator BeginListeningForWorkerID()
+    {
+        trialLogTrack.LogUIEvent("PROLIFIC_INFO", true);
+        bool shouldListen = true;
+        int timesWaited = 0;
+		while(shouldListen)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+	BrowserPlugin.CheckAssignmentIDStatus();
+#endif
+            
+			if (idAssigned)
+			{
+				shouldListen = false;
+				UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " +  study_id);
+			}
+
+			yield return new WaitForSeconds(1f);
+            timesWaited++;
+            if(timesWaited>=5)
+            {
+                uiController.failProlificPanel.alpha = 1f;
+                trialLogTrack.LogProlificFailEvent();
+
+                StartCoroutine("WriteAndSend");
+
+            }
+			yield return 0;
+        }
+        trialLogTrack.LogUIEvent("PROLIFIC_INFO", false);
+        yield return null;
     }
 
     IEnumerator PerformMicTest()
@@ -270,6 +355,32 @@ public class Experiment : MonoBehaviour {
         StartCoroutine("InitLogging");
 
         yield return null;
+    }
+
+	public int ListenForAssignmentID(string id)
+    {
+		UnityEngine.Debug.Log("inside unity;listening for assignment ID " + id);
+		if (!idAssigned)
+		{
+			if (id != "")
+			{
+
+                //assignmentID = id;
+                prolific_pid = id.Split(';')[0];
+                study_id = id.Split(';')[1];
+                session_id = id.Split(';')[2];
+                trialLogTrack.LogProlificWorkerInfo(prolific_pid, study_id, session_id);
+                canProceed = true;
+                idAssigned = true;
+				return 1;
+			}
+			else
+				return 0;
+		}
+		else
+        {
+			return 1;
+        }
     }
 
     public void ListenForMicAccess()
@@ -399,11 +510,11 @@ public class Experiment : MonoBehaviour {
             msg += Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue() + "\n";
             yield return 0;
         }
-       // UnityEngine.Debug.Log("writing " + msg);
+        // UnityEngine.Debug.Log("writing " + msg);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-		BrowserPlugin.WriteOutput(msg);
-		BrowserPlugin.SendTextFileToS3();
+		BrowserPlugin.WriteOutput(msg,subjectName);
+	//	BrowserPlugin.SendTextFileToS3();
 #endif
         yield return null;
     }
@@ -581,31 +692,52 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(SpawnEnv());
         subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
         SetSubjectName();
-        /*
+		/*
 #if !UNITY_EDITOR
 		yield return StartCoroutine(InitLogging());
 #endif
 */
-	//	UnityEngine.Debug.Log("set subject name: " + subjectName);
-	//	trialLogTrack.LogBegin();
+		//	UnityEngine.Debug.Log("set subject name: " + subjectName);
+		//	trialLogTrack.LogBegin();
 
-		trialLogTrack.LogIntroInstruction(true);
+		//going full-screen
+		Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+		Screen.fullScreen = true;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.GoFullScreen();
+#endif
+
+
+
+        trialLogTrack.LogIntroInstruction(true);
 		uiController.taskIntroPanel.alpha = 1f;
 
 		yield return StartCoroutine(WaitForActionButton());
 		uiController.taskIntroPanel.alpha = 0f;
 		trialLogTrack.LogIntroInstruction(false);
 
-		//yield return StartCoroutine("BeginItemScreening");
-		//	StartCoroutine("RandomizeTravelSpeed");
-		yield return StartCoroutine("BeginTrackScreening");
+
+        //yield return StartCoroutine("BeginItemScreening");
+        //	StartCoroutine("RandomizeTravelSpeed");
+
+
+        yield return StartCoroutine("BeginTrackScreening");
 
 	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
 		yield return StartCoroutine("BeginTaskBlock");
 
-		uiController.endSessionPanel.alpha = 1f;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        UnityEngine.Debug.Log("submitting assignment");
+		BrowserPlugin.SubmitAssignment();
+#endif
+        uiController.endSessionPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
+
 		expActive = false;
 		Application.Quit();
 		yield return null;
@@ -926,6 +1058,8 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator SpeedMoveToRetrievalStart(Transform start, int randInt)
     {
+        uiController.fastDriveMessage.alpha = 1f;
+        trialLogTrack.LogUIEvent("FAST_DRIVE", true);
         Vector3 targetPos = start.position;
         player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.fastSpeed);
         player.GetComponent<WaypointProgressTracker>().progressStyle = WaypointProgressTracker.ProgressStyle.PointToPoint;
@@ -940,6 +1074,9 @@ public class Experiment : MonoBehaviour {
         player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
         player.GetComponent<WaypointProgressTracker>().progressStyle = WaypointProgressTracker.ProgressStyle.SmoothAlongRoute;
         SetCarBrakes(true);
+
+        uiController.fastDriveMessage.alpha = 0f;
+        trialLogTrack.LogUIEvent("FAST_DRIVE", false);
         yield return null;
     }
 
@@ -1115,7 +1252,7 @@ public class Experiment : MonoBehaviour {
 
 			string targetNames = "";
 
-
+            
 			if (currentRetrievalType == 1)
 			{
 				verbalRetrieval = true;
@@ -1124,6 +1261,7 @@ public class Experiment : MonoBehaviour {
 			}
 			else
             {
+            
 				currentStage = TaskStage.SpatialRetrieval;
             }
 
@@ -1321,16 +1459,20 @@ public class Experiment : MonoBehaviour {
 
 			spawnedObjects[k].transform.GetChild(childCount - 1).localScale *= 10f;
 			GameObject prefabToSpawn = null;
+            bool isCorrect = false;
 			if(spatialFeedbackStatus[k])
             {
 				prefabToSpawn = correctIndicator;
+                isCorrect = true;
             }
 			else
             {
 				prefabToSpawn = wrongIndicator;
+                isCorrect = false;
             }
 			GameObject indicatorObj = Instantiate(prefabToSpawn, spatialFeedbackPosition[k], Quaternion.identity) as GameObject;
 			indicatorsList.Add(indicatorObj);
+            indicatorObj.GetComponent<CorrectPositionIndicatorController>().SetLineTarget(spawnedObjects[k].transform.position, (isCorrect) ? Color.green : Color.red);
 
 			yield return new WaitForSeconds(1f);
 
@@ -1851,7 +1993,6 @@ public class Experiment : MonoBehaviour {
 		}
 		
 		*/
-
 
 
 	}

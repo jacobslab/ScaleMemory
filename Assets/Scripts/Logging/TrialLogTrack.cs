@@ -63,6 +63,18 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "MIC_TEST");
 	}
 
+    public void LogUIEvent(string eventName, bool isStarted)
+    {
+        subjectLog.Log(GameClock.SystemTime_Milliseconds, eventName + separator + ((isStarted) ? "STARTED" : "ENDED"));
+    }
+
+   
+
+    public void LogProlificWorkerInfo(string prolific_pid,string study_id,string session_id)
+    {
+        subjectLog.Log(GameClock.SystemTime_Milliseconds, "PROLIFIC_PID" + separator + prolific_pid + separator + "STUDY_ID" + separator + study_id + separator + "SESSION_ID" + separator + session_id);
+    }
+
 	void LogSessionStart(){
 		Debug.Log ("LOGGED SESSION START");
 		string buildVersion = Experiment.BuildVersion.ToString ();
@@ -97,7 +109,14 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "VERBAL_RETRIEVAL_ATTEMPT" + separator + objQueried.name + separator + fileName);
 
 	}
-	public void LogBlackrockConnectionSuccess()
+
+    public void LogProlificFailEvent()
+    {
+        subjectLog.Log(GameClock.SystemTime_Milliseconds, "PROLIFIC_COLLECTION_FAILED");
+
+    }
+
+    public void LogBlackrockConnectionSuccess()
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLACKROCK_CONNECTION_SUCCESSFUL");
 	}
