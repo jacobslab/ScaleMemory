@@ -13,6 +13,9 @@ public class ObjectLogTrack : LogTrack {
 	Vector3 lastScale;
 	bool lastVisibility;
 
+    float timer = 0f;
+
+
 
 	void Awake(){
 		
@@ -20,9 +23,11 @@ public class ObjectLogTrack : LogTrack {
 
 	//log on late update so that everything for that frame gets set first
 	void LateUpdate(){
-		if (Experiment.isLogging) {
+		if (Experiment.isLogging && timer > 3f) {
+            timer = 0f;
 			Log ();
 		}
+        timer += Time.deltaTime;
 	}
 
 	void Log ()

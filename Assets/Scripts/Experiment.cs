@@ -723,7 +723,7 @@ public class Experiment : MonoBehaviour {
         //	StartCoroutine("RandomizeTravelSpeed");
 
 
-        yield return StartCoroutine("BeginTrackScreening");
+       // yield return StartCoroutine("BeginTrackScreening");
 
 	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
@@ -732,9 +732,10 @@ public class Experiment : MonoBehaviour {
 
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        UnityEngine.Debug.Log("submitting assignment");
-		BrowserPlugin.SubmitAssignment();
+        //UnityEngine.Debug.Log("submitting assignment");
+		//BrowserPlugin.SubmitAssignment();
 #endif
+        yield return StartCoroutine("WriteAndSend");
         uiController.endSessionPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
 
@@ -1067,7 +1068,7 @@ public class Experiment : MonoBehaviour {
         SetCarBrakes(false);
         while (distToTarget >= 10f)
         {
-            UnityEngine.Debug.Log("target distance " + distToTarget.ToString());
+            //UnityEngine.Debug.Log("target distance " + distToTarget.ToString());
             distToTarget = Vector3.Distance(targetPos, player.transform.position);
             yield return 0;
         }
@@ -1086,7 +1087,7 @@ public class Experiment : MonoBehaviour {
 		verbalRetrieval = false;
 		expActive = true;
 
-		StartCoroutine("PeriodicallyWrite");
+		//StartCoroutine("PeriodicallyWrite");
 
         //yield return StartCoroutine("BeginTrackScreening");
         yield return StartCoroutine(ShuffleListLength()); //list lengths will get shuffled here
@@ -1100,6 +1101,7 @@ public class Experiment : MonoBehaviour {
 		{
             UnityEngine.Debug.Log("in encoding now");
 			currentStage = TaskStage.Encoding;
+            StartCoroutine("WriteAndSend");
 			trialLogTrack.LogTaskStage(currentStage, true);
             //trialCount = i + 1;
             trialCount = i;
@@ -1109,7 +1111,8 @@ public class Experiment : MonoBehaviour {
             currentRetrievalType = retrievalType[trialCount];
 
             LapCounter.lapCount = 0;
-			yield return StartCoroutine(objController.SelectEncodingItems());
+            SetCarBrakes(false);
+            yield return StartCoroutine(objController.SelectEncodingItems());
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
 			player.transform.rotation = startTransform.rotation;
@@ -1148,7 +1151,6 @@ public class Experiment : MonoBehaviour {
 				*/
 				trafficLightController.MakeVisible(true);
 				yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-				SetCarBrakes(false);
 				trafficLightController.MakeVisible(false);
 
 				//reset lap timer and show display
@@ -1695,7 +1697,7 @@ public class Experiment : MonoBehaviour {
 
 	public void SetCarBrakes(bool shouldStop)
     {
-		trialLogTrack.LogCarBrakes(shouldStop);
+		//trialLogTrack.LogCarBrakes(shouldStop);
 		player.GetComponent<Rigidbody>().isKinematic = shouldStop;
     }
 
