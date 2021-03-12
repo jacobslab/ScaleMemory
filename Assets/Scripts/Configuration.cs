@@ -23,6 +23,25 @@ public class Configuration : MonoBehaviour {
 
     public static float heartbeatInterval = 1f;
 
+
+    //ELEMEM settings
+
+#if UNITY_EDITOR
+    public static string ipAddress = "127.0.0.1";
+    public static int portNumber = 5555;
+#else
+    public static string ipAddress = "192.168.137.1";
+    public static int portNumber = 8889;
+#endif
+
+    public enum StimMode
+    {
+        NONSTIM,
+        STIM
+    };
+
+    public static StimMode stimMode = StimMode.NONSTIM;
+
     // Use this for initialization
     void Start () {
 		

@@ -1,63 +1,177 @@
 fileFormatVersion: 2
 guid: 145985cf3cc1d435286b740161eb3f84
-timeCreated: 1467148970
-licenseType: Free
 ModelImporter:
-  serializedVersion: 19
-  fileIDToRecycleName:
-    100000: Armature
-    100002: ChromeBowl
-    100004: GlassBowl
-    100006: MainBone
-    100008: Mixer
-    100010: //RootNode
-    100012: Mixer_Attachment
-    100014: RotationArm
-    100016: SpeedLever
-    100018: TiltLever
-    400000: Armature
-    400002: ChromeBowl
-    400004: GlassBowl
-    400006: MainBone
-    400008: Mixer
-    400010: //RootNode
-    400012: Mixer_Attachment
-    400014: RotationArm
-    400016: SpeedLever
-    400018: TiltLever
-    2300000: ChromeBowl
-    2300002: GlassBowl
-    3300000: ChromeBowl
-    3300002: GlassBowl
-    4300000: ChromeBowl
-    4300002: GlassBowl
-    4300004: Mixer
-    4300006: Mixer_Attachment
-    7400000: Default Take
-    7400002: ArmatureAction
-    9500000: //RootNode
-    13700000: Mixer
-    13700002: Mixer_Attachment
+  serializedVersion: 26
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Armature
+  - first:
+      1: 100002
+    second: ChromeBowl
+  - first:
+      1: 100004
+    second: GlassBowl
+  - first:
+      1: 100006
+    second: MainBone
+  - first:
+      1: 100008
+    second: Mixer
+  - first:
+      1: 100010
+    second: //RootNode
+  - first:
+      1: 100012
+    second: Mixer_Attachment
+  - first:
+      1: 100014
+    second: RotationArm
+  - first:
+      1: 100016
+    second: SpeedLever
+  - first:
+      1: 100018
+    second: TiltLever
+  - first:
+      4: 400000
+    second: Armature
+  - first:
+      4: 400002
+    second: ChromeBowl
+  - first:
+      4: 400004
+    second: GlassBowl
+  - first:
+      4: 400006
+    second: MainBone
+  - first:
+      4: 400008
+    second: Mixer
+  - first:
+      4: 400010
+    second: //RootNode
+  - first:
+      4: 400012
+    second: Mixer_Attachment
+  - first:
+      4: 400014
+    second: RotationArm
+  - first:
+      4: 400016
+    second: SpeedLever
+  - first:
+      4: 400018
+    second: TiltLever
+  - first:
+      23: 2300000
+    second: ChromeBowl
+  - first:
+      23: 2300002
+    second: GlassBowl
+  - first:
+      33: 3300000
+    second: ChromeBowl
+  - first:
+      33: 3300002
+    second: GlassBowl
+  - first:
+      43: 4300000
+    second: ChromeBowl
+  - first:
+      43: 4300002
+    second: GlassBowl
+  - first:
+      43: 4300004
+    second: Mixer
+  - first:
+      43: 4300006
+    second: Mixer_Attachment
+  - first:
+      74: 7400000
+    second: Default Take
+  - first:
+      74: 7400002
+    second: ArmatureAction
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: Mixer
+  - first:
+      137: 13700002
+    second: Mixer_Attachment
+  - first:
+      74: -623603649343465320
+    second: Scene
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_BlackPlastic
+    second: {fileID: 2100000, guid: c394f751ddfab4bf3993b2b2e0b09cad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_BrushedChrome
+    second: {fileID: 2100000, guid: 1335a388b46544cd5b2b1c567937d9a4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_BrushedChrome_Writing
+    second: {fileID: 2100000, guid: 26fc129c2f0be48b794e0d4709ff35a4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_Chrome
+    second: {fileID: 2100000, guid: 330589d3d0adb446d9231062221e875a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_Chrome_Writing
+    second: {fileID: 2100000, guid: ef0ab167032a340168335f4562182350, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_Glass
+    second: {fileID: 2100000, guid: a41f068526b55467cb47c45519e4cd53, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_White
+    second: {fileID: 2100000, guid: 585fbbc16aa40447c81197f16f38f716, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kitchenaid_Yellow
+    second: {fileID: 2100000, guid: 7eb5211ef1d7f48df93ea7240ea8f550, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
-    resampleRotations: 1
+    resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -65,13 +179,23 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -81,9 +205,15 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -93,8 +223,11 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 2
   humanoidOversampling: 1
