@@ -160,9 +160,9 @@ console.log("audio filename is: " + filename);
               }
           };
           var fd=new FormData();
-          fd.append("functionname","PutObject");
-          fd.append("subjectName",subject);
-          fd.append("file",blob, filename);
+          fd.append("functionname","SaveAudio");
+      //    fd.append("subjectName",subject);
+          fd.append("audio_data",blob, filename);
           xhr.open("POST","functions.php",true);
           xhr.send(fd);
 

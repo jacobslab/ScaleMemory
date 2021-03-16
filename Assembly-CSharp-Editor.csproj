@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CyberCity\Editor\SettingsPrompt.cs" />
      <Compile Include="Assets\Editor\CreateAssetBundles.cs" />
      <Compile Include="Assets\Editor\CreatePrefabFromSelected.cs" />
      <Compile Include="Assets\PostProcessing\Editor\Attributes\PostProcessingModelEditorAttribute.cs" />

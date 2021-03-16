@@ -56,6 +56,18 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\CarStopper.cs" />
+     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Camera_particale.cs" />
+     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate.cs" />
+     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate_2.cs" />
+     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\SimpleCameraController.cs" />
+     <Compile Include="Assets\CyberCity\Script\CCFollower.cs" />
+     <Compile Include="Assets\CyberCity\Script\CCLines.cs" />
+     <Compile Include="Assets\CyberCity\Script\CCNeonFlash.cs" />
+     <Compile Include="Assets\CyberCity\Script\CCTvMovie.cs" />
+     <Compile Include="Assets\CyberCity\Script\FPCharacter.cs" />
+     <Compile Include="Assets\CyberCity\Script\FPMouseLook.cs" />
+     <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
+     <Compile Include="Assets\CyberCity\Script\Route\CCVehicle.cs" />
      <Compile Include="Assets\LapCounter.cs" />
      <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
      <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
@@ -198,15 +210,19 @@
      <None Include="Assets\PostProcessing\Resources\Shaders\LutGen.shader" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />
      <None Include="Assets\PostProcessing\Editor Resources\UI\CurveBackground.shader" />
+     <None Include="Assets\CyberCity\_HDRP\SETUP.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ScreenSpaceReflection.shader" />
      <None Include="Assets\subj_00000001600447465713\session_0\subj_00000001600447465713Log.txt" />
+     <None Include="Assets\CyberCity\Script\Route\Usage.txt" />
      <None Include="Assets\PostProcessing\Utilities\CustomMotionTexture\Shaders\CustomMotionVectorTexture.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ACES.cginc" />
      <None Include="Assets\PostProcessing\Resources\Shaders\UberSecondPass.cginc" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+     <None Include="Assets\CyberCity\IMPORTANT.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Tonemapping.cginc" />
      <None Include="Assets\Racing Tracks\Misc\Night Building.shader" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
+     <None Include="Assets\CyberCity\ReadMe.txt" />
      <None Include="Assets\race-track-lake\readme.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Uber.shader" />
      <None Include="Assets\race-track-lake\readmore.txt" />
@@ -219,6 +235,7 @@
      <None Include="Assets\PostProcessing\Resources\Shaders\AmbientOcclusion.shader" />
      <None Include="Assets\PostProcessing\Resources\Bluenoise64\LICENSE.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\BuiltinDebugViews.shader" />
+     <None Include="Assets\CyberCity\Shader\UnityDefaultProjectorL.shader" />
      <None Include="Assets\Shaders\TSFOutline.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Common.cginc" />
      <None Include="Assets\PostProcessing\Resources\Bluenoise64\COPYING.txt" />
@@ -228,6 +245,7 @@
      <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
      <None Include="Assets\Shaders\TSF.shader" />
+     <None Include="Assets\CyberCity\Shader\CCSprite.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Bloom.cginc" />
      <None Include="Assets\PostProcessing\Resources\Shaders\TAA.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\EyeHistogram.compute" />
@@ -245,6 +263,7 @@
      <None Include="Assets\Shaders\3DTextUnderShader.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Bloom.shader" />
+     <None Include="Assets\CyberCity\Shader\StandardSpecular2Side.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\VectorscopeRender.shader" />

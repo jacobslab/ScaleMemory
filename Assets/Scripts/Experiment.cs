@@ -58,8 +58,12 @@ public class Experiment : MonoBehaviour {
     public WebGLMicrophone audioRec;
     public List<Transform> startableTransforms;
 
+    private bool isFourVerbal = false;
+    private bool isFiveVerbal = true;
+    private bool isSixVerbal = true;
 
-	public Camera itemScreeningCam;
+
+    public Camera itemScreeningCam;
 
 	public WaypointCircuit waypointCircuit;
 
@@ -193,7 +197,14 @@ public class Experiment : MonoBehaviour {
 		//tcpServer.gameObject.SetActive(false);
 		defaultLoggingPath = Application.dataPath;
 		carSpeed = 0f;
-	}
+
+        //randomize retrieval type bools
+
+        isFourVerbal = (Random.value > 0.5f) ? true: false;
+        isFiveVerbal = (Random.value > 0.5f) ? true : false;
+        isSixVerbal = (Random.value > 0.5f) ? true : false;
+
+    }
 	// Use this for initialization
 	void Start()
 	{
@@ -723,7 +734,7 @@ public class Experiment : MonoBehaviour {
         //	StartCoroutine("RandomizeTravelSpeed");
 
 
-       // yield return StartCoroutine("BeginTrackScreening");
+        yield return StartCoroutine("BeginTrackScreening");
 
 	//	yield return StartCoroutine("SpawnZones");
 		//repeat blocks twice
@@ -1092,7 +1103,7 @@ public class Experiment : MonoBehaviour {
         //yield return StartCoroutine("BeginTrackScreening");
         yield return StartCoroutine(ShuffleListLength()); //list lengths will get shuffled here
         yield return StartCoroutine(ShuffleRetrievalTypes()); //retrieval types will get shuffled here
-		SetCarBrakes(true);
+        SetCarBrakes(true);
         
 
         //select list length
@@ -1108,10 +1119,36 @@ public class Experiment : MonoBehaviour {
 
             listLength = shuffledListLength[trialCount];
 
-            currentRetrievalType = retrievalType[trialCount];
+            if(listLength==4)
+            {
+                if (isFourVerbal)
+                    currentRetrievalType = 1;
+                else
+                    currentRetrievalType = 0;
+                   isFourVerbal = !isFourVerbal;
+            }
+            else if(listLength == 5)
+            {
+                if (isFiveVerbal)
+                    currentRetrievalType = 1;
+                else
+                    currentRetrievalType = 0;
+                isFiveVerbal = !isFiveVerbal;
+            }
+            else if (listLength == 6)
+            {
+                if (isSixVerbal)
+                    currentRetrievalType = 1;
+                else
+                    currentRetrievalType = 0;
+                isSixVerbal = !isSixVerbal;
+            }
+
+           // currentRetrievalType = retrievalType[trialCount];
 
             LapCounter.lapCount = 0;
-            SetCarBrakes(false);
+           // player.GetComponent<CarController>().ChangeMaxSpeed(0f);
+           // SetCarBrakes(false);
             yield return StartCoroutine(objController.SelectEncodingItems());
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
@@ -1151,7 +1188,8 @@ public class Experiment : MonoBehaviour {
 				*/
 				trafficLightController.MakeVisible(true);
 				yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-				trafficLightController.MakeVisible(false);
+                player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
+                trafficLightController.MakeVisible(false);
 
 				//reset lap timer and show display
 				ResetLapDisplay();
@@ -1506,7 +1544,7 @@ public class Experiment : MonoBehaviour {
 		SetCarBrakes(true);
 		yield return new WaitForSeconds(1f);
 		uiController.verbalInstruction.alpha = 1f;
-		string fileName = trialCount.ToString() + "_" + retCount.ToString();
+		string fileName = subjectName+ "_"+ trialCount.ToString() + "_" + retCount.ToString();
 		//audioRecorder.beepHigh.Play();
 
 
@@ -1698,7 +1736,16 @@ public class Experiment : MonoBehaviour {
 	public void SetCarBrakes(bool shouldStop)
     {
 		//trialLogTrack.LogCarBrakes(shouldStop);
-		player.GetComponent<Rigidbody>().isKinematic = shouldStop;
+        if(shouldStop)
+        {
+            player.GetComponent<CarController>().ChangeMaxSpeed(0f);
+        }
+        else
+        {
+            player.GetComponent<CarController>().ChangeMaxSpeed(Configuration.normalSpeed);
+
+        }
+		//player.GetComponent<Rigidbody>().isKinematic = shouldStop;
     }
 
 	IEnumerator GenerateRetrievalList()
