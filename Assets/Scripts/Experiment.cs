@@ -320,7 +320,7 @@ public class Experiment : MonoBehaviour {
 			if (idAssigned)
 			{
 				shouldListen = false;
-				UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " +  study_id);
+			//	UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " +  study_id);
 			}
 
 			yield return new WaitForSeconds(1f);
@@ -764,7 +764,7 @@ public class Experiment : MonoBehaviour {
 				float timer = 0f;
 				float maxTime = UnityEngine.Random.Range(3f, 10f);
 				float speed = UnityEngine.Random.Range(30f, 60f);
-				UnityEngine.Debug.Log("new max time " + maxTime.ToString());
+				//UnityEngine.Debug.Log("new max time " + maxTime.ToString());
 				while (timer < maxTime)
 				{
 					timer += Time.deltaTime;
@@ -772,7 +772,7 @@ public class Experiment : MonoBehaviour {
 				}
 					player.GetComponent<CarController>().ChangeMaxSpeed(speed);
 					//player.GetComponent<CarController>().SetCurrentSpeed(speed);
-					UnityEngine.Debug.Log("changed speed " + speed.ToString());
+					//UnityEngine.Debug.Log("changed speed " + speed.ToString());
 					timer = 0f;
 				yield return 0;
 			}
@@ -1110,7 +1110,7 @@ public class Experiment : MonoBehaviour {
 		//show instructions
 		for (int i = 0; i < Configuration.totalTrials; i++)
 		{
-            UnityEngine.Debug.Log("in encoding now");
+           // UnityEngine.Debug.Log("in encoding now");
 			currentStage = TaskStage.Encoding;
             StartCoroutine("WriteAndSend");
 			trialLogTrack.LogTaskStage(currentStage, true);
@@ -1208,7 +1208,7 @@ public class Experiment : MonoBehaviour {
 					player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 				}
 				*/
-				UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
+				//UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
 				SetCarBrakes(false);
 				LapCounter.canStop = false;
 				while (!LapCounter.canStop)
@@ -1381,7 +1381,7 @@ public class Experiment : MonoBehaviour {
 					{
                         yield return StartCoroutine(PerformFadeToBlackSequence(Configuration.prePlayFadeInterval));
 
-                        UnityEngine.Debug.Log("retrieval num " + j.ToString());
+                        //UnityEngine.Debug.Log("retrieval num " + j.ToString());
 						targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
 						uiController.zRetrievalText.color = Color.white;
 						uiController.zRetrievalText.text = targetNames;
@@ -1393,7 +1393,7 @@ public class Experiment : MonoBehaviour {
 							yield return 0;
 						}
 						float dist = Vector3.Distance(spawnedObjects[randIndex[j]].transform.position, player.transform.position);
-						UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
+						//UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
 						if(dist<15f)
                         {
 							spatialFeedbackStatus.Add(true);
@@ -1409,7 +1409,7 @@ public class Experiment : MonoBehaviour {
 
 					}
                     currentStage = TaskStage.Feedback;
-					UnityEngine.Debug.Log("finished all retrievals");
+					//UnityEngine.Debug.Log("finished all retrievals");
 
 
                     finishedRetrieval = true;
@@ -1418,7 +1418,7 @@ public class Experiment : MonoBehaviour {
 					uiController.targetTextPanel.alpha = 0f;
 					uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
 					yield return StartCoroutine("PerformSpatialFeedback");
-                    UnityEngine.Debug.Log("finished spatial feedback");
+               //     UnityEngine.Debug.Log("finished spatial feedback");
 					uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
 
 					UpdateLapDisplay();
