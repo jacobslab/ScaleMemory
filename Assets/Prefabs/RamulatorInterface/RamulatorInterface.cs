@@ -65,16 +65,21 @@ public class ElememWorker
     private Queue<string> messageQueue;
 
     private const long ContactThreshold = 1000;
-
+    
 
     //variables
     //how long to wait for ramulator to connect
     const int timeoutDelay = 150;
     const int unreceivedHeartbeatsToQuit = 8;
 
+
+    private int heartbeatCount = 0;
+    int messageTimeout = 1000;
+    int heartbeatTimeout = 8000; // TODO: configuration
     private int unreceivedHeartbeats = 0;
 
     private bool waitingForMessage = false;
+    private bool performingLatencyCheck = true;
 
     public bool Connected;
     PairSocket server;
@@ -142,6 +147,16 @@ public class ElememWorker
             return waitingForMessage;
     }
 
+    public int ReturnHeartbeatCount()
+    {
+        return heartbeatCount;
+    }
+
+    public void IncrementHeartbeatCount()
+    {
+        heartbeatCount++;
+    }
+
     public void WaitForMessage(string containingString, string errorMessage)
     {
         string receivedMessage = "";
@@ -155,7 +170,8 @@ public class ElememWorker
                 UnityEngine.Debug.Log("received: " + messageString);
 
                 waitingForMessage = false;
-                UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+              //  UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+                ReportMessage(messageString);
                 //ReportMessage(messageString, false);
             }
 
@@ -166,6 +182,11 @@ public class ElememWorker
             }
             return;
         }
+    }
+
+    private void ReportMessage(string msg)
+    {
+        RamulatorInterface.PrintReport(msg);
     }
 
 
@@ -190,19 +211,23 @@ public class ElememWorker
         {
             string messageString = receivedMessage.ToString();
             UnityEngine.Debug.Log("heartbeat received: " + messageString);
-            UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+           // UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+            ReportMessage(messageString);
             // ReportMessage(messageString, false);
             unreceivedHeartbeats = 0;
         }
     }
 
+  
+  
 
 
     public void SendMessageToRamulator(string message)
     {
         bool wouldNotHaveBlocked = server.TrySendFrame(message, more: false);
-        UnityEngine.Debug.Log("Tried to send a message: " + message + " \nWouldNotHaveBlocked: " + wouldNotHaveBlocked.ToString());
-        UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+        //UnityEngine.Debug.Log("Tried to send a message: " + message + " \nWouldNotHaveBlocked: " + wouldNotHaveBlocked.ToString());
+        //UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+        ReportMessage(message);
         // ReportMessage(message, true);
     }
 
@@ -266,6 +291,11 @@ public class RamulatorInterface : MonoBehaviour
         }
 
     }
+
+    public static void PrintReport(string message)
+    {
+        UnityEngine.Debug.Log("report MESSAGE" + message);
+    }
     
         //this coroutine connects to ramulator and communicates how ramulator expects it to
         //in order to start the experiment session.  follow it up with BeginNewTrial and
@@ -277,8 +307,21 @@ public class RamulatorInterface : MonoBehaviour
       //  zmqSocket.Bind(address);
       //  UnityEngine.Debug.Log ("socket bound");
 
-
+        /*
         elememWorker.WaitForMessage("CONNECTED", "Ramulated not connected.");
+
+        while(elememWorker.CheckIfWaiting())
+        {
+            yield return 0;
+        }
+        */
+
+        //send connected message to host
+        DataPoint connected = new DataPoint("CONNECTED", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
+        elememWorker.SendMessageToRamulator(connected.ToJSON());
+
+        //wait for confirmation
+        elememWorker.WaitForMessage("CONNECTED_OK", "Did not receive confirmation");
 
         while(elememWorker.CheckIfWaiting())
         {
@@ -286,6 +329,7 @@ public class RamulatorInterface : MonoBehaviour
         }
 
         //SendSessionEvent//////////////////////////////////////////////////////////////////////
+        /*
         System.Collections.Generic.Dictionary<string, object> sessionData = new Dictionary<string, object>();
         sessionData.Add("name", Experiment.ExpName);
         sessionData.Add("version", Application.version);
@@ -294,15 +338,37 @@ public class RamulatorInterface : MonoBehaviour
         sessionData.Add("session_number", Experiment.sessionID);
         DataPoint sessionDataPoint = new DataPoint("SESSION", System.DateTime.UtcNow, sessionData);
         elememWorker.SendMessageToRamulator(sessionDataPoint.ToJSON());
+        */
+
+        //send configure message
+        System.Collections.Generic.Dictionary<string, object> configureData = new Dictionary<string, object>();
+        configureData.Add("stim_mode", Configuration.stimMode.ToString());
+        configureData.Add("experiment", Experiment.ExpName);
+        configureData.Add("subject", "test_subj");
+        DataPoint configureDataPoint = new DataPoint("CONFIGURE", HighResolutionDateTime.UtcNow, configureData);
+        elememWorker.SendMessageToRamulator(configureDataPoint.ToJSON());
         yield return null;
 
+        //wait for confirmation
+        elememWorker.WaitForMessage("CONFIGURE_OK", "Did not receive confirmation");
 
+        while (elememWorker.CheckIfWaiting())
+        {
+            yield return 0;
+        }
+
+        //wait while doing latency check
+
+        yield return StartCoroutine(PerformLatencyCheck());
+       
+        
+        
         //Begin Heartbeats///////////////////////////////////////////////////////////////////////
         InvokeRepeating("SendHeartbeat", 0, 1);
 
 
         //SendReadyEvent////////////////////////////////////////////////////////////////////
-        DataPoint ready = new DataPoint("READY", System.DateTime.UtcNow, new Dictionary<string, object>());
+        DataPoint ready = new DataPoint("READY", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
         elememWorker.SendMessageToRamulator(ready.ToJSON());
         yield return null;
 
@@ -314,10 +380,77 @@ public class RamulatorInterface : MonoBehaviour
         }
 
 
-
-        InvokeRepeating("ReceiveHeartbeat", 0, 1);
+        UnityEngine.Debug.Log("TODO: Implement receiving heartbeats (?)");
+       // InvokeRepeating("ReceiveHeartbeat", 0, 1);
+       
 
     }
+
+    private IEnumerator PerformLatencyCheck()
+    {
+
+        //throw exception if latency is unacceptable
+        Stopwatch sw = new Stopwatch();
+        float[] delay = new float[20];
+
+        for (int i = 0; i < 20; i++)
+        {
+            UnityEngine.Debug.Log("sending latency heartbeat " + i.ToString());
+            sw.Restart();
+            yield return StartCoroutine(Heartbeat());
+            sw.Stop();
+
+            delay[i] = sw.ElapsedTicks * (1000f / Stopwatch.Frequency);
+            if (delay[i] > 20)
+            {
+                UnityEngine.Debug.Log("break");
+                break;
+            }
+            yield return new WaitForSeconds(0.05f - delay[i]);
+            //Thread.Sleep(50 - (int)delay[i]);
+        }
+
+        float max = delay.Max();
+        float mean = delay.Sum() / delay.Length;
+        float acc = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+
+        Dictionary<string, object> dict = new Dictionary<string, object>();
+        dict.Add("max_latency", max);
+        dict.Add("mean_latency", mean);
+        dict.Add("accuracy", acc);
+
+        UnityEngine.Debug.Log("LATENCY MAX " + max.ToString());
+        if(max > 20f)
+        {
+            UnityEngine.Debug.Log("exceeded max latency threshold");
+            yield return null;
+        }
+
+        UnityEngine.Debug.Log("passed latency check");
+
+        yield return null;
+    }
+
+
+
+    private IEnumerator Heartbeat()
+    {
+        UnityEngine.Debug.Log("sending heartbeat");
+        var data = new Dictionary<string, object>();
+        data.Add("count", elememWorker.ReturnHeartbeatCount());
+        elememWorker.IncrementHeartbeatCount();
+        DataPoint heartbeatDatapoint = new DataPoint("HEARTBEAT", HighResolutionDateTime.UtcNow, data);
+        elememWorker.SendMessageToRamulator(heartbeatDatapoint.ToJSON());
+
+        elememWorker.WaitForMessage("HEARTBEAT_OK", "Did not receive heartbeat confirmation");
+        while (elememWorker.CheckIfWaiting())
+        {
+            yield return 0;
+        }
+
+        yield return null;
+    }
+
     /*
     private IEnumerator WaitForMessage(string containingString, string errorMessage)
     {
@@ -349,7 +482,7 @@ public class RamulatorInterface : MonoBehaviour
             throw new Exception("Please begin a session before beginning trials");
         System.Collections.Generic.Dictionary<string, object> sessionData = new Dictionary<string, object>();
         sessionData.Add("trial", trialNumber.ToString());
-        DataPoint sessionDataPoint = new DataPoint("TRIAL", System.DateTime.UtcNow, sessionData);
+        DataPoint sessionDataPoint = new DataPoint("TRIAL", HighResolutionDateTime.UtcNow, sessionData);
         elememWorker.SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
@@ -359,7 +492,7 @@ public class RamulatorInterface : MonoBehaviour
     {
         sessionData.Add("name", stateName);
         sessionData.Add("value", stateToggle.ToString());
-        DataPoint sessionDataPoint = new DataPoint("STATE", System.DateTime.UtcNow, sessionData);
+        DataPoint sessionDataPoint = new DataPoint("STATE", HighResolutionDateTime.UtcNow, sessionData);
         elememWorker.SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
@@ -370,14 +503,14 @@ public class RamulatorInterface : MonoBehaviour
         mathData.Add("response", response);
         mathData.Add("response_time_ms", responseTimeMs.ToString());
         mathData.Add("correct", correct.ToString());
-        DataPoint mathDataPoint = new DataPoint("MATH", System.DateTime.UtcNow, mathData);
+        DataPoint mathDataPoint = new DataPoint("MATH", HighResolutionDateTime.UtcNow, mathData);
         elememWorker.SendMessageToRamulator(mathDataPoint.ToJSON());
     }
 
 
     private void SendHeartbeat()
     {
-        DataPoint sessionDataPoint = new DataPoint("HEARTBEAT", System.DateTime.UtcNow, null);
+        DataPoint sessionDataPoint = new DataPoint("HEARTBEAT", HighResolutionDateTime.UtcNow, null);
         elememWorker.SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
