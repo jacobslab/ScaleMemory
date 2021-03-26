@@ -14,6 +14,8 @@ public class Experiment : MonoBehaviour {
 	public ObjectManager objManager;
 	public UIController uiController;
 	public ObjectController objController;
+    public RamulatorInterface ramulatorInterface;
+
 	public GameObject player;
 
 	private GameObject slowZoneObj;
@@ -111,6 +113,7 @@ public class Experiment : MonoBehaviour {
 
 	public SubjectReaderWriter subjectReaderWriter;
 
+    private bool subjectInfoEntered = false;
 	private bool ipAddressEntered = false;
 
 	public IPAddress targetAddress;
@@ -404,6 +407,13 @@ public class Experiment : MonoBehaviour {
 	*/
 
 
+    IEnumerator ConnectToElemem()
+    {
+        ramulatorInterface.StartThread();
+        yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
+        yield return null;
+    }
+
 	IEnumerator SpawnZones()
     {
 		/*
@@ -437,76 +447,107 @@ public class Experiment : MonoBehaviour {
 
 	}
 
+    public void ParseSubjectCode()
+    {
+        subjectName = uiController.subjectInputField.text;
+        UnityEngine.Debug.Log("got subject name");
+        subjectInfoEntered = true;
+    }
 
-	IEnumerator BeginExperiment()
-	{
-		subjectName = "subj_"+GameClock.SystemTime_MillisecondsString;
+    IEnumerator GetSubjectInfo()
+    {
+        subjectInfoEntered = false;
+        uiController.subjectInfoPanel.gameObject.SetActive(true);
+        uiController.subjectInfoPanel.alpha = 1f;
+        while(!subjectInfoEntered)
+        {
+            yield return 0;
+        }
+        uiController.subjectInfoPanel.alpha = 0f;
+        uiController.subjectInfoPanel.gameObject.SetActive(false);
+        yield return null;
+    }
+
+
+    IEnumerator BeginExperiment()
+    {
+
+        yield return StartCoroutine(GetSubjectInfo());
+
+       // subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
 #if !UNITY_EDITOR
 		yield return StartCoroutine(InitLogging());
 #endif
-		UnityEngine.Debug.Log("set subject name: " + subjectName);
-		trialLogTrack.LogBegin();
-		//only run if system2 is expected
-		if (isSystem2)
-		{
-			/*
-			uiController.ipEntryPanel.alpha = 1f;
+        UnityEngine.Debug.Log("set subject name: " + subjectName);
+        trialLogTrack.LogBegin();
+        //only run if system2 is expected
+        /*
+    if (isSystem2)
+    {
+        uiController.ipEntryPanel.alpha = 1f;
 
-			while(!ipAddressEntered)
-			{
-				yield return 0;
-			}
-			int portNum = int.Parse(uiController.ipAddrInput.text);
-			UnityEngine.Debug.Log("target port  " + portNum.ToString());
-			TCP_Config.ConnectionPort = portNum;
-			ipAddressEntered = false;
-			uiController.ipEntryPanel.alpha = 0f;
-			*/
-			
+        while(!ipAddressEntered)
+        {
+            yield return 0;
+        }
+        int portNum = int.Parse(uiController.ipAddrInput.text);
+        UnityEngine.Debug.Log("target port  " + portNum.ToString());
+        TCP_Config.ConnectionPort = portNum;
+        ipAddressEntered = false;
+        uiController.ipEntryPanel.alpha = 0f;
+        */
 
-			tcpServer.gameObject.SetActive(true);
-			uiController.blackrockConnectionPanel.alpha = 1f;
-			trialLogTrack.LogBlackrockConnectionAttempt();
-			uiController.connectionText.text = "Attempting to connect with server...";
-			//wait till the SYS2 Server connects
-			while (!tcpServer.isConnected)
-			{
-				yield return 0;
-			}
-			uiController.connectionText.text = "Waiting for server to start...";
-			while (!tcpServer.canStartGame)
-			{
-				yield return 0;
-			}
 
-			uiController.blackrockConnectionPanel.alpha = 0f;
-		}
-		else
-		{
-			uiController.blackrockConnectionPanel.alpha = 0f;
-		}
-		trialLogTrack.LogBlackrockConnectionSuccess();
-		trialLogTrack.LogIntroInstruction(true);
-		uiController.taskIntroPanel.alpha = 1f;
+        tcpServer.gameObject.SetActive(true);
+            uiController.blackrockConnectionPanel.alpha = 1f;
 
-		yield return StartCoroutine(WaitForActionButton());
-		uiController.taskIntroPanel.alpha = 0f;
-		trialLogTrack.LogIntroInstruction(false);
+            yield return StartCoroutine(ConnectToElemem());
 
-		//yield return StartCoroutine("BeginItemScreening");
-		//	StartCoroutine("RandomizeTravelSpeed");
-		yield return StartCoroutine("BeginTrackScreening");
+        /*
+        trialLogTrack.LogBlackrockConnectionAttempt();
+        uiController.connectionText.text = "Attempting to connect with server...";
+        //wait till the SYS2 Server connects
+        while (!tcpServer.isConnected)
+        {
+            yield return 0;
+        }
+        uiController.connectionText.text = "Waiting for server to start...";
+        while (!tcpServer.canStartGame)
+        {
+            yield return 0;
+        }
 
-	//	yield return StartCoroutine("SpawnZones");
-		//repeat blocks twice
-		yield return StartCoroutine("BeginTaskBlock");
+        uiController.blackrockConnectionPanel.alpha = 0f;
+    }
+    else
+    {
+        uiController.blackrockConnectionPanel.alpha = 0f;
+    }
+    trialLogTrack.LogBlackrockConnectionSuccess();
+    */
+        uiController.blackrockConnectionPanel.alpha = 0f;
+        trialLogTrack.LogBlackrockConnectionSuccess();
+        trialLogTrack.LogIntroInstruction(true);
+            uiController.taskIntroPanel.alpha = 1f;
 
-		uiController.endSessionPanel.alpha = 1f;
-		yield return StartCoroutine(WaitForActionButton());
+            yield return StartCoroutine(WaitForActionButton());
+            uiController.taskIntroPanel.alpha = 0f;
+            trialLogTrack.LogIntroInstruction(false);
 
-		Application.Quit();
-		yield return null;
-	}
+            //yield return StartCoroutine("BeginItemScreening");
+            //	StartCoroutine("RandomizeTravelSpeed");
+            yield return StartCoroutine("BeginTrackScreening");
+
+            //	yield return StartCoroutine("SpawnZones");
+            //repeat blocks twice
+            yield return StartCoroutine("BeginTaskBlock");
+
+            uiController.endSessionPanel.alpha = 1f;
+            yield return StartCoroutine(WaitForActionButton());
+
+            Application.Quit();
+            yield return null;
+    }
 
 	IEnumerator RandomizeTravelSpeed()
 	{

@@ -14,11 +14,16 @@ public class UIController : MonoBehaviour {
 	public Text mRetrievalText;
 	public Text itemName;
 
-	//item screening
-	public CanvasGroup itemScreeningPanel;
+    //subject info entry panel
+    public CanvasGroup subjectInfoPanel;
+    public InputField subjectInputField;
+
+    //item screening
+    public CanvasGroup itemScreeningPanel;
 
 	//track screening
 	public CanvasGroup trackScreeningPanel;
+
 
 	//encoding panel
 	public CanvasGroup encodingPanel;
