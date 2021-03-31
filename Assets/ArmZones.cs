@@ -24,6 +24,15 @@ public class ArmZones : MonoBehaviour
     {
         
     }
+    public void UpdateExitStatus(bool isReverse)
+    {
+        //if it is reverse, flip the exit status
+        if(isReverse)
+        {
+            isExit = !isExit;
+        }
+
+    }
 
     void OnTriggerEnter(Collider col)
     {

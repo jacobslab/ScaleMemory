@@ -13,6 +13,8 @@ namespace UnityStandardAssets.Utility
 
         [SerializeField] public WaypointCircuit leftCircuit; // A reference to the waypoint-based route we should follow
         [SerializeField] public WaypointCircuit rightCircuit; // A reference to the waypoint-based route we should follow
+        [SerializeField] public WaypointCircuit reverseLeftCircuit; // A reference to the waypoint-based route we should follow
+        [SerializeField] public WaypointCircuit reverseRightCircuit; // A reference to the waypoint-based route we should follow
 
         public WaypointCircuit currentCircuit;
 
@@ -44,6 +46,8 @@ namespace UnityStandardAssets.Utility
         {
             Left,
             Right,
+            ReverseLeft,
+            ReverseRight,
             None //used as a dummy variable for initialization
         }
 
@@ -93,6 +97,14 @@ namespace UnityStandardAssets.Utility
                 case TrackDirection.Right:
                     currentDirection = TrackDirection.Right;
                     currentCircuit = rightCircuit;
+                    break;
+                case TrackDirection.ReverseLeft:
+                    currentDirection = TrackDirection.ReverseLeft;
+                    currentCircuit = reverseLeftCircuit;
+                    break;
+                case TrackDirection.ReverseRight:
+                    currentDirection = TrackDirection.ReverseRight;
+                    currentCircuit = reverseRightCircuit;
                     break;
                 default:
                     break;

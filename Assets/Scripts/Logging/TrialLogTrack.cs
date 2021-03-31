@@ -90,11 +90,45 @@ public class TrialLogTrack : LogTrack {
 			subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "TASK_RESUMED");
 	}
 
-	public void LogChoiceEvent(bool isActive)
+    public void LogPreRotationInstruction(bool isActive)
+    {
+        if (isActive)
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "PRE_ROTATION_INSTRUCTIONS" + separator + "STARTED");
+        else
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "PRE_ROTATION_INSTRUCTIONS" + separator + "ENDED");
+    }
+
+    public void LogReverseInstructions(bool isActive)
+    {
+        if (isActive)
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_INSTRUCTIONS" + separator + "STARTED");
+        else
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_INSTRUCTIONS" + separator + "ENDED");
+
+    }
+
+    public void LogReverseRotation(bool hasStarted)
     {
 
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CHOICE_POINT" + separator + ((isActive) ? "STARTED" : "ENDED"));
+        if (hasStarted)
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_ROTATION" + separator + "STARTED");
+        else
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_ROTATION" + separator + "ENDED");
+    }
 
+    public void LogReverseRetrieval(bool isActive)
+    {
+        if(isActive)
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_RETRIEVAL" + separator + "STARTED");
+        else
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, "REVERSE_RETRIEVAL" + separator + "ENDED");
+
+    }
+
+
+    public void LogChoiceEvent(bool isActive)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CHOICE_POINT" + separator + ((isActive) ? "STARTED" : "ENDED"));
 	}
 
 	public void LogMicTest()

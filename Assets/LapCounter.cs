@@ -24,7 +24,7 @@ public class LapCounter : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        UnityEngine.Debug.Log("collided with " + other.gameObject.name);
+        UnityEngine.Debug.Log("collided with " + other.gameObject.name + " to me: " + gameObject.name);
         if (other.gameObject.tag == "Player")
         {
             UnityEngine.Debug.Log("ON TRIGGER ENTER");

@@ -1,99 +1,255 @@
 fileFormatVersion: 2
 guid: abf4771fa16ec4904a7dba5fcbdd9069
-timeCreated: 1467149141
-licenseType: Free
 ModelImporter:
-  serializedVersion: 19
-  fileIDToRecycleName:
-    100000: Body
-    100002: Bottomdrawerbottom
-    100004: Bottomdrawerfront
-    100006: Bottomdrawerhandle
-    100008: Bottomdrawerlabel
-    100010: Bottomdrawerlatch
-    100012: Bottomdrawersides
-    100014: //RootNode
-    100016: Topdrawerbottom
-    100018: Topdrawerfront
-    100020: Topdrawerhandle
-    100022: Topdrawerlabel
-    100024: Topdrawerlatch
-    100026: Topdrawersides
-    400000: Body
-    400002: Bottomdrawerbottom
-    400004: Bottomdrawerfront
-    400006: Bottomdrawerhandle
-    400008: Bottomdrawerlabel
-    400010: Bottomdrawerlatch
-    400012: Bottomdrawersides
-    400014: //RootNode
-    400016: Topdrawerbottom
-    400018: Topdrawerfront
-    400020: Topdrawerhandle
-    400022: Topdrawerlabel
-    400024: Topdrawerlatch
-    400026: Topdrawersides
-    2300000: Body
-    2300002: Bottomdrawerbottom
-    2300004: Bottomdrawerfront
-    2300006: Bottomdrawerhandle
-    2300008: Bottomdrawerlabel
-    2300010: Bottomdrawerlatch
-    2300012: Bottomdrawersides
-    2300014: Topdrawerbottom
-    2300016: Topdrawerfront
-    2300018: Topdrawerhandle
-    2300020: Topdrawerlabel
-    2300022: Topdrawerlatch
-    2300024: Topdrawersides
-    3300000: Body
-    3300002: Bottomdrawerbottom
-    3300004: Bottomdrawerfront
-    3300006: Bottomdrawerhandle
-    3300008: Bottomdrawerlabel
-    3300010: Bottomdrawerlatch
-    3300012: Bottomdrawersides
-    3300014: Topdrawerbottom
-    3300016: Topdrawerfront
-    3300018: Topdrawerhandle
-    3300020: Topdrawerlabel
-    3300022: Topdrawerlatch
-    3300024: Topdrawersides
-    4300000: Topdrawerfront
-    4300002: Topdrawerlabel
-    4300004: Topdrawerhandle
-    4300006: Topdrawerlatch
-    4300008: Topdrawerbottom
-    4300010: Topdrawersides
-    4300012: Bottomdrawerfront
-    4300014: Bottomdrawersides
-    4300016: Bottomdrawerbottom
-    4300018: Bottomdrawerlatch
-    4300020: Bottomdrawerhandle
-    4300022: Bottomdrawerlabel
-    4300024: Body
-    7400000: Default Take
-    9500000: //RootNode
+  serializedVersion: 26
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Body
+  - first:
+      1: 100002
+    second: Bottomdrawerbottom
+  - first:
+      1: 100004
+    second: Bottomdrawerfront
+  - first:
+      1: 100006
+    second: Bottomdrawerhandle
+  - first:
+      1: 100008
+    second: Bottomdrawerlabel
+  - first:
+      1: 100010
+    second: Bottomdrawerlatch
+  - first:
+      1: 100012
+    second: Bottomdrawersides
+  - first:
+      1: 100014
+    second: //RootNode
+  - first:
+      1: 100016
+    second: Topdrawerbottom
+  - first:
+      1: 100018
+    second: Topdrawerfront
+  - first:
+      1: 100020
+    second: Topdrawerhandle
+  - first:
+      1: 100022
+    second: Topdrawerlabel
+  - first:
+      1: 100024
+    second: Topdrawerlatch
+  - first:
+      1: 100026
+    second: Topdrawersides
+  - first:
+      4: 400000
+    second: Body
+  - first:
+      4: 400002
+    second: Bottomdrawerbottom
+  - first:
+      4: 400004
+    second: Bottomdrawerfront
+  - first:
+      4: 400006
+    second: Bottomdrawerhandle
+  - first:
+      4: 400008
+    second: Bottomdrawerlabel
+  - first:
+      4: 400010
+    second: Bottomdrawerlatch
+  - first:
+      4: 400012
+    second: Bottomdrawersides
+  - first:
+      4: 400014
+    second: //RootNode
+  - first:
+      4: 400016
+    second: Topdrawerbottom
+  - first:
+      4: 400018
+    second: Topdrawerfront
+  - first:
+      4: 400020
+    second: Topdrawerhandle
+  - first:
+      4: 400022
+    second: Topdrawerlabel
+  - first:
+      4: 400024
+    second: Topdrawerlatch
+  - first:
+      4: 400026
+    second: Topdrawersides
+  - first:
+      23: 2300000
+    second: Body
+  - first:
+      23: 2300002
+    second: Bottomdrawerbottom
+  - first:
+      23: 2300004
+    second: Bottomdrawerfront
+  - first:
+      23: 2300006
+    second: Bottomdrawerhandle
+  - first:
+      23: 2300008
+    second: Bottomdrawerlabel
+  - first:
+      23: 2300010
+    second: Bottomdrawerlatch
+  - first:
+      23: 2300012
+    second: Bottomdrawersides
+  - first:
+      23: 2300014
+    second: Topdrawerbottom
+  - first:
+      23: 2300016
+    second: Topdrawerfront
+  - first:
+      23: 2300018
+    second: Topdrawerhandle
+  - first:
+      23: 2300020
+    second: Topdrawerlabel
+  - first:
+      23: 2300022
+    second: Topdrawerlatch
+  - first:
+      23: 2300024
+    second: Topdrawersides
+  - first:
+      33: 3300000
+    second: Body
+  - first:
+      33: 3300002
+    second: Bottomdrawerbottom
+  - first:
+      33: 3300004
+    second: Bottomdrawerfront
+  - first:
+      33: 3300006
+    second: Bottomdrawerhandle
+  - first:
+      33: 3300008
+    second: Bottomdrawerlabel
+  - first:
+      33: 3300010
+    second: Bottomdrawerlatch
+  - first:
+      33: 3300012
+    second: Bottomdrawersides
+  - first:
+      33: 3300014
+    second: Topdrawerbottom
+  - first:
+      33: 3300016
+    second: Topdrawerfront
+  - first:
+      33: 3300018
+    second: Topdrawerhandle
+  - first:
+      33: 3300020
+    second: Topdrawerlabel
+  - first:
+      33: 3300022
+    second: Topdrawerlatch
+  - first:
+      33: 3300024
+    second: Topdrawersides
+  - first:
+      43: 4300000
+    second: Topdrawerfront
+  - first:
+      43: 4300002
+    second: Topdrawerlabel
+  - first:
+      43: 4300004
+    second: Topdrawerhandle
+  - first:
+      43: 4300006
+    second: Topdrawerlatch
+  - first:
+      43: 4300008
+    second: Topdrawerbottom
+  - first:
+      43: 4300010
+    second: Topdrawersides
+  - first:
+      43: 4300012
+    second: Bottomdrawerfront
+  - first:
+      43: 4300014
+    second: Bottomdrawersides
+  - first:
+      43: 4300016
+    second: Bottomdrawerbottom
+  - first:
+      43: 4300018
+    second: Bottomdrawerlatch
+  - first:
+      43: 4300020
+    second: Bottomdrawerhandle
+  - first:
+      43: 4300022
+    second: Bottomdrawerlabel
+  - first:
+      43: 4300024
+    second: Body
+  - first:
+      74: 7400000
+    second: Default Take
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      74: -623603649343465320
+    second: Scene
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2100000, guid: edac2eb68b1c940d99958fe98381e3d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: silver
+    second: {fileID: 2100000, guid: f83efc39339044ef4b10c27d4236b860, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
-    resampleRotations: 1
+    resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -101,13 +257,23 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -117,9 +283,15 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -129,8 +301,11 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 2
   humanoidOversampling: 1

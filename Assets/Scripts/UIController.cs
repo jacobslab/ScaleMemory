@@ -44,6 +44,10 @@ public class UIController : MonoBehaviour {
 	public CanvasGroup rightIncorrectImagePanel;
 	public CanvasGroup youChoseLeft;
 	public CanvasGroup youChoseRight;
+
+    //reverse instruction panel
+    public CanvasGroup reverseInstructionPanel;
+    public CanvasGroup preRotationPanel;
 	
 
 	//blackrock connection

@@ -19,14 +19,34 @@ public class Experiment : MonoBehaviour {
 	private GameObject slowZoneObj;
 	private GameObject speedZoneObj;
 
+
+    public ArmZones leftArmEntryZone;
+    public ArmZones leftArmExitZone;
+
+    public ArmZones rightArmEntryZone;
+    public ArmZones rightArmExitZone;
+
 	public static bool onCorrectArm = false; //this will be read by treasure chest on each arm to determine its contents if player is on correct arm (reward) or not (empty)
 
+    //forward
 	public List<Transform> leftSpawnableWaypoints;
-	public List<Transform> rightSpawnableWaypoints;
+    public List<Transform> rightSpawnableWaypoints;
+    public Transform startTransform;
+    public GameObject chequeredFlag;
+
+    bool isReverse = false;
 
 
-	//traffic light controller
-	public TrafficLightController trafficLightController;
+    //reverse
+    public List<Transform> reverseLeftSpawnableWaypoints;
+    public List<Transform> reverseRightSpawnableWaypoints;
+    public Transform reverseStartTransform;
+    public GameObject reverseChequeredFlag;
+
+
+
+    //traffic light controller
+    public TrafficLightController trafficLightController;
 
 	public enum TaskStage
 	{
@@ -78,7 +98,6 @@ public class Experiment : MonoBehaviour {
 
 	public Transform itemScreeningTransform;
 
-	public Transform startTransform;
 
 	//prefabs
 	public GameObject slowZonePrefab;
@@ -90,15 +109,15 @@ public class Experiment : MonoBehaviour {
 	private bool pickOnce = false;
 	private GameObject correctChest;
 	//blackrock variables
-	public static string ExpName = "T3";
-	public static string BuildVersion = "0.9.91";
+	public static string ExpName = "T3_BIDIRECTIONAL";
+	public static string BuildVersion = "0.9.92";
 	public static bool isSystem2 = true;
 
-	public GameObject turnDecisionZone;
+	public GameObject forwardTurnDecisionZone;
+    public GameObject reverseTurnDecisionZone;
 
-
-	//logging
-	public static bool isLogging = true;
+    //logging
+    public static bool isLogging = true;
 	private string subjectLogfile; //gets set based on the current subject in Awake()
 	public Logger_Threading subjectLog;
 	private string eegLogfile; //gets set based on the current subject in Awake()
@@ -111,7 +130,6 @@ public class Experiment : MonoBehaviour {
 
 	public SubjectReaderWriter subjectReaderWriter;
 
-	public GameObject chequeredFlag;
 
 	public int reward = 0;
 
@@ -150,8 +168,15 @@ public class Experiment : MonoBehaviour {
 	private float prevLapTime = 0f;
 	private float bestLapTime = 1000f;
 
+    //smooth move variables
+    float maxTimeToMove = 3.75f; //seconds to move across the furthest field distance
+    float minTimeToMove = 1.5f; //seconds to move across the closest field distance
+    float furthestTravelDist; //distance between far start pos and close start tower; set in start
+    float closestTravelDist; //distance between close start pos and close start tower; set in start
 
-	public TrialLogTrack trialLogTrack;
+
+
+    public TrialLogTrack trialLogTrack;
 	private int objLapper = 0;
 
 	public TCPServer tcpServer;
@@ -168,6 +193,11 @@ public class Experiment : MonoBehaviour {
 		}
 		_instance = this;
 		tcpServer.gameObject.SetActive(false);
+
+        isReverse = false;
+        reverseTurnDecisionZone.SetActive(false);
+        forwardTurnDecisionZone.SetActive(false);
+        defaultLoggingPath = Application.dataPath;
 		defaultLoggingPath = Application.dataPath;
 	}
 	// Use this for initialization
@@ -180,9 +210,104 @@ public class Experiment : MonoBehaviour {
 		retrievalObjList = new List<GameObject>();
 		retrievalPositions = new List<Vector3>();
 
-	}
+        //by default, reverse is false
+        isReverse = false;
+        //turn off both chequered flags
+        reverseChequeredFlag.SetActive(false);
+        SetChequeredFlagStatus(false);
 
-	public void ActivateSpeedZone(bool didPress)
+    }
+
+
+    float GetTimeToTravel(float distanceFromTarget)
+    {
+        //on the very first trial, you may not have explored very far!
+        //Then you get sent back to a home base, and not a tower -- which is much closer.
+        if (distanceFromTarget < closestTravelDist)
+        {
+
+            float percentDistanceDifference = distanceFromTarget / closestTravelDist;
+            float timeToTravel = percentDistanceDifference * minTimeToMove; //do a linear relationship here
+
+            return timeToTravel;
+        }
+        else
+        {
+            float minMaxDistanceDifference = furthestTravelDist - closestTravelDist;
+            float percentDistanceDifference = (distanceFromTarget - closestTravelDist) / minMaxDistanceDifference;
+
+            float minMaxTimeDifference = maxTimeToMove - minTimeToMove;
+            float timeToTravel = minTimeToMove + percentDistanceDifference * minMaxTimeDifference;
+
+            return timeToTravel;
+        }
+    }
+
+    public IEnumerator SmoothMoveTo(GameObject targetObject, Vector3 targetPosition, Quaternion targetRotation, bool isChestAutoDrive)
+    {
+
+        //SetTilt(0.0f, 1.0f);
+
+        //notify tilting that we're smoothly moving, and thus should not tilt
+        //isSmoothMoving = true;
+
+        //stop collisions
+        targetObject.GetComponent<Collider>().enabled = false;
+
+
+        Quaternion origRotation = targetObject.transform.rotation;
+        Vector3 origPosition = targetObject.transform.position;
+
+        float travelDistance = (origPosition - targetPosition).magnitude;
+        UnityEngine.Debug.Log("travel distance " + travelDistance.ToString());
+
+        //float timeToTravel = GetTimeToTravel(travelDistance);//travelDistance / smoothMoveSpeed;
+        float timeToTravel = 7f;
+
+        UnityEngine.Debug.Log("time to travel " + timeToTravel.ToString());
+#if MRIVERSION
+		if(isChestAutoDrive){
+			timeToTravel *= Config_CoinTask.MRIAutoDriveTimeMult;
+		}
+#endif
+
+        float tElapsed = 0.0f;
+
+        //DEBUG
+        float totalTimeElapsed = 0.0f;
+        while (tElapsed < timeToTravel)
+        {
+            totalTimeElapsed += Time.deltaTime;
+
+
+            //tElapsed += (Time.deltaTime * moveAndRotateRate);
+
+            tElapsed += Time.deltaTime;
+
+            float percentageTime = tElapsed / timeToTravel;
+           // UnityEngine.Debug.Log("percentage " + percentageTime.ToString());
+            //will spherically interpolate the rotation for config.spinTime seconds
+            targetObject.transform.rotation = Quaternion.Slerp(origRotation, targetRotation, percentageTime); //SLERP ALWAYS TAKES THE SHORTEST PATH.
+            targetObject.transform.position = Vector3.Lerp(origPosition, targetPosition, percentageTime);
+
+
+
+            yield return 0;
+        }
+
+        //Debug.Log ("TOTAL TIME ELAPSED FOR SMOOTH MOVE: " + totalTimeElapsed);
+
+        targetObject.transform.rotation = targetRotation;
+        targetObject.transform.position = targetPosition;
+
+        //enable collisions again
+        targetObject.GetComponent<Collider>().enabled = true;
+
+        yield return 0;
+    }
+
+
+    public void ActivateSpeedZone(bool didPress)
     {
 		if(didPress)
         {
@@ -206,6 +331,17 @@ public class Experiment : MonoBehaviour {
 			StartCoroutine("SlowCar");
         }
 		
+    }
+
+    /// <summary>
+    /// flip exit status to adjust for the change in direction when going reverse
+    /// </summary>
+    void UpdateExitStatus()
+    {
+        leftArmEntryZone.isExit = !leftArmEntryZone.isExit;
+        leftArmExitZone.isExit = !leftArmExitZone.isExit;
+        rightArmEntryZone.isExit = !rightArmEntryZone.isExit;
+        rightArmExitZone.isExit = !rightArmExitZone.isExit;
     }
 
 	//upon successfully pressing button when inside SPEED zone
@@ -617,8 +753,11 @@ public class Experiment : MonoBehaviour {
 
 	IEnumerator BeginTrackScreening()
 	{
-		turnDecisionZone.SetActive(false);
-		ResetCarToStart();
+        isReverse = false;
+        reverseTurnDecisionZone.SetActive(false);
+        forwardTurnDecisionZone.SetActive(false);
+
+        ResetCarToStart(false);
 		   currentStage = TaskStage.TrackScreening;
 		trialLogTrack.LogTaskStage(currentStage, true);
 		SetCarBrakes(true);
@@ -626,13 +765,21 @@ public class Experiment : MonoBehaviour {
 		uiController.itemScreeningPanel.alpha = 0f;
 		uiController.trackScreeningPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
-		uiController.trackScreeningPanel.alpha = 0f;
+
+
+        SetChequeredFlagStatus(true);
+
+
+        player.GetComponent<CarAIControl>().ResetTargetToStart();
+        uiController.trackScreeningPanel.alpha = 0f;
 		player.gameObject.SetActive(true);
 		trafficLightController.MakeVisible(true);
 		yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 		SetCarBrakes(false);
 		trafficLightController.MakeVisible(false);
-		while (LapCounter.lapCount < 2)
+        LapCounter.lapCount = 0;
+
+        while (LapCounter.lapCount < 2)
 		{
 			if (LapCounter.lapCount >= 1)
 				player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
@@ -641,7 +788,7 @@ public class Experiment : MonoBehaviour {
 		LapCounter.lapCount = 0;
 		SetCarBrakes(true);
 		trialLogTrack.LogTaskStage(currentStage,false);
-		turnDecisionZone.SetActive(true);
+		forwardTurnDecisionZone.SetActive(true);
 		yield return null;
 	}
 
@@ -742,30 +889,49 @@ public class Experiment : MonoBehaviour {
 		if (Input.GetKey(KeyCode.LeftArrow))
 		{
 			UnityEngine.Debug.Log("chose left");
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-			chosenDirection = WaypointProgressTracker.TrackDirection.Left;
+
+            if (!isReverse)
+            {
+                player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
+                chosenDirection = WaypointProgressTracker.TrackDirection.Left;
+            }
+            else
+            {
+                player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.ReverseLeft);
+                chosenDirection = WaypointProgressTracker.TrackDirection.ReverseLeft;
+
+            }
 			trialLogTrack.LogChosenDirection(chosenDirection, correctDirection);
 		}
 		else if (Input.GetKey(KeyCode.RightArrow))
 		{
 			UnityEngine.Debug.Log("chose right");
 
-			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
-			chosenDirection = WaypointProgressTracker.TrackDirection.Right;
+            if (!isReverse)
+            {
+                player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
+                chosenDirection = WaypointProgressTracker.TrackDirection.Right;
+            }
+            else
+            {
+
+                player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.ReverseRight);
+                chosenDirection = WaypointProgressTracker.TrackDirection.ReverseRight;
+            }
 			trialLogTrack.LogChosenDirection(chosenDirection, correctDirection);
 		}
 		if (chosenDirection == correctDirection)
         {
 			UnityEngine.Debug.Log("turned correctly");
 			turnedCorrectly = true;
-			if(chosenDirection == WaypointProgressTracker.TrackDirection.Left)
+			if(chosenDirection == WaypointProgressTracker.TrackDirection.Left || chosenDirection==WaypointProgressTracker.TrackDirection.ReverseLeft)
             {
 				uiController.youChoseLeft.alpha = 1f;
-				//uiController.leftCorrectImagePanel.alpha = 1f;
-				//uiController.rightIncorrectImagePanel.alpha = 1f;
+                //uiController.leftCorrectImagePanel.alpha = 1f;
+                //uiController.rightIncorrectImagePanel.alpha = 1f;
             }
-			else if(chosenDirection==WaypointProgressTracker.TrackDirection.Right)
-			{
+            if (chosenDirection == WaypointProgressTracker.TrackDirection.Right || chosenDirection == WaypointProgressTracker.TrackDirection.ReverseRight)
+            {
 				uiController.youChoseRight.alpha = 1f;
 				//uiController.rightCorrectImagePanel.alpha = 1f;
 				//uiController.leftIncorrectImagePanel.alpha = 1f;
@@ -778,9 +944,9 @@ public class Experiment : MonoBehaviour {
 		else
 		{
 			UnityEngine.Debug.Log("WRONG turn");
-			turnedCorrectly = false; 
-			if (chosenDirection == WaypointProgressTracker.TrackDirection.Left)
-			{
+			turnedCorrectly = false;
+            if (chosenDirection == WaypointProgressTracker.TrackDirection.Left || chosenDirection == WaypointProgressTracker.TrackDirection.ReverseLeft)
+            {
 				uiController.youChoseLeft.alpha = 1f;
 				//uiController.leftIncorrectImagePanel.alpha = 1f;
 				//uiController.rightCorrectImagePanel.alpha = 1f;
@@ -855,10 +1021,19 @@ public class Experiment : MonoBehaviour {
         }
     }
 
-	void ResetCarToStart()
+	void ResetCarToStart(bool reverse)
     {
-		player.transform.position = startTransform.position;
-		player.transform.rotation = startTransform.rotation;
+        if (!reverse)
+        {
+            player.transform.position = startTransform.position;
+            player.transform.rotation = startTransform.rotation;
+        }
+        else
+        {
+            player.transform.position = reverseStartTransform.position;
+            player.transform.rotation = reverseStartTransform.rotation;
+
+        }
 
 		//repeat the log entry into central zone
 		trialLogTrack.LogZoneEntry("Straight");
@@ -866,7 +1041,10 @@ public class Experiment : MonoBehaviour {
 
 	public void SetChequeredFlagStatus(bool isActive)
     {
-		chequeredFlag.SetActive(isActive);
+        if (!isReverse)
+            chequeredFlag.SetActive(isActive);
+        else
+            reverseChequeredFlag.SetActive(isActive);
     }
 
 	void HideLapDisplay()
@@ -878,13 +1056,17 @@ public class Experiment : MonoBehaviour {
 		currentStage = TaskStage.Encoding;
 		trialLogTrack.LogTaskStage(currentStage, true);
 
-		SetCarBrakes(true);
+        forwardTurnDecisionZone.SetActive(false);
+        reverseTurnDecisionZone.SetActive(false);
+        SetCarBrakes(true);
 		//show instructions
 		for (int i = 0; i < blockLength; i++)
-		{
-			LapCounter.lapCount = 0;
+        {
+            
+            LapCounter.lapCount = 0;
 			trialLogTrack.LogInstructions(true);
-			ResetCarToStart();
+			ResetCarToStart(false);
+            
 			yield return StartCoroutine(ShowEncodingInstructions());
 			trialLogTrack.LogInstructions(false);
 		//	yield return StartCoroutine(PickEncodingLocations());
@@ -899,10 +1081,12 @@ public class Experiment : MonoBehaviour {
 
 			while (LapCounter.lapCount < 16)
 			{
+                SetChequeredFlagStatus(false);
+                forwardTurnDecisionZone.SetActive(false);
 				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
 				//reset lap timer and show display
 				ResetLapDisplay();
-				ResetCarToStart();
+				ResetCarToStart(false);
 
 				//both chests are active; whether they're empty or filled with reward depends on player choice at decision point
 				leftChest.SetActive(true);
@@ -929,8 +1113,15 @@ public class Experiment : MonoBehaviour {
 				SetCarBrakes(false);
 				
 				LapCounter.canStop = false;
+                float flagResetTimer=0f;
 				while (!LapCounter.canStop)
 				{
+                    flagResetTimer+=Time.deltaTime;
+                    if(flagResetTimer>=3f)
+                    {
+                    SetChequeredFlagStatus(true);
+                    forwardTurnDecisionZone.SetActive(true);   
+                    }
 					yield return 0;
 				}
 				LapCounter.canStop = false;
@@ -978,11 +1169,11 @@ public class Experiment : MonoBehaviour {
 				player.transform.position = startTransform.position;
 				yield return 0;
 			}
+            
 
-			//retrieval time
-
-			//hide encoding objects and text
-			for (int j=0;j< spawnedObjects.Count;j++)
+            //retrieval time
+            //hide encoding objects and text
+            for (int j=0;j< spawnedObjects.Count;j++)
 			{
 				spawnedObjects[j].gameObject.SetActive(false);
 				
@@ -1001,7 +1192,9 @@ public class Experiment : MonoBehaviour {
 			currentStage = Experiment.TaskStage.Retrieval;
 			trialLogTrack.LogTaskStage(currentStage, true);
 			trialLogTrack.LogInstructions(true);
-			player.transform.position = startTransform.position;
+
+
+            player.transform.position = startTransform.position;
 			yield return StartCoroutine(ShowRetrievalInstructions());
 			trialLogTrack.LogInstructions(false);
 			LapCounter.lapCount = 0; //reset lap count for retrieval 
@@ -1009,10 +1202,15 @@ public class Experiment : MonoBehaviour {
 			string targetNames = "";
 			int targetMode = 0;
 			GameObject targetChest = null;
-			while (LapCounter.lapCount < 16)
-			{
-				pickOnce = false; //reset
-				ResetCarToStart();
+
+            
+            //forward retrieval
+			while (LapCounter.lapCount < 4)
+            {
+                forwardTurnDecisionZone.SetActive(false);
+                SetChequeredFlagStatus(false);
+                pickOnce = false; //reset
+				ResetCarToStart(false);
 				targetMode = LapCounter.lapCount % 2;
 				switch (targetMode)
                 {
@@ -1020,62 +1218,14 @@ public class Experiment : MonoBehaviour {
 						correctChest = leftChest;
 						UnityEngine.Debug.Log("chose left direction");
 						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-						//	leftChest.SetActive(true);
-						//	rightChest.SetActive(false);
-						//	UnityEngine.Debug.Log("chose left direction");
-						//	player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
-						/*
-						if(leftSpawnObj==slowZoneObj)
-                        {
-
-							uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
-							targetNames = "OIL PATCH (Press Z)";
-						}
-						else
-						{
-							uiController.zRetrievalText.text = "SPEED ZONE :\n Press M";
-							targetNames = "SPEED ZONE (Press M)";
-
-						}
-						*/
+						
 						break;
 					case 1:
-					//	leftChest.SetActive(false);
-					//	rightChest.SetActive(true);
 						UnityEngine.Debug.Log("chose right direction");
 						correctChest = rightChest;
 						player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
-						/*
-						if (rightSpawnObj == slowZoneObj)
-						{
-
-							uiController.zRetrievalText.text = "OIL PATCH :\n Press Z";
-							targetNames = "OIL PATCH (Press Z)";
-						}
-						else
-						{
-							uiController.zRetrievalText.text = "SPEED ZONE :\n Press M";
-							targetNames = "SPEED ZONE (Press M)";
-
-						}
-						*/
 						break;
-						/*
-					case 2:
-						UnityEngine.Debug.Log("both zones are the target");
-						slowZoneObj.SetActive(true);
-						speedZoneObj.SetActive(true);
-						targetNames = "OIL PATCH (Press Z)\n and \n SPEED ZONE (Press M)";
-						uiController.zRetrievalText.text = "OIL PATCH : Press Z \n SPEED ZONE: Press M";
-						break;
-						*/
                 }
-
-				//uiController.zRetrievalText.color = Color.white;
-				//uiController.retrievalTextPanel.alpha = 1f;
-				//uiController.itemName.text = targetNames;
-				//yield return StartCoroutine(WaitForActionButton());
-				//uiController.retrievalTextPanel.alpha = 0f;
 
 
 			trafficLightController.MakeVisible(true);
@@ -1086,14 +1236,17 @@ public class Experiment : MonoBehaviour {
 			ResetLapDisplay();
 
 			trafficLightController.MakeVisible(false);
-		//	uiController.targetTextPanel.alpha = 1f;
-		//	uiController.zRetrievalText.text = spawnedObjects[0].name.Split('(')[0] + " : Z";
-		//	uiController.zRetrievalText.color = Color.white;
-		//	uiController.mRetrievalText.text =  spawnedObjects[1].name.Split('(')[0] + " : M";
-		//	uiController.mRetrievalText.color = Color.white;
 
+                float flagResetTimer = 0f;
 				while (!LapCounter.canStop)
 				{
+                    flagResetTimer += Time.deltaTime;
+                    if(flagResetTimer>=3f)
+                    {
+                    
+                        forwardTurnDecisionZone.SetActive(true);
+                        SetChequeredFlagStatus(true);
+                    }
 					yield return 0;
 				}
 				LapCounter.canStop = false;
@@ -1130,8 +1283,116 @@ public class Experiment : MonoBehaviour {
 			}
 
 
-			//reset everything before the next block begins
-			spawnLocations.Clear();
+
+
+
+            //make adjustments between forward and reverse retrieval mode perhaps showing an instruction screen
+
+
+            isReverse = true;
+            SetChequeredFlagStatus(false);
+            forwardTurnDecisionZone.SetActive(false);
+            chequeredFlag.SetActive(false);
+
+            yield return StartCoroutine(ShowPreRotationInstruction());
+
+            yield return StartCoroutine(SmoothMoveTo(player,reverseStartTransform.transform.position,reverseStartTransform.transform.rotation,false));
+
+            yield return StartCoroutine(ShowReverseInstructions());
+
+            reverseTurnDecisionZone.SetActive(true);
+            player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.ReverseRight);
+
+            player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
+            UpdateExitStatus();
+            LapCounter.lapCount = 0; //reset lap count for reverse retrieval 
+
+            //reverse retrieval condition
+            while (LapCounter.lapCount < 16)
+            {
+                isReverse = true;
+                SetChequeredFlagStatus(false);
+                trialLogTrack.LogReverseRetrieval(true);
+                player.transform.position = reverseStartTransform.position;
+
+                UnityEngine.Debug.Log("beginning reverse retrieval");
+                pickOnce = false; //reset
+                ResetCarToStart(true);
+                targetMode = LapCounter.lapCount % 2;
+                switch (targetMode)
+                {
+                    case 0:
+                        correctChest = leftChest;
+                        UnityEngine.Debug.Log("chose right direction");
+                        player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.ReverseRight);
+                        break;
+                    case 1:
+                        //	leftChest.SetActive(false);
+                        //	rightChest.SetActive(true);
+                        UnityEngine.Debug.Log("chose left direction");
+                        correctChest = rightChest;
+                        player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.ReverseLeft);
+                        break;
+                }
+
+
+                trafficLightController.MakeVisible(true);
+                yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+                SetCarBrakes(false);
+
+                //reset lap timer and show display
+                ResetLapDisplay();
+
+                trafficLightController.MakeVisible(false);
+                float flagResetTimer = 0f;
+
+                while (!LapCounter.canStop)
+                {
+                    flagResetTimer += Time.deltaTime;
+                    if (flagResetTimer >= 3f)
+                    {
+                        Experiment.Instance.SetChequeredFlagStatus(true);
+                    }
+                    yield return 0;
+                }
+                LapCounter.canStop = false;
+                //can press spacebar to stop
+                float forceStopTimer = 0f;
+                trafficLightController.MakeVisible(true);
+                yield return StartCoroutine(trafficLightController.ShowRed());
+                bool forceStopped = false;
+                while (!Input.GetKeyDown(KeyCode.Space) && !forceStopped)
+                {
+                    forceStopTimer += Time.deltaTime;
+                    trialLogTrack.LogForceStop();
+                    if (forceStopTimer > 1.15f)
+                    {
+                        forceStopTimer = 0f;
+                        forceStopped = true;
+                    }
+                    yield return 0;
+                }
+                forceStopped = false;
+                SetCarBrakes(true);
+
+                player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
+
+                UpdateLapDisplay();
+                HideLapDisplay();
+
+                trafficLightController.MakeVisible(false);
+                yield return new WaitForSeconds(1f);
+                player.transform.position = reverseStartTransform.position;
+                yield return StartCoroutine(ShowFixation());
+                player.transform.position = reverseStartTransform.position;
+
+                trialLogTrack.LogReverseRetrieval(false);
+                yield return 0;
+            }
+
+
+            //reset everything before the next block begins
+            spawnLocations.Clear();
 			spawnedObjects.Clear();
 		//	objController.encodingList.Clear();
 			LapCounter.lapCount = 0;
@@ -1142,6 +1403,35 @@ public class Experiment : MonoBehaviour {
 		}
 		yield return null;
 	}
+
+    IEnumerator ShowPreRotationInstruction()
+    {
+
+        uiController.preRotationPanel.alpha = 1f;
+        trialLogTrack.LogPreRotationInstruction(true);
+        while (!Input.GetKeyDown(KeyCode.Space))
+        {
+            trialLogTrack.LogSpaceKeypress();
+            yield return 0;
+        }
+        uiController.preRotationPanel.alpha = 0f;
+        trialLogTrack.LogPreRotationInstruction(false);
+        yield return null;
+    }
+
+    IEnumerator ShowReverseInstructions()
+    {
+        trialLogTrack.LogReverseInstructions(true);
+        uiController.reverseInstructionPanel.alpha = 1f;
+        while (!Input.GetKeyDown(KeyCode.Space))
+        {
+            trialLogTrack.LogSpaceKeypress();
+            yield return 0;
+        }
+        uiController.reverseInstructionPanel.alpha = 0f;
+        trialLogTrack.LogReverseInstructions(false);
+        yield return null;
+    }
 
 	public void ShowPathDirection()
     {
