@@ -124,7 +124,7 @@ public class TCPServer : MonoBehaviour
 
 	public void Log(long time, TCP_Config.EventType eventType)
 	{
-		exp.eegLog.Log(time, exp.eegLog.GetFrameCount(), eventType.ToString());
+		exp.subjectLog.Log(time, exp.subjectLog.GetFrameCount(), eventType.ToString());
 	}
 
 	public void SetState(TCP_Config.DefineStates state, bool isEnabled)

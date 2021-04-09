@@ -4,7 +4,6 @@ using System.Collections;
 
 using System;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
 //using System.Runtime.InteropServices;
 using System.Threading;
@@ -19,186 +18,230 @@ using System.Threading;
 public class LoggerQueue
 {
 
-	public Queue<String> logQueue;
+    public Queue<String> logQueue;
 
-	public LoggerQueue(){
-		logQueue = new Queue<String> ();
-	}
+    public LoggerQueue()
+    {
+        logQueue = new Queue<String>();
+    }
 
-	public void AddToLogQueue(string newLogInfo){
-		lock (logQueue) {
-			logQueue.Enqueue (newLogInfo);
-		}
-	}
+    public void AddToLogQueue(string newLogInfo)
+    {
+        lock (logQueue)
+        {
+            logQueue.Enqueue(newLogInfo);
+        }
+    }
 
-	public String GetFromLogQueue(){
-		string toWrite = "";
-		lock (logQueue) {
-			toWrite = logQueue.Dequeue ();
-			if (toWrite == null) {
-				toWrite = "";
-			}
-		}
-		return toWrite;
-	}
+    public String GetFromLogQueue()
+    {
+        string toWrite = "";
+        lock (logQueue)
+        {
+            toWrite = logQueue.Dequeue();
+            if (toWrite == null)
+            {
+                toWrite = "";
+            }
+        }
+        return toWrite;
+    }
 
 }
 
 public class LoggerWriter : ThreadedJob
 {
-	public bool isRunning = false;
+    public bool isRunning = false;
 
-	//LOGGING
-	protected long microseconds = 1;
-	protected string workingFile = "";
-	private StreamWriter logfile;
-	private LoggerQueue loggerQueue;
+    //LOGGING
+    //protected long microseconds = 1;
+    protected string workingFile = "";
+    private StreamWriter logfile;
+    private LoggerQueue loggerQueue;
 
-	public LoggerWriter(string filename, LoggerQueue newLoggerQueue) {
-		workingFile = filename;
-		logfile = new StreamWriter ( workingFile, true );
+    public LoggerWriter(string filename, LoggerQueue newLoggerQueue)
+    {
+        workingFile = filename;
+        UnityEngine.Debug.Log("new working file name " + filename);
+        logfile = new StreamWriter(workingFile, true);
 
-		loggerQueue = newLoggerQueue;
-	}
+        loggerQueue = newLoggerQueue;
+    }
 
-	public LoggerWriter() {
+    public LoggerWriter()
+    {
 
-	}
+    }
 
-	protected override void ThreadFunction()
-	{
-		isRunning = true;
-		// Do your threaded task. DON'T use the Unity API here
-		while (isRunning) {
-			while(loggerQueue.logQueue.Count > 0){
-				log (loggerQueue.GetFromLogQueue());
-			}
-		}
+    protected override void ThreadFunction()
+    {
+        isRunning = true;
+        // Do your threaded task. DON'T use the Unity API here
+        while (isRunning)
+        {
+            while (loggerQueue.logQueue.Count > 0)
+            {
+                log(loggerQueue.GetFromLogQueue());
+            }
+        }
 
-		close ();
+        close();
 
-	}
-		
-	protected override void OnFinished()
-	{
-		// This is executed by the Unity main thread when the job is finished
+    }
+    protected override void OnFinished()
+    {
+        // This is executed by the Unity main thread when the job is finished
 
-	}
+    }
 
-	public void End(){
-		isRunning = false;
-	}
+    public void End()
+    {
+        isRunning = false;
+    }
 
-	public virtual void close()
-	{
-		//logfile.WriteLine ("EOF");
-		logfile.Flush ();
-		logfile.Close();	
-		Debug.Log ("flushing & closing");
-	}
+    public virtual void close()
+    {
+        //logfile.WriteLine ("EOF");
+        logfile.Flush();
+        logfile.Close();
+        Debug.Log("flushing & closing");
+    }
 
 
-	public virtual void log(string msg) {
+    public virtual void log(string msg)
+    { //took out  ( ... , int level)
 
-		logfile.WriteLine (msg);
-	}
+        //long tick = DateTime.Now.Ticks;
+        //long seconds = tick / TimeSpan.TicksPerSecond;
+        //long milliseconds = tick / TimeSpan.TicksPerMillisecond;
+        //microseconds = tick / 10;
+        //Debug.Log(milliseconds);
+        //Debug.Log(Time.frameCount + ": " + Event.current);
+
+        //logfile.WriteLine( milliseconds + "\t0\t" + msg ); //not sure what the "\t0\t" was for.
+      //  UnityEngine.Debug.Log("writing " + msg);
+        logfile.WriteLine(msg);
+    }
 
 }
 
-public class Logger_Threading : MonoBehaviour{
-	public static string LogTextSeparator = "\t";
+public class Logger_Threading : MonoBehaviour
+{
+    public static string LogTextSeparator = "\t";
 
-	LoggerQueue myLoggerQueue;
-	LoggerWriter myLoggerWriter;
-	public bool isRunning=false;
-	long frameCount;
-	public StreamWriter logfile;
+    LoggerQueue myLoggerQueue;
+    LoggerWriter myLoggerWriter;
 
-	public string fileName;
+    LoggerQueue myTrialQueue;
+    LoggerWriter myTrialWriter;
 
-	void Start ()
-	{
-		if (Experiment.isLogging) {
-			myLoggerQueue = new LoggerQueue ();
-			StartCoroutine ("LogWriter");
-			//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
-			//		
-			//			myLoggerWriter.Start ();
+    long frameCount;
 
-			//	myLoggerWriter.log ("DATE: " + DateTime.Now.ToString ("M/d/yyyy")); //might not be needed
-		}
-	}
+    public string fileName;
 
-	public Logger_Threading(string file){
-		fileName = file;
-	}
+    public void CreateNewTrialLogStream(string file)
+    {
+        myTrialQueue = new LoggerQueue();
+        myTrialWriter = new LoggerWriter(file, myTrialQueue);
+        UnityEngine.Debug.Log("file path " + file);
+        myTrialWriter.Start();
 
-	IEnumerator LogWriter()
-	{
-		isRunning = true;
-		UnityEngine.Debug.Log("filename is " + fileName);
-		logfile = new StreamWriter ( fileName, true,Encoding.ASCII, 0x10000);
-		UnityEngine.Debug.Log ("running logwriter coroutine writing at " + fileName);
-		while (isRunning) {
+        myTrialWriter.log("DATE: " + DateTime.Now.ToString("M/d/yyyy")); //might not be needed
+       
+    }
 
-			while (myLoggerQueue.logQueue.Count > 0) {
-				string msg = myLoggerQueue.GetFromLogQueue ();
+    
 
-			//	UnityEngine.Debug.Log ("writing: " + msg);
-				logfile.WriteLine (msg);
-				yield return 0;
-			}
-			yield return 0;
-		}
-		UnityEngine.Debug.Log ("closing this");
-		yield return null;
-	}
+    public void StopTrialLogStream()
+    {
+        myTrialWriter.isRunning = false;
+     //   myTrialWriter.close();
 
-	//logging itself can happen in regular update. the rate at which ILoggable objects add to the log Queue should be in FixedUpdate for framerate independence.
-	void Update()
-	{
-		frameCount++;
-		//		if (myLoggerWriter != null)
-		//		{
-		//			if (myLoggerWriter.Update())
-		//			{
-		//				// Alternative to the OnFinished callback
-		//				myLoggerWriter = null;
-		//			}
-		//		}
-	}
+    }
 
-	public long GetFrameCount(){
-		return frameCount;
-	}
+    void Start()
+    {
+        
+        if (Experiment.isLogging)
+        {
+            myLoggerQueue = new LoggerQueue();
+            myLoggerWriter = new LoggerWriter(fileName, myLoggerQueue);
 
-	public void Log(long timeLogged,string newLogInfo){
-		if (myLoggerQueue != null) {
-			myLoggerQueue.AddToLogQueue (timeLogged + LogTextSeparator + newLogInfo);
-		}
-	}
+            myLoggerWriter.Start();
 
-	public void Log(long timeLogged, long frame, string newLogInfo){
-		if (myLoggerQueue != null) {
-			myLoggerQueue.AddToLogQueue (timeLogged + LogTextSeparator + frame + LogTextSeparator + newLogInfo);
-		}
-	}
+            myLoggerWriter.log("DATE: " + DateTime.Now.ToString("M/d/yyyy")); //might not be needed
+        }
+        
+    }
 
-	void OnApplicationQuit()
-	{
-		isRunning = false;
-	}
+    public Logger_Threading(string file)
+    {
+        fileName = file;
+    }
 
-	//must be called by the experiment class OnApplicationQuit()
-	public void close(){
-		//Application stopped running -- close() was called
-		//applicationIsRunning = false;
-//		UnityEngine.Debug.Log("is running will be false");
-		logfile.Flush ();
-		logfile.Close ();
-		isRunning=false;
-		//		myLoggerWriter.End ();
-	}
+    //logging itself can happen in regular update. the rate at which ILoggable objects add to the log Queue should be in FixedUpdate for framerate independence.
+    void Update()
+    {
+        frameCount++;
+        if (myLoggerWriter != null)
+        {
+            if (myLoggerWriter.Update())
+            {
+                // Alternative to the OnFinished callback
+                myLoggerWriter = null;
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.U))
+        {
+            CreateNewTrialLogStream(Application.dataPath + "/ok.txt");
+        }
+        if(Input.GetKeyDown(KeyCode.Y))
+        {
+            StopTrialLogStream();
+        }
+    }
+
+    public long GetFrameCount()
+    {
+        return frameCount;
+    }
+
+    public void Log(long timeLogged, string newLogInfo)
+    {
+        if (myTrialQueue != null)
+        {
+            myTrialQueue.AddToLogQueue(timeLogged + LogTextSeparator + newLogInfo);
+        }
+        if (myLoggerQueue != null)
+        {
+            myLoggerQueue.AddToLogQueue(timeLogged + LogTextSeparator + newLogInfo);
+        }
+    }
+
+    public void Log(long timeLogged, long frame, string newLogInfo)
+    {
+        if(myTrialQueue !=null)
+        {
+            myTrialQueue.AddToLogQueue(timeLogged + LogTextSeparator + frame + LogTextSeparator + newLogInfo);
+
+        }
+        if (myLoggerQueue != null)
+        {
+            myLoggerQueue.AddToLogQueue(timeLogged + LogTextSeparator + frame + LogTextSeparator + newLogInfo);
+        }
+    }
+
+    //must be called by the experiment class OnApplicationQuit()
+    public void close()
+    {
+        //Application stopped running -- close() was called
+        //applicationIsRunning = false;
+        if(myLoggerWriter!=null)
+            myLoggerWriter.End();
+
+        if (myTrialWriter!=null)
+            myTrialWriter.End();
+    }
 
 
 

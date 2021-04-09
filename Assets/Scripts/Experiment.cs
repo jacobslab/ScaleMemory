@@ -110,7 +110,7 @@ public class Experiment : MonoBehaviour {
 	private GameObject correctChest;
 	//blackrock variables
 	public static string ExpName = "T3_BIDIRECTIONAL";
-	public static string BuildVersion = "0.9.92";
+	public static string BuildVersion = "0.9.94";
 	public static bool isSystem2 = true;
 
 	public GameObject forwardTurnDecisionZone;
@@ -120,8 +120,8 @@ public class Experiment : MonoBehaviour {
     public static bool isLogging = true;
 	private string subjectLogfile; //gets set based on the current subject in Awake()
 	public Logger_Threading subjectLog;
-	private string eegLogfile; //gets set based on the current subject in Awake()
-	public Logger_Threading eegLog;
+	//private string eegLogfile; //gets set based on the current subject in Awake()
+	//public Logger_Threading eegLog;
 	public string sessionDirectory;
 	public static string sessionStartedFileName = "sessionStarted.txt";
 	public static int sessionID;
@@ -444,7 +444,7 @@ public class Experiment : MonoBehaviour {
 		}
 
 		subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
-		eegLog.fileName = sessionDirectory + subjectName + "EEGLog" + ".txt";
+		//eegLog.fileName = sessionDirectory + subjectName + "EEGLog" + ".txt";
 
 
 		yield return null;
@@ -648,7 +648,7 @@ public class Experiment : MonoBehaviour {
 		//	yield return StartCoroutine(objController.SelectEncodingItems());
 		//yield return StartCoroutine("BeginItemScreening");
 		//	StartCoroutine("RandomizeTravelSpeed");
-			yield return StartCoroutine("BeginTrackScreening");
+		yield return StartCoroutine("BeginTrackScreening");
 
 		reward = 0;
 		yield return StartCoroutine("SpawnZones");
@@ -779,13 +779,20 @@ public class Experiment : MonoBehaviour {
 		trafficLightController.MakeVisible(false);
         LapCounter.lapCount = 0;
 
+
+        subjectLog.CreateNewTrialLogStream(sessionDirectory + "track_screening.txt");
+
         while (LapCounter.lapCount < 2)
 		{
+
 			if (LapCounter.lapCount >= 1)
 				player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Right);
 			yield return 0;
 		}
-		LapCounter.lapCount = 0;
+
+        subjectLog.StopTrialLogStream();
+
+        LapCounter.lapCount = 0;
 		SetCarBrakes(true);
 		trialLogTrack.LogTaskStage(currentStage,false);
 		forwardTurnDecisionZone.SetActive(true);
@@ -1062,7 +1069,8 @@ public class Experiment : MonoBehaviour {
 		//show instructions
 		for (int i = 0; i < blockLength; i++)
         {
-            
+
+
             LapCounter.lapCount = 0;
 			trialLogTrack.LogInstructions(true);
 			ResetCarToStart(false);
@@ -1080,7 +1088,10 @@ public class Experiment : MonoBehaviour {
 			bool canChangeDirection = true;
 
 			while (LapCounter.lapCount < 16)
-			{
+            {
+                string fileName = "encoding_" + LapCounter.lapCount.ToString() + ".txt";
+                subjectLog.CreateNewTrialLogStream(sessionDirectory+fileName);
+
                 SetChequeredFlagStatus(false);
                 forwardTurnDecisionZone.SetActive(false);
 				UnityEngine.Debug.Log("lap count " + LapCounter.lapCount.ToString());
@@ -1167,7 +1178,10 @@ public class Experiment : MonoBehaviour {
 
 				yield return StartCoroutine(ShowFixation());
 				player.transform.position = startTransform.position;
-				yield return 0;
+
+                subjectLog.StopTrialLogStream();
+
+                yield return 0;
 			}
             
 
@@ -1207,6 +1221,7 @@ public class Experiment : MonoBehaviour {
             //forward retrieval
 			while (LapCounter.lapCount < 4)
             {
+                subjectLog.CreateNewTrialLogStream(sessionDirectory + "forward_retrieval_"+LapCounter.lapCount.ToString()+".txt");
                 forwardTurnDecisionZone.SetActive(false);
                 SetChequeredFlagStatus(false);
                 pickOnce = false; //reset
@@ -1279,7 +1294,11 @@ public class Experiment : MonoBehaviour {
 				yield return StartCoroutine(ShowFixation());
 				player.transform.position = startTransform.position;
 
+                subjectLog.StopTrialLogStream();
+
+
 			yield return 0;
+
 			}
 
 
@@ -1310,6 +1329,7 @@ public class Experiment : MonoBehaviour {
             //reverse retrieval condition
             while (LapCounter.lapCount < 16)
             {
+                subjectLog.CreateNewTrialLogStream(sessionDirectory + "reverse_retrieval_" + LapCounter.lapCount.ToString() + ".txt");
                 isReverse = true;
                 SetChequeredFlagStatus(false);
                 trialLogTrack.LogReverseRetrieval(true);
@@ -1387,6 +1407,8 @@ public class Experiment : MonoBehaviour {
                 player.transform.position = reverseStartTransform.position;
 
                 trialLogTrack.LogReverseRetrieval(false);
+                subjectLog.StopTrialLogStream();
+
                 yield return 0;
             }
 
@@ -1772,7 +1794,7 @@ public class Experiment : MonoBehaviour {
 		if (isLogging)
 		{
 			subjectLog.close();
-			eegLog.close();
+			//eegLog.close();
 		}
 	}
 
@@ -1781,7 +1803,7 @@ public class Experiment : MonoBehaviour {
 		if (isLogging)
 		{
 			subjectLog.close();
-			eegLog.close();
+			//eegLog.close();
 			//File.Copy("/Users/" + System.Environment.UserName + "/Library/Logs/Unity/Player.log", sessionDirectory + "Player.log");
 		}
 	}
