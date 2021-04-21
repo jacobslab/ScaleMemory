@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CarMover.cs" />
      <Compile Include="Assets\CarStopper.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Camera_particale.cs" />
      <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate.cs" />
@@ -202,6 +203,7 @@
      <Compile Include="Assets\Scripts\Utility\DataPoint.cs" />
      <Compile Include="Assets\Scripts\Utility\HighPrecisionTimer.cs" />
      <Compile Include="Assets\SlowZoneChecker.cs" />
+     <Compile Include="Assets\SpawnPointTester.cs" />
      <Compile Include="Assets\SpeedZoneChecker.cs" />
      <Compile Include="Assets\TrafficLightController.cs" />
      <Compile Include="Assets\TurnZone.cs" />

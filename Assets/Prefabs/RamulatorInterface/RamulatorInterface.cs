@@ -54,6 +54,8 @@ public class ElememWorker
 
     private readonly Thread _listenerWorker;
 
+    private readonly Thread _heartbeatListener;
+
     private bool _listenerCancelled;
 
     //public delegate string MessageDelegate(string message);
@@ -166,43 +168,56 @@ public class ElememWorker
         heartbeatCount++;
     }
 
-    public void WaitForHeartbeat()
+    public void BeginHeartbeatWaitingThread()
+    {
+
+        _heartbeatListener.Start();
+    }
+
+    void WaitForHeartbeat()
     {
         waitingForHeartbeat = true;
         string receivedMessage = "";
         float startTime = 0f;
         string targetStr = "HEARTBEAT_OK";
-      //  while (receivedMessage == null || !receivedMessage.Contains(targetStr))
+       // while (receivedMessage == null || !receivedMessage.Contains(targetStr))
       //  {
             startTime += Time.deltaTime;
-            server.TryReceiveFrameString(out receivedMessage);
-            if (receivedMessage != "" && receivedMessage != null)
-            {
-                string messageString = receivedMessage.ToString();
-               // UnityEngine.Debug.Log("received: " + messageString);
+            UnityEngine.Debug.Log("time waiting for heartbeat " + startTime.ToString());
+            server.TryReceiveFrameString(TimeSpan.FromSeconds(timeoutDelay), out receivedMessage);
+        if (receivedMessage != "" && receivedMessage != null)
+        {
+            string messageString = receivedMessage.ToString();
+            // UnityEngine.Debug.Log("received: " + messageString);
 
-                waitingForHeartbeat = false;
-                //  UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
-                ReportMessage(messageString);
+            waitingForHeartbeat = false;
+            //  UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
+            ReportMessage(messageString);
 
-                //reset the unreceived heartbeats counter if we receive a response message from the host
-                unreceivedHeartbeats = 0;
-                //ReportMessage(messageString, false);
-            }
-
-            //if we have exceeded the timeout time, show warning and stop trying to connect
-         //   UnityEngine.Debug.Log("TIME " + startTime.ToString());
-            if (startTime > timeoutDelay)
-            {
-                unreceivedHeartbeats++;
-                string errorString = "MISSED HEARTBEAT COUNT " + unreceivedHeartbeats.ToString();
-                waitingForHeartbeat = false;
-                ReportMessage(errorString);
-                // waitingForMessage = false;
-                return;
-        //    }
-            //return;
+            //reset the unreceived heartbeats counter if we receive a response message from the host
+            unreceivedHeartbeats = 0;
+            _heartbeatListener.Join();
+            return;
+            //ReportMessage(messageString, false);
         }
+        else
+        {
+            //if we have exceeded the timeout time, show warning and stop trying to connect
+            //   UnityEngine.Debug.Log("TIME " + startTime.ToString());
+            //  if (startTime > timeoutDelay)
+            //  {
+            unreceivedHeartbeats++;
+            string errorString = "MISSED HEARTBEAT COUNT " + unreceivedHeartbeats.ToString();
+            UnityEngine.Debug.Log("missed heartbeat");
+            waitingForHeartbeat = false;
+            ReportMessage(errorString);
+            // waitingForMessage = false;
+            _heartbeatListener.Join();
+            return;
+            }
+          //  }
+          // return;
+      //  }
     }
 
     public void WaitForMessage(string containingString, string errorMessage)
@@ -210,10 +225,18 @@ public class ElememWorker
         waitingForMessage = true;
         string receivedMessage = "";
         float startTime = 0f;
-       // while (receivedMessage == null || !receivedMessage.Contains(containingString))
-        //{
+        while (receivedMessage == null || !receivedMessage.Contains(containingString))
+        {
             startTime += Time.deltaTime;
             server.TryReceiveFrameString(out receivedMessage);
+        if (receivedMessage != null)
+        {
+            UnityEngine.Debug.Log("message not null" + receivedMessage);
+        }
+        if (receivedMessage != "")
+        {
+            UnityEngine.Debug.Log("message not empty " + receivedMessage);
+        }
             if (receivedMessage != "" && receivedMessage != null)
             {
                 JObject json  = JObject.Parse(receivedMessage);
@@ -243,7 +266,7 @@ public class ElememWorker
             //    break;
             }
             return;
-      //  }
+        }
     }
 
     private void ReportMessage(string msg)
@@ -278,6 +301,7 @@ public class ElememWorker
         _contactWatch = new Stopwatch();
         _contactWatch.Start();
         _listenerWorker = new Thread(ListenerWork);
+        _heartbeatListener = new Thread(WaitForHeartbeat);
     }
 
     public void Start()
@@ -370,6 +394,8 @@ public class RamulatorInterface : MonoBehaviour
         //this coroutine connects to ramulator and communicates how ramulator expects it to
         //in order to start the experiment session.  follow it up with BeginNewTrial and
         //SetState calls
+
+
         public IEnumerator BeginNewSession(int sessionNumber)
     {
         //Connect to ramulator///////////////////////////////////////////////////////////////////
@@ -393,8 +419,8 @@ public class RamulatorInterface : MonoBehaviour
             UnityEngine.Debug.Log("waiting for Elemem Server to bind");
             yield return 0;
         }
-        
 
+        UnityEngine.Debug.Log("elemem worker is binded");
         //send connected message to host
         DataPoint connected = new DataPoint("CONNECTED", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
         elememWorker.SendMessageToRamulator(connected.ToJSON());
@@ -403,8 +429,11 @@ public class RamulatorInterface : MonoBehaviour
         elememWorker.WaitForMessage("CONNECTED_OK", "Did not receive confirmation");
 
         float resendTimer = 0f;
+
+        
         while(elememWorker.CheckIfWaitingForMessage())
         {
+            /*
             resendTimer += Time.deltaTime;
             if (resendTimer > 1.5f)
             {
@@ -412,10 +441,11 @@ public class RamulatorInterface : MonoBehaviour
                 elememWorker.SendMessageToRamulator(connected.ToJSON());
                 resendTimer = 0f;
             }
-
+            */
 
             yield return 0;
         }
+
 
         //SendSessionEvent//////////////////////////////////////////////////////////////////////
         /*
@@ -534,8 +564,8 @@ public class RamulatorInterface : MonoBehaviour
         DataPoint heartbeatDatapoint = new DataPoint("HEARTBEAT", HighResolutionDateTime.UtcNow, data);
         elememWorker.SendMessageToRamulator(heartbeatDatapoint.ToJSON());
 
-        //UnityEngine.Debug.Log("waiting for heartbeat");
-         elememWorker.WaitForHeartbeat();
+        UnityEngine.Debug.Log("waiting for heartbeat");
+         elememWorker.BeginHeartbeatWaitingThread();
         //elememWorker.WaitForMessage("HEARTBEAT_OK","Did not receive heartbeat confirmation");
         
         while (elememWorker.CheckIfWaitingForHeartbeat())
@@ -543,7 +573,7 @@ public class RamulatorInterface : MonoBehaviour
             yield return 0;
         }
         
-       // UnityEngine.Debug.Log("finished waiting for heartbeat");
+        UnityEngine.Debug.Log("finished waiting for heartbeat");
 
         yield return null;
     }

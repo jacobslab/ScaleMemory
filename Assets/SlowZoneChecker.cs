@@ -21,7 +21,7 @@ public class SlowZoneChecker : MonoBehaviour
         {
             if(Input.GetKeyDown(KeyCode.Z) && !didPress)
             {
-                Experiment.Instance.ActivateSlowZone(true);
+               // Experiment.Instance.ActivateSlowZone(true);
                 didPress = true;
 
             }
@@ -38,7 +38,7 @@ public class SlowZoneChecker : MonoBehaviour
         //if no button has been pressed, penalize
         if(!didPress)
         {
-            Experiment.Instance.ActivateSlowZone(false);
+           // Experiment.Instance.ActivateSlowZone(false);
         }
         isZoneActive = false;
         didPress = false;

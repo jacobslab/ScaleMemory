@@ -82,7 +82,7 @@ public class Experiment : MonoBehaviour {
 
 	//blackrock variables
 	public static string ExpName = "T2";
-	public static string BuildVersion = "0.9.8";
+	public static string BuildVersion = "0.9.9";
 	public static bool isSystem2 = false;
 
 	public bool verbalRetrieval = false;
@@ -191,89 +191,8 @@ public class Experiment : MonoBehaviour {
 		retrievalPositions = new List<Vector3>();
 
 	}
-
-	public void ActivateSpeedZone(bool didPress)
-    {
-		if(didPress)
-        {
-			StartCoroutine("NitroSpeedCar");
-        }
-		else
-        {
-			//no change
-			StartCoroutine("NoSpeedCar");
-        }
-    }
-
-	public void ActivateSlowZone(bool didPress)
-    {
-		if(didPress)
-        {
-			StartCoroutine("EvadeSlowZone");
-        }
-		else
-        {
-			StartCoroutine("SlowCar");
-        }
-		
-    }
-
-	//upon successfully pressing button when inside SPEED zone
-	IEnumerator NitroSpeedCar()
-    {
-		UnityEngine.Debug.Log("ACTIVATE NITRO SPEED");
-		player.GetComponent<CarController>().ChangeMaxSpeed(70f);
-		yield return StartCoroutine(FlashInfo("You activated \n speed boost", Color.green));
-		yield return new WaitForSeconds(2f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
-		yield return null;
-    }
-
-
-	//upon failing to press button when inside speed zone
-	IEnumerator NoSpeedCar()
-	{
-		UnityEngine.Debug.Log("NO SPEED");
-		player.GetComponent<CarController>().ChangeMaxSpeed(20f);
-		yield return StartCoroutine(FlashInfo("You failed to \n activate speed boost", Color.red));
-		yield return new WaitForSeconds(1f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
-		yield return null;
-    }
-
-
-	//upon successfully pressing button when inside SLOW zone
-	IEnumerator EvadeSlowZone()
-	{
-		UnityEngine.Debug.Log("EVADE SLOW ZONE");
-		player.GetComponent<CarController>().ChangeMaxSpeed(50f);
-		yield return StartCoroutine(FlashInfo("You avoided \n oil patch", Color.green));
-		yield return new WaitForSeconds(2f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
-		yield return null;
-    }
-
-
-	//upon failing to press button when inside slow zone
-	IEnumerator SlowCar()
-	{
-		UnityEngine.Debug.Log("CAR HAS BEEN SLOWED");
-		player.GetComponent<CarController>().ChangeMaxSpeed(1f);
-		yield return StartCoroutine(FlashInfo("You were slowed \n by the oil patch", Color.red));
-		yield return new WaitForSeconds(1f);
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
-		yield return null;
-    }
-
-	IEnumerator FlashInfo(string infoStr,Color textColor)
-    {
-		uiController.infoText.text = infoStr;
-		uiController.infoText.color = textColor;
-		uiController.infoText.enabled = true;
-		yield return new WaitForSeconds(2f);
-		uiController.infoText.enabled = false;
-		yield return null;
-    }
+    
+    
 
 	public void MarkIPAddrEntered()
 	{
@@ -323,6 +242,7 @@ public class Experiment : MonoBehaviour {
 
 		yield return null;
 	}
+
 
 	//In order to increment the session, this file must be present. Otherwise, the session has not actually started.
 	//This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
@@ -413,39 +333,6 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
         yield return null;
     }
-
-	IEnumerator SpawnZones()
-    {
-		/*
-		int leftRandInt = Random.Range(0, leftSpawnableWaypoints.Count - 1);
-		int rightRandInt = Random.Range(0, rightSpawnableWaypoints.Count - 1);
-
-
-		float yAngle = -180f;
-
-		//randomize which side gets slow and speed zones
-		if (Random.value > 0.5f)
-		{
-
-			slowZoneObj = Instantiate(slowZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
-
-			speedZoneObj = Instantiate(speedZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
-		}
-		else
-		{
-			slowZoneObj = Instantiate(slowZonePrefab, rightSpawnableWaypoints[rightSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
-
-			speedZoneObj = Instantiate(speedZonePrefab, leftSpawnableWaypoints[leftSpawnableWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-			trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
-		}
-		*/
-
-		yield return null;
-
-	}
 
     public void ParseSubjectCode()
     {
@@ -1246,6 +1133,18 @@ public class Experiment : MonoBehaviour {
 		trialLogTrack.LogFixation(false);
 		yield return null;
 	}
+
+    IEnumerator SpawnUniformly(int spawnCount)
+    {
+
+        List<int> intPicker = new List<int>();
+        for(int i=0;i<4;i++)
+        {
+
+        }
+
+        yield return null;
+    }
 	
 	IEnumerator PickEncodingLocations()
 	{
@@ -1259,53 +1158,27 @@ public class Experiment : MonoBehaviour {
 		}
 
 		List<int> tempStorage = new List<int>();
-
-		//UnityEngine.Debug.Log("list length is " + listLength.ToString());
+        
 		for(int i=0;i< listLength; i++)
 		{
-			//UnityEngine.Debug.Log("int picker count " + intPicker.Count.ToString());
 			int randIndex= UnityEngine.Random.Range(0, intPicker.Count-1); // we won't be picking too close to beginning/end
 			int randInt = intPicker[randIndex];
-			//UnityEngine.Debug.Log("rand int " + randInt.ToString());
-			//UnityEngine.Debug.Log("waypoint location count " + waypointLocations.Count.ToString());
-			//UnityEngine.Debug.Log("randindex " + randIndex.ToString());
-			//UnityEngine.Debug.Log("randint " + randInt.ToString());
 			chosenEncodingLocations.Add(waypointLocations[randInt]);
-			//waypointLocations.RemoveAt(randIndex);
 			string temp = "";
 			for(int j=0;j<intPicker.Count;j++)
             {
 				temp += intPicker[j].ToString() + ",";
             }
 			uiController.debugText.text = temp;
-			//UnityEngine.Debug.Log("pre count " + intPicker.Count.ToString());
-
-			//UnityEngine.Debug.Log("picked " + randInt.ToString());
-
-			//UnityEngine.Debug.Log("removing  " + intPicker[randIndex].ToString());
 			intPicker.RemoveAt(randIndex);
-		//	yield return StartCoroutine(WaitForActionButton());
 			if(randIndex - 2>0 && randIndex + 2 < intPicker.Count - 1)
             {
-				//UnityEngine.Debug.Log("removing " + intPicker[randIndex].ToString() + " and " + intPicker[randIndex+1].ToString());
 				intPicker.RemoveAt(randIndex);
 				intPicker.RemoveAt(randIndex);
-				//UnityEngine.Debug.Log("removing " + intPicker[randIndex -1].ToString() + " and " + intPicker[randIndex-2].ToString());
 				intPicker.RemoveAt(randIndex-1);
 				intPicker.RemoveAt(randIndex - 1);
 			}
-
-			//UnityEngine.Debug.Log("post count " + intPicker.Count.ToString());
-			/*
-			if(randInt > 0)
-			{
-				waypointLocations.RemoveAt(randInt - 1);
-			}
-			if(randInt < waypointLocations.Count)
-			{
-				waypointLocations.RemoveAt(randInt + 1);
-			}
-			*/
+            
 			tempStorage.Add(randInt);
 			spawnLocations.Add(chosenEncodingLocations[i]);
 		}

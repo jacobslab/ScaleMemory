@@ -20,7 +20,7 @@ public class SpeedZoneChecker : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.M) && !didPress)
             {
-                Experiment.Instance.ActivateSpeedZone(true);
+              //  Experiment.Instance.ActivateSpeedZone(true);
                 didPress = true;
 
             }
@@ -37,7 +37,7 @@ public class SpeedZoneChecker : MonoBehaviour
         //if no button has been pressed, penalize
         if (!didPress)
         {
-            Experiment.Instance.ActivateSpeedZone(false);
+           // Experiment.Instance.ActivateSpeedZone(false);
         }
         isZoneActive = false;
         didPress = false;
