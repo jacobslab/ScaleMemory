@@ -17,9 +17,7 @@ public class Experiment : MonoBehaviour {
     public RamulatorInterface ramulatorInterface;
 
 	public GameObject player;
-
-	private GameObject slowZoneObj;
-	private GameObject speedZoneObj;
+    
 
 	public List<Transform> spawnableWaypoints;
 	//public List<Transform> rightSpawnableWaypoints;
@@ -51,8 +49,7 @@ public class Experiment : MonoBehaviour {
 
 	public List<Transform> startableTransforms;
 
-
-	public Camera itemScreeningCam;
+    
 
 	public WaypointCircuit waypointCircuit;
 
@@ -61,20 +58,12 @@ public class Experiment : MonoBehaviour {
 	public static int blockLength = 24;
 
 	public static int listLength = 4;
-
-	private List<GameObject> itemScreeningSeq;
-
-	public Transform itemScreeningTransform;
-
+    
 	public Transform startTransform;
 
 	private bool wasMovingForward = false;
     private bool wasMovingReverse = false;
 	private float movementTimer = 0f;
-
-	//prefabs
-	public GameObject slowZonePrefab;
-	public GameObject speedZonePrefab;
 
 	private GameObject leftSpawnObj;
 	private GameObject rightSpawnObj;
@@ -180,10 +169,10 @@ public class Experiment : MonoBehaviour {
 	// Use this for initialization
 	void Start()
 	{
-		player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+		//player.GetComponent<CarController>().ChangeMaxSpeed(40f);
 		spatialFeedbackStatus = new List<bool>();
 		spatialFeedbackPosition = new List<Vector3>();
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		StartCoroutine("BeginExperiment");
 		spawnedObjects = new List<GameObject>();
 		spawnLocations = new List<Vector3>();
@@ -384,12 +373,12 @@ public class Experiment : MonoBehaviour {
         uiController.ipEntryPanel.alpha = 0f;
         */
 
-
+        /*
         tcpServer.gameObject.SetActive(true);
             uiController.blackrockConnectionPanel.alpha = 1f;
 
             yield return StartCoroutine(ConnectToElemem());
-
+            */
         /*
         trialLogTrack.LogBlackrockConnectionAttempt();
         uiController.connectionText.text = "Attempting to connect with server...";
@@ -423,7 +412,7 @@ public class Experiment : MonoBehaviour {
 
             //yield return StartCoroutine("BeginItemScreening");
             //	StartCoroutine("RandomizeTravelSpeed");
-            yield return StartCoroutine("BeginTrackScreening");
+          //  yield return StartCoroutine("BeginTrackScreening");
 
             //	yield return StartCoroutine("SpawnZones");
             //repeat blocks twice
@@ -463,60 +452,7 @@ public class Experiment : MonoBehaviour {
 		yield return null;
 	}
 
-	IEnumerator BeginItemScreening()
-	{
-		currentStage = TaskStage.ItemScreening;
-		player.gameObject.SetActive(false);
-		uiController.itemScreeningPanel.alpha = 1f;
-		yield return new WaitForSeconds(2f);
-		uiController.itemScreeningPanel.alpha = 0f;
-		itemScreeningCam.enabled = true;
-
-		for(int i=0;i<12;i++)
-		{
-			yield return StartCoroutine(GenerateRandomItemScreeningSequence());
-			for (int j = 0; j < itemScreeningSeq.Count; j++)
-			{
-				GameObject objToSpawn = Instantiate(itemScreeningSeq[j], itemScreeningTransform.position, Quaternion.identity) as GameObject;
-				trialLogTrack.LogItemDisplay(objToSpawn.gameObject.name,true);
-				objToSpawn.GetComponent<FacePosition>().FaceItemScreeningCam();
-				yield return new WaitForSeconds(1f);
-				Destroy(objToSpawn);
-				trialLogTrack.LogItemDisplay(objToSpawn.gameObject.name,false);
-			}
-		}
-
-		trialLogTrack.LogTaskStage(currentStage, false);
-		yield return null;
-	}
-
-	IEnumerator GenerateRandomItemScreeningSequence()
-	{
-		List<GameObject> tempList = new List<GameObject>();
-		for(int i=0;i<listLength;i++)
-		{
-			tempList.Add(objController.encodingList[i]);
-		}
-
-		List<GameObject> randObjects = objController.ReturnRandomlySelectedObjects(3);
-		
-		for(int j=0;j<randObjects.Count;j++)
-		{
-			tempList.Add(randObjects[j]);
-		}
-
-		itemScreeningSeq = new List<GameObject>();
-
-		int max = tempList.Count;
-		for(int i=0;i<max;i++)
-		{
-			int randIndex = UnityEngine.Random.Range(0, tempList.Count);
-			itemScreeningSeq.Add(tempList[randIndex]);
-			tempList.RemoveAt(randIndex);
-		}
-
-		yield return null;
-	}
+	
 
 	IEnumerator BeginTrackScreening()
 	{
@@ -526,7 +462,7 @@ public class Experiment : MonoBehaviour {
 		trackFamiliarizationQuad.SetActive(true);
 		playerIndicatorSphere.SetActive(true);
 		trialLogTrack.LogTaskStage(currentStage, true);
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		uiController.itemScreeningPanel.alpha = 0f;
 		uiController.trackScreeningPanel.alpha = 1f;
 		yield return StartCoroutine(WaitForActionButton());
@@ -534,14 +470,14 @@ public class Experiment : MonoBehaviour {
 		player.gameObject.SetActive(true);
 		trafficLightController.MakeVisible(true);
 		yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-		SetCarBrakes(false);
+		SetCarMovement(false);
 		trafficLightController.MakeVisible(false);
 		while (LapCounter.lapCount < 2)
 		{
 			yield return 0;
 		}
 		LapCounter.lapCount = 0;
-		SetCarBrakes(true); 
+		SetCarMovement(true); 
 		overheadCam.SetActive(false);
 		trackFamiliarizationQuad.SetActive(false);
 		playerIndicatorSphere.SetActive(false);
@@ -578,7 +514,7 @@ public class Experiment : MonoBehaviour {
 
 	public IEnumerator BeginCrashSequence(Transform crashZone)
 	{
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		Vector3 origTransform = player.transform.position;
 		float lerpTimer = 0f;
 
@@ -602,7 +538,7 @@ public class Experiment : MonoBehaviour {
 		player.GetComponent<WaypointProgressTracker>().Reset(); //reset the waypoint system to begin from the beginning
 
 		uiController.blackScreen.alpha = 0f;
-		SetCarBrakes(false);
+		SetCarMovement(false);
 		//	player.GetComponent<CarController>().SetCurrentSpeed(0f);
 		yield return null;
     }
@@ -679,7 +615,7 @@ public class Experiment : MonoBehaviour {
 
 		//yield return StartCoroutine("BeginTrackScreening");
 
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		//show instructions
 		for (int i = 0; i < blockLength; i++)
 		{
@@ -692,13 +628,13 @@ public class Experiment : MonoBehaviour {
 			trialLogTrack.LogInstructions(true);
 			player.transform.position = startTransform.position;
 			player.transform.rotation = startTransform.rotation;
-			int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
-			player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
+			//int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
+			//player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
 
 			chequeredFlag.transform.position = startTransform.position;
 			chequeredFlag.transform.rotation = startTransform.rotation;
 
-			player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
+		//	player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
 			yield return StartCoroutine(ShowEncodingInstructions());
 			trialLogTrack.LogInstructions(false);
 			yield return StartCoroutine(PickEncodingLocations());
@@ -727,7 +663,7 @@ public class Experiment : MonoBehaviour {
 				*/
 				trafficLightController.MakeVisible(true);
 				yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-				SetCarBrakes(false);
+				SetCarMovement(false);
 				trafficLightController.MakeVisible(false);
 
 				//reset lap timer and show display
@@ -748,7 +684,7 @@ public class Experiment : MonoBehaviour {
 				}
 				*/
 				UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
-				SetCarBrakes(false);
+				SetCarMovement(false);
 				LapCounter.canStop = false;
 				while (!LapCounter.canStop)
 				{
@@ -779,7 +715,7 @@ public class Experiment : MonoBehaviour {
 				UpdateLapDisplay();
 				HideLapDisplay();
 
-				SetCarBrakes(true);
+				SetCarMovement(true);
 				trafficLightController.MakeVisible(false);
 
 				yield return new WaitForSeconds(1f);
@@ -814,8 +750,8 @@ public class Experiment : MonoBehaviour {
 			int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
 
 			Transform randStartTransform = validStartTransforms[randWaypoint];
-			targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(randStartTransform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
-			player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
+		//	targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(randStartTransform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
+			//player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
 			player.transform.position = randStartTransform.position;
 			player.transform.rotation = randStartTransform.rotation;
 			chequeredFlag.transform.position = randStartTransform.position;
@@ -823,7 +759,8 @@ public class Experiment : MonoBehaviour {
 
 			trialLogTrack.LogRetrievalStartPosition(player.transform.position);
 
-			player.GetComponent<WaypointProgressTracker>().Reset();
+            player.GetComponent<CarMover>().Reset();
+			//player.GetComponent<WaypointProgressTracker>().Reset();
 
 			LapCounter.lapCount = 0; //reset lap count for retrieval 
 
@@ -856,7 +793,7 @@ public class Experiment : MonoBehaviour {
 					trialLogTrack.LogInstructions(false);
 					trafficLightController.MakeVisible(true);
 					yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-					SetCarBrakes(false);
+					SetCarMovement(false);
 
 					//reset lap timer and show display
 					ResetLapDisplay();
@@ -869,7 +806,7 @@ public class Experiment : MonoBehaviour {
 						yield return 0;
                     }
 					verbalRetrieval = false;
-					SetCarBrakes(true);
+					SetCarMovement(true);
 					UpdateLapDisplay();
 					HideLapDisplay();
 
@@ -905,7 +842,7 @@ public class Experiment : MonoBehaviour {
 
 					trafficLightController.MakeVisible(true);
 					yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-					SetCarBrakes(false);
+					SetCarMovement(false);
 
 					//reset lap timer and show display
 					ResetLapDisplay();
@@ -946,7 +883,7 @@ public class Experiment : MonoBehaviour {
 
 
                     finishedRetrieval = true;
-                    SetCarBrakes(true);
+                    SetCarMovement(true);
 
 					uiController.targetTextPanel.alpha = 0f;
 					uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
@@ -983,7 +920,7 @@ public class Experiment : MonoBehaviour {
 			spawnedObjects.Clear();
 
 
-			player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+			//player.GetComponent<CarController>().ChangeMaxSpeed(40f);
 			chequeredFlag.SetActive(true);
 
 			//	objController.encodingList.Clear();
@@ -991,7 +928,7 @@ public class Experiment : MonoBehaviour {
 			player.transform.position = startTransform.position;
 
 			uiController.targetTextPanel.alpha = 0f;
-			SetCarBrakes(true);
+			SetCarMovement(true);
 			trialLogTrack.LogTaskStage(currentStage, false);
 		}
 		yield return null;
@@ -1053,7 +990,7 @@ public class Experiment : MonoBehaviour {
 
 	public IEnumerator StartVerbalRetrieval(GameObject objectQueried)
 	{
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		yield return new WaitForSeconds(1f);
 		uiController.verbalInstruction.alpha = 1f;
 		string fileName = trialCount.ToString() + "_" + retCount.ToString();
@@ -1068,7 +1005,7 @@ public class Experiment : MonoBehaviour {
 
 		retCount++;
 		uiController.verbalInstruction.alpha = 0f;
-		SetCarBrakes(false);
+		SetCarMovement(false);
 		yield return null;
     }
 
@@ -1194,9 +1131,9 @@ public class Experiment : MonoBehaviour {
 	
 	public IEnumerator StopCarTemporarily()
     {
-		SetCarBrakes(true);
+		SetCarMovement(true);
 		yield return new WaitForSeconds(1.5f);
-		SetCarBrakes(false);
+		SetCarMovement(false);
 		yield return null;
     }
 	IEnumerator SpawnEncodingObjects()
@@ -1227,10 +1164,10 @@ public class Experiment : MonoBehaviour {
 		yield return null;
 	}
 
-	public void SetCarBrakes(bool shouldStop)
+	public void SetCarMovement(bool shouldMove)
     {
-		trialLogTrack.LogCarBrakes(shouldStop);
-		player.GetComponent<Rigidbody>().isKinematic = shouldStop;
+		trialLogTrack.LogCarMovement(shouldMove);
+        player.GetComponent<CarMover>().ToggleCarMovement(shouldMove);
     }
 
 	IEnumerator GenerateRetrievalList()
@@ -1270,14 +1207,14 @@ public class Experiment : MonoBehaviour {
 			//retrieval lap
 			if (LapCounter.isRetrieval)
 			{
-				SetCarBrakes(true);
+				SetCarMovement(true);
 				List<Vector3> chosenLocations = new List<Vector3>();
 				yield return StartCoroutine(GenerateRetrievalList());
 				for (int i = 0; i < blockLength; i++)
 				{
 					UnityEngine.Debug.Log("retrieval loop " + i.ToString());
 					LapCounter.finishedLap = false;
-					SetCarBrakes(true);
+					SetCarMovement(true);
 					UnityEngine.Debug.Log("retrieval obj list outside " + retrievalObjList.Count.ToString());
 					UnityEngine.Debug.Log(" what is " + retrievalObjList[i].ToString());
 					string objName= retrievalObjList[i].gameObject.name.Split('(')[0];
@@ -1291,7 +1228,7 @@ public class Experiment : MonoBehaviour {
 					uiController.retrievalTextPanel.alpha = 0f;
 					uiController.targetTextPanel.alpha = 1f;
 					uiController.itemName.text = objName;
-					SetCarBrakes(false);
+					SetCarMovement(false);
 					yield return new WaitForSeconds(1f);
 					while(!Input.GetKeyDown(KeyCode.Space) && !LapCounter.finishedLap)
                     {
@@ -1314,7 +1251,7 @@ public class Experiment : MonoBehaviour {
 				UnityEngine.Debug.Log("retrieval mode off");
 				uiController.targetTextPanel.alpha = 0f;
 				uiController.retrievalTextPanel.alpha = 0f;
-				SetCarBrakes(false);
+				SetCarMovement(false);
 
 				//reset retrieval lists
 				spawnedObjects.Clear();
@@ -1362,7 +1299,7 @@ public class Experiment : MonoBehaviour {
     {
 		if (player.GetComponent<CarAIControl>().isReverse)
 		{
-			SetCarBrakes(true);
+			SetCarMovement(true);
 
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Left);
 
@@ -1370,7 +1307,7 @@ public class Experiment : MonoBehaviour {
 			trialLogTrack.LogReverseMovement(false);
 			trialLogTrack.LogForwardMovement(true);
 			yield return new WaitForSeconds(0.25f);
-			SetCarBrakes(false);
+			SetCarMovement(false);
 		}
 		yield return null;
 	}
@@ -1379,7 +1316,7 @@ public class Experiment : MonoBehaviour {
     {
 		if (!player.GetComponent<CarAIControl>().isReverse)
 		{
-			SetCarBrakes(true);
+			SetCarMovement(true);
 
 
 			player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
@@ -1387,7 +1324,7 @@ public class Experiment : MonoBehaviour {
 			trialLogTrack.LogForwardMovement(false);
 			trialLogTrack.LogReverseMovement(true);
 			yield return new WaitForSeconds(0.25f);
-			SetCarBrakes(false);
+			SetCarMovement(false);
 		}
 		yield return null;
 	}
@@ -1401,7 +1338,7 @@ public class Experiment : MonoBehaviour {
 			{
 			if (Input.GetKey(KeyCode.UpArrow))
 		{
-			SetCarBrakes(false);
+			SetCarMovement(false);
 			if (wasMovingReverse)
 				{
 					carSpeed = 0f;
@@ -1436,7 +1373,7 @@ public class Experiment : MonoBehaviour {
 			}
 			else if (Input.GetKey(KeyCode.DownArrow))
 		{
-			SetCarBrakes(false);
+			SetCarMovement(false);
 			if (wasMovingForward)
                 {
 					carSpeed = 0f;
@@ -1471,7 +1408,7 @@ public class Experiment : MonoBehaviour {
 			}
 			else
             {
-			SetCarBrakes(true);
+			SetCarMovement(true);
 				carSpeed-=0.5f;
 				if (carSpeed <= 0f)
 				carSpeed = 0f;

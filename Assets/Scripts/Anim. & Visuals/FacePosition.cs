@@ -33,11 +33,7 @@ public class FacePosition : MonoBehaviour {
 	}
 
 	
-	public void FaceItemScreeningCam()
-	{
-		FaceThePosition(Experiment.Instance.itemScreeningCam.transform,false);;
-		ShouldFacePlayer = false;
-	}
+
 
 	void FaceThePosition(Transform transformToFace,bool facingOverhead){
 		Quaternion origRot = transform.rotation;

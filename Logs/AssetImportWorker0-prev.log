@@ -15,11 +15,11 @@ C:/Users/Ansh/Desktop/Test/ScaleMemory
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-54496
+55984
 Successfully changed project path to: C:/Users/Ansh/Desktop/Test/ScaleMemory
 C:/Users/Ansh/Desktop/Test/ScaleMemory
 Using Asset Import Pipeline V2.
-Refreshing native plugins compatible for Editor in 182.09 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 174.79 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2020.3.4f1 (0abb6314276a)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/Resources/UnitySubsystems
@@ -35,74 +35,50 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56376
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56600
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
 Register platform support module: C:/Program Files/Unity/Hub/Editor/2020.3.4f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.003758 seconds.
+Registered in 0.003612 seconds.
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 170.18 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 163.54 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unable to find bridge dll in registry for Microsoft Visual Studio Tools for Unity for C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe
 Mono: successfully reloaded assembly
-- Completed reload, in  1.625 seconds
+- Completed reload, in  1.585 seconds
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.009567 seconds.
+Registered in 0.009631 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 175.52 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 182.14 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.700 seconds
+- Completed reload, in  1.701 seconds
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
-Launched and connected shader compiler UnityShaderCompiler.exe after 1.77 seconds
-Refreshing native plugins compatible for Editor in 3.11 ms, found 0 plugins.
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.04 seconds
+Refreshing native plugins compatible for Editor in 2.11 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 4216 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 303.7 MB.
-System memory in use after: 303.6 MB.
+Unloading 4217 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 297.9 MB.
+System memory in use after: 285.8 MB.
 
-Unloading 43 unused Assets to reduce memory usage. Loaded Objects now: 4700.
-Total: 93.220200 ms (FindLiveObjects: 0.734600 ms CreateObjectMapping: 0.276000 ms MarkObjects: 91.442800 ms  DeleteObjects: 0.764100 ms)
-
-========================================================================
-Received Import Request.
-  path: Assets/Scripts/ObjectManager.cs
-  artifactKey: Guid(b374c550bb5a444028610746743962da) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Scripts/ObjectManager.cs using Guid(b374c550bb5a444028610746743962da) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a6e86e0efcfb5367319adc0565188faa') in 5.507814 seconds
-  Import took 6.473401 seconds .
+Unloading 141 unused Assets to reduce memory usage. Loaded Objects now: 4582.
+Total: 11.570000 ms (FindLiveObjects: 0.518800 ms CreateObjectMapping: 0.128000 ms MarkObjects: 3.374300 ms  DeleteObjects: 7.547000 ms)
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.427594 seconds.
-  path: Assets/Scripts
-  artifactKey: Guid(4672c4636812e4e109b32c907da327f3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Scripts using Guid(4672c4636812e4e109b32c907da327f3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b931cef8623a1fbaf5287e387a58b0f0') in 0.285024 seconds
-  Import took 0.984491 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.131885 seconds.
   path: Assets/Scripts/Experiment.cs
   artifactKey: Guid(2dadbfb25aec446c08910a9ac987bded) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Scripts/Experiment.cs using Guid(2dadbfb25aec446c08910a9ac987bded) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '646be6c080213676077645302a2fa055') in 0.187531 seconds
-  Import took 3.257276 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 8998.907648 seconds.
-  path: Assets/DuskScene/LightingData.asset
-  artifactKey: Guid(35166d96d6848014186bae3cd1a25776) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/DuskScene/LightingData.asset using Guid(35166d96d6848014186bae3cd1a25776) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '28c7c5472432cfd26ddb4e9c081218f6') in 0.040195 seconds
-  Import took 0.058233 seconds .
+Start importing Assets/Scripts/Experiment.cs using Guid(2dadbfb25aec446c08910a9ac987bded) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '353bc59f4a2477015246ece8339870f8') in 0.230502 seconds
+  Import took 0.237657 seconds .
 
 AssetImportWorkerClient::OnTransportError - code=2 error=End of file

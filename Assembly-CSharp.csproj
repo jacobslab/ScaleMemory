@@ -53,67 +53,29 @@
     <UnityVersion>2020.3.4f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Logging\UIPanelLogTrack.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\FxaaComponent.cs" />
-    <Compile Include="Assets\ObjectController.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\Breakable.cs" />
-    <Compile Include="Assets\NetMQ\ServerObject.cs" />
     <Compile Include="Assets\TrafficLightController.cs" />
     <Compile Include="Assets\NetMQ\ClientObject.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\CorrectPositionIndicatorController.cs" />
-    <Compile Include="Assets\Scripts\SimpleTimer.cs" />
-    <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectButton.cs" />
     <Compile Include="Assets\SpeedZoneChecker.cs" />
-    <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\Subject.cs" />
-    <Compile Include="Assets\TurnZone.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\EventLoop.cs" />
     <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ProgressBar.cs" />
-    <Compile Include="Assets\Scripts\Utility\HighPrecisionTimer.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\ChromaticAberrationComponent.cs" />
     <Compile Include="Assets\Scripts\UIController.cs" />
-    <Compile Include="Assets\CyberCity\Script\CCNeonFlash.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\BuiltinDebugViewsComponent.cs" />
-    <Compile Include="Assets\CyberCity\Script\Route\CCVehicle.cs" />
     <Compile Include="Assets\Scripts\ObjectManager.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballGroupAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Utils\ColorGradingCurve.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ParticleAutoDestroy.cs" />
     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectReaderWriter.cs" />
     <Compile Include="Assets\Scripts\SavWav.cs" />
     <Compile Include="Assets\Scripts\PrintLists.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\Coconut.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingBehaviour.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\EyeAdaptationModel.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Utils\GraphicsUtils.cs" />
-    <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\VignetteComponent.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\FogModel.cs" />
     <Compile Include="Assets\CyberCity\Script\FPMouseLook.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\TaaComponent.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\ScreenSpaceReflectionComponent.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonData.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\VignetteModel.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonException.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\GrainModel.cs" />
-    <Compile Include="Assets\Scripts\SanityCheck.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingModel.cs" />
     <Compile Include="Assets\Scripts\Logging\EnableChildrenLogTrack.cs" />
-    <Compile Include="Assets\Scripts\GameClock.cs" />
-    <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
     <Compile Include="Assets\Scripts\PullObject.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\PostProcessingProfile.cs" />
     <Compile Include="Assets\CyberCity\Script\CCFollower.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ChosenIndicatorController.cs" />
     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate.cs" />
-    <Compile Include="Assets\Scripts\SpeedManager.cs" />
-    <Compile Include="Assets\Scripts\Logging\CameraLogTrack.cs" />
     <Compile Include="Assets\Scripts\AudioRecorder.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\GrainComponent.cs" />
-    <Compile Include="Assets\Scripts\Logging\TextLogTrack.cs" />
     <Compile Include="Assets\MCP\scripts\Filmic.cs" />
     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Rotate_2.cs" />
     <Compile Include="Assets\Scripts\Logging\LogitechControllerLogTrack.cs" />
@@ -122,49 +84,102 @@
     <Compile Include="Assets\PostProcessing\Runtime\Components\MotionBlurComponent.cs" />
     <Compile Include="Assets\Scripts\Logging\LineRendererLogTrack.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\MinAttribute.cs" />
-    <Compile Include="Assets\Scripts\Logging\ObjectLogTrack.cs" />
-    <Compile Include="Assets\Scripts\Logging\ShopliftLogTrack.cs" />
     <Compile Include="Assets\ObjectSpawner.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMockWrapper.cs" />
     <Compile Include="Assets\Scripts\Experiment.cs" />
     <Compile Include="Assets\Scripts\BarrierManager.cs" />
-    <Compile Include="Assets\Scripts\SpawnManager.cs" />
-    <Compile Include="Assets\Scripts\Logging\UIImageLogTrack.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\LitJson\Lexer.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMapper.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\UserLutModel.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\BloomComponent.cs" />
     <Compile Include="Assets\Scripts\Logging\ThreadedJob.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\TCP_Config.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\MotionBlurModel.cs" />
-    <Compile Include="Assets\CarStopper.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\UserLutComponent.cs" />
     <Compile Include="Assets\SpawnPointTester.cs" />
     <Compile Include="Assets\SlowZoneChecker.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\AssemblyInfo.cs" />
     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\Camera_particale.cs" />
-    <Compile Include="Assets\Scripts\Logging\AudioLogTrack.cs" />
     <Compile Include="Assets\CyberCity\Script\CCLines.cs" />
     <Compile Include="Assets\Scripts\Logging\KeyboardLogTrack.cs" />
     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectSelectionController.cs" />
     <Compile Include="Assets\Scripts\Logging\ObjectColorLogTrack.cs" />
     <Compile Include="Assets\LapCounter.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\HighResolutionDateTime.cs" />
+    <Compile Include="Assets\CarMover.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\DitheringComponent.cs" />
+    <Compile Include="Assets\Prefabs\RamulatorInterface\RamulatorInterface.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingComponent.cs" />
+    <Compile Include="Assets\CyberCity\Script\FPCharacter.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\VisibilityToggler.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\ColorGradingComponent.cs" />
+    <Compile Include="Assets\Scripts\DistanceCalculator.cs" />
+    <Compile Include="Assets\Scripts\Logging\Logger_Threading.cs" />
+    <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
+    <Compile Include="Assets\Scripts\Logging\ScoreLogTrack.cs" />
+    <Compile Include="Assets\Scripts\Configuration.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\BloomModel.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\EventQueue.cs" />
+    <Compile Include="Assets\Scripts\UsefulFunctions.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballAttribute.cs" />
+    <Compile Include="Assets\Scripts\SimpleDistanceMeasure.cs" />
+    <Compile Include="Assets\Scripts\Logging\ProgressBarLogTrack.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
+    <Compile Include="Assets\Scripts\TrialManager.cs" />
+    <Compile Include="Assets\Scripts\Logging\UIPanelLogTrack.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\FxaaComponent.cs" />
+    <Compile Include="Assets\ObjectController.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\Breakable.cs" />
+    <Compile Include="Assets\NetMQ\ServerObject.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\CorrectPositionIndicatorController.cs" />
+    <Compile Include="Assets\Scripts\SimpleTimer.cs" />
+    <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectButton.cs" />
+    <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\Subject.cs" />
+    <Compile Include="Assets\TurnZone.cs" />
+    <Compile Include="Assets\Scripts\Utility\HighPrecisionTimer.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\ChromaticAberrationComponent.cs" />
+    <Compile Include="Assets\CyberCity\Script\CCNeonFlash.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\BuiltinDebugViewsComponent.cs" />
+    <Compile Include="Assets\CyberCity\Script\Route\CCVehicle.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballGroupAttribute.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ParticleAutoDestroy.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingBehaviour.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\EyeAdaptationModel.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Utils\GraphicsUtils.cs" />
+    <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\VignetteComponent.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\FogModel.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\TaaComponent.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonData.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\VignetteModel.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\GrainModel.cs" />
+    <Compile Include="Assets\Scripts\SanityCheck.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingModel.cs" />
+    <Compile Include="Assets\Scripts\GameClock.cs" />
+    <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ChosenIndicatorController.cs" />
+    <Compile Include="Assets\Scripts\SpeedManager.cs" />
+    <Compile Include="Assets\Scripts\Logging\CameraLogTrack.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\GrainComponent.cs" />
+    <Compile Include="Assets\Scripts\Logging\TextLogTrack.cs" />
+    <Compile Include="Assets\Scripts\Logging\ObjectLogTrack.cs" />
+    <Compile Include="Assets\Scripts\Logging\ShopliftLogTrack.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMockWrapper.cs" />
+    <Compile Include="Assets\Scripts\SpawnManager.cs" />
+    <Compile Include="Assets\Scripts\Logging\UIImageLogTrack.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\LitJson\Lexer.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonMapper.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\UserLutModel.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\TCP_Config.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Models\MotionBlurModel.cs" />
+    <Compile Include="Assets\CarStopper.cs" />
+    <Compile Include="Assets\PostProcessing\Runtime\Components\UserLutComponent.cs" />
+    <Compile Include="Assets\Scripts\Logging\AudioLogTrack.cs" />
     <Compile Include="Assets\CyberCity\Script\CCTvMovie.cs" />
     <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
     <Compile Include="Assets\Scripts\TimelockManager.cs" />
     <Compile Include="Assets\Scripts\ChequeredFlag.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\HighResolutionDateTime.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\AmbientOcclusionModel.cs" />
-    <Compile Include="Assets\CarMover.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\DitheringComponent.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\BuiltinDebugViewsModel.cs" />
     <Compile Include="Assets\Scripts\TornadoVortex.cs" />
-    <Compile Include="Assets\Prefabs\RamulatorInterface\RamulatorInterface.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\TCPServer.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\PostProcessingComponent.cs" />
     <Compile Include="Assets\Scripts\Logging\TrialLogTrack.cs" />
-    <Compile Include="Assets\CyberCity\Script\FPCharacter.cs" />
     <Compile Include="Assets\Scripts\Logging\LogTrack.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonWriter.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
@@ -177,34 +192,19 @@
     <Compile Include="Assets\PostProcessing\Runtime\Models\ScreenSpaceReflectionModel.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\DepthOfFieldComponent.cs" />
     <Compile Include="Assets\Scripts\CoinSpawner.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\VisibilityToggler.cs" />
     <Compile Include="Assets\Scripts\TestMic.cs" />
     <Compile Include="Assets\Scripts\Logging\TextMeshLogTrack.cs" />
     <Compile Include="Assets\Scripts\Utility\DataPoint.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Components\ColorGradingComponent.cs" />
-    <Compile Include="Assets\Scripts\DistanceCalculator.cs" />
-    <Compile Include="Assets\Scripts\Logging\Logger_Threading.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\JsonMessageController.cs" />
-    <Compile Include="Assets\MCP\scripts\DynamicDOF.cs" />
-    <Compile Include="Assets\Scripts\Logging\ScoreLogTrack.cs" />
-    <Compile Include="Assets\Scripts\Configuration.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\FogComponent.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Models\BloomModel.cs" />
     <Compile Include="Assets\MCP\scripts\AdvancedCA.cs" />
-    <Compile Include="Assets\Scripts\EEG Communication\EventQueue.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\DepthOfFieldModel.cs" />
-    <Compile Include="Assets\Scripts\UsefulFunctions.cs" />
     <Compile Include="Assets\Scripts\Logging\CanvasGroupLogTrack.cs" />
-    <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\AmbientOcclusionComponent.cs" />
-    <Compile Include="Assets\Scripts\SimpleDistanceMeasure.cs" />
-    <Compile Include="Assets\Scripts\Logging\ProgressBarLogTrack.cs" />
     <Compile Include="Assets\CyberCity\CyberPunk_City\Scripts\SimpleCameraController.cs" />
     <Compile Include="Assets\Scripts\Logging\InstructionVideoLogTrack.cs" />
-    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ColorChanger.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\AntialiasingModel.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonReader.cs" />
-    <Compile Include="Assets\Scripts\TrialManager.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\DitheringModel.cs" />
   </ItemGroup>
@@ -873,6 +873,9 @@
     <Reference Include="System.Xml.XPath.XDocument">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.4f1\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.VisualEffectGraph.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
     </Reference>
@@ -891,17 +894,32 @@
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.VisualEffectGraph.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
+    <Reference Include="Unity.RenderPipelines.HighDefinition.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Searcher.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Searcher.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.HighDefinition.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Postprocessing.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Editor.dll</HintPath>
@@ -912,8 +930,11 @@
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Analytics">
+      <HintPath>Library\ScriptAssemblies\Analytics.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
@@ -921,8 +942,8 @@
     <Reference Include="com.unity.multiplayer-weaver.Editor">
       <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-weaver.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Analytics">
-      <HintPath>Library\ScriptAssemblies\Analytics.dll</HintPath>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
       <HintPath>Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
@@ -930,11 +951,17 @@
     <Reference Include="com.unity.multiplayer-hlapi.Runtime">
       <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.ShaderGraph.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.ShaderGraph.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
@@ -945,6 +972,9 @@
     <Reference Include="UnityEngine.Monetization">
       <HintPath>Library\ScriptAssemblies\UnityEngine.Monetization.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.RenderPipelines.HighDefinition.Config.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Config.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.Purchasing">
       <HintPath>Library\ScriptAssemblies\UnityEditor.Purchasing.dll</HintPath>
     </Reference>
@@ -954,38 +984,8 @@
     <Reference Include="UnityEngine.Advertisements.Editor">
       <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.VisualEffectGraph.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VisualEffectGraph.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.HighDefinition.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.HighDefinition.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Searcher.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Searcher.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.HighDefinition.Config.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.HighDefinition.Config.Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.ShaderGraph.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.ShaderGraph.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

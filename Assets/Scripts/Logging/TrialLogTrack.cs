@@ -164,9 +164,9 @@ public class TrialLogTrack : LogTrack {
 
 	}
 
-	public void LogCarBrakes(bool isActive)
+	public void LogCarMovement(bool isActive)
     {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CAR_BRAKES" + separator + ((isActive)? "ACTIVE" : "INACTIVE"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CAR_MOVEMENT" + separator + ((isActive)? "ACTIVE" : "INACTIVE"));
 
 	}
 
