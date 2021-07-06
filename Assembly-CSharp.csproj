@@ -151,6 +151,7 @@
     <Compile Include="Assets\Scripts\SanityCheck.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\PostProcessingModel.cs" />
     <Compile Include="Assets\Scripts\GameClock.cs" />
+    <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ChosenIndicatorController.cs" />
     <Compile Include="Assets\Scripts\SpeedManager.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Assets\CarStopper.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Components\UserLutComponent.cs" />
     <Compile Include="Assets\Scripts\Logging\AudioLogTrack.cs" />
+    <Compile Include="Assets\Scripts\StimulusObject.cs" />
     <Compile Include="Assets\CyberCity\Script\CCTvMovie.cs" />
     <Compile Include="Assets\UGUIKit Flat\Content\Scripts\bl_ToggleSwitcher.cs" />
     <Compile Include="Assets\Scripts\TimelockManager.cs" />
@@ -276,6 +278,7 @@
      <None Include="Assets\CyberCity\ReadMe.txt" />
      <None Include="Assets\Racing Tracks\Misc\Night Building.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\TAA.shader" />
+     <None Include="Assets\list.txt" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Blit.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Bloom.cginc" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\WaveformCompute.compute" />

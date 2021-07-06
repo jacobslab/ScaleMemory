@@ -6,18 +6,21 @@ public class CarStopper : MonoBehaviour
 {
     private bool activated = false;
     private bool retActivated = false;
+    public GameObject stimulusObject;
+
 
     // Start is called before the first frame update
     void Start()
-    {
-        
+    {       
     }
+
 
     // Update is called once per frame
     void Update()
     {
         if (Experiment.Instance.verbalRetrieval)
         {
+            /*
             float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
             if (distToPlayer < 10f && !retActivated)
             {
@@ -25,39 +28,78 @@ public class CarStopper : MonoBehaviour
                 UnityEngine.Debug.Log("ret activated for " + gameObject.name);
                 StartCoroutine("PerformVerbalRetrieval");
             }
+            */
 
         }
         else
         {
+            /*
             float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
-            if (distToPlayer < 10f && !activated)
+            UnityEngine.Debug.Log("dist to player " + gameObject.name + " : " + distToPlayer.ToString());
+            if (distToPlayer < 15f && !activated)
             {
                 activated = true;
+                Experiment.Instance.SetCarMovement(false);
                 StartCoroutine("ShowObject");
             }
+            */
         }
     }
 
     IEnumerator PerformVerbalRetrieval()
     {
-        yield return StartCoroutine(Experiment.Instance.StartVerbalRetrieval(gameObject));
+        yield return StartCoroutine(Experiment.Instance.StartVerbalRetrieval(stimulusObject));
         yield return null;
     }
 
     IEnumerator ShowObject()
     {
-        if (gameObject.GetComponent<VisibilityToggler>() != null)
-            gameObject.GetComponent<VisibilityToggler>().TurnVisible(true);
-        yield return StartCoroutine(Experiment.Instance.StopCarTemporarily());
 
-        string objName = gameObject.name.Split('(')[0];
 
-        Experiment.Instance.trialLogTrack.LogItemPresentation(objName);
-
-        if (gameObject.GetComponent<VisibilityToggler>() != null)
-            gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
+        UnityEngine.Debug.Log("stopping car temporarily to show object");
+        yield return StartCoroutine(Experiment.Instance.PresentStimuli(stimulusObject));
+        
         //activated = false;
         yield return null;
+    }
+
+    IEnumerator BeginItemCuedRetrieval()
+    {
+        yield return StartCoroutine(Experiment.Instance.ShowItemCuedReactivation(stimulusObject));
+        yield return null;
+    }
+
+
+    IEnumerator BeginLocationCuedRetrieval()
+    {
+        yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(stimulusObject));
+        yield return null;
+    }
+
+
+    private void OnTriggerEnter(Collider col)
+    {
+        UnityEngine.Debug.Log("collided with " + col.gameObject.name);
+        if (col.gameObject.tag == "StimulusCollisions")
+        {
+            UnityEngine.Debug.Log("collided with player");
+            stimulusObject.GetComponent<StimulusObject>().ToggleCollisions(false); //disable collisions until the next lap
+            activated = true;
+            Experiment.Instance.SetCarMovement(false);
+            //if it is retrieval, then cue appropriately
+         
+            if (Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
+            {
+                UnityEngine.Debug.Log("beginning location cued due to collision");
+                StartCoroutine("BeginLocationCuedRetrieval");
+
+            }
+            //else, if it's encoding, present stimulus
+            else if(Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+            {
+                StartCoroutine("ShowObject");
+            }
+        }
     }
 
 }

@@ -23,6 +23,18 @@ public class Configuration : MonoBehaviour {
 
     public static float heartbeatInterval = 1f;
 
+    public static int minGapBetweenStimuli = 4; //measured in waypoints
+
+    //presentation jitter time
+    public static float minJitterTime = 0.25f;
+    public static float maxJitterTime = 0.8f;
+
+
+    //reactivation times
+    public static float itemReactivationTime = 2f;
+    public static float locationReactivationTime = 2f;
+
+
 
     //ELEMEM settings
 

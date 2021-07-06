@@ -1,0 +1,99 @@
+airplane
+anchor
+Apple
+balloon
+banana
+battery
+bed
+bell
+bench
+binoculars
+boat
+bottle
+box
+broccoli
+bucket
+cabinet
+cactus
+cage
+cake
+camera
+can
+candle
+canon
+cello
+chair
+cherry
+chocolate
+clock
+column
+cone
+crab
+crown
+dice
+donut
+drum
+duck
+dumpster
+fan
+fish
+flash light
+flowers
+Garlic
+Gears
+glasses
+gloves
+gold bar
+hammer
+hanger
+hat
+hourglass
+house
+ice cream
+jewels
+kettle
+key
+keyboard
+knife
+ladder
+lamp
+Lemon
+lightbulb
+lock
+mailbox
+megaphone
+mixer
+mushroom
+octopus
+ornaments
+oven
+pencil
+phone
+pineapple
+plant
+push pin
+Racket
+record player
+refrigerator
+ring
+rock
+rubik's cube
+sandals
+shield
+shirt
+slide
+soccer ball
+sofa
+stool
+sword
+television
+Tie
+toaster
+toilet paper
+Tooth
+truck
+vase
+water pump
+wheel
+wood
+wrench

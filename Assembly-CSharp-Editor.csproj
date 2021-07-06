@@ -66,6 +66,7 @@
     <Compile Include="Assets\PostProcessing\Editor\Models\ScreenSpaceReflectionModelEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Models\BuiltinDebugViewsEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Attributes\PostProcessingModelEditorAttribute.cs" />
+    <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\PostProcessingModelEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Models\GrainModelEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\PostProcessingBehaviourEditor.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\PostProcessing\Editor\Models\ChromaticAberrationEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\PropertyDrawers\GetSetDrawer.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Models\DepthOfFieldModelEditor.cs" />
+    <Compile Include="Assets\Editor\BulkRename.cs" />
     <Compile Include="Assets\PostProcessing\Editor\PropertyDrawers\MinDrawer.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Utils\CurveEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Utils\FxStyles.cs" />
@@ -89,7 +91,6 @@
     <Compile Include="Assets\PostProcessing\Editor\Utils\ReflectionUtils.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Models\DitheringModelEditor.cs" />
     <Compile Include="Assets\PostProcessing\Editor\Monitors\VectorscopeMonitor.cs" />
-    <Compile Include="Assets\Editor\BulkRename.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

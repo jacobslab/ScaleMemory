@@ -12,13 +12,15 @@ public class PrintLists : MonoBehaviour {
 
 
 
-		germanAudio = Resources.LoadAll ("StoreAudioGerman");
+		germanAudio = Resources.LoadAll ("Prefabs/Objects");
 
 		string contents = "";
 		for (int i = 0; i < germanAudio.Length; i++) {
-			contents += germanAudio[i].name + "\n";
+            GameObject tempObj = (GameObject)germanAudio[i];
+            UnityEngine.Debug.Log("adding " + tempObj.gameObject.name);
+            contents += tempObj.gameObject.name + "\n";
 		}
-		System.IO.File.WriteAllText ("/Users/anshpatel/Desktop/germanAudioDeliverables.txt", contents);
+		System.IO.File.WriteAllText (Application.dataPath+"/list.txt", contents);
 	}
 	
 	// Update is called once per frame

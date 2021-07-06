@@ -22,6 +22,14 @@ public class LapCounter : MonoBehaviour
         
     }
 
+    //called by external scripts
+    public static void CompleteLap()
+    {
+
+        lapCount++;
+        UnityEngine.Debug.Log("completed a lap");
+    }
+
     void OnTriggerEnter(Collider other)
     {
         UnityEngine.Debug.Log("collided with " + other.gameObject.name);

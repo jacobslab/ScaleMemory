@@ -11,6 +11,8 @@ public class ObjectController : MonoBehaviour
 	public List<GameObject> encodingList;
 	public ObjectSpawner objSpawner;
 	public GameObject textPrefab;
+    public GameObject itemBoxColliderPrefab;
+
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update
 	void Awake()

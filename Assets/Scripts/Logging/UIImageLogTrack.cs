@@ -40,7 +40,8 @@ public class UIImageLogTrack: LogTrack {
 		if (myImage.sprite != null) {
 			currentSprite = myImage.sprite;
 			subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount (), gameObject.name + separator + "IMAGE" + separator + currentSprite.name.ToString ());
-		} else {
+            subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), gameObject.name + separator + "IMAGE" + separator + myImage.transform.position.x.ToString() + separator + myImage.transform.position.y.ToString() + myImage.transform.position.z.ToString());
+        } else {
 			subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount (), gameObject.name + separator + "IMAGE" + separator + "None");
 		}
 	}

@@ -80,9 +80,9 @@ public class TrialLogTrack : LogTrack {
 
 	}
 
-	public void LogItemPresentation(string objName)
+	public void LogItemPresentation(string objName,bool isActive)
     {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ITEM_PRESENTATION" + separator + objName);
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ITEM_PRESENTATION" + separator + objName + separator + ((isActive)? "BEGAN" : "ENDED"));
 
 	}
 
