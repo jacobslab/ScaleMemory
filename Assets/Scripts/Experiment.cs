@@ -318,8 +318,10 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator ConnectToElemem()
     {
+#if !UNITY_WEBGL
         ramulatorInterface.StartThread();
         yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
+#endif
         yield return null;
     }
 

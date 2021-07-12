@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System;
 using UnityEngine;
 
@@ -6,6 +6,8 @@ using UnityEngine;
 //data about the event is currently stored in a dictionary
 public class DataPoint
 {
+#if !UNITY_WEBGL
+
     private string type;
     private System.Collections.Generic.Dictionary<string, object> dataDict;
     private System.DateTime time;
@@ -130,4 +132,5 @@ public class DataPoint
         }
         return false;
     }
+#endif
 }

@@ -13,11 +13,11 @@ using System.Linq;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 
+#if !UNITY_WEBGL
 
 public class RamulatorWrapper : IHostPC {
 
-    
-   // InterfaceManager manager;
+    // InterfaceManager manager;
 
     public RamulatorWrapper() {
       // manager = _manager; 
@@ -47,11 +47,12 @@ public class RamulatorWrapper : IHostPC {
     }
 }
 
+#endif
 
 
 public class ElememWorker
 {
-
+#if !UNITY_WEBGL
     private readonly Thread _listenerWorker;
 
     private readonly Thread _heartbeatListener;
@@ -316,11 +317,13 @@ public class ElememWorker
         _listenerCancelled = true;
         _listenerWorker.Join();
     }
+#endif
 }
 
 
 public class RamulatorInterface : MonoBehaviour
 {
+#if !UNITY_WEBGL
 
     private NetMQ.Sockets.PairSocket zmqSocket;
     private const string address = "tcp://*:8889";
@@ -645,5 +648,5 @@ public class RamulatorInterface : MonoBehaviour
     {
         elememWorker.Stop();
     }
-
+#endif
 }

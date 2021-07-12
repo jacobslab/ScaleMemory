@@ -12,14 +12,15 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using Newtonsoft.Json.Linq;
 
+#if !UNITY_WEBGL
 public abstract class IHostPC : EventLoop
 {
+
     public abstract JObject WaitForMessage(string type, int timeout);
     public abstract void Connect();
     public abstract void HandleMessage(string message, DateTime time);
     public abstract void SendMessage(string type, Dictionary<string, object> data);
 }
-
 
 public class ElememListener
 {
@@ -127,6 +128,7 @@ public class ElememListener
 // message in the queue and some blocking wait in the EventLoop thread
 public class ElememInterface : IHostPC
 {
+
     //public InterfaceManager im;
 
     int messageTimeout = 1000;
@@ -349,8 +351,11 @@ public class ElememInterface : IHostPC
     }
 }
 
+#endif
 public class ServerObject : MonoBehaviour
 {
+
+#if !UNITY_WEBGL
     public bool Connected;
     private ElememWorker _elememWorker;
 
@@ -405,4 +410,5 @@ public class ServerObject : MonoBehaviour
     {
         _elememWorker.Stop();
     }
+#endif
 }
