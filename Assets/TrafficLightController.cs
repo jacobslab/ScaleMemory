@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class TrafficLightController : MonoBehaviour
 {
-    public Material redMat;
-    public Material yellowMat;
-    public Material greenMat;
-
-    public Material offMat;
-
     private MeshRenderer _meshRenderer;
 
+    public GameObject offRed;
+    public GameObject offYellow;
+    public GameObject offGreen;
+
+    public GameObject onRed;
+    public GameObject onYellow;
+    public GameObject onGreen;
 
     public enum TrafficLights
     {
@@ -24,11 +25,12 @@ public class TrafficLightController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _meshRenderer = gameObject.GetComponent<MeshRenderer>();
+    //    _meshRenderer = gameObject.GetComponent<MeshRenderer>();
 
-        _meshRenderer.material.color = Color.green;
-            
+       // _meshRenderer.material.color = Color.green;
 
+        //turn off everything by default
+        ResetTrafficLights();
     }
 
     // Update is called once per frame
@@ -36,6 +38,18 @@ public class TrafficLightController : MonoBehaviour
     {
 
     }
+
+    //turns all lights in OFF state
+    void ResetTrafficLights()
+    {
+        offRed.SetActive(true);
+        offYellow.SetActive(true);
+        offGreen.SetActive(true);
+        onRed.SetActive(false);
+        onYellow.SetActive(false);
+        onGreen.SetActive(false);
+    }
+
 
     void ChangeTo(TrafficLights trafficLight)
     {
@@ -45,7 +59,12 @@ public class TrafficLightController : MonoBehaviour
             case TrafficLights.Red:
           
                 UnityEngine.Debug.Log("setting to RED");
-             //   /*
+                //   /*
+
+                offRed.SetActive(false);
+                onRed.SetActive(true);
+
+                /*
                 gameObject.GetComponent<MeshRenderer>().materials[4] = redMat;
                 gameObject.GetComponent<MeshRenderer>().materials[3] = offMat;
                 gameObject.GetComponent<MeshRenderer>().materials[2] = offMat;
@@ -58,28 +77,42 @@ public class TrafficLightController : MonoBehaviour
 
             case TrafficLights.Yellow:
                 UnityEngine.Debug.Log("setting to YELLOW");
-              //  /*
-                gameObject.GetComponent<MeshRenderer>().materials[4] = offMat;
-                gameObject.GetComponent<MeshRenderer>().materials[3] = yellowMat;
-                gameObject.GetComponent<MeshRenderer>().materials[2] = offMat;
+                //  /*
+
+
+                onRed.SetActive(false);
+                offRed.SetActive(true);
+                offYellow.SetActive(false);
+                onYellow.SetActive(true);
                 /*
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[4].DisableKeyword("_EMISSION");
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[3].EnableKeyword("_EMISSION");
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[2].DisableKeyword("_EMISSION");
-                */
+                  gameObject.GetComponent<MeshRenderer>().materials[4] = offMat;
+                  gameObject.GetComponent<MeshRenderer>().materials[3] = yellowMat;
+                  gameObject.GetComponent<MeshRenderer>().materials[2] = offMat;
+                  /*
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[4].DisableKeyword("_EMISSION");
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[3].EnableKeyword("_EMISSION");
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[2].DisableKeyword("_EMISSION");
+                  */
                 break;
 
             case TrafficLights.Green:
                 UnityEngine.Debug.Log("setting to GREEN");
-              //  /*
-                gameObject.GetComponent<MeshRenderer>().materials[4] = offMat;
-                gameObject.GetComponent<MeshRenderer>().materials[3] = offMat;
-                gameObject.GetComponent<MeshRenderer>().materials[2] = greenMat;
+                //  /*
+
+                onYellow.SetActive(false);
+                offYellow.SetActive(true);
+                offGreen.SetActive(false);
+                onGreen.SetActive(true);
+
                 /*
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[4].DisableKeyword("_EMISSION");
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[3].DisableKeyword("_EMISSION");
-                gameObject.GetComponent<MeshRenderer>().sharedMaterials[2].EnableKeyword("_EMISSION");
-                */
+                  gameObject.GetComponent<MeshRenderer>().materials[4] = offMat;
+                  gameObject.GetComponent<MeshRenderer>().materials[3] = offMat;
+                  gameObject.GetComponent<MeshRenderer>().materials[2] = greenMat;
+                  /*
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[4].DisableKeyword("_EMISSION");
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[3].DisableKeyword("_EMISSION");
+                  gameObject.GetComponent<MeshRenderer>().sharedMaterials[2].EnableKeyword("_EMISSION");
+                  */
                 break;
 
         }
@@ -87,6 +120,7 @@ public class TrafficLightController : MonoBehaviour
 
     public IEnumerator StartCountdownToGreen()
     {
+        ResetTrafficLights();
         ChangeTo(TrafficLights.Red);
         yield return new WaitForSeconds(1f);
         ChangeTo(TrafficLights.Yellow);
@@ -98,7 +132,8 @@ public class TrafficLightController : MonoBehaviour
 
     public void MakeVisible(bool isVisible)
     {
-        gameObject.GetComponent<MeshRenderer>().enabled = isVisible;
+        // gameObject.GetComponent<MeshRenderer>().enabled = isVisible;
+        gameObject.SetActive(isVisible);
         Experiment.Instance.trialLogTrack.LogTrafficLightVisibility(isVisible);
     }
 

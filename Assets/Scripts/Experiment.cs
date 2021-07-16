@@ -1040,9 +1040,10 @@ public class Experiment : MonoBehaviour {
 
         yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
         UnityEngine.Debug.Log("begin verbal recall");
-        yield return StartCoroutine(WaitForActionButton());
+        yield return StartCoroutine(StartVerbalRetrieval(stimObject));
+        //yield return StartCoroutine(WaitForActionButton());
         uiController.ResetRetrievalInstructions();
-
+        UnityEngine.Debug.Log("finished verbal recall");
         SetCarMovement(true);
         yield return null;
     }
@@ -1052,7 +1053,6 @@ public class Experiment : MonoBehaviour {
 
     public IEnumerator StartVerbalRetrieval(GameObject objectQueried)
     {
-        SetCarMovement(true);
         yield return new WaitForSeconds(1f);
         uiController.verbalInstruction.alpha = 1f;
         string fileName = trialCount.ToString() + "_" + retCount.ToString();
