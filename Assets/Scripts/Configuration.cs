@@ -21,7 +21,7 @@ public class Configuration : MonoBehaviour {
 	public static int spawnCount=3;
 	public static float itemPresentationTime=1.5f;
 
-    public static float heartbeatInterval = 1f;
+    public static int heartbeatInterval = 1000;
 
     public static int minGapBetweenStimuli = 4; //measured in waypoints
 

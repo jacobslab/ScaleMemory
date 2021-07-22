@@ -54,7 +54,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Assets\TrafficLightController.cs" />
-    <Compile Include="Assets\NetMQ\ClientObject.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ScaleAnimator.cs" />
     <Compile Include="Assets\SpeedZoneChecker.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\EventLoop.cs" />
@@ -96,6 +95,8 @@
     <Compile Include="Assets\CyberCity\Script\CCLines.cs" />
     <Compile Include="Assets\Scripts\Logging\KeyboardLogTrack.cs" />
     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectSelectionController.cs" />
+    <Compile Include="Assets\Scripts\Utility\CoroutineToEvent.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\ElememInterface.cs" />
     <Compile Include="Assets\Scripts\Logging\ObjectColorLogTrack.cs" />
     <Compile Include="Assets\LapCounter.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\HighResolutionDateTime.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Assets\ObjectController.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\FacePosition.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\Breakable.cs" />
-    <Compile Include="Assets\NetMQ\ServerObject.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\CorrectPositionIndicatorController.cs" />
     <Compile Include="Assets\Scripts\SimpleTimer.cs" />
     <Compile Include="Assets\Scripts\SubjectSelection&amp;Saving\SubjectButton.cs" />
@@ -153,6 +153,7 @@
     <Compile Include="Assets\Scripts\GameClock.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\CyberCity\Script\Route\CCRoute.cs" />
+    <Compile Include="Assets\Scripts\Utility\InterfaceManager.cs" />
     <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ChosenIndicatorController.cs" />
     <Compile Include="Assets\Scripts\SpeedManager.cs" />
     <Compile Include="Assets\Scripts\Logging\CameraLogTrack.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonReader.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\DitheringModel.cs" />
+    <Compile Include="Assets\Scripts\EEG Communication\AltInterface.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />

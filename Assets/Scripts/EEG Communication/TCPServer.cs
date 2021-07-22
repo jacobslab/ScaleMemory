@@ -32,6 +32,9 @@ public class TCPServer : MonoBehaviour
 	public bool canStartGame { get { return GetCanStartGame(); } }
 
 
+    private bool _serverConnection = false;
+    private bool _gameReady = false;
+
 
 	//int QUEUE_SIZE = 20;  //Blocks if the queue is full
 
@@ -69,8 +72,18 @@ public class TCPServer : MonoBehaviour
 		//myClient = SetupClient();
 	}
 
-	//test clock alignment, every x seconds
-	IEnumerator AlignClocks()
+    public void SetConnected(bool isConnected)
+    {
+        _serverConnection = isConnected;
+    }
+
+    public void SetGameStatus(bool isReady)
+    {
+        _gameReady = isReady;
+    }
+
+    //test clock alignment, every x seconds
+    IEnumerator AlignClocks()
 	{
 		yield return new WaitForSeconds(TCP_Config.numSecondsBeforeAlignment);
 		while (true)
@@ -152,21 +165,13 @@ public class TCPServer : MonoBehaviour
 
 	bool GetIsConnected()
 	{
-		if (myServer != null)
-			return myServer.isServerConnected;
-		else
-			return false;
+			return _serverConnection;
 	}
 
 	bool GetCanStartGame()
 	{
-		if (myServer != null)
-		{
-			UnityEngine.Debug.Log("CAN START GAME " + myServer.canStartGame.ToString());
-			return myServer.canStartGame;
-		}
-		else
-			return false;
+		//	UnityEngine.Debug.Log("CAN START GAME " + _gameReady.ToString());
+			return _gameReady;
 	}
 	// client function
 	public void OnConnected(NetworkMessage netMsg)

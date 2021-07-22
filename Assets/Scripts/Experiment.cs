@@ -14,6 +14,8 @@ public class Experiment : MonoBehaviour {
     public ObjectManager objManager;
     public UIController uiController;
     public ObjectController objController;
+
+    public InterfaceManager interfaceManager;
     public RamulatorInterface ramulatorInterface;
 
     public GameObject player;
@@ -73,7 +75,7 @@ public class Experiment : MonoBehaviour {
     //blackrock variables
     public static string ExpName = "T2";
     public static string BuildVersion = "0.9.9";
-    public static bool isSystem2 = false;
+    public static bool isSystem2 = true;
 
     public bool verbalRetrieval = false;
 
@@ -318,7 +320,7 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator ConnectToElemem()
     {
-        ramulatorInterface.StartThread();
+       // ramulatorInterface.StartThread();
         yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
         yield return null;
     }
@@ -357,9 +359,10 @@ public class Experiment : MonoBehaviour {
         UnityEngine.Debug.Log("set subject name: " + subjectName);
         trialLogTrack.LogBegin();
         //only run if system2 is expected
-        /*
+        
     if (isSystem2)
     {
+            /*
         uiController.ipEntryPanel.alpha = 1f;
 
         while(!ipAddressEntered)
@@ -371,16 +374,18 @@ public class Experiment : MonoBehaviour {
         TCP_Config.ConnectionPort = portNum;
         ipAddressEntered = false;
         uiController.ipEntryPanel.alpha = 0f;
+        
         */
-
-        /*
-        tcpServer.gameObject.SetActive(true);
+        
+     //   tcpServer.gameObject.SetActive(true);
             uiController.blackrockConnectionPanel.alpha = 1f;
 
-            yield return StartCoroutine(ConnectToElemem());
-            */
-        /*
-        trialLogTrack.LogBlackrockConnectionAttempt();
+
+            interfaceManager.Do(new EventBase(interfaceManager.LaunchExperiment));
+            //   yield return StartCoroutine(ConnectToElemem());
+
+
+            trialLogTrack.LogBlackrockConnectionAttempt();
         uiController.connectionText.text = "Attempting to connect with server...";
         //wait till the SYS2 Server connects
         while (!tcpServer.isConnected)
@@ -400,7 +405,7 @@ public class Experiment : MonoBehaviour {
         uiController.blackrockConnectionPanel.alpha = 0f;
     }
     trialLogTrack.LogBlackrockConnectionSuccess();
-    */
+    
         uiController.blackrockConnectionPanel.alpha = 0f;
         trialLogTrack.LogBlackrockConnectionSuccess();
         trialLogTrack.LogIntroInstruction(true);
