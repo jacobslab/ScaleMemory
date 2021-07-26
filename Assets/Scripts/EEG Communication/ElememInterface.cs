@@ -184,7 +184,7 @@ public class ElememInterface : IHostPC
         try
         {
             // IAsyncResult result = elemem.BeginConnect((string)im.GetSetting("ip"), (int)im.GetSetting("port"), null, null);
-            IAsyncResult result = elemem.BeginConnect((string)InterfaceManager.address,(int)InterfaceManager.portNum, null, null);
+            IAsyncResult result = elemem.BeginConnect((string)TCP_Config.HostIPAddress, (int)TCP_Config.ConnectionPort, null, null);
 
             result.AsyncWaitHandle.WaitOne(messageTimeout);
             elemem.EndConnect(result);
@@ -224,7 +224,7 @@ public class ElememInterface : IHostPC
 
         // excepts if there's an issue with latency, else returns
         UnityEngine.Debug.Log("doing latency check");
-        DoLatencyCheck();
+      //  DoLatencyCheck();
 
         // start heartbeats
           int interval = Configuration.heartbeatInterval;

@@ -3,6 +3,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Reflection;
 
 [RequireComponent(typeof(AudioSource))]
 public class AudioRecorder : MonoBehaviour
@@ -39,6 +40,8 @@ public class AudioRecorder : MonoBehaviour
 
     void Start()
     {
+        var descriptionProperty = typeof(UnityEditor.PlayerSettings.macOS).GetProperty("microphoneUsageDescription", BindingFlags.NonPublic | BindingFlags.Static);
+        descriptionProperty.SetValue(null, "This is my description");
         audio = GetComponent<AudioSource>();
 
         if (CheckForRecordingDevice())
