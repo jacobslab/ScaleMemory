@@ -17,6 +17,8 @@ public class CarMover : MonoBehaviour
 
     public static bool carActive = false;
 
+    private float speedFactor = 1.5f;
+
     private bool canMove = false;
 
     public enum DriveMode
@@ -193,6 +195,11 @@ public class CarMover : MonoBehaviour
         currIndex = 0;
     }
 
+    float RandomizeSpeed()
+    {
+        return UnityEngine.Random.Range(1.75f, 2.1f);
+    }
+
     public void ToggleCarMovement(bool movementFlag)
     {
         UnityEngine.Debug.Log("car movement " + movementFlag.ToString());
@@ -224,6 +231,7 @@ public class CarMover : MonoBehaviour
         Vector3 startEuler = playerCube.transform.localEulerAngles; //where the player is at start of interpolation 
         Quaternion startRot = playerCube.transform.rotation;
 
+        speedFactor = RandomizeSpeed();
 
         Vector3 endPos, endEuler;
         Quaternion endRot;
@@ -250,12 +258,12 @@ public class CarMover : MonoBehaviour
         {
             // UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
             lerpFactor += Time.deltaTime;
-            playerCube.transform.position = Vector3.Lerp(startPos, endPos, lerpFactor);
+            playerCube.transform.position = Vector3.Lerp(startPos, endPos, lerpFactor/speedFactor);
             //playerCube.transform.localEulerAngles = Vector3.Lerp(startEuler, endEuler, lerpFactor);
 
             //to avoid rotating around when the angles are within floating point precision error
             if (Vector3.Distance(startEuler, endEuler) > 1.2f)
-                playerCube.transform.rotation = Quaternion.Slerp(startRot, endRot, lerpFactor);
+                playerCube.transform.rotation = Quaternion.Slerp(startRot, endRot, lerpFactor/speedFactor);
             dist = Vector3.Distance(playerCube.transform.position, endPos);
             yield return 0;
         }

@@ -69,7 +69,13 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "SESS_START" + separator + "1" + separator + buildVersion + " v"+ Experiment.BuildVersion);
 	}
 
-	public void LogBlackrockConnectionAttempt()
+    public void LogTreasureLabel(string labelText)
+    {
+        subjectLog.Log(GameClock.SystemTime_Milliseconds, "TREASURE_ITEM" + separator + labelText);
+    }
+
+
+    public void LogBlackrockConnectionAttempt()
 	{ 
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLACKROCK_CONNECTION_ATTEMPT");
 	}
