@@ -63,6 +63,7 @@ public class UIController : MonoBehaviour
 
     //blackrock connection
     public CanvasGroup blackrockConnectionPanel;
+    public CanvasGroup connectionSuccessPanel;
     public Text connectionText;
 
     //ip entry

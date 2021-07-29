@@ -408,6 +408,20 @@ public class Experiment : MonoBehaviour {
     
         uiController.blackrockConnectionPanel.alpha = 0f;
         trialLogTrack.LogBlackrockConnectionSuccess();
+
+
+/////REMOVE THIS
+        Experiment.Instance.uiController.connectionSuccessPanel.alpha = 1f;
+        while(!Input.GetKeyDown(KeyCode.Escape))
+        {
+            
+            yield return 0;
+        }
+        Application.Quit();
+
+
+        ///END REMOVE THIS
+        ///
         trialLogTrack.LogIntroInstruction(true);
         uiController.taskIntroPanel.alpha = 1f;
 

@@ -1,6 +1,7 @@
 ﻿//SCRIPT MODIFIED FROM: http://wiki.unity3d.com/index.php/Mic_Input
 
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
 using System.Reflection;
@@ -40,8 +41,8 @@ public class AudioRecorder : MonoBehaviour
 
     void Start()
     {
-        var descriptionProperty = typeof(UnityEditor.PlayerSettings.macOS).GetProperty("microphoneUsageDescription", BindingFlags.NonPublic | BindingFlags.Static);
-        descriptionProperty.SetValue(null, "This is my description");
+        //var descriptionProperty = typeof(UnityEditor.PlayerSettings.macOS).GetProperty("microphoneUsageDescription", BindingFlags.NonPublic | BindingFlags.Static);
+        //descriptionProperty.SetValue(null, "This is my description");
         audio = GetComponent<AudioSource>();
 
         if (CheckForRecordingDevice())

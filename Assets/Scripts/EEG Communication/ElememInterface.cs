@@ -215,11 +215,11 @@ public class ElememInterface : IHostPC
         configDict.Add("session", Experiment.sessionID);
         
         UnityEngine.Debug.Log("sending CONFIGURE message");
-        SendMessage("CONFIGURE", new Dictionary<string, object>());
-        //SendMessage("CONFIGURE", configDict);
+     //   SendMessage("CONFIGURE", new Dictionary<string, object>());
+        SendMessage("CONFIGURE", configDict);
         UnityEngine.Debug.Log("waiting for response to CONFIGURE message");
         WaitForMessage("CONFIGURE_OK", messageTimeout);
-
+        UnityEngine.Debug.Log("received response");
         Experiment.Instance.tcpServer.SetConnected(true);
 
         // excepts if there's an issue with latency, else returns
@@ -230,12 +230,16 @@ public class ElememInterface : IHostPC
           int interval = Configuration.heartbeatInterval;
           DoRepeating(new EventBase(Heartbeat), -1, 0, interval);
 
-
+        if (Experiment.Instance != null)
+            Experiment.Instance.uiController.connectionSuccessPanel.alpha = 1f;
+        else
+            UnityEngine.Debug.Log("WARNING:  EXP instance is null");
 
         UnityEngine.Debug.Log("sending READY message");
         SendMessage("READY", new Dictionary<string, object>());
         Experiment.Instance.tcpServer.SetGameStatus(true);
         im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
+
     }
 
     private void DoLatencyCheck()
