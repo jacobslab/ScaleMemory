@@ -20,7 +20,13 @@ public class Experiment : MonoBehaviour {
 
     public GameObject player;
 
+    public static bool isPaused = false;
 
+
+    //audio clips
+    public AudioClip magicWand;
+
+    public GameObject imagePlanePrefab;
 
     public List<Transform> spawnableWaypoints;
     //public List<Transform> rightSpawnableWaypoints;
@@ -75,7 +81,7 @@ public class Experiment : MonoBehaviour {
     //blackrock variables
     public static string ExpName = "T2";
     public static string BuildVersion = "0.9.9";
-    public static bool isSystem2 = true;
+    public static bool isSystem2 = false;
 
     public bool verbalRetrieval = false;
 
@@ -1150,6 +1156,52 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+    //GETS CALLED FROM DEFAULTITEM.CS WHEN CHEST OPENS ON COLLISION WITH PLAYER.
+    public IEnumerator WaitForTreasurePause(GameObject specialObject)
+    {
+
+        //lock the avatar controls
+      //  player.controls.ShouldLockControls = true;
+       // player.GetComponent<Rigidbody>().velocity = Vector3.zero;
+
+        yield return new WaitForSeconds(Configuration.itemPresentationTime);
+
+        //unlock the avatar controls
+        //player.controls.ShouldLockControls = false;
+
+        //turn the special object invisible
+        if (specialObject != null)
+        {
+            specialObject.GetComponent<SpawnableImage>().TurnVisible(false);
+        }
+
+
+        //only after the pause should we increment the number of coins collected...
+        //...because the trial controller waits for this to move on to the next part of the trial.
+        Debug.Log("INCREMENT CHEST COUNT");
+    //    IncrementNumDefaultObjectsCollected();
+        yield return null;
+    }
+
+    int FindNearestIndex(List<int> collection, int currentInt)
+    {
+        int minDiff = 100;
+        int nearest = 100;
+        if (collection.Count == 0)
+            return currentInt;
+
+        for (int i=0;i<collection.Count;i++)
+        {
+            int currDiff = Mathf.Abs(collection[i] - currentInt);
+            if(currDiff < minDiff)
+            {
+                minDiff = currDiff;
+                nearest = collection[i];
+            }
+        }
+        return nearest;
+    }
+
     IEnumerator PickEncodingLocations()
     {
         List<int> intPicker = new List<int>();
@@ -1174,6 +1226,7 @@ public class Experiment : MonoBehaviour {
             }
 
             int randInt = intPicker[randIndex];
+            int nearestIndex = 0;
             UnityEngine.Debug.Log("picked " + randInt.ToString());
 
             /*
@@ -1196,19 +1249,50 @@ public class Experiment : MonoBehaviour {
                 temp += intPicker[j].ToString() + ",";
             }
             uiController.debugText.text = temp;
-            intPicker.RemoveAt(randIndex);
-
+            // intPicker.RemoveAt(randIndex);
+            nearestIndex = FindNearestIndex(tempStorage,randInt);
             //make sure rand index is not too close to start/end of lap
-            if (randIndex - Configuration.minGapBetweenStimuli > 0 && randIndex + Configuration.minGapBetweenStimuli < intPicker.Count - 1)
-            {
+       //     if (randIndex - Configuration.minGapBetweenStimuli > 0 && randIndex + Configuration.minGapBetweenStimuli < intPicker.Count - 1)
+       //     {
                 //   intPicker.RemoveRange(randIndex - Configuration.minGapBetweenStimuli, Configuration.minGapBetweenStimuli * 2);
-                UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
-                intPicker.RemoveAt(randIndex);
-                if (Mathf.Abs(intPicker[randIndex] - randInt) < Configuration.minGapBetweenStimuli)
+                
+                //if nearest index is less than the min gap, then remove the adjacent indices
+          //      if (Mathf.Abs(nearestIndex - randInt) < Configuration.minGapBetweenStimuli)
+          //      {
+                    UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
+                    intPicker.RemoveAt(randIndex); //removing self
+
+                //we only remove if the remaining adjacent indices are too close to each other in value 
+                if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
                 {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
-                    intPicker.RemoveAt(randIndex);
+                    intPicker.RemoveAt(randIndex); //removing next
                 }
+                /*
+                if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
+                {
+                    UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
+                    intPicker.RemoveAt(randIndex); //removing next
+                }
+                */
+                if (Mathf.Abs(randInt - intPicker[randIndex - 1]) < Configuration.minGapBetweenStimuli)
+                {
+                    UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
+                    intPicker.RemoveAt(randIndex - 1); // removing previous
+                }
+                /*
+                if (Mathf.Abs(randInt - intPicker[randIndex-2]) < Configuration.minGapBetweenStimuli)
+                {
+                    UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
+                    intPicker.RemoveAt(randIndex - 2); // removing previous
+                }
+                */
+             //   }
+
+              //  UnityEngine.Debug.Log("removing " + intPicker[randIndex]); //remove self first
+              //  intPicker.RemoveAt(randIndex);
+
+                /*
 
                 if (Mathf.Abs(intPicker[randIndex - 1] - randInt) < Configuration.minGapBetweenStimuli)
                 {
@@ -1232,7 +1316,7 @@ public class Experiment : MonoBehaviour {
                 intPicker.RemoveAt(randIndex - 1);
                 */
 
-            }
+          //  }
 
             tempStorage.Add(randInt);
             spawnLocations.Add(chosenEncodingLocations[i]);

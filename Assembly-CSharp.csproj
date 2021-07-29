@@ -211,6 +211,8 @@
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\JsonReader.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\DitheringModel.cs" />
+    <Compile Include="Assets\DefaultItem.cs" />
+    <Compile Include="Assets\Scripts\Anim. &amp; Visuals\SpawnableImage.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
@@ -265,6 +267,7 @@
      <None Include="Assets\CyberCity\Shader\CCSprite.shader" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\ParadeRender.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\MotionBlur.shader" />
+     <None Include="Assets\Shaders\DiffuseParticles.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\DiskKernels.cginc" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
      <None Include="Assets\PostProcessing\Resources\Bluenoise64\COPYING.txt" />
