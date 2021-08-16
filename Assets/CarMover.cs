@@ -197,7 +197,7 @@ public class CarMover : MonoBehaviour
 
     float RandomizeSpeed()
     {
-        return UnityEngine.Random.Range(1.75f, 2.1f);
+        return UnityEngine.Random.Range(2f, 2.5f);
     }
 
     public void ToggleCarMovement(bool movementFlag)

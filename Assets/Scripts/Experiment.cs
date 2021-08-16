@@ -417,6 +417,8 @@ public class Experiment : MonoBehaviour {
 
 
 /////REMOVE THIS
+///
+ /*
         Experiment.Instance.uiController.connectionSuccessPanel.alpha = 1f;
         while(!Input.GetKeyDown(KeyCode.Escape))
         {
@@ -424,7 +426,7 @@ public class Experiment : MonoBehaviour {
             yield return 0;
         }
         Application.Quit();
-
+        */
 
         ///END REMOVE THIS
         ///
@@ -1216,6 +1218,18 @@ public class Experiment : MonoBehaviour {
         return nearest;
     }
 
+    bool DetermineWaypointRemoval(int indexForRemoval, List<int> collection)
+    {
+        if(indexForRemoval > 0 && indexForRemoval < collection.Count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     IEnumerator PickEncodingLocations()
     {
         List<int> intPicker = new List<int>();
@@ -1231,11 +1245,11 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < listLength; i++)
         {
-            int randIndex = UnityEngine.Random.Range(Configuration.minGapBetweenStimuli - 1, intPicker.Count - Configuration.minGapBetweenStimuli - 1); // we won't be picking too close to beginning/end
-
+            int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
+            UnityEngine.Debug.Log("rand index " + randIndex.ToString());
             while (randIndex - Configuration.minGapBetweenStimuli < 0 && randIndex + Configuration.minGapBetweenStimuli > intPicker.Count - 1)
             {
-                randIndex = UnityEngine.Random.Range(Configuration.minGapBetweenStimuli, intPicker.Count - Configuration.minGapBetweenStimuli);
+                randIndex = UnityEngine.Random.Range(0,intPicker.Count);
                 yield return 0;
             }
 
@@ -1276,31 +1290,43 @@ public class Experiment : MonoBehaviour {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
                     intPicker.RemoveAt(randIndex); //removing self
 
-                //we only remove if the remaining adjacent indices are too close to each other in value 
+            //we only remove if the remaining adjacent indices are too close to each other in value 
+            if (DetermineWaypointRemoval(randIndex, intPicker))
+            {
                 if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
                 {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
                     intPicker.RemoveAt(randIndex); //removing next
                 }
-                /*
+            }
+
+            if (DetermineWaypointRemoval(randIndex, intPicker))
+            { 
                 if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
                 {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
                     intPicker.RemoveAt(randIndex); //removing next
                 }
-                */
+            }
+
+            if (DetermineWaypointRemoval(randIndex-1, intPicker))
+            {
                 if (Mathf.Abs(randInt - intPicker[randIndex - 1]) < Configuration.minGapBetweenStimuli)
                 {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
                     intPicker.RemoveAt(randIndex - 1); // removing previous
                 }
-                /*
-                if (Mathf.Abs(randInt - intPicker[randIndex-2]) < Configuration.minGapBetweenStimuli)
+            }
+
+            if (DetermineWaypointRemoval(randIndex-2, intPicker))
+            {
+                if (Mathf.Abs(randInt - intPicker[randIndex - 2]) < Configuration.minGapBetweenStimuli)
                 {
                     UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
                     intPicker.RemoveAt(randIndex - 2); // removing previous
                 }
-                */
+            }
+                
              //   }
 
               //  UnityEngine.Debug.Log("removing " + intPicker[randIndex]); //remove self first

@@ -23,7 +23,7 @@ public class Configuration : MonoBehaviour {
 
     public static int heartbeatInterval = 1000;
 
-    public static int minGapBetweenStimuli = 4; //measured in waypoints
+    public static int minGapBetweenStimuli = 3; //measured in waypoints
 
     //presentation jitter time
     public static float minJitterTime = 0.25f;
