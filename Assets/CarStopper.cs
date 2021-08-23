@@ -7,6 +7,7 @@ public class CarStopper : MonoBehaviour
     private bool activated = false;
     private bool retActivated = false;
     public GameObject stimulusObject;
+    public GameObject positionIndicator;
 
 
     // Start is called before the first frame update
@@ -46,9 +47,17 @@ public class CarStopper : MonoBehaviour
         }
     }
 
+    void ShowIndicator(bool shouldShow)
+    {
+
+        positionIndicator.GetComponent<MeshRenderer>().enabled=shouldShow;
+    }
+
     IEnumerator PerformVerbalRetrieval()
     {
-        yield return StartCoroutine(Experiment.Instance.StartVerbalRetrieval(stimulusObject));
+        ShowIndicator(true);
+       yield return StartCoroutine(Experiment.Instance.StartVerbalRetrieval(stimulusObject));
+        ShowIndicator(false);
         yield return null;
     }
 
@@ -56,9 +65,11 @@ public class CarStopper : MonoBehaviour
     {
 
 
+        ShowIndicator(true);
         UnityEngine.Debug.Log("stopping car temporarily to show object");
         yield return StartCoroutine(Experiment.Instance.PresentStimuli(stimulusObject));
-        
+        ShowIndicator(false);
+
         //activated = false;
         yield return null;
     }
@@ -72,14 +83,16 @@ public class CarStopper : MonoBehaviour
 
     IEnumerator BeginLocationCuedRetrieval()
     {
+        ShowIndicator(true);
         yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(stimulusObject));
+        ShowIndicator(false);
         yield return null;
     }
 
 
     private void OnTriggerEnter(Collider col)
     {
-        UnityEngine.Debug.Log("collided with " + col.gameObject.name);
+        UnityEngine.Debug.Log(gameObject.name + " collided with " + col.gameObject.name);
         if (col.gameObject.tag == "StimulusCollisions")
         {
             UnityEngine.Debug.Log("collided with player");

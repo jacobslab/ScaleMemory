@@ -210,6 +210,10 @@
     <Compile Include="Assets\DefaultItem.cs" />
     <Compile Include="Assets\Scripts\EEG Communication\LitJson\ParserToken.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Models\DitheringModel.cs" />
+    <Compile Include="Assets\CyberPunk_City\Scripts\Camera_particale.cs" />
+    <Compile Include="Assets\CyberPunk_City\Scripts\Rotate.cs" />
+    <Compile Include="Assets\CyberPunk_City\Scripts\Rotate_2.cs" />
+    <Compile Include="Assets\CyberPunk_City\Scripts\SimpleCameraController.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />

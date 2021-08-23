@@ -109,7 +109,7 @@ public class DefaultItem : MonoBehaviour
 	//	}
 	//}
 
-	IEnumerator RunCollision()
+	public IEnumerator RunCollision()
 	{
 
 		//yield return StartCoroutine(Experiment.Instance.trialController.WaitForPlayerRotationToTreasure(gameObject));
@@ -119,18 +119,19 @@ public class DefaultItem : MonoBehaviour
 
 		//if it was a special spot and this is the default object...
 		//...we should spawn the special object!
-		if (tag == "DefaultSpecialObject")
+		if (tag == "SpecialObject")
 		{
-
+            UnityEngine.Debug.Log("spawning special object");
 			yield return StartCoroutine(SpawnSpecialObject(specialObjectSpawnPoint.position));
 
 		}
 		else
-		{
-			yield return StartCoroutine(RunDefaultCollision());
+        {
+            UnityEngine.Debug.Log("running default");
+            yield return StartCoroutine(RunDefaultCollision());
 		}
 
-
+        
 
 	}
 
@@ -193,18 +194,22 @@ public class DefaultItem : MonoBehaviour
 		//GameObject specialObject = Experiment.Instance.SpawnSpecialObject(specialSpawnPos);
 
 		string name = specialObject.GetComponent<SpawnableImage>().GetDisplayName();
-		//set special object text
-		SetSpecialObjectText(name);
+        specialObject.GetComponent<FacePosition>().TargetPositionTransform = Experiment.Instance.player.transform;
+        //set special object text
+        SetSpecialObjectText(name);
 
 	//	Experiment.Instance.AddNameToList(specialObject,name);
 
 		PlayJuice(true);
 
-		//tell the trial controller to wait for the animation
-		yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
+        //tell the trial controller to wait for the animation
+        	yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
 
-		//should destroy the chest after the special object time
-		Destroy(gameObject);
+        yield return null;
+
+       // StopAllCoroutines();
+        //should destroy the chest after the special object time
+        //Destroy(gameObject);
 	}
 
 	public void SetSpecialObjectText(string text)
@@ -296,6 +301,7 @@ public class DefaultItem : MonoBehaviour
 
 	void OnDestroy()
 	{
+       // StopAllCoroutines();
 		UnityEngine.Debug.Log("destroying chest");
 		//EndTreasureState();
 	}

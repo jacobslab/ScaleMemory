@@ -20,6 +20,7 @@ public class CarMover : MonoBehaviour
     private float speedFactor = 1.5f;
 
     private bool canMove = false;
+    private bool changedDirection = false;
 
     public enum DriveMode
     {
@@ -69,11 +70,14 @@ public class CarMover : MonoBehaviour
         //only make change if the movement direction has changed
         if (newMovementDirection != currentMovementDirection)
         {
-            canMove = false;
+            //exit out of the while loop
+            changedDirection= true;
             StopCoroutine("DriveCar");
-           // yield return new WaitForSeconds(0.5f);
+
+            UnityEngine.Debug.Log("set new direction");
             currentMovementDirection = newMovementDirection;
-            canMove = true;
+            yield return new WaitForSeconds(0.5f);
+            changedDirection = false;
            // UnityEngine.Debug.Log("set new movement direction  " + currentMovementDirection.ToString());
         }
         yield return null;
@@ -166,12 +170,14 @@ public class CarMover : MonoBehaviour
                 //return start of the lap if moving in forward direction
                 if (currentMovementDirection == MovementDirection.Forward)
                 {
+                    UnityEngine.Debug.Log("going forward");
                     pointIndex = 0;
                     return spawnPoints[pointIndex].gameObject;
                 }
                 //else return the last waypoint if moving in the reverse direction
                 else if (currentMovementDirection == MovementDirection.Reverse)
                 {
+                    UnityEngine.Debug.Log("going reverse");
                     pointIndex = spawnPoints.Count - 1;
                     return spawnPoints[pointIndex].gameObject;
                 }
@@ -256,7 +262,11 @@ public class CarMover : MonoBehaviour
         //interpolate until you hit threshold distance to look for the next track point
         while (dist > 2f && canMove && carActive)
         {
-            // UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
+            if(changedDirection)
+            {
+                break;
+            }
+             UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
             lerpFactor += Time.deltaTime;
             playerCube.transform.position = Vector3.Lerp(startPos, endPos, lerpFactor/speedFactor);
             //playerCube.transform.localEulerAngles = Vector3.Lerp(startEuler, endEuler, lerpFactor);
@@ -274,6 +284,8 @@ public class CarMover : MonoBehaviour
         else if (targetDirection == MovementDirection.Reverse)
             currIndex--;
         //UnityEngine.Debug.Log("incrementing point index to " + currIndex.ToString());
+
+        UnityEngine.Debug.Log("exiting DriveCar");
         yield return null;
     }
 
@@ -301,6 +313,7 @@ public class CarMover : MonoBehaviour
                 {
                    
                     StopCoroutine("DriveCar");
+                    UnityEngine.Debug.Log("stopped DriveCar inside Manual MoveCar");
                     yield return StartCoroutine(DriveCar(currentMovementDirection));
 
                 }

@@ -12,6 +12,8 @@ public class ObjectController : MonoBehaviour
 	public ObjectSpawner objSpawner;
 	public GameObject textPrefab;
     public GameObject itemBoxColliderPrefab;
+    public GameObject lurePrefab;
+    public GameObject treasureChestPrefab;
 
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update

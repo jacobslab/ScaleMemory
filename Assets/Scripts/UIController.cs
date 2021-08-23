@@ -49,6 +49,7 @@ public class UIController : MonoBehaviour
     public CanvasGroup itemReactivationDetails;
     public CanvasGroup itemRetrievalInstructionPanel;
     public Text itemRetrievalInstructionText;
+    public RawImage microphoneIconImage;
 
     string itemRetrievalInstructionBase = "drive to location of ";
 
@@ -186,6 +187,7 @@ public class UIController : MonoBehaviour
     public IEnumerator SetLocationRetrievalInstructions()
     {
         locationRetrievalInstructionPanel.alpha = 1f;
+        microphoneIconImage.color = Color.white;
 
         yield return null;
     }
