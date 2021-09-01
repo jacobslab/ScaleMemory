@@ -76,7 +76,7 @@ public class CarMover : MonoBehaviour
 
             UnityEngine.Debug.Log("set new direction");
             currentMovementDirection = newMovementDirection;
-            yield return new WaitForSeconds(0.5f);
+          //  yield return new WaitForSeconds(0.5f);
             changedDirection = false;
            // UnityEngine.Debug.Log("set new movement direction  " + currentMovementDirection.ToString());
         }

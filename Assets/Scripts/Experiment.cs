@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using TMPro;
 using UnityEngine;
 using UnityStandardAssets.Utility;
 using UnityStandardAssets.Vehicles.Car;
@@ -34,7 +33,7 @@ public class Experiment : MonoBehaviour {
 
 
 
-#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX
         public bool skipEncoding = false;
         public bool skipVerbalRetrieval = false;
         public bool skipSpatialRetrieval = false;
@@ -94,7 +93,7 @@ public class Experiment : MonoBehaviour {
     //blackrock variables
     public static string ExpName = "T2";
     public static string BuildVersion = "0.9.9";
-    public static bool isSystem2 = false;
+    public static bool isSystem2 = true;
 
     public bool verbalRetrieval = false;
 
@@ -111,7 +110,7 @@ public class Experiment : MonoBehaviour {
     private List<Vector3> spatialFeedbackPosition;
 
     //logging
-    public static bool isLogging = true;
+    public static bool isLogging = false;
     private string subjectLogfile; //gets set based on the current subject in Awake()
     public Logger_Threading subjectLog;
     private string eegLogfile; //gets set based on the current subject in Awake()

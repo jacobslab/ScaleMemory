@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class UIController : MonoBehaviour
@@ -93,7 +92,7 @@ public class UIController : MonoBehaviour
     public CanvasGroup endSessionPanel;
 
     // info text
-    public TextMeshPro infoText;
+//    public TextMeshPro infoText;
 
     public enum OptionSelection
     {
