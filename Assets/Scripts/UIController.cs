@@ -23,9 +23,6 @@ public class UIController : MonoBehaviour
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
 
-    //item screening
-    public CanvasGroup itemScreeningPanel;
-
     //track screening
     public CanvasGroup trackScreeningPanel;
 
@@ -121,7 +118,7 @@ public class UIController : MonoBehaviour
         selectionImage.enabled = false;
 
         activeSelectionPositions = new List<Vector3>();
-        retrievalTextPanel.alpha = 0f;
+     //   retrievalTextPanel.alpha = 0f;
 
         for (int i = 0; i < itemCuedSelectionCanvasElements.Count; i++)
         {

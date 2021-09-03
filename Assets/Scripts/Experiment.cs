@@ -93,7 +93,7 @@ public class Experiment : MonoBehaviour {
     //blackrock variables
     public static string ExpName = "T2";
     public static string BuildVersion = "0.9.9";
-    public static bool isSystem2 = true;
+    public static bool isSystem2 = false;
 
     public bool verbalRetrieval = false;
 
@@ -512,22 +512,25 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(true);
         playerIndicatorSphere.SetActive(true);
         trialLogTrack.LogTaskStage(currentStage, true);
-        SetCarMovement(true);
-        uiController.itemScreeningPanel.alpha = 0f;
+     
+     
         uiController.trackScreeningPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
         uiController.trackScreeningPanel.alpha = 0f;
         player.gameObject.SetActive(true);
         trafficLightController.MakeVisible(true);
         yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        SetCarMovement(false);
+        SetCarMovement(true);
+
         trafficLightController.MakeVisible(false);
-        while (LapCounter.lapCount < 2)
+        while (LapCounter.lapCount < 1)
         {
             yield return 0;
         }
+        //  SetCarMovement(false);
+
         LapCounter.lapCount = 0;
-        SetCarMovement(true);
+        SetCarMovement(false);
         overheadCam.SetActive(false);
         trackFamiliarizationQuad.SetActive(false);
         playerIndicatorSphere.SetActive(false);
@@ -680,11 +683,11 @@ public class Experiment : MonoBehaviour {
 
         verbalRetrieval = false;
 
-        //yield return StartCoroutine("BeginTrackScreening");
-
         //setting up car but do not move it yet
         StartCoroutine(player.GetComponent<CarMover>().MoveCar());
         SetCarMovement(false);
+        yield return StartCoroutine("BeginTrackScreening");
+
         //show instructions
         for (int i = 0; i < blockLength; i++)
         {
@@ -1588,12 +1591,12 @@ public class Experiment : MonoBehaviour {
                     string objName = retrievalObjList[i].gameObject.name.Split('(')[0];
                     uiController.zRetrievalText.text = objName;
                     uiController.retrievalItemName.text = objName;
-                    uiController.retrievalTextPanel.alpha = 1f;
+                  //  uiController.retrievalTextPanel.alpha = 1f;
                     while (!Input.GetKeyDown(KeyCode.Space))
                     {
                         yield return 0;
                     }
-                    uiController.retrievalTextPanel.alpha = 0f;
+               //     uiController.retrievalTextPanel.alpha = 0f;
                     uiController.targetTextPanel.alpha = 1f;
                     uiController.retrievalItemName.text = objName;
                     SetCarMovement(false);
@@ -1618,7 +1621,7 @@ public class Experiment : MonoBehaviour {
                 LapCounter.isRetrieval = false;
                 UnityEngine.Debug.Log("retrieval mode off");
                 uiController.targetTextPanel.alpha = 0f;
-                uiController.retrievalTextPanel.alpha = 0f;
+               // uiController.retrievalTextPanel.alpha = 0f;
                 SetCarMovement(false);
 
                 //reset retrieval lists
