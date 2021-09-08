@@ -6,28 +6,33 @@ using UnityEngine;
 
 public class ObjectController : MonoBehaviour
 {
-    private List<GameObject> spawnableObjectList;
+    private List<Texture> stimuliImageList;
 
-	public List<GameObject> encodingList;
-	public ObjectSpawner objSpawner;
+	public List<Texture> encodingList;
+
+    public List<Texture> practiceList;
+    public ObjectSpawner objSpawner;
 	public GameObject textPrefab;
     public GameObject itemBoxColliderPrefab;
     public GameObject lurePrefab;
     public GameObject treasureChestPrefab;
 
+    public Texture currentStimuliImage;
+
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update
 	void Awake()
 	{
-		spawnableObjectList = new List<GameObject>();
-		CreateSpecialObjectList(spawnableObjectList);
+        stimuliImageList = new List<Texture>();
+		CreateSpecialImageList(stimuliImageList);
 
 	}
 
-	void CreateSpecialObjectList(List<GameObject> gameObjectListToFill)
+	void CreateSpecialImageList(List<Texture> imageListToFill)
 	{
-		gameObjectListToFill.Clear();
-		Object[] prefabs;
+        imageListToFill.Clear();
+        UnityEngine.Debug.Log("filling");
+        Object[] prefabs;
 #if MRIVERSION
 		if(Config_CoinTask.isPractice){
 			prefabs = Resources.LoadAll("Prefabs/MRIPracticeObjects");
@@ -36,45 +41,47 @@ public class ObjectController : MonoBehaviour
 			prefabs = Resources.LoadAll("Prefabs/Objects");
 		}
 #else
-		prefabs = Resources.LoadAll("Prefabs/Objects");
+		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
 #endif
 		for (int i = 0; i < prefabs.Length; i++)
 		{
-			gameObjectListToFill.Add((GameObject)prefabs[i]);
+            imageListToFill.Add((Texture)prefabs[i]);
 		}
+
+        UnityEngine.Debug.Log("finished filling");
 	}
 
-	GameObject ChooseRandomObject()
+	Texture ChooseRandomImage()
 	{
-		if (spawnableObjectList.Count == 0)
+		if (stimuliImageList.Count == 0)
 		{
-			Debug.Log("No MORE objects to pick! Recreating object list.");
-			CreateSpecialObjectList(spawnableObjectList); //IN ORDER TO REFILL THE LIST ONCE ALL OBJECTS HAVE BEEN USED
-			if (spawnableObjectList.Count == 0)
+			Debug.Log("No MORE images pick! Recreating image list.");
+			CreateSpecialImageList(stimuliImageList); //IN ORDER TO REFILL THE LIST ONCE ALL OBJECTS HAVE BEEN USED
+			if (stimuliImageList.Count == 0)
 			{
-				Debug.Log("No objects to pick at all!"); //if there are still no objects in the list, then there weren't any to begin with...
+				Debug.Log("No images to pick at all!"); //if there are still no objects in the list, then there weren't any to begin with...
 				return null;
 			}
 		}
 
 
-		int randomObjectIndex = Random.Range(0, spawnableObjectList.Count);
-		GameObject chosenObject = spawnableObjectList[randomObjectIndex];
-		spawnableObjectList.RemoveAt(randomObjectIndex);
+		int randomImageIndex = Random.Range(0, stimuliImageList.Count);
+		Texture chosenImage = stimuliImageList[randomImageIndex];
+        stimuliImageList.RemoveAt(randomImageIndex);
 
-		return chosenObject;
+		return chosenImage;
 	}
 
-	public List<GameObject> ReturnRandomlySelectedObjects(int objCount)
+	public List<Texture> ReturnRandomlySelectedImages(int objCount)
 	{
-		List<GameObject> randList = new List<GameObject>();
+		List<Texture> randList = new List<Texture>();
 
-		List<GameObject> tempList = new List<GameObject>();
+		List<Texture> tempList = new List<Texture>();
 
 
-		for(int i=0;i<spawnableObjectList.Count;i++)
+		for(int i=0;i< stimuliImageList.Count;i++)
 		{
-			tempList.Add(spawnableObjectList[i]);
+			tempList.Add(stimuliImageList[i]);
 
 		}
 
@@ -88,12 +95,47 @@ public class ObjectController : MonoBehaviour
 
 	}
 
+    public IEnumerator SelectPracticeItems()
+    {
+        practiceList = new List<Texture>();
+        List<int> allInts = new List<int>();
+        List<int> randInts = new List<int>();
+        for (int i = 0; i < Experiment.listLength*2; i++)
+        {
+            allInts.Add(i);
+        }
+        for (int j = 0; j < Experiment.listLength; j++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, allInts.Count - 1);
+            randInts.Add(allInts[randomIndex]);
+            allInts.RemoveAt(randomIndex);
+        }
+
+        UnityEngine.Debug.Log("spawnable list count " + stimuliImageList.Count.ToString());
+
+        for (int i = 0; i < randInts.Count; i++)
+        {
+            if (randInts[i] >= stimuliImageList.Count)
+            {
+                practiceList.Add(stimuliImageList[stimuliImageList.Count - 1]);
+                stimuliImageList.RemoveAt(stimuliImageList.Count - 1);
+            }
+            else
+            {
+                practiceList.Add(stimuliImageList[randInts[i]]);
+                stimuliImageList.RemoveAt(randInts[i]);
+                //	UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
+            }
+        }
+        yield return null;
+    }
+
 	public IEnumerator SelectEncodingItems()
 	{
-		encodingList = new List<GameObject>();
+		encodingList = new List<Texture>();
 		List<int> allInts = new List<int>();
 		List<int> randInts = new List<int>();
-		for (int i=0;i<spawnableObjectList.Count;i++)
+		for (int i=0;i< stimuliImageList.Count;i++)
 		{
 			allInts.Add(i);
 		}
@@ -106,15 +148,15 @@ public class ObjectController : MonoBehaviour
 
 		for(int i=0;i<randInts.Count;i++)
 		{
-			if (randInts[i] >= spawnableObjectList.Count)
+			if (randInts[i] >= stimuliImageList.Count)
 			{
-				encodingList.Add(spawnableObjectList[spawnableObjectList.Count - 1]);
-				spawnableObjectList.RemoveAt(spawnableObjectList.Count-1);
+				encodingList.Add(stimuliImageList[stimuliImageList.Count - 1]);
+                stimuliImageList.RemoveAt(stimuliImageList.Count-1);
 			}
 			else
 			{
-				encodingList.Add(spawnableObjectList[randInts[i]]);
-				spawnableObjectList.RemoveAt(randInts[i]);
+				encodingList.Add(stimuliImageList[randInts[i]]);
+                stimuliImageList.RemoveAt(randInts[i]);
 			//	UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
 			}
 		}
@@ -123,17 +165,36 @@ public class ObjectController : MonoBehaviour
 		yield return null;
 	}
 
+    public string ReturnStimuliDisplayText()
+    {
+        string dispText = currentStimuliImage.name;
+        UnityEngine.Debug.Log("display name of current stimuli: " + dispText);
+        return dispText;
+    }
+
+    public Texture ReturnStimuliToPresent()
+    {
+
+        Texture imgToSpawn;
+
+        imgToSpawn = ChooseRandomImage();
+
+        currentStimuliImage = imgToSpawn;
+
+        return imgToSpawn;
+    }
+
 	//spawn random object at a specified location
 	public GameObject SpawnSpecialObject(Vector3 spawnPos)
 	{
-		GameObject objToSpawn;
-		
-		objToSpawn = ChooseRandomObject();
+		Texture imgToSpawn;
 
-		if (objToSpawn != null)
+        imgToSpawn = ChooseRandomImage();
+
+		if (imgToSpawn != null)
 		{
 
-			GameObject newObject = Instantiate(objToSpawn, spawnPos, objToSpawn.transform.rotation) as GameObject;
+			GameObject newObject = Instantiate(Experiment.Instance.imagePlanePrefab, spawnPos, Quaternion.identity) as GameObject;
 
 			//float randomRot = GenerateRandomRotationY();
 			//newObject.transform.RotateAround(newObject.transform.position, Vector3.up, randomRot);

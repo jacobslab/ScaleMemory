@@ -42,6 +42,11 @@ public class SpawnableImage : MonoBehaviour
 
     }
 
+    public void SetImage(Texture stimuliImage)
+    {
+        gameObject.GetComponent<MeshRenderer>().material.mainTexture = stimuliImage;
+    }
+
     //function to turn off (or on) the object without setting it inactive -- because we want to keep logging on
     public void TurnVisible(bool shouldBeVisible)
     {

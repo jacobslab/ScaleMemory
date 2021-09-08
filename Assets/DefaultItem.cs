@@ -24,6 +24,8 @@ public class DefaultItem : MonoBehaviour
 	public AudioSource defaultCollisionSound;
 	public AudioSource specialCollisionSound;
 
+    public AudioClip magicWand;
+
 	bool isExecutingPlayerCollision = false;
 	//bool shouldDie = false;
 
@@ -115,23 +117,22 @@ public class DefaultItem : MonoBehaviour
 		//yield return StartCoroutine(Experiment.Instance.trialController.WaitForPlayerRotationToTreasure(gameObject));
 
 		//open the object
-		StartCoroutine(Open(Experiment.Instance.player.gameObject));
+		StartCoroutine(Open(Experiment.Instance.player));
 
 		//if it was a special spot and this is the default object...
 		//...we should spawn the special object!
-		if (tag == "SpecialObject")
+		if (tag == "DefaultSpecialObject")
 		{
-            UnityEngine.Debug.Log("spawning special object");
+
 			yield return StartCoroutine(SpawnSpecialObject(specialObjectSpawnPoint.position));
 
 		}
 		else
-        {
-            UnityEngine.Debug.Log("running default");
-            yield return StartCoroutine(RunDefaultCollision());
+		{
+			yield return StartCoroutine(RunDefaultCollision());
 		}
 
-        
+
 
 	}
 
@@ -166,7 +167,7 @@ public class DefaultItem : MonoBehaviour
 		//			JuiceController.PlayParticles(SpecialParticles);
 
 		UnityEngine.Debug.Log("playing audio of treasure chest");
-		specialCollisionSound.PlayOneShot(Experiment.Instance.magicWand);
+		specialCollisionSound.PlayOneShot(magicWand);
 		//AudioController.PlayAudio(specialCollisionSound);
 		//		}
 		//		else
@@ -179,37 +180,29 @@ public class DefaultItem : MonoBehaviour
 
 		IEnumerator SpawnSpecialObject(Vector3 specialSpawnPos)
 	{
-        //Experiment.Instance.scoreController.AddSpecialPoints();
 
-        //TODO: spawn with default objects, show on collision???
-        //	string objName = Experiment.Instance.GetSpecialObjectName();
-        string objName = "PLACEHOLDER";
 
-        //	yield return StartCoroutine(AssetBundleLoader.Instance.SpawnTreasureObject(objName, specialSpawnPos));
-
-        //spawn a plane prefab
 
         GameObject specialObject = Instantiate(Experiment.Instance.imagePlanePrefab, specialSpawnPos, Quaternion.identity) as GameObject;
 
-		//GameObject specialObject = Experiment.Instance.SpawnSpecialObject(specialSpawnPos);
+        //GameObject specialObject = Experiment.Instance.SpawnSpecialObject(specialSpawnPos);
+        Texture stimImage = Experiment.Instance.objController.ReturnStimuliToPresent();
+        string stimDisplayText = Experiment.Instance.objController.ReturnStimuliDisplayText();
+        specialObject.GetComponent<SpawnableImage>().SetImage(stimImage);
 
-		string name = specialObject.GetComponent<SpawnableImage>().GetDisplayName();
-        specialObject.GetComponent<FacePosition>().TargetPositionTransform = Experiment.Instance.player.transform;
-        //set special object text
-        SetSpecialObjectText(name);
+	//	string name = specialObject.GetComponent<SpawnableObject>().GetDisplayName();
+		//set special object text
+		SetSpecialObjectText(stimDisplayText);
 
-	//	Experiment.Instance.AddNameToList(specialObject,name);
+	//	Experiment.Instance.trialController.AddNameToList(specialObject, stimDisplayText);
 
 		PlayJuice(true);
 
-        //tell the trial controller to wait for the animation
-        	yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
+		//tell the trial controller to wait for the animation
+		yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
 
-        yield return null;
-
-       // StopAllCoroutines();
-        //should destroy the chest after the special object time
-        //Destroy(gameObject);
+		//should destroy the chest after the special object time
+		Destroy(gameObject);
 	}
 
 	public void SetSpecialObjectText(string text)
@@ -301,7 +294,6 @@ public class DefaultItem : MonoBehaviour
 
 	void OnDestroy()
 	{
-       // StopAllCoroutines();
 		UnityEngine.Debug.Log("destroying chest");
 		//EndTreasureState();
 	}

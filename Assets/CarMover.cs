@@ -266,7 +266,7 @@ public class CarMover : MonoBehaviour
             {
                 break;
             }
-             UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
+            // UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
             lerpFactor += Time.deltaTime;
             playerCube.transform.position = Vector3.Lerp(startPos, endPos, lerpFactor/speedFactor);
             //playerCube.transform.localEulerAngles = Vector3.Lerp(startEuler, endEuler, lerpFactor);

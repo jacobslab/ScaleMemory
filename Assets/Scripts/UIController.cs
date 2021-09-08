@@ -26,6 +26,9 @@ public class UIController : MonoBehaviour
     //track screening
     public CanvasGroup trackScreeningPanel;
 
+    //practice panel
+    public CanvasGroup practiceInstructionPanel;
+
 
     //encoding panel
     public CanvasGroup encodingPanel;
@@ -48,8 +51,6 @@ public class UIController : MonoBehaviour
     public RawImage microphoneIconImage;
 
     string itemRetrievalInstructionBase = "drive to location of ";
-
-    public Text debugText;
 
     //intro panel
     public CanvasGroup taskIntroPanel;

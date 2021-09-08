@@ -53,6 +53,7 @@ public class Experiment : MonoBehaviour {
     {
         ItemScreening,
         TrackScreening,
+        Practice,
         Encoding,
         SpatialRetrieval,
         VerbalRetrieval,
@@ -174,6 +175,9 @@ public class Experiment : MonoBehaviour {
     private int trialCount = 0;
 
 
+    private bool isPractice = false;
+
+
     public TCPServer tcpServer;
     public static Experiment Instance {
         get {
@@ -189,6 +193,7 @@ public class Experiment : MonoBehaviour {
         _instance = this;
         tcpServer.gameObject.SetActive(false);
         defaultLoggingPath = Application.dataPath;
+        trackFamiliarizationQuad.SetActive(false);
         carSpeed = 0f;
     }
     // Use this for initialization
@@ -512,8 +517,8 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(true);
         playerIndicatorSphere.SetActive(true);
         trialLogTrack.LogTaskStage(currentStage, true);
-     
-     
+
+
         uiController.trackScreeningPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
         uiController.trackScreeningPanel.alpha = 0f;
@@ -535,6 +540,35 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(false);
         playerIndicatorSphere.SetActive(false);
         trialLogTrack.LogTaskStage(currentStage, false);
+        yield return null;
+    }
+
+
+    IEnumerator BeginPractice()
+    {
+        isPractice = true;
+        currentStage = TaskStage.Practice;
+        yield return StartCoroutine(ShowPracticeInstructions());
+
+        //run encoding
+        yield return StartCoroutine("RunEncoding");
+
+        //run retrieval
+        yield return StartCoroutine("RunVerbalRetrieval");
+
+        yield return StartCoroutine("ResetTrack");
+
+
+        //run encoding
+        yield return StartCoroutine("RunEncoding");
+
+        //run retrieval
+        yield return StartCoroutine("RunSpatialRetrieval");
+
+        yield return StartCoroutine("ResetTrack");
+
+
+        isPractice = false;
         yield return null;
     }
 
@@ -596,6 +630,15 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator ShowPracticeInstructions()
+    {
+
+        uiController.practiceInstructionPanel.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.practiceInstructionPanel.alpha = 0f;
+        yield return null;
+    }
+
     IEnumerator ShowEncodingInstructions()
     {
         uiController.encodingPanel.alpha = 1f;
@@ -638,29 +681,6 @@ public class Experiment : MonoBehaviour {
         return result;
     }
 
-    void ResetLapDisplay()
-    {
-        uiController.lapTimePanel.alpha = 1f;
-        lapTimer.ResetTimer();
-        lapTimer.StartTimer();
-    }
-
-    void UpdateLapDisplay()
-    {
-        lapTimer.StopTimer();
-        prevLapTime = lapTimer.GetSecondsFloat();
-        if (prevLapTime < bestLapTime)
-        {
-            bestLapTime = prevLapTime;
-            uiController.bestLapTimeText.text = FormatTime(bestLapTime);
-        }
-    }
-
-    void HideLapDisplay()
-    {
-        uiController.lapTimePanel.alpha = 0f;
-    }
-
     IEnumerator GenerateLureSpot()
     {
 
@@ -678,26 +698,24 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    IEnumerator BeginTaskBlock()
+    IEnumerator RunEncoding()
     {
-
-        verbalRetrieval = false;
-
-        //setting up car but do not move it yet
-        StartCoroutine(player.GetComponent<CarMover>().MoveCar());
-        SetCarMovement(false);
-        yield return StartCoroutine("BeginTrackScreening");
-
-        //show instructions
-        for (int i = 0; i < blockLength; i++)
-        {
             UnityEngine.Debug.Log("in encoding now");
-            currentStage = TaskStage.Encoding;
+        currentStage = TaskStage.Encoding;
+        LapCounter.lapCount = 0;
+        if (isPractice)
+        {
+            yield return StartCoroutine(objController.SelectPracticeItems());
+        }
+        else
+        {
+
             trialLogTrack.LogTaskStage(currentStage, true);
-            trialCount = i + 1;
-            LapCounter.lapCount = 0;
             yield return StartCoroutine(objController.SelectEncodingItems());
             trialLogTrack.LogInstructions(true);
+            yield return StartCoroutine(ShowEncodingInstructions());
+            trialLogTrack.LogInstructions(false);
+        }
             player.transform.position = startTransform.position;
             player.transform.rotation = startTransform.rotation;
             //int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
@@ -707,310 +725,85 @@ public class Experiment : MonoBehaviour {
             chequeredFlag.transform.rotation = startTransform.rotation;
 
             //	player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
-            yield return StartCoroutine(ShowEncodingInstructions());
-            trialLogTrack.LogInstructions(false);
             yield return StartCoroutine(PickEncodingLocations());
             yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
 
-            if (!skipEncoding)
+        if (!skipEncoding)
+        {
+
+            while (LapCounter.lapCount < 1)
             {
+                trafficLightController.MakeVisible(true);
+                SetCarMovement(false);
+                yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 
-                while (LapCounter.lapCount < 1)
+
+                //set drive mode to auto
+                player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+
+
+                trafficLightController.MakeVisible(false);
+
+                UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
+                SetCarMovement(true);
+                LapCounter.canStop = false;
+                while (!LapCounter.canStop)
                 {
-                    trafficLightController.MakeVisible(true);
-                    SetCarMovement(false);
-                    yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+                    yield return 0;
+                }
+                SetCarMovement(false);
+                LapCounter.canStop = false;
+                //can press spacebar to stop
+                float forceStopTimer = 0f;
+                trafficLightController.MakeVisible(true);
+                yield return StartCoroutine(trafficLightController.ShowRed());
 
-
-                    //set drive mode to auto
-                    player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-
-
-                    trafficLightController.MakeVisible(false);
-
-                    //reset lap timer and show display
-                    ResetLapDisplay();
-                    UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
-                    SetCarMovement(true);
-                    LapCounter.canStop = false;
-                    while (!LapCounter.canStop)
+                bool forceStopped = false;
+                while (!forceStopped)
+                {
+                    forceStopTimer += Time.deltaTime;
+                    if (forceStopTimer > 1.15f)
                     {
-                        yield return 0;
+                        forceStopTimer = 0f;
+                        forceStopped = true;
                     }
-                    SetCarMovement(false);
-                    LapCounter.canStop = false;
-                    //can press spacebar to stop
-                    float forceStopTimer = 0f;
-                    trafficLightController.MakeVisible(true);
-                    yield return StartCoroutine(trafficLightController.ShowRed());
-
-                    bool forceStopped = false;
-                    while (!forceStopped)
-                    {
-                        forceStopTimer += Time.deltaTime;
-                        if (forceStopTimer > 1.15f)
-                        {
-                            forceStopTimer = 0f;
-                            forceStopped = true;
-                        }
-                        yield return 0;
-                    }
-
-                    forceStopped = false;
-
-
-                    //update lap time by stopping timer first and then hide it before fixation
-                    UpdateLapDisplay();
-                    HideLapDisplay();
-
-                    trafficLightController.MakeVisible(false);
-
-                    //reset collisions for encoding objects
-                    for (int k = 0; k < spawnedObjects.Count; k++)
-                    {
-                        if(spawnedObjects[k]!=null)
-                            spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(true);
-                    }
-
-
-                    yield return new WaitForSeconds(1f);
-                    yield return StartCoroutine(ShowFixation());
-                    SetCarMovement(true);
-                    player.transform.position = startTransform.position;
                     yield return 0;
                 }
 
-            }
-
-            //retrieval time
-            SetCarMovement(false);
-            UnityEngine.Debug.Log("beginning retrieval");
-            HideLapDisplay();
-            //hide encoding objects and text
-            for (int j = 0; j < spawnedObjects.Count; j++)
-            {
-                //spawnedObjects[j].gameObject.SetActive(false);
-                spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
-
-            }
-
-            //	uiController.itemOneName.text = spawnedObjects[0].name.Split('(')[0];
-            //	uiController.itemTwoName.text = spawnedObjects[1].name.Split('(')[0];
-
-            //slowZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-            //	speedZoneObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-
-            trialLogTrack.LogTaskStage(currentStage, false);
-            //	currentStage = Experiment.TaskStage.Retrieval;
-
-            //pick a randomized starting retrieval position
-            List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
-            int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
-
-            Transform randStartTransform = validStartTransforms[randWaypoint];
-
-            //disable player collider box before transporting to new location
-
-            player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
+                forceStopped = false;
 
 
-            //	targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(randStartTransform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
-            //player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex],targetIndex);
-            player.transform.position = randStartTransform.position;
-            player.transform.rotation = randStartTransform.rotation;
-            chequeredFlag.transform.position = randStartTransform.position;
-            chequeredFlag.transform.rotation = randStartTransform.rotation;
+                trafficLightController.MakeVisible(false);
 
-
-            player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
-
-            trialLogTrack.LogRetrievalStartPosition(player.transform.position);
-
-            player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = false;
-
-            player.GetComponent<CarMover>().Reset();
-            //player.GetComponent<WaypointProgressTracker>().Reset();
-
-            LapCounter.lapCount = 0; //reset lap count for retrieval 
-
-            string targetNames = "";
-
-
-            if (trialCount % 2 == 0)
-            {
-                verbalRetrieval = false;
-                currentStage = TaskStage.SpatialRetrieval;
-            }
-            else
-            {
-                verbalRetrieval = true;
-
-                currentStage = TaskStage.VerbalRetrieval;
-            }
-
-            //log the retrieval stage
-            trialLogTrack.LogTaskStage(currentStage, true);
-            bool finishedRetrieval = false;
-            retCount = 0;
-
-            //set drive mode to manual
-            player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
-
-            while (LapCounter.lapCount < 10 && !finishedRetrieval)
-            {
-                if (verbalRetrieval)
+                //reset collisions for encoding objects
+                for (int k = 0; k < spawnedObjects.Count; k++)
                 {
-                    if (!skipVerbalRetrieval)
-                    {
-                        yield return StartCoroutine(GenerateLureSpot());
-                        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-                        UnityEngine.Debug.Log("starting verbal retrieval");
-                        trialLogTrack.LogInstructions(true);
-                        yield return StartCoroutine(ShowVerbalRetrievalInstructions());
-                        trialLogTrack.LogInstructions(false);
-                        trafficLightController.MakeVisible(true);
-                        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-                        SetCarMovement(true);
-
-                        //reset lap timer and show display
-                        ResetLapDisplay();
-                        HideLapDisplay();
-
-                        trafficLightController.MakeVisible(false);
-
-                        while (retCount < listLength)
-                        {
-                            yield return 0;
-                        }
-                        verbalRetrieval = false;
-                        SetCarMovement(true);
-                        UpdateLapDisplay();
-                        HideLapDisplay();
-
-                        trafficLightController.MakeVisible(false);
-                        yield return new WaitForSeconds(1f);
-
-                    }
-                    finishedRetrieval = true;
+                    if (spawnedObjects[k] != null)
+                        spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(true);
                 }
-                else
+
+
+                yield return new WaitForSeconds(1f);
+                yield return StartCoroutine(ShowFixation());
+                SetCarMovement(true);
+                player.transform.position = startTransform.position;
+
+                if(!isPractice)
                 {
-                    if (!skipSpatialRetrieval)
-                    {
-                        carSpeed = 0f;
-                        spatialFeedbackStatus.Clear();
-                        spatialFeedbackStatus = new List<bool>();
-                        UnityEngine.Debug.Log("beginning spatial retrieval");
-                        trialLogTrack.LogInstructions(true);
-                        yield return StartCoroutine(ShowRetrievalInstructions());
-                        trialLogTrack.LogInstructions(false);
-                        chequeredFlag.SetActive(false);
 
-                        //disable collision of item collider box during spatial retrieval
-
-                        for (int k = 0; k < spawnedObjects.Count; k++)
-                        {
-                            if (spawnedObjects[k] != null)
-                                spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
-                        }
-
-                        //spatial retrieval
-                        List<int> intPool = new List<int>();
-                        List<int> randIndex = new List<int>();
-                        for (int j = 0; j < listLength; j++)
-                        {
-                            intPool.Add(j);
-                        }
-                        for (int j = 0; j < listLength; j++)
-                        {
-                            int randInt = UnityEngine.Random.Range(0, intPool.Count - 1);
-                            randIndex.Add(intPool[randInt]);
-                            intPool.RemoveAt(randInt);
-                        }
-
-                        trafficLightController.MakeVisible(true);
-                        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-                        SetCarMovement(false);
-
-                        //reset lap timer and show display
-                        ResetLapDisplay();
-                        HideLapDisplay();
-
-                        trafficLightController.MakeVisible(false);
-
-                        for (int j = 0; j < listLength; j++)
-                        {
-                            UnityEngine.Debug.Log("retrieval num " + j.ToString());
-                            //targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
-                            //uiController.zRetrievalText.color = Color.white;
-                            //uiController.zRetrievalText.text = targetNames;
-                            yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
-                            SetCarMovement(true);
-
-                            //  uiController.targetTextPanel.alpha = 1f;
-
-                            //wait for the player to press X to choose their location
-                            while (!Input.GetKeyDown(KeyCode.X))
-                            {
-                                yield return 0;
-                            }
-
-                            //stop car and calculate then proceed to next
-                            SetCarMovement(false);
-
-
-                            float dist = Vector3.Distance(spawnedObjects[randIndex[j]].transform.position, player.transform.position);
-                            UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
-                            if (dist < 15f)
-                            {
-                                spatialFeedbackStatus.Add(true);
-                            }
-                            else
-                            {
-                                spatialFeedbackStatus.Add(false);
-                            }
-                            spatialFeedbackPosition.Add(player.transform.position);
-                            trialLogTrack.LogRetrievalAttempt(spawnedObjects[randIndex[j]].gameObject, player);
-
-                            yield return new WaitForSeconds(0.2f);
-
-                        }
-                        currentStage = TaskStage.Feedback;
-                        UnityEngine.Debug.Log("finished all retrievals");
-
-
-                        finishedRetrieval = true;
-                        SetCarMovement(true);
-
-                        uiController.targetTextPanel.alpha = 0f;
-                        /*
-                        uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
-                        yield return StartCoroutine("PerformSpatialFeedback");
-                        UnityEngine.Debug.Log("finished spatial feedback");
-                        uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
-                        */
-                        UpdateLapDisplay();
-                        HideLapDisplay();
-
-                        trafficLightController.MakeVisible(false);
-                        yield return new WaitForSeconds(1f);
-
-                        //set the car movement in forward direction
-                        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-                       // yield return StartCoroutine("MoveForward");
-                        //MoveForward(); //we'll reset the movement to forward for the next navigation/encoding phase
-                        /*
-                        player.transform.position = startTransform.position;
-                        yield return StartCoroutine(ShowFixation());
-                        player.transform.position = startTransform.position;
-                        */
-
-                        yield return 0;
-                    }
+                    trialLogTrack.LogTaskStage(currentStage, false);
                 }
+                yield return 0;
             }
-            finishedRetrieval = false;
+        }
 
+            
+
+            yield return null;
+        }
+
+         IEnumerator ResetTrack()
+        {
 
             for (int k = 0; k < spawnedObjects.Count; k++)
             {
@@ -1031,13 +824,271 @@ public class Experiment : MonoBehaviour {
             //	objController.encodingList.Clear();
             LapCounter.lapCount = 0;
             player.transform.position = startTransform.position;
+            yield return null;
+        }
+
+    IEnumerator BeginTaskBlock()
+    {
+
+        verbalRetrieval = false;
+
+        //setting up car but do not move it yet
+        StartCoroutine(player.GetComponent<CarMover>().MoveCar());
+        SetCarMovement(false);
+
+        //track familiarization
+      //  yield return StartCoroutine("BeginTrackScreening");
+
+        //practice
+        yield return StartCoroutine("BeginPractice");
+
+            for (int i = 0; i < blockLength; i++)
+            {
+                trialCount = i + 1;
+                //run encoding
+                yield return StartCoroutine("RunEncoding");
+
+                //run retrieval
+                yield return StartCoroutine("RunRetrieval");
+
+                yield return StartCoroutine("ResetTrack");
+            }
+
 
             uiController.targetTextPanel.alpha = 0f;
             SetCarMovement(true);
             trialLogTrack.LogTaskStage(currentStage, false);
+        
+        yield return null;
+    }
+
+
+    IEnumerator RunRetrieval()
+    {
+
+        //retrieval time
+        SetCarMovement(false);
+        UnityEngine.Debug.Log("beginning retrieval");
+        //hide encoding objects and text
+        for (int j = 0; j < spawnedObjects.Count; j++)
+        {
+            //spawnedObjects[j].gameObject.SetActive(false);
+            spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
+
+        }
+
+
+        //	currentStage = Experiment.TaskStage.Retrieval;
+
+        //pick a randomized starting retrieval position
+        List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
+        int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
+
+        Transform randStartTransform = validStartTransforms[randWaypoint];
+
+        //disable player collider box before transporting to new location
+
+        player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
+
+        player.transform.position = randStartTransform.position;
+        player.transform.rotation = randStartTransform.rotation;
+        chequeredFlag.transform.position = randStartTransform.position;
+        chequeredFlag.transform.rotation = randStartTransform.rotation;
+
+
+        player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
+
+        trialLogTrack.LogRetrievalStartPosition(player.transform.position);
+
+        player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = false;
+
+        player.GetComponent<CarMover>().Reset();
+        //player.GetComponent<WaypointProgressTracker>().Reset();
+
+        LapCounter.lapCount = 0; //reset lap count for retrieval 
+
+        string targetNames = "";
+
+
+        if (trialCount % 2 == 0)
+        {
+            verbalRetrieval = false;
+            currentStage = TaskStage.SpatialRetrieval;
+        }
+        else
+        {
+            verbalRetrieval = true;
+
+            currentStage = TaskStage.VerbalRetrieval;
+        }
+
+        //log the retrieval stage
+        if(!isPractice)
+            trialLogTrack.LogTaskStage(currentStage, true);
+
+        bool finishedRetrieval = false;
+        retCount = 0;
+
+        //set drive mode to manual
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
+
+        while (LapCounter.lapCount < 10 && !finishedRetrieval)
+        {
+            if (verbalRetrieval)
+            {
+                if (!skipVerbalRetrieval)
+                {
+                   yield return StartCoroutine("RunVerbalRetrieval");
+
+                }
+                finishedRetrieval = true;
+            }
+            else
+            {
+                if (!skipSpatialRetrieval)
+                {
+                    yield return StartCoroutine("RunSpatialRetrieval");
+                    
+
+                   
+                }
+            }
+            currentStage = TaskStage.Feedback;
+            UnityEngine.Debug.Log("finished all retrievals");
+
+
+            finishedRetrieval = true;
+            SetCarMovement(true);
+
+            uiController.targetTextPanel.alpha = 0f;
+            /*
+            uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
+            yield return StartCoroutine("PerformSpatialFeedback");
+            UnityEngine.Debug.Log("finished spatial feedback");
+            uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
+            */
+
+            trafficLightController.MakeVisible(false);
+            yield return new WaitForSeconds(1f);
+
+            //set the car movement in forward direction
+            yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+            yield return 0;
+        }
+
+        finishedRetrieval = false;
+        yield return null;
+    }
+
+    IEnumerator RunVerbalRetrieval()
+    {
+        yield return StartCoroutine(GenerateLureSpot());
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        UnityEngine.Debug.Log("starting verbal retrieval");
+        trialLogTrack.LogInstructions(true);
+        yield return StartCoroutine(ShowVerbalRetrievalInstructions());
+        trialLogTrack.LogInstructions(false);
+        trafficLightController.MakeVisible(true);
+        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+        SetCarMovement(true);
+
+
+        trafficLightController.MakeVisible(false);
+
+        while (retCount < listLength)
+        {
+            yield return 0;
+        }
+        verbalRetrieval = false;
+        SetCarMovement(true);
+
+        trafficLightController.MakeVisible(false);
+        yield return new WaitForSeconds(1f);
+        yield return null;
+    }
+
+    IEnumerator RunSpatialRetrieval()
+    {
+        carSpeed = 0f;
+        spatialFeedbackStatus.Clear();
+        spatialFeedbackStatus = new List<bool>();
+        UnityEngine.Debug.Log("beginning spatial retrieval");
+        trialLogTrack.LogInstructions(true);
+        yield return StartCoroutine(ShowRetrievalInstructions());
+        trialLogTrack.LogInstructions(false);
+        chequeredFlag.SetActive(false);
+
+        //disable collision of item collider box during spatial retrieval
+
+        for (int k = 0; k < spawnedObjects.Count; k++)
+        {
+            if (spawnedObjects[k] != null)
+                spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
+        }
+
+        //spatial retrieval
+        List<int> intPool = new List<int>();
+        List<int> randIndex = new List<int>();
+        for (int j = 0; j < listLength; j++)
+        {
+            intPool.Add(j);
+        }
+        for (int j = 0; j < listLength; j++)
+        {
+            int randInt = UnityEngine.Random.Range(0, intPool.Count - 1);
+            randIndex.Add(intPool[randInt]);
+            intPool.RemoveAt(randInt);
+        }
+
+        trafficLightController.MakeVisible(true);
+        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+        SetCarMovement(false);
+
+
+        trafficLightController.MakeVisible(false);
+
+        for (int j = 0; j < listLength; j++)
+        {
+            UnityEngine.Debug.Log("retrieval num " + j.ToString());
+            //targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
+            //uiController.zRetrievalText.color = Color.white;
+            //uiController.zRetrievalText.text = targetNames;
+            yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
+            SetCarMovement(true);
+
+            //  uiController.targetTextPanel.alpha = 1f;
+
+            //wait for the player to press X to choose their location
+            while (!Input.GetKeyDown(KeyCode.X))
+            {
+                yield return 0;
+            }
+
+            //stop car and calculate then proceed to next
+            SetCarMovement(false);
+
+
+            float dist = Vector3.Distance(spawnedObjects[randIndex[j]].transform.position, player.transform.position);
+            UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
+            if (dist < 15f)
+            {
+                spatialFeedbackStatus.Add(true);
+            }
+            else
+            {
+                spatialFeedbackStatus.Add(false);
+            }
+            spatialFeedbackPosition.Add(player.transform.position);
+            trialLogTrack.LogRetrievalAttempt(spawnedObjects[randIndex[j]].gameObject, player);
+
+            yield return new WaitForSeconds(0.2f);
+
         }
         yield return null;
     }
+
+
+
 
     IEnumerator PerformSpatialFeedback()
     {
@@ -1336,11 +1387,11 @@ public class Experiment : MonoBehaviour {
 
             chosenEncodingLocations.Add(waypointLocations[randInt]);
             string temp = "";
+            UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
             for (int j = 0; j < intPicker.Count; j++)
             {
                 temp += intPicker[j].ToString() + ",";
             }
-            uiController.debugText.text = temp;
             // intPicker.RemoveAt(randIndex);
             nearestIndex = FindNearestIndex(tempStorage,randInt);
                     intPicker.RemoveAt(randIndex); //removing self
@@ -1493,7 +1544,8 @@ public class Experiment : MonoBehaviour {
         for (int i = 0; i < spawnLocations.Count; i++)
         {
             //GameObject encodingObj = Instantiate(objController.encodingList[i], new Vector3(spawnLocations[i].x, spawnLocations[i].y + 1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            GameObject encodingObj = Instantiate(objController.treasureChestPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y + 1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
+            GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y, spawnLocations[i].z), Quaternion.identity) as GameObject;
+            GameObject encodingObj = colliderBox.GetComponent<CarStopper>().stimulusObject;
             encodingObj.name = encodingObj.name + "_" + i.ToString();
             spawnedObjects.Add(encodingObj);
             trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
@@ -1502,14 +1554,13 @@ public class Experiment : MonoBehaviour {
             encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
             encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
-            //spawn collider box
-            GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, encodingObj.transform.position, Quaternion.identity) as GameObject;
 
             //adjust the stimulus object's position so it appears right above the indicator
             encodingObj.transform.position = colliderBox.GetComponent<CarStopper>().positionIndicator.transform.position + new Vector3(0f, 1.5f, 0f);
 
             //parent the collider box with the encoding object
-            colliderBox.transform.parent = encodingObj.transform;
+           // colliderBox.transform.parent = encodingObj.transform;
+
             //colliderBox.transform.localPosition = Vector3.zero;
            // colliderBox.transform.localRotation = Quaternion.identity;
 
