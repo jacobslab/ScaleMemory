@@ -114,9 +114,10 @@ public class DefaultItem : MonoBehaviour
 	public IEnumerator RunCollision()
 	{
 
-		//yield return StartCoroutine(Experiment.Instance.trialController.WaitForPlayerRotationToTreasure(gameObject));
+        //yield return StartCoroutine(Experiment.Instance.trialController.WaitForPlayerRotationToTreasure(gameObject));
 
-		//open the object
+        //open the object
+        UnityEngine.Debug.Log("opening chest");
 		StartCoroutine(Open(Experiment.Instance.player));
 
 		//if it was a special spot and this is the default object...
@@ -124,12 +125,14 @@ public class DefaultItem : MonoBehaviour
 		if (tag == "DefaultSpecialObject")
 		{
 
-			yield return StartCoroutine(SpawnSpecialObject(specialObjectSpawnPoint.position));
+            UnityEngine.Debug.Log("spawning image plane");
+            yield return StartCoroutine(SpawnSpecialObject(specialObjectSpawnPoint.position));
 
 		}
 		else
-		{
-			yield return StartCoroutine(RunDefaultCollision());
+        {
+            UnityEngine.Debug.Log("running default collision");
+            yield return StartCoroutine(RunDefaultCollision());
 		}
 
 
@@ -188,7 +191,14 @@ public class DefaultItem : MonoBehaviour
         //GameObject specialObject = Experiment.Instance.SpawnSpecialObject(specialSpawnPos);
         Texture stimImage = Experiment.Instance.objController.ReturnStimuliToPresent();
         string stimDisplayText = Experiment.Instance.objController.ReturnStimuliDisplayText();
+        GetComponent<StimulusObject>().stimuliDisplayName = stimDisplayText;
         specialObject.GetComponent<SpawnableImage>().SetImage(stimImage);
+
+        //attach image plane to treasure chest's parent which is ItemColliderBox
+        specialObject.transform.parent = transform.parent;
+
+        //reset rotation to match the parent's rotation
+        specialObject.transform.localRotation = Quaternion.identity;
 
 	//	string name = specialObject.GetComponent<SpawnableObject>().GetDisplayName();
 		//set special object text
@@ -202,7 +212,7 @@ public class DefaultItem : MonoBehaviour
 		yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
 
 		//should destroy the chest after the special object time
-		Destroy(gameObject);
+		//Destroy(gameObject);
 	}
 
 	public void SetSpecialObjectText(string text)

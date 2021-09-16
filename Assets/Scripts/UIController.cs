@@ -12,8 +12,6 @@ public class UIController : MonoBehaviour
     //retrieval
     public CanvasGroup retrievalTextPanel;
     public CanvasGroup targetTextPanel;
-    public Text zRetrievalText;
-    public Text mRetrievalText;
     public Text retrievalItemName;
 
     //presentation text
@@ -28,6 +26,8 @@ public class UIController : MonoBehaviour
 
     //practice panel
     public CanvasGroup practiceInstructionPanel;
+    public Text preEncodingInstructions;
+    public Text preSpatialRetrieval;
 
 
     //encoding panel
@@ -36,6 +36,13 @@ public class UIController : MonoBehaviour
     //retrieval panel
     public CanvasGroup retrievalPanel;
     public CanvasGroup verbalRetrievalPanel;
+
+    public Text spatialInstructionA;
+    public Text spatialInstructionB;
+
+    public Text verbalInstructionA;
+    public Text verbalInstructionB;
+
     public Text itemOneName;
     public Text itemTwoName;
     public CanvasGroup spatialRetrievalFeedbackPanel;
@@ -115,6 +122,7 @@ public class UIController : MonoBehaviour
     void Start()
     {
         targetTextPanel.alpha = 0f;
+        ToggleSelection(false);
         presentationItemText.enabled = false;
         selectionImage.enabled = false;
 

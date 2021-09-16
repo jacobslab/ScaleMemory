@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3348606230541681069}
   - component: {fileID: 876201129387775560}
   - component: {fileID: 574927849503924526}
+  - component: {fileID: 4003491750192761705}
   m_Layer: 0
   m_Name: LureObject
   m_TagString: Untagged
@@ -86,3 +87,15 @@ MonoBehaviour:
   sphinxThreshold: 
   SpanishName: 
   IDstring: 
+--- !u!114 &4003491750192761705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8124704991517749965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 233d447a7a95a8646af89f4f5bf86b81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

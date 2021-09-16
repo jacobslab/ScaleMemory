@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class StimulusObject : MonoBehaviour
 {
     private GameObject collidingPart;
+    public string stimuliDisplayName;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +21,7 @@ public class StimulusObject : MonoBehaviour
 
     public string GetObjectName()
     {
-        return gameObject.name.Split('(')[0];
+        return stimuliDisplayName;
     }
 
     public void ToggleCollisions(bool shouldCollide)

@@ -139,7 +139,7 @@ public class CarMover : MonoBehaviour
 
     GameObject GetTrackPoint(int pointIndex)
     {
-        if (pointIndex < spawnPoints.Count && pointIndex >=0)
+        if (pointIndex < spawnPoints.Count && pointIndex>=0)
             return spawnPoints[pointIndex].gameObject;
         else
         {
@@ -171,32 +171,33 @@ public class CarMover : MonoBehaviour
                 if (currentMovementDirection == MovementDirection.Forward)
                 {
                     UnityEngine.Debug.Log("going forward");
-                    pointIndex = 0;
-                    return spawnPoints[pointIndex].gameObject;
+                    currIndex = 0;
+                    return spawnPoints[currIndex].gameObject;
                 }
                 //else return the last waypoint if moving in the reverse direction
                 else if (currentMovementDirection == MovementDirection.Reverse)
                 {
                     UnityEngine.Debug.Log("going reverse");
-                    pointIndex = spawnPoints.Count - 1;
-                    return spawnPoints[pointIndex].gameObject;
+                    currIndex = spawnPoints.Count - 1;
+                    return spawnPoints[currIndex].gameObject;
                 }
                 else
                 {
-                    pointIndex = 0;
+                    currIndex = 0;
                     UnityEngine.Debug.Log("WARNING; NOT SET PROPERLY");
-                    return spawnPoints[0].gameObject;
+                    return spawnPoints[currIndex].gameObject;
                 }
             }
             else
             {
+                currIndex = 0;
                 UnityEngine.Debug.Log("WARNING; NOT SET PROPERLY");
-                return spawnPoints[0].gameObject;
+                return spawnPoints[currIndex].gameObject;
             }
         }
     }
 
-    void ResetWaypointTarget()
+    public void ResetWaypointTarget()
     {
         currIndex = 0;
     }
@@ -283,9 +284,9 @@ public class CarMover : MonoBehaviour
             currIndex++;
         else if (targetDirection == MovementDirection.Reverse)
             currIndex--;
-        //UnityEngine.Debug.Log("incrementing point index to " + currIndex.ToString());
+        UnityEngine.Debug.Log("incrementing point index to " + currIndex.ToString());
 
-        UnityEngine.Debug.Log("exiting DriveCar");
+       // UnityEngine.Debug.Log("exiting DriveCar");
         yield return null;
     }
 

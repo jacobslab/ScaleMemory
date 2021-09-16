@@ -21,7 +21,7 @@ public class Experiment : MonoBehaviour {
 
     public static bool isPaused = false;
 
-
+    private bool canSelect = false;
 
     //audio clips
     public AudioClip magicWand;
@@ -554,18 +554,35 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine("RunEncoding");
 
         //run retrieval
-        yield return StartCoroutine("RunVerbalRetrieval");
+        verbalRetrieval = false;
+        currentStage = TaskStage.SpatialRetrieval;
+        trialLogTrack.LogTaskStage(currentStage, true);
+        yield return StartCoroutine("RunSpatialRetrieval");
+        trialLogTrack.LogTaskStage(currentStage, false);
 
+        ToggleFixation(true);
+        yield return new WaitForSeconds(1f);
         yield return StartCoroutine("ResetTrack");
+        ToggleFixation(false);
+
 
 
         //run encoding
         yield return StartCoroutine("RunEncoding");
 
-        //run retrieval
-        yield return StartCoroutine("RunSpatialRetrieval");
+        verbalRetrieval = true;
+        currentStage = TaskStage.VerbalRetrieval;
+        trialLogTrack.LogTaskStage(currentStage, true);
 
+
+        //run retrieval
+        yield return StartCoroutine("RunVerbalRetrieval");
+        trialLogTrack.LogTaskStage(currentStage, false);
+
+        ToggleFixation(true);
+        yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine("ResetTrack");
+        ToggleFixation(false);
 
 
         isPractice = false;
@@ -634,7 +651,9 @@ public class Experiment : MonoBehaviour {
     {
 
         uiController.practiceInstructionPanel.alpha = 1f;
+        uiController.preEncodingInstructions.enabled = true;
         yield return StartCoroutine(WaitForActionButton());
+        uiController.preEncodingInstructions.enabled = false;
         uiController.practiceInstructionPanel.alpha = 0f;
         yield return null;
     }
@@ -648,8 +667,16 @@ public class Experiment : MonoBehaviour {
     }
     IEnumerator ShowVerbalRetrievalInstructions()
     {
+        uiController.verbalInstructionA.enabled = true;
+        uiController.verbalInstructionB.enabled = false;
         uiController.verbalRetrievalPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
+
+
+        uiController.verbalInstructionA.enabled = false;
+        uiController.verbalInstructionB.enabled = true;
+        yield return StartCoroutine(WaitForActionButton());
+
         uiController.verbalRetrievalPanel.alpha = 0f;
         yield return null;
     }
@@ -657,8 +684,34 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator ShowRetrievalInstructions()
     {
+        uiController.practiceInstructionPanel.alpha =1f;
+        uiController.preSpatialRetrieval.enabled=true;
+
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.preSpatialRetrieval.enabled = false;
+        uiController.practiceInstructionPanel.alpha = 0f;
+
+        string itemName = objController.ReturnStimuliDisplayText();
+        uiController.itemReactivationText.text = itemName;
+        uiController.itemReactivationPanel.alpha = 1f;
+
+        yield return new WaitForSeconds(2f);
+
+
+        uiController.spatialInstructionA.enabled = true;
+        uiController.spatialInstructionB.enabled = false;
         uiController.retrievalPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
+
+
+        uiController.itemReactivationPanel.alpha = 0f;
+        uiController.spatialInstructionA.enabled = false;
+        uiController.spatialInstructionB.enabled = true;
+
+        yield return StartCoroutine(WaitForActionButton());
+
+        uiController.itemReactivationPanel.alpha = 0f;
+
         uiController.retrievalPanel.alpha = 0f;
         yield return null;
     }
@@ -709,14 +762,19 @@ public class Experiment : MonoBehaviour {
         }
         else
         {
-
             trialLogTrack.LogTaskStage(currentStage, true);
             yield return StartCoroutine(objController.SelectEncodingItems());
             trialLogTrack.LogInstructions(true);
             yield return StartCoroutine(ShowEncodingInstructions());
             trialLogTrack.LogInstructions(false);
         }
-            player.transform.position = startTransform.position;
+
+        //reset the waypoint tracker of the car
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+        player.GetComponent<CarMover>().ResetWaypointTarget();
+
+        player.transform.position = startTransform.position;
             player.transform.rotation = startTransform.rotation;
             //int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
             //player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
@@ -785,7 +843,7 @@ public class Experiment : MonoBehaviour {
 
                 yield return new WaitForSeconds(1f);
                 yield return StartCoroutine(ShowFixation());
-                SetCarMovement(true);
+                SetCarMovement(false);
                 player.transform.position = startTransform.position;
 
                 if(!isPractice)
@@ -807,7 +865,8 @@ public class Experiment : MonoBehaviour {
 
             for (int k = 0; k < spawnedObjects.Count; k++)
             {
-                Destroy(spawnedObjects[k]);
+            //destroy the ItemColliderBox which is the parent
+                Destroy(spawnedObjects[k].transform.parent.gameObject);
             }
 
             //reset everything before the next block begins
@@ -850,9 +909,12 @@ public class Experiment : MonoBehaviour {
 
                 //run retrieval
                 yield return StartCoroutine("RunRetrieval");
+            ToggleFixation(true);
+            yield return new WaitForSeconds(0.5f);
 
-                yield return StartCoroutine("ResetTrack");
-            }
+            yield return StartCoroutine("ResetTrack");
+            ToggleFixation(false);
+        }
 
 
             uiController.targetTextPanel.alpha = 0f;
@@ -922,9 +984,7 @@ public class Experiment : MonoBehaviour {
             currentStage = TaskStage.VerbalRetrieval;
         }
 
-        //log the retrieval stage
-        if(!isPractice)
-            trialLogTrack.LogTaskStage(currentStage, true);
+       trialLogTrack.LogTaskStage(currentStage, true);
 
         bool finishedRetrieval = false;
         retCount = 0;
@@ -958,7 +1018,9 @@ public class Experiment : MonoBehaviour {
 
 
             finishedRetrieval = true;
-            SetCarMovement(true);
+            SetCarMovement(false);
+
+            uiController.fixationPanel.alpha = 1f;
 
             uiController.targetTextPanel.alpha = 0f;
             /*
@@ -970,6 +1032,7 @@ public class Experiment : MonoBehaviour {
 
             trafficLightController.MakeVisible(false);
             yield return new WaitForSeconds(1f);
+            uiController.fixationPanel.alpha = 0f;
 
             //set the car movement in forward direction
             yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -982,12 +1045,20 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunVerbalRetrieval()
     {
-        yield return StartCoroutine(GenerateLureSpot());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+        player.GetComponent<CarMover>().ResetWaypointTarget();
+        yield return StartCoroutine(GenerateLureSpot());
         UnityEngine.Debug.Log("starting verbal retrieval");
-        trialLogTrack.LogInstructions(true);
-        yield return StartCoroutine(ShowVerbalRetrievalInstructions());
-        trialLogTrack.LogInstructions(false);
+
+        if (isPractice)
+        {
+
+            trialLogTrack.LogInstructions(true);
+            yield return StartCoroutine(ShowVerbalRetrievalInstructions());
+            trialLogTrack.LogInstructions(false);
+        }
+
         trafficLightController.MakeVisible(true);
         yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
         SetCarMovement(true);
@@ -1000,7 +1071,7 @@ public class Experiment : MonoBehaviour {
             yield return 0;
         }
         verbalRetrieval = false;
-        SetCarMovement(true);
+        SetCarMovement(false);
 
         trafficLightController.MakeVisible(false);
         yield return new WaitForSeconds(1f);
@@ -1009,15 +1080,14 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunSpatialRetrieval()
     {
+        SetCarMovement(false);
+        trafficLightController.MakeVisible(false);
         carSpeed = 0f;
         spatialFeedbackStatus.Clear();
         spatialFeedbackStatus = new List<bool>();
         UnityEngine.Debug.Log("beginning spatial retrieval");
-        trialLogTrack.LogInstructions(true);
-        yield return StartCoroutine(ShowRetrievalInstructions());
-        trialLogTrack.LogInstructions(false);
-        chequeredFlag.SetActive(false);
 
+      
         //disable collision of item collider box during spatial retrieval
 
         for (int k = 0; k < spawnedObjects.Count; k++)
@@ -1040,12 +1110,26 @@ public class Experiment : MonoBehaviour {
             intPool.RemoveAt(randInt);
         }
 
+        //show instructions only during the practice
+        if (isPractice)
+        {
+            trialLogTrack.LogInstructions(true);
+            yield return StartCoroutine(ShowRetrievalInstructions());
+            trialLogTrack.LogInstructions(false);
+        }
+
+        chequeredFlag.SetActive(false);
+
+
         trafficLightController.MakeVisible(true);
         yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
         SetCarMovement(false);
 
-
+        uiController.itemRetrievalInstructionPanel.alpha = 0f;
         trafficLightController.MakeVisible(false);
+
+       
+
 
         for (int j = 0; j < listLength; j++)
         {
@@ -1056,6 +1140,7 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
             SetCarMovement(true);
 
+            player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             //  uiController.targetTextPanel.alpha = 1f;
 
             //wait for the player to press X to choose their location
@@ -1084,6 +1169,8 @@ public class Experiment : MonoBehaviour {
             yield return new WaitForSeconds(0.2f);
 
         }
+        SetCarMovement(false);
+        uiController.itemRetrievalInstructionPanel.alpha = 0f;
         yield return null;
     }
 
@@ -1161,9 +1248,11 @@ public class Experiment : MonoBehaviour {
         yield return new WaitForSeconds(Configuration.itemReactivationTime);
         uiController.itemReactivationDetails.alpha = 1f;
         uiController.ToggleSelection(true);
+        canSelect = true;
         yield return StartCoroutine(WaitForSelection());
         uiController.itemReactivationDetails.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 0f;
+        canSelect = false;
         uiController.ToggleSelection(false);
 
         yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
@@ -1180,9 +1269,11 @@ public class Experiment : MonoBehaviour {
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
         uiController.ToggleSelection(true);
+        canSelect = true;
         yield return StartCoroutine(WaitForSelection());
         uiController.locationReactivationPanel.alpha = 0f;
         uiController.ToggleSelection(false);
+        canSelect = false;
         yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
 
         float randJitterTime = Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
@@ -1267,16 +1358,25 @@ public class Experiment : MonoBehaviour {
 
     }
 
+    void ToggleFixation(bool shouldShow)
+    {
+        
+        trialLogTrack.LogFixation(shouldShow);
+        uiController.fixationPanel.alpha = (shouldShow) ? 1f:0f;
+        uiController.fixationCross.alpha =  (shouldShow)?1f:0f;
+    }
 
 
     IEnumerator ShowFixation()
     {
+        UnityEngine.Debug.Log("inside fixation");
         trialLogTrack.LogFixation(true);
         uiController.fixationPanel.alpha = 1f;
         uiController.fixationCross.alpha = 1f;
         float totalFixationTime = fixedTime + UnityEngine.Random.Range(0.1f, 0.3f);
         uiController.fixationCross.alpha = 0f;
         yield return new WaitForSeconds(totalFixationTime);
+        UnityEngine.Debug.Log("finished waiting for fixation");
         uiController.fixationPanel.alpha = 0f;
 
         trialLogTrack.LogFixation(false);
@@ -1499,8 +1599,7 @@ public class Experiment : MonoBehaviour {
             yield return 0;
         }
 
-        //  string objectName = stimulusObject.name.Split('(')[0];
-        string objectName = stimulusObject.GetComponent<StimulusObject>().GetObjectName();
+        //    string objectName = stimulusObject.GetComponent<StimulusObject>().GetObjectName();
 
         //move to stimuli presentation transform
 
@@ -1513,9 +1612,6 @@ public class Experiment : MonoBehaviour {
 
         float randJitterTime = Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
         float totalPresentationTime = Configuration.itemPresentationTime + randJitterTime;
-        uiController.presentationItemText.enabled = true;
-        uiController.presentationItemText.text = objectName;
-        trialLogTrack.LogItemPresentation(objectName, true);
 
         //make object visible
         if (stimulusObject.GetComponent<VisibilityToggler>() != null)
@@ -1524,8 +1620,13 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(stimulusObject.GetComponent<DefaultItem>().RunCollision());
         UnityEngine.Debug.Log("finished running collision");
 
+        string objectName = objController.ReturnStimuliDisplayText();
+       // uiController.presentationItemText.enabled = true;
+     //   uiController.presentationItemText.text = objectName;
+        trialLogTrack.LogItemPresentation(objectName, true);
+
         //wait for the calculated presentation time
-       // yield return new WaitForSeconds(totalPresentationTime);
+        // yield return new WaitForSeconds(totalPresentationTime);
 
         //hide it after
         if (stimulusObject.GetComponent<VisibilityToggler>() != null)
@@ -1544,19 +1645,22 @@ public class Experiment : MonoBehaviour {
         for (int i = 0; i < spawnLocations.Count; i++)
         {
             //GameObject encodingObj = Instantiate(objController.encodingList[i], new Vector3(spawnLocations[i].x, spawnLocations[i].y + 1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y, spawnLocations[i].z), Quaternion.identity) as GameObject;
+            GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y +1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
             GameObject encodingObj = colliderBox.GetComponent<CarStopper>().stimulusObject;
             encodingObj.name = encodingObj.name + "_" + i.ToString();
             spawnedObjects.Add(encodingObj);
             trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
-            encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
 
+            encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
             encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
+            colliderBox.GetComponent<FacePosition>().ShouldFacePlayer = true;
+            colliderBox.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
+
             encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
 
             //adjust the stimulus object's position so it appears right above the indicator
-            encodingObj.transform.position = colliderBox.GetComponent<CarStopper>().positionIndicator.transform.position + new Vector3(0f, 1.5f, 0f);
+         //   encodingObj.transform.position = colliderBox.GetComponent<CarStopper>().positionIndicator.transform.position + new Vector3(0f, 1.5f, 0f);
 
             //parent the collider box with the encoding object
            // colliderBox.transform.parent = encodingObj.transform;
@@ -1640,7 +1744,6 @@ public class Experiment : MonoBehaviour {
                     UnityEngine.Debug.Log("retrieval obj list outside " + retrievalObjList.Count.ToString());
                     UnityEngine.Debug.Log(" what is " + retrievalObjList[i].ToString());
                     string objName = retrievalObjList[i].gameObject.name.Split('(')[0];
-                    uiController.zRetrievalText.text = objName;
                     uiController.retrievalItemName.text = objName;
                   //  uiController.retrievalTextPanel.alpha = 1f;
                     while (!Input.GetKeyDown(KeyCode.Space))
@@ -1708,14 +1811,7 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    void LockZAnswer()
-    {
-        uiController.zRetrievalText.color = Color.gray;
-    }
-    void LockMAnswer()
-    {
-        uiController.mRetrievalText.color = Color.gray;
-    }
+   
 
     IEnumerator MoveForward()
     {
@@ -1811,7 +1907,7 @@ public class Experiment : MonoBehaviour {
             }
 
         }
-        if (currentStage == TaskStage.SpatialRetrieval || currentStage == TaskStage.VerbalRetrieval)
+        if ((currentStage == TaskStage.SpatialRetrieval || currentStage == TaskStage.VerbalRetrieval) && canSelect)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {

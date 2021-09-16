@@ -1,109 +1,355 @@
 fileFormatVersion: 2
 guid: 5f0b611ae777d473cab294ad8a7cabbe
-timeCreated: 1452617638
-licenseType: Free
 ModelImporter:
-  serializedVersion: 18
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Circle_000
-    100004: Circle_001
-    100006: Empty
-    100008: Empty_001
-    100010: Empty_002
-    100012: Plane_001
-    100014: Plane_002
-    100016: Plane_003
-    100018: Plane_004
-    100020: Plane_006
-    100022: Plane_008
-    100024: Plane_009
-    100026: Plane_010
-    100028: Plane_011
-    100030: Plane_012
-    100032: Plane_013
-    100034: Plane_014
-    400000: //RootNode
-    400002: Circle_000
-    400004: Circle_001
-    400006: Empty
-    400008: Empty_001
-    400010: Empty_002
-    400012: Plane_001
-    400014: Plane_002
-    400016: Plane_003
-    400018: Plane_004
-    400020: Plane_006
-    400022: Plane_008
-    400024: Plane_009
-    400026: Plane_010
-    400028: Plane_011
-    400030: Plane_012
-    400032: Plane_013
-    400034: Plane_014
-    2300000: Circle_000
-    2300002: Circle_001
-    2300004: Plane_001
-    2300006: Plane_002
-    2300008: Plane_003
-    2300010: Plane_004
-    2300012: Plane_006
-    2300014: Plane_008
-    2300016: Plane_009
-    2300018: Plane_010
-    2300020: Plane_011
-    2300022: Plane_012
-    2300024: Plane_013
-    2300026: Plane_014
-    3300000: Circle_000
-    3300002: Circle_001
-    3300004: Plane_001
-    3300006: Plane_002
-    3300008: Plane_003
-    3300010: Plane_004
-    3300012: Plane_006
-    3300014: Plane_008
-    3300016: Plane_009
-    3300018: Plane_010
-    3300020: Plane_011
-    3300022: Plane_012
-    3300024: Plane_013
-    3300026: Plane_014
-    4300000: Plane_010
-    4300002: Plane_001
-    4300004: Plane_014
-    4300006: Circle_001
-    4300008: Plane_008
-    4300010: Circle_000
-    4300012: Plane_004
-    4300014: Plane_002
-    4300016: Plane_003
-    4300018: Plane_009
-    4300020: Plane_011
-    4300022: Plane_013
-    4300024: Plane_012
-    4300026: Plane_006
-    7400000: Default Take
-    9500000: //RootNode
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Circle_000
+  - first:
+      1: 100004
+    second: Circle_001
+  - first:
+      1: 100006
+    second: Empty
+  - first:
+      1: 100008
+    second: Empty_001
+  - first:
+      1: 100010
+    second: Empty_002
+  - first:
+      1: 100012
+    second: Plane_001
+  - first:
+      1: 100014
+    second: Plane_002
+  - first:
+      1: 100016
+    second: Plane_003
+  - first:
+      1: 100018
+    second: Plane_004
+  - first:
+      1: 100020
+    second: Plane_006
+  - first:
+      1: 100022
+    second: Plane_008
+  - first:
+      1: 100024
+    second: Plane_009
+  - first:
+      1: 100026
+    second: Plane_010
+  - first:
+      1: 100028
+    second: Plane_011
+  - first:
+      1: 100030
+    second: Plane_012
+  - first:
+      1: 100032
+    second: Plane_013
+  - first:
+      1: 100034
+    second: Plane_014
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Circle_000
+  - first:
+      4: 400004
+    second: Circle_001
+  - first:
+      4: 400006
+    second: Empty
+  - first:
+      4: 400008
+    second: Empty_001
+  - first:
+      4: 400010
+    second: Empty_002
+  - first:
+      4: 400012
+    second: Plane_001
+  - first:
+      4: 400014
+    second: Plane_002
+  - first:
+      4: 400016
+    second: Plane_003
+  - first:
+      4: 400018
+    second: Plane_004
+  - first:
+      4: 400020
+    second: Plane_006
+  - first:
+      4: 400022
+    second: Plane_008
+  - first:
+      4: 400024
+    second: Plane_009
+  - first:
+      4: 400026
+    second: Plane_010
+  - first:
+      4: 400028
+    second: Plane_011
+  - first:
+      4: 400030
+    second: Plane_012
+  - first:
+      4: 400032
+    second: Plane_013
+  - first:
+      4: 400034
+    second: Plane_014
+  - first:
+      23: 2300000
+    second: Circle_000
+  - first:
+      23: 2300002
+    second: Circle_001
+  - first:
+      23: 2300004
+    second: Plane_001
+  - first:
+      23: 2300006
+    second: Plane_002
+  - first:
+      23: 2300008
+    second: Plane_003
+  - first:
+      23: 2300010
+    second: Plane_004
+  - first:
+      23: 2300012
+    second: Plane_006
+  - first:
+      23: 2300014
+    second: Plane_008
+  - first:
+      23: 2300016
+    second: Plane_009
+  - first:
+      23: 2300018
+    second: Plane_010
+  - first:
+      23: 2300020
+    second: Plane_011
+  - first:
+      23: 2300022
+    second: Plane_012
+  - first:
+      23: 2300024
+    second: Plane_013
+  - first:
+      23: 2300026
+    second: Plane_014
+  - first:
+      33: 3300000
+    second: Circle_000
+  - first:
+      33: 3300002
+    second: Circle_001
+  - first:
+      33: 3300004
+    second: Plane_001
+  - first:
+      33: 3300006
+    second: Plane_002
+  - first:
+      33: 3300008
+    second: Plane_003
+  - first:
+      33: 3300010
+    second: Plane_004
+  - first:
+      33: 3300012
+    second: Plane_006
+  - first:
+      33: 3300014
+    second: Plane_008
+  - first:
+      33: 3300016
+    second: Plane_009
+  - first:
+      33: 3300018
+    second: Plane_010
+  - first:
+      33: 3300020
+    second: Plane_011
+  - first:
+      33: 3300022
+    second: Plane_012
+  - first:
+      33: 3300024
+    second: Plane_013
+  - first:
+      33: 3300026
+    second: Plane_014
+  - first:
+      43: 4300000
+    second: Plane_010
+  - first:
+      43: 4300002
+    second: Plane_001
+  - first:
+      43: 4300004
+    second: Plane_014
+  - first:
+      43: 4300006
+    second: Circle_001
+  - first:
+      43: 4300008
+    second: Plane_008
+  - first:
+      43: 4300010
+    second: Circle_000
+  - first:
+      43: 4300012
+    second: Plane_004
+  - first:
+      43: 4300014
+    second: Plane_002
+  - first:
+      43: 4300016
+    second: Plane_003
+  - first:
+      43: 4300018
+    second: Plane_009
+  - first:
+      43: 4300020
+    second: Plane_011
+  - first:
+      43: 4300022
+    second: Plane_013
+  - first:
+      43: 4300024
+    second: Plane_012
+  - first:
+      43: 4300026
+    second: Plane_006
+  - first:
+      74: 7400000
+    second: Default Take
+  - first:
+      95: 9500000
+    second: //RootNode
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_002__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_003__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_004__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_005__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_006__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_007__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_008__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_009__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_010__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_011__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_012__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_013__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_014__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fa__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: keret__textura_jpg
+    second: {fileID: 2100000, guid: 9b3324349c8c743bca37a19c03facc98, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
+    resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
-    animationRotationError: .5
-    animationPositionError: .5
-    animationScaleError: .5
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -111,13 +357,24 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -125,24 +382,35 @@ ModelImporter:
     useFileScale: 1
   tangentSpace:
     normalSmoothAngle: 60
-    splitTangentsAcrossUV: 1
     normalImportMode: 0
-    tangentImportMode: 1
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
+    serializedVersion: 3
     human: []
     skeleton: []
-    armTwist: .5
-    foreArmTwist: .5
-    upperLegTwist: .5
-    legTwist: .5
-    armStretch: .0500000007
-    legStretch: .0500000007
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

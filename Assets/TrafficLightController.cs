@@ -121,12 +121,14 @@ public class TrafficLightController : MonoBehaviour
     public IEnumerator StartCountdownToGreen()
     {
         ResetTrafficLights();
+        yield return new WaitForSeconds(0.25f);
         ChangeTo(TrafficLights.Red);
         yield return new WaitForSeconds(1f);
         ChangeTo(TrafficLights.Yellow);
         yield return new WaitForSeconds(1f);
         ChangeTo(TrafficLights.Green);
         yield return new WaitForSeconds(0.3f);
+        ResetTrafficLights();
         yield return null;
     }
 

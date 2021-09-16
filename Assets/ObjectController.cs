@@ -177,6 +177,7 @@ public class ObjectController : MonoBehaviour
 
         Texture imgToSpawn;
 
+        UnityEngine.Debug.Log("choosing random image");
         imgToSpawn = ChooseRandomImage();
 
         currentStimuliImage = imgToSpawn;
@@ -188,7 +189,7 @@ public class ObjectController : MonoBehaviour
 	public GameObject SpawnSpecialObject(Vector3 spawnPos)
 	{
 		Texture imgToSpawn;
-
+        UnityEngine.Debug.Log("choosing random image");
         imgToSpawn = ChooseRandomImage();
 
 		if (imgToSpawn != null)

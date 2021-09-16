@@ -10,6 +10,7 @@ TagManager:
   - SpecialObject
   - StimulusCollisions
   - DefaultObject
+  - DefaultSpecialObject
   layers:
   - Default
   - TransparentFX
