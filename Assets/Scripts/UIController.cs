@@ -49,6 +49,7 @@ public class UIController : MonoBehaviour
 
     //reactivation panel
     public CanvasGroup locationReactivationPanel;
+    public Text locationReactivationText;
     public CanvasGroup locationRetrievalInstructionPanel;
     public CanvasGroup itemReactivationPanel;
     public Text itemReactivationText;

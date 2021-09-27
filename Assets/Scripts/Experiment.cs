@@ -66,13 +66,14 @@ public class Experiment : MonoBehaviour {
     public List<GameObject> spawnedObjects;
     public List<Vector3> spawnLocations;
 
+    public List<GameObject> lureObjects;
+    public List<Vector3> lureLocations;
+
     private List<GameObject> retrievalObjList;
     private List<Vector3> retrievalPositions;
 
     public List<Transform> startableTransforms;
-
-
-
+     
     public WaypointCircuit waypointCircuit;
 
     public static int recallTime = 6;
@@ -149,9 +150,6 @@ public class Experiment : MonoBehaviour {
     public SubjectSelectionController subjectSelectionController;
 
 
-    //lure object reference
-    private GameObject lureObject;
-    private Vector3 lureSpawnLocation;
 
     public SimpleTimer lapTimer;
 
@@ -205,6 +203,8 @@ public class Experiment : MonoBehaviour {
         StartCoroutine("BeginExperiment");
         spawnedObjects = new List<GameObject>();
         spawnLocations = new List<Vector3>();
+        lureObjects = new List<GameObject>();
+        lureLocations = new List<Vector3>();
         retrievalObjList = new List<GameObject>();
         retrievalPositions = new List<Vector3>();
 
@@ -734,18 +734,21 @@ public class Experiment : MonoBehaviour {
         return result;
     }
 
-    IEnumerator GenerateLureSpot()
+    IEnumerator GenerateLureSpots()
     {
+        for (int i = 0; i < Configuration.luresPerTrial; i++)
+        {
+            GameObject lureObj = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
 
-        lureObject = Instantiate(objController.lurePrefab, lureSpawnLocation,Quaternion.identity) as GameObject;
+            GameObject colliderBoxRef = Instantiate(objController.itemBoxColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            //parent the collider box with the lure 
+            colliderBoxRef.transform.parent = lureObj.transform;
 
-        GameObject colliderBoxRef = Instantiate(objController.itemBoxColliderPrefab, lureSpawnLocation, Quaternion.identity) as GameObject;
-       //parent the collider box with the lure 
-       colliderBoxRef.transform.parent = lureObject.transform;
-
-        //associate the stimulus object 
-        lureObject.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
-
+            //associate the stimulus object 
+            lureObj.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
+            lureObj.GetComponent<VisibilityToggler>().TurnVisible(false);
+            lureObjects.Add(lureObj);
+        }
 
 
         yield return null;
@@ -793,11 +796,11 @@ public class Experiment : MonoBehaviour {
             {
                 trafficLightController.MakeVisible(true);
                 SetCarMovement(false);
+                //set drive mode to auto
+                player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
                 yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 
 
-                //set drive mode to auto
-                player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
 
 
                 trafficLightController.MakeVisible(false);
@@ -873,9 +876,15 @@ public class Experiment : MonoBehaviour {
             spawnLocations.Clear();
             spawnedObjects.Clear();
 
-            //destroy lure object
-            if (lureObject != null)
-                Destroy(lureObject);
+        //destroy all lure objects
+        for(int i=0;i<Configuration.luresPerTrial;i++)
+        {
+            if (lureObjects[i]!= null)
+                Destroy(lureObjects[i]);
+        }
+        //reset lure lists as well
+        lureLocations.Clear();
+        lureObjects.Clear();
 
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
             chequeredFlag.SetActive(true);
@@ -900,8 +909,9 @@ public class Experiment : MonoBehaviour {
 
         //practice
         yield return StartCoroutine("BeginPractice");
+        yield return StartCoroutine("ResetTrack");
 
-            for (int i = 0; i < blockLength; i++)
+        for (int i = 0; i < blockLength; i++)
             {
                 trialCount = i + 1;
                 //run encoding
@@ -1048,7 +1058,7 @@ public class Experiment : MonoBehaviour {
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
         player.GetComponent<CarMover>().ResetWaypointTarget();
-        yield return StartCoroutine(GenerateLureSpot());
+        yield return StartCoroutine(GenerateLureSpots());
         UnityEngine.Debug.Log("starting verbal retrieval");
 
         if (isPractice)
@@ -1265,6 +1275,7 @@ public class Experiment : MonoBehaviour {
         SetCarMovement(false);
         uiController.ResetRetrievalInstructions();
         uiController.locationReactivationPanel.alpha = 1f;
+        uiController.locationReactivationText.text = stimObject.GetComponent<StimulusObject>().GetObjectName();
         yield return StartCoroutine(uiController.SetupSelectionOptions("Location"));
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
@@ -1468,7 +1479,7 @@ public class Experiment : MonoBehaviour {
         
 
         //we pick locations for encoding objects AND lure
-        for (int i = 0; i < listLength + 1; i++)
+        for (int i = 0; i < listLength; i++)
         {
             int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
             //UnityEngine.Debug.Log("rand index " + randIndex.ToString());
@@ -1570,13 +1581,19 @@ public class Experiment : MonoBehaviour {
                 tempStorage.Add(randInt);
                 spawnLocations.Add(chosenEncodingLocations[i]);
             }
-            else
-            {
-                UnityEngine.Debug.Log("picking lure at  " + randInt.ToString());
-                lureSpawnLocation = chosenEncodingLocations[i];
-                
-            }
+
         }
+
+        //5 lures per trial
+        for (int j = 0; j < Configuration.luresPerTrial; j++)
+        {
+            int randIndex = UnityEngine.Random.Range(0, intPicker.Count);
+            int randInt = intPicker[randIndex];
+            intPicker.RemoveAt(randIndex);
+            UnityEngine.Debug.Log("lure picked " + randInt.ToString());
+            lureLocations.Add(waypointLocations[randInt]);
+        }
+        
 
 
 

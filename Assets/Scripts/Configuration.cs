@@ -30,6 +30,8 @@ public class Configuration : MonoBehaviour {
     public static float maxJitterTime = 0.8f;
 
 
+    public static int luresPerTrial = 5;
+
     //reactivation times
     public static float itemReactivationTime = 2f;
     public static float locationReactivationTime = 2f;

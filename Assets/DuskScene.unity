@@ -97,8 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 35166d96d6848014186bae3cd1a25776,
-    type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
@@ -1788,8 +1787,8 @@ MonoBehaviour:
   sourceVolume: 100
   GuiSelectDevice: 1
   micControl: 0
-  beepHigh: {fileID: 0}
-  beepLow: {fileID: 0}
+  beepHigh: {fileID: 38703929}
+  beepLow: {fileID: 182477449}
   recordText: {fileID: 0}
 --- !u!82 &71589276
 AudioSource:
@@ -5797,6 +5796,7 @@ MonoBehaviour:
   itemTwoName: {fileID: 0}
   spatialRetrievalFeedbackPanel: {fileID: 919537690}
   locationReactivationPanel: {fileID: 1462469137}
+  locationReactivationText: {fileID: 680251819}
   locationRetrievalInstructionPanel: {fileID: 1322468031}
   itemReactivationPanel: {fileID: 1685651165}
   itemReactivationText: {fileID: 1771723527}
@@ -8577,7 +8577,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 437110, guid: 3ece98cef98dc3a48a6beb9c58333554, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.9
+      value: -4.91
       objectReference: {fileID: 0}
     - target: {fileID: 437110, guid: 3ece98cef98dc3a48a6beb9c58333554, type: 3}
       propertyPath: m_LocalPosition.z
@@ -12866,7 +12866,7 @@ GameObject:
   - component: {fileID: 680251820}
   - component: {fileID: 680251819}
   m_Layer: 5
-  m_Name: Instructions
+  m_Name: ItemName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21571,7 +21571,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f754a5f00245b1e499e36febece92f97,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.57
+      value: -4.63
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f754a5f00245b1e499e36febece92f97,
         type: 3}
@@ -26887,6 +26887,8 @@ MonoBehaviour:
   currentStage: 0
   spawnedObjects: []
   spawnLocations: []
+  lureObjects: []
+  lureLocations: []
   startableTransforms:
   - {fileID: 1370080331}
   - {fileID: 459738783}
@@ -28103,17 +28105,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: acb6b4f8085875145bc35e1c8261be01,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.4446
+      value: 0.21682549
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: acb6b4f8085875145bc35e1c8261be01,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 25.7
+      value: 25.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: acb6b4f8085875145bc35e1c8261be01,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -23.11
+      value: -23.55
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: acb6b4f8085875145bc35e1c8261be01,
         type: 3}
