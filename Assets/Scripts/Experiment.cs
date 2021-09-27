@@ -1481,7 +1481,7 @@ public class Experiment : MonoBehaviour {
         //we pick locations for encoding objects AND lure
         for (int i = 0; i < listLength; i++)
         {
-            int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
+            int randIndex = UnityEngine.Random.Range(2, intPicker.Count); // we won't be picking too close to beginning/end
             //UnityEngine.Debug.Log("rand index " + randIndex.ToString());
             /*
             while (randIndex - Configuration.minGapBetweenStimuli < 0 && randIndex + Configuration.minGapBetweenStimuli > intPicker.Count - 1)

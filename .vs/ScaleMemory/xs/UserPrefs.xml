@@ -1,29 +1,19 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
+﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UIController.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="352" Column="36" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="24" Column="23" />
-      <File FileName="Assets/Scripts/AudioRecorder.cs" />
-      <File FileName="Assets/Scripts/ObjectManager.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
-      <File FileName="Assets/Scripts/ChequeredFlag.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/TCP_Config.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" />
-      <File FileName="Assets/ElememTestRunner.cs" />
-      <File FileName="Assets/CarMover.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/SubjectSelectionController.cs" Line="54" Column="6" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1279" Column="71" IsPinned="True" />
+      <File FileName="Assets/CarStopper.cs" Line="109" Column="14" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="167" Column="59" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="ScaleMemory" expanded="True">
-            <Node name="Assembly-CSharp" expanded="True">
-              <Node name="Assets" expanded="True">
-                <Node name="Scripts" expanded="True">
-                  <Node name="EEG Communication" expanded="True" />
-                  <Node name="SubjectSelection&amp;Saving" expanded="True" />
-                  <Node name="Experiment.cs" selected="True" />
-                </Node>
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="EEG Communication" expanded="True" />
+                <Node name="SubjectSelection&amp;Saving" expanded="True" />
+                <Node name="UIController.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -33,7 +23,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="5526f703-5210-4c47-adef-c14b095737a9" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="28aa7be9-3563-4e16-8136-86c78d567b89" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

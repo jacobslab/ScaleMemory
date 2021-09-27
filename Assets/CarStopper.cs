@@ -19,22 +19,22 @@ public class CarStopper : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Experiment.Instance.verbalRetrieval)
+        /*
+    if (Experiment.Instance.verbalRetrieval)
+    {
+        float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
+        if (distToPlayer < 10f && !retActivated)
         {
-            /*
-            float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
-            if (distToPlayer < 10f && !retActivated)
-            {
-                retActivated = true;
-                UnityEngine.Debug.Log("ret activated for " + gameObject.name);
-                StartCoroutine("PerformVerbalRetrieval");
-            }
-            */
-
+            retActivated = true;
+            UnityEngine.Debug.Log("ret activated for " + gameObject.name);
+            StartCoroutine("PerformVerbalRetrieval");
         }
+        
+
+    }
         else
         {
-            /*
+            
             float distToPlayer = Vector3.Distance(transform.position, Experiment.Instance.player.transform.position);
             UnityEngine.Debug.Log("dist to player " + gameObject.name + " : " + distToPlayer.ToString());
             if (distToPlayer < 15f && !activated)
@@ -43,8 +43,8 @@ public class CarStopper : MonoBehaviour
                 Experiment.Instance.SetCarMovement(false);
                 StartCoroutine("ShowObject");
             }
-            */
-        }
+           
+        } */
     }
 
     void ShowIndicator(bool shouldShow)
