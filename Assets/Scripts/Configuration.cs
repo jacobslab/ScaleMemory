@@ -30,7 +30,7 @@ public class Configuration : MonoBehaviour {
     public static float maxJitterTime = 0.8f;
 
 
-    public static int luresPerTrial = 5;
+    public static int luresPerTrial = 2;
 
     //reactivation times
     public static float itemReactivationTime = 2f;
@@ -55,6 +55,16 @@ public class Configuration : MonoBehaviour {
     };
 
     public static StimMode stimMode = StimMode.NONSTIM;
+
+
+    public enum WeatherMode
+    {
+        Sunny,
+        Rainy,
+        Night
+    };
+
+    public static WeatherMode currentWeatherMode = WeatherMode.Night;
 
     // Use this for initialization
     void Start () {

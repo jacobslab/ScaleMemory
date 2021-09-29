@@ -740,6 +740,21 @@ public class Experiment : MonoBehaviour {
         return result;
     }
 
+    IEnumerator ChangeWeather(Configuration.WeatherMode targetWeatherMode)
+    {
+        //transition into a black fixation screen
+        ToggleFixation(true);
+
+        //change the weather
+        Configuration.currentWeatherMode = targetWeatherMode;
+
+
+        //transition out
+        ToggleFixation(false);
+        yield return null;
+    }
+
+
     IEnumerator GenerateLureSpots()
     {
         List<Texture> lureImageTextures =  objController.SelectImagesForLures();
@@ -857,7 +872,12 @@ public class Experiment : MonoBehaviour {
 
 
                 yield return new WaitForSeconds(1f);
-                yield return StartCoroutine(ShowFixation());
+                ToggleFixation(true);
+
+                float totalFixationTime = fixedTime + UnityEngine.Random.Range(0.1f, 0.3f);
+                yield return new WaitForSeconds(totalFixationTime);
+                ToggleFixation(false);
+
                 SetCarMovement(false);
                 player.transform.position = startTransform.position;
 
@@ -1679,7 +1699,7 @@ public class Experiment : MonoBehaviour {
         if (stimulusObject.GetComponent<VisibilityToggler>() != null)
             stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
 
-        yield return StartCoroutine(stimulusObject.GetComponent<DefaultItem>().RunCollision());
+        yield return StartCoroutine(SpawnSpecialObject(stimulusObject, stimulusObject.GetComponent<StimulusObject>().specialObjectSpawnPoint.position));
         UnityEngine.Debug.Log("finished running collision");
 
         string objectName = objController.ReturnStimuliDisplayText();
@@ -1701,6 +1721,45 @@ public class Experiment : MonoBehaviour {
         SetCarMovement(true);
         yield return null;
     }
+
+
+    IEnumerator SpawnSpecialObject(GameObject stimObject, Vector3 specialSpawnPos)
+    {
+
+
+
+        GameObject specialObject = Instantiate(Experiment.Instance.imagePlanePrefab, specialSpawnPos, Quaternion.identity) as GameObject;
+
+
+
+        //GameObject specialObject = Experiment.Instance.SpawnSpecialObject(specialSpawnPos);
+        Texture stimImage = Experiment.Instance.objController.ReturnStimuliToPresent();
+        string stimDisplayText = Experiment.Instance.objController.ReturnStimuliDisplayText();
+        stimObject.GetComponent<StimulusObject>().stimuliDisplayName = stimDisplayText;
+        specialObject.GetComponent<SpawnableImage>().SetImage(stimImage);
+
+        //attach image plane to treasure chest's parent which is ItemColliderBox
+        specialObject.transform.parent = stimObject.transform.parent;
+
+        //reset rotation to match the parent's rotation
+        specialObject.transform.localRotation = Quaternion.identity;
+
+        //	string name = specialObject.GetComponent<SpawnableObject>().GetDisplayName();
+        //set special object text
+        stimObject.GetComponent<StimulusObject>().SetSpecialObjectText(stimDisplayText);
+
+        //	Experiment.Instance.trialController.AddNameToList(specialObject, stimDisplayText);
+
+        stimObject.GetComponent<StimulusObject>().PlayJuice(true);
+
+        //tell the trial controller to wait for the animation
+        yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
+
+        //should destroy the chest after the special object time
+        //Destroy(gameObject);
+    }
+   
+
     IEnumerator SpawnEncodingObjects()
     {
         UnityEngine.Debug.Log("number of spawn locations " + spawnLocations.Count.ToString());
@@ -1715,9 +1774,7 @@ public class Experiment : MonoBehaviour {
 
             encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
             encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
-            colliderBox.GetComponent<FacePosition>().ShouldFacePlayer = true;
-            colliderBox.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
-
+          
             encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
 
