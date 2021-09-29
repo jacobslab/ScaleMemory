@@ -17,7 +17,10 @@ public class ObjectController : MonoBehaviour
     public GameObject lurePrefab;
     public GameObject treasureChestPrefab;
 
-    public Texture currentStimuliImage;
+	public GameObject lureColliderPrefab;
+
+
+	public Texture currentStimuliImage;
 
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update
@@ -51,6 +54,22 @@ public class ObjectController : MonoBehaviour
         UnityEngine.Debug.Log("finished filling");
 	}
 
+	public List<Texture> SelectImagesForLures()
+    {
+		List<Texture> lureImages = new List<Texture>();
+		for(int i=0;i<Configuration.luresPerTrial;i++)
+        {
+			Texture selectedImg = ChooseRandomImage();
+			if (selectedImg != null)
+				lureImages.Add(ChooseRandomImage());
+			else
+				UnityEngine.Debug.Log("WARNING: Returned a null texture");
+        }
+		return lureImages;
+    }
+
+
+	//selects a random image from the BOSS database list and removes it so it isn't repeated again
 	Texture ChooseRandomImage()
 	{
 		if (stimuliImageList.Count == 0)

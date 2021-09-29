@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Linq;
 using UnityEngine;
 using UnityStandardAssets.Utility;
 using UnityStandardAssets.Vehicles.Car;
@@ -81,6 +82,8 @@ public class Experiment : MonoBehaviour {
     public static int blockLength = 24;
 
     public static int listLength = 5;
+
+    private int testLength = 10;
 
     public Transform startTransform;
 
@@ -193,6 +196,9 @@ public class Experiment : MonoBehaviour {
         defaultLoggingPath = Application.dataPath;
         trackFamiliarizationQuad.SetActive(false);
         carSpeed = 0f;
+
+        //test length is stimuli items + lure items
+        testLength = listLength + Configuration.luresPerTrial;
     }
     // Use this for initialization
     void Start()
@@ -736,18 +742,24 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator GenerateLureSpots()
     {
+        List<Texture> lureImageTextures =  objController.SelectImagesForLures();
+
         for (int i = 0; i < Configuration.luresPerTrial; i++)
         {
-            GameObject lureObj = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            GameObject lureParent = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
 
-            GameObject colliderBoxRef = Instantiate(objController.itemBoxColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            GameObject colliderBoxRef = Instantiate(objController.lureColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
             //parent the collider box with the lure 
-            colliderBoxRef.transform.parent = lureObj.transform;
+            colliderBoxRef.transform.parent = lureParent.transform;
 
             //associate the stimulus object 
-            lureObj.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
-            lureObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-            lureObjects.Add(lureObj);
+            lureParent.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
+            lureParent.GetComponent<VisibilityToggler>().TurnVisible(false);
+
+            lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
+            lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
+
+            lureObjects.Add(lureParent);
         }
 
 
@@ -1076,7 +1088,7 @@ public class Experiment : MonoBehaviour {
 
         trafficLightController.MakeVisible(false);
 
-        while (retCount < listLength)
+        while (retCount < testLength)
         {
             yield return 0;
         }
@@ -1091,6 +1103,7 @@ public class Experiment : MonoBehaviour {
     IEnumerator RunSpatialRetrieval()
     {
         SetCarMovement(false);
+        yield return StartCoroutine(GenerateLureSpots()); //create lures
         trafficLightController.MakeVisible(false);
         carSpeed = 0f;
         spatialFeedbackStatus.Clear();
@@ -1106,19 +1119,7 @@ public class Experiment : MonoBehaviour {
                 spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
         }
 
-        //spatial retrieval
-        List<int> intPool = new List<int>();
-        List<int> randIndex = new List<int>();
-        for (int j = 0; j < listLength; j++)
-        {
-            intPool.Add(j);
-        }
-        for (int j = 0; j < listLength; j++)
-        {
-            int randInt = UnityEngine.Random.Range(0, intPool.Count - 1);
-            randIndex.Add(intPool[randInt]);
-            intPool.RemoveAt(randInt);
-        }
+      
 
         //show instructions only during the practice
         if (isPractice)
@@ -1138,16 +1139,35 @@ public class Experiment : MonoBehaviour {
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
         trafficLightController.MakeVisible(false);
 
-       
+        //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
+
+        List<GameObject> spatialTestList = new List<GameObject>();
+
+        for(int k=0;k<spawnedObjects.Count;k++)
+        {
+            spatialTestList.Add(spawnedObjects[k]);
+        }
+        for(int l = 0;l<lureObjects.Count;l++)
+        {
+            spatialTestList.Add(lureObjects[l]);
+        }
+
+        UnityEngine.Debug.Log("spatial test list has " + spatialTestList.Count.ToString() + " items in it");
+
+        //shuffle the list
+        var rand = new System.Random();
+        var randomList = spatialTestList.OrderBy(x => rand.Next()).ToList();
 
 
-        for (int j = 0; j < listLength; j++)
+        for (int j = 0; j < testLength; j++)
         {
             UnityEngine.Debug.Log("retrieval num " + j.ToString());
             //targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
             //uiController.zRetrievalText.color = Color.white;
             //uiController.zRetrievalText.text = targetNames;
-            yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
+            //yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
+
+            yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
             SetCarMovement(true);
 
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
@@ -1163,8 +1183,8 @@ public class Experiment : MonoBehaviour {
             SetCarMovement(false);
 
 
-            float dist = Vector3.Distance(spawnedObjects[randIndex[j]].transform.position, player.transform.position);
-            UnityEngine.Debug.Log("spatial feedback dist for  " + spawnedObjects[randIndex[j]].gameObject.name + " is  " + dist.ToString());
+            float dist = Vector3.Distance(spatialTestList[j].transform.position, player.transform.position);
+            UnityEngine.Debug.Log("spatial feedback dist for  " + spatialTestList[j].gameObject.name + " is  " + dist.ToString());
             if (dist < 15f)
             {
                 spatialFeedbackStatus.Add(true);
@@ -1174,7 +1194,7 @@ public class Experiment : MonoBehaviour {
                 spatialFeedbackStatus.Add(false);
             }
             spatialFeedbackPosition.Add(player.transform.position);
-            trialLogTrack.LogRetrievalAttempt(spawnedObjects[randIndex[j]].gameObject, player);
+            trialLogTrack.LogRetrievalAttempt(spatialTestList[j].gameObject, player);
 
             yield return new WaitForSeconds(0.2f);
 
@@ -1275,7 +1295,6 @@ public class Experiment : MonoBehaviour {
         SetCarMovement(false);
         uiController.ResetRetrievalInstructions();
         uiController.locationReactivationPanel.alpha = 1f;
-        uiController.locationReactivationText.text = stimObject.GetComponent<StimulusObject>().GetObjectName();
         yield return StartCoroutine(uiController.SetupSelectionOptions("Location"));
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
@@ -1584,14 +1603,29 @@ public class Experiment : MonoBehaviour {
 
         }
 
+        intPicker.Clear();
+        waypointLocations.Clear();
+
+        //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
+        for (int i = 0; i < spawnableWaypoints.Count; i++)
+        {
+            //we will only add to this list if it doesn't have an existing item on it
+            if (!CheckIndexHits(tempStorage, i))
+            {
+                intPicker.Add(i);
+                waypointLocations.Add(spawnableWaypoints[i].position);
+            }
+        }
+
         //5 lures per trial
         for (int j = 0; j < Configuration.luresPerTrial; j++)
         {
             int randIndex = UnityEngine.Random.Range(0, intPicker.Count);
+            UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
             int randInt = intPicker[randIndex];
             intPicker.RemoveAt(randIndex);
-            UnityEngine.Debug.Log("lure picked " + randInt.ToString());
-            lureLocations.Add(waypointLocations[randInt]);
+            UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
+            lureLocations.Add(waypointLocations[randIndex]);
         }
         
 
@@ -1599,6 +1633,17 @@ public class Experiment : MonoBehaviour {
 
         UnityEngine.Debug.Log("finished picking");
         yield return null;
+    }
+
+    //check to see if the target int exists in an integer list
+    public bool CheckIndexHits(List<int> mainList, int targetInt)
+    {
+        for(int i=0;i<mainList.Count;i++)
+        {
+            if (targetInt == mainList[i])
+                return true;
+        }
+        return false;
     }
 
     //used to present items

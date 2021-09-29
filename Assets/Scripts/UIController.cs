@@ -49,7 +49,6 @@ public class UIController : MonoBehaviour
 
     //reactivation panel
     public CanvasGroup locationReactivationPanel;
-    public Text locationReactivationText;
     public CanvasGroup locationRetrievalInstructionPanel;
     public CanvasGroup itemReactivationPanel;
     public Text itemReactivationText;
@@ -187,8 +186,11 @@ public class UIController : MonoBehaviour
 
         selectionImage.enabled = isEnabled;
         if (isEnabled)
+        {
             currSelection = 0; //set to default start
-    }
+            ResetSelection();
+        }
+        }
 
     public IEnumerator SetLocationRetrievalInstructions()
     {
@@ -224,6 +226,13 @@ public class UIController : MonoBehaviour
         selectionImage.GetComponent<RectTransform>().anchoredPosition = activeSelectionPositions[currSelection] - new Vector3(0f, 50f, 0f);
 
 
+    }
+
+    void ResetSelection()
+    {
+        UnityEngine.Debug.Log("reset selection");
+        currSelection = 0;
+        selectionImage.GetComponent<RectTransform>().anchoredPosition = activeSelectionPositions[currSelection] - new Vector3(0f, 50f, 0f);
     }
 
     public void ResetRetrievalInstructions()

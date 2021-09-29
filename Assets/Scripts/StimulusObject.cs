@@ -7,6 +7,7 @@ public class StimulusObject : MonoBehaviour
 {
     private GameObject collidingPart;
     public string stimuliDisplayName;
+    public Texture stimuliDisplayTexture;
     // Start is called before the first frame update
     void Start()
     {

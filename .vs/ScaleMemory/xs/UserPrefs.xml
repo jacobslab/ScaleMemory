@@ -1,19 +1,24 @@
-﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UIController.cs">
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1279" Column="71" IsPinned="True" />
-      <File FileName="Assets/CarStopper.cs" Line="109" Column="14" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="167" Column="59" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1257" Column="38" />
+      <File FileName="Assets/CarStopper.cs" Line="87" Column="85" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="231" Column="5" />
+      <File FileName="Assets/DefaultItem.cs" Line="193" Column="92" />
+      <File FileName="Assets/ObjectController.cs" Line="189" Column="46" />
+      <File FileName="Assets/Scripts/StimulusObject.cs" Line="10" Column="42" />
+      <File FileName="Assets/Shaders/VolumetricLight.shader" Line="142" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="ScaleMemory" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Scripts" expanded="True">
-                <Node name="EEG Communication" expanded="True" />
-                <Node name="SubjectSelection&amp;Saving" expanded="True" />
-                <Node name="UIController.cs" selected="True" />
+            <Node name="Assembly-CSharp" expanded="True">
+              <Node name="Assets" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Experiment.cs" selected="True" />
+                </Node>
+                <Node name="Shaders" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -23,7 +28,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="28aa7be9-3563-4e16-8136-86c78d567b89" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4808d236-5b4b-4989-a31d-05a825e06a7c" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
