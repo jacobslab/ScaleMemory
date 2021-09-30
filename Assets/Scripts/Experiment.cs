@@ -22,6 +22,9 @@ public class Experiment : MonoBehaviour {
 
     public static bool isPaused = false;
 
+    //to determine if keypresses can page forward/backwards UI instructions
+    private bool uiActive = false;
+    //to determine if keypresses can select onscreen options
     private bool canSelect = false;
 
     //audio clips
@@ -34,8 +37,11 @@ public class Experiment : MonoBehaviour {
 
 
 
+    //used to control what page of instructions are shown;  when relevant
+    private int currUIPageID = 0;
+
 #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX
-        public bool skipEncoding = false;
+    public bool skipEncoding = false;
         public bool skipVerbalRetrieval = false;
         public bool skipSpatialRetrieval = false;
 #else
@@ -186,6 +192,7 @@ public class Experiment : MonoBehaviour {
         }
     }
 
+
     void Awake() {
         if (_instance != null) {
             UnityEngine.Debug.Log("Instance already exists!");
@@ -199,6 +206,8 @@ public class Experiment : MonoBehaviour {
 
         //test length is stimuli items + lure items
         testLength = listLength + Configuration.luresPerTrial;
+
+
     }
     // Use this for initialization
     void Start()
@@ -671,7 +680,14 @@ public class Experiment : MonoBehaviour {
         uiController.encodingPanel.alpha = 0f;
         yield return null;
     }
-    IEnumerator ShowVerbalRetrievalInstructions()
+
+    public IEnumerator UpdateVerbalInstructions()
+    {
+        yield return StartCoroutine(ShowVerbalRetrievalInstructions(uiController.GetCurrentUIPage()));
+        yield return null;
+    }
+
+    IEnumerator ShowVerbalRetrievalInstructions(int pageID)
     {
         uiController.verbalInstructionA.enabled = true;
         uiController.verbalInstructionB.enabled = false;
@@ -687,39 +703,71 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-
-    IEnumerator ShowRetrievalInstructions()
+    public IEnumerator UpdateSpatialInstructions()
     {
-        uiController.practiceInstructionPanel.alpha =1f;
-        uiController.preSpatialRetrieval.enabled=true;
-
-        yield return StartCoroutine(WaitForActionButton());
-        uiController.preSpatialRetrieval.enabled = false;
-        uiController.practiceInstructionPanel.alpha = 0f;
-
-        string itemName = objController.ReturnStimuliDisplayText();
-        uiController.itemReactivationText.text = itemName;
-        uiController.itemReactivationPanel.alpha = 1f;
-
-        yield return new WaitForSeconds(2f);
-
-
-        uiController.spatialInstructionA.enabled = true;
-        uiController.spatialInstructionB.enabled = false;
-        uiController.retrievalPanel.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
-
-
-        uiController.itemReactivationPanel.alpha = 0f;
-        uiController.spatialInstructionA.enabled = false;
-        uiController.spatialInstructionB.enabled = true;
-
-        yield return StartCoroutine(WaitForActionButton());
-
-        uiController.itemReactivationPanel.alpha = 0f;
-
-        uiController.retrievalPanel.alpha = 0f;
+        UnityEngine.Debug.Log("updating spatial instructions");
+        yield return StartCoroutine(ShowRetrievalInstructions(uiController.GetCurrentUIPage()));
         yield return null;
+    }
+
+    IEnumerator ShowRetrievalInstructions(int pageID)
+    {
+        UnityEngine.Debug.Log("setting spatial instruction to page : "  + pageID.ToString());
+        switch (pageID)
+        {
+            case 0:
+                uiController.practiceInstructionPanel.alpha = 1f;
+                uiController.preSpatialRetrieval.enabled = true;
+                break;
+            //  yield return StartCoroutine(WaitForActionButton());
+            case 1:
+                uiController.preSpatialRetrieval.enabled = false;
+                uiController.practiceInstructionPanel.alpha = 0f;
+                uiController.preSpatialRetrieval.enabled = false;
+                uiController.practiceInstructionPanel.alpha = 0f;
+
+                string itemName = objController.ReturnStimuliDisplayText();
+                uiController.itemReactivationText.text = itemName;
+                uiController.itemReactivationPanel.alpha = 1f;
+                break;
+            // yield return new WaitForSeconds(2f);
+            case 2:
+                uiController.spatialInstructionA.enabled = true;
+                uiController.spatialInstructionB.enabled = false;
+                uiController.retrievalPanel.alpha = 1f;
+                break;
+            //yield return StartCoroutine(WaitForActionButton());
+            case 3:
+                uiController.itemReactivationPanel.alpha = 0f;
+                uiController.spatialInstructionA.enabled = false;
+                uiController.spatialInstructionB.enabled = true;
+                break;
+            // yield return StartCoroutine(WaitForActionButton());
+            case 4:
+                uiController.itemReactivationPanel.alpha = 0f;
+                uiController.retrievalPanel.alpha = 0f;
+                break;
+
+        }
+
+
+
+        yield return null;
+    }
+
+
+    void ChangeUIPage(bool isForwards)
+    {
+        //we are moving one page forwards
+        if(isForwards)
+        {
+
+        }
+        //else we are moving one page backwards
+        else
+        {
+
+        }
     }
 
     string FormatTime(float timeInSeconds)
@@ -1097,7 +1145,8 @@ public class Experiment : MonoBehaviour {
         {
 
             trialLogTrack.LogInstructions(true);
-            yield return StartCoroutine(ShowVerbalRetrievalInstructions());
+            uiController.SetActiveInstructionPage("Verbal");
+          //  yield return StartCoroutine();
             trialLogTrack.LogInstructions(false);
         }
 
@@ -1145,7 +1194,8 @@ public class Experiment : MonoBehaviour {
         if (isPractice)
         {
             trialLogTrack.LogInstructions(true);
-            yield return StartCoroutine(ShowRetrievalInstructions());
+            uiController.SetActiveInstructionPage("Spatial");
+            //   yield return StartCoroutine(ShowRetrievalInstructions());
             trialLogTrack.LogInstructions(false);
         }
 
@@ -1739,7 +1789,8 @@ public class Experiment : MonoBehaviour {
         specialObject.GetComponent<SpawnableImage>().SetImage(stimImage);
 
         //attach image plane to treasure chest's parent which is ItemColliderBox
-        specialObject.transform.parent = stimObject.transform.parent;
+        specialObject.transform.parent = stimObject.transform;
+        UnityEngine.Debug.Log("set " + specialObject.gameObject.name + " parented to " + stimObject.gameObject.name);
 
         //reset rotation to match the parent's rotation
         specialObject.transform.localRotation = Quaternion.identity;
@@ -2026,6 +2077,20 @@ public class Experiment : MonoBehaviour {
             }
 
         }
+        if (uiController.showInstructions)
+        {
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                uiController.PerformUIPageChange(UIController.OptionSelection.Left);
+            }
+            if(Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                uiController.PerformUIPageChange(UIController.OptionSelection.Right);
+
+            }    
+        }
+
         if ((currentStage == TaskStage.SpatialRetrieval || currentStage == TaskStage.VerbalRetrieval) && canSelect)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))

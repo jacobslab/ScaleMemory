@@ -117,6 +117,19 @@ public class UIController : MonoBehaviour
     private int currSelection = 0;
     private int maxOptions = 0;
 
+    public delegate IEnumerator OnUIPageChange();
+    public static event OnUIPageChange uiPageChange;
+
+    private int currUIPageID = 0;
+    private int maxPage = 0;
+
+
+    private int maxVerbalPages = 0;
+    private int maxSpatialPages = 0;
+
+    public bool showInstructions = false;
+
+    
 
     // Use this for initialization
     void Start()
@@ -125,6 +138,7 @@ public class UIController : MonoBehaviour
         ToggleSelection(false);
         presentationItemText.enabled = false;
         selectionImage.enabled = false;
+
 
         activeSelectionPositions = new List<Vector3>();
      //   retrievalTextPanel.alpha = 0f;
@@ -142,6 +156,65 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+    }
+
+    IEnumerator UpdateUIPage()
+    {
+        UnityEngine.Debug.Log("updating UI page");
+        if(Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
+        {
+            yield return StartCoroutine(Experiment.Instance.UpdateVerbalInstructions());
+        }
+        else if(Experiment.Instance.currentStage == Experiment.TaskStage.SpatialRetrieval)
+        {
+            yield return StartCoroutine(Experiment.Instance.UpdateSpatialInstructions());
+        }
+
+        //uiPageChange();
+    }
+
+    public IEnumerator SetActiveInstructionPage(string instructionPage)
+    {
+        //reset the page ID
+        currUIPageID = 0;
+        switch(instructionPage)
+        {
+            case "Verbal":
+             //   uiPageChange += Experiment.Instance.UpdateVerbalInstructions;
+                maxPage = maxVerbalPages;
+                UnityEngine.Debug.Log("set verbal instruction as active");
+                break;
+            case "Spatial":
+               // uiPageChange += Experiment.Instance.UpdateSpatialInstructions;
+                maxPage = maxSpatialPages;
+                UnityEngine.Debug.Log("set spatial instruction as active");
+                break;
+        }
+        showInstructions = true;
+        //then force update it so it shows up with the first page
+        yield return StartCoroutine(UpdateUIPage());
+
+        yield return null;
+    }
+
+    public void FinishInstructionSequence(string instructionPage)
+    {
+        switch (instructionPage)
+        {
+            case "Verbal":
+                uiPageChange -= Experiment.Instance.UpdateVerbalInstructions;
+                break;
+            case "Spatial":
+                uiPageChange -= Experiment.Instance.UpdateSpatialInstructions;
+                break;
+        }
+
+        showInstructions = false;
+    }
+
+    public int GetCurrentUIPage()
+    {
+        return currUIPageID;
     }
 
     public IEnumerator SetItemRetrievalInstructions(string objName)
@@ -225,6 +298,31 @@ public class UIController : MonoBehaviour
         UnityEngine.Debug.Log("curr selection is " + currSelection.ToString());
         selectionImage.GetComponent<RectTransform>().anchoredPosition = activeSelectionPositions[currSelection] - new Vector3(0f, 50f, 0f);
 
+
+    }
+
+    public void PerformUIPageChange(OptionSelection newOption)
+    {
+        if (newOption == OptionSelection.Left)
+        {
+            currUIPageID--;
+        }
+        else
+        {
+            currUIPageID++;
+        }
+        //CLAMP it
+        if (currUIPageID >= maxPage)
+        {
+            currUIPageID = maxPage;
+        }
+        else if (currUIPageID < 0)
+        {
+            currUIPageID = 0;
+        }
+
+        //after changing the page, call the delegate associated with it so we can actually update the relevant instruction page
+        UpdateUIPage();
 
     }
 
