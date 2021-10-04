@@ -5,6 +5,8 @@ using System.Net;
 using System.Linq;
 using UnityEngine;
 using UnityStandardAssets.Utility;
+using UnityEngine.SceneManagement;
+using UnityEngine.PostProcessing;
 using UnityStandardAssets.Vehicles.Car;
 
 public class Experiment : MonoBehaviour {
@@ -34,6 +36,8 @@ public class Experiment : MonoBehaviour {
 
     public List<Transform> spawnableWaypoints;
     //public List<Transform> rightSpawnableWaypoints;
+
+    public PostProcessingProfile postProcessingProfile;
 
 
 
@@ -184,6 +188,15 @@ public class Experiment : MonoBehaviour {
 
     private bool isPractice = false;
 
+    private Scene currScene;
+
+
+    public Material clearSkybox;
+    public Material overcastSkybox;
+    public Material nightSkybox;
+
+
+
 
     public TCPServer tcpServer;
     public static Experiment Instance {
@@ -207,6 +220,8 @@ public class Experiment : MonoBehaviour {
         //test length is stimuli items + lure items
         testLength = listLength + Configuration.luresPerTrial;
 
+        ChangeLighting(Configuration.WeatherMode.Night);
+
 
     }
     // Use this for initialization
@@ -223,6 +238,34 @@ public class Experiment : MonoBehaviour {
         retrievalObjList = new List<GameObject>();
         retrievalPositions = new List<Vector3>();
 
+    }
+
+
+    //this changes the "time of the day" in the scene through lighting
+    void ChangeLighting(Configuration.WeatherMode targetWeather)
+    {
+        Configuration.currentWeatherMode = targetWeather;
+
+        switch (targetWeather)
+        {
+            case Configuration.WeatherMode.Sunny:
+                SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
+                currScene = SceneManager.GetSceneByName("DayLighting");
+                RenderSettings.skybox = clearSkybox;
+                break;
+            case Configuration.WeatherMode.Rainy:
+                SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
+                currScene = SceneManager.GetSceneByName("RainyLighting");
+                RenderSettings.skybox = overcastSkybox;
+                break;
+            case Configuration.WeatherMode.Night:
+                //load dusk scene by default first
+                SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
+                currScene = SceneManager.GetSceneByName("DuskLighting");
+                RenderSettings.skybox = nightSkybox;
+                break;
+
+        }
     }
 
 
@@ -689,17 +732,29 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator ShowVerbalRetrievalInstructions(int pageID)
     {
-        uiController.verbalInstructionA.enabled = true;
-        uiController.verbalInstructionB.enabled = false;
-        uiController.verbalRetrievalPanel.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
+        UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
+        switch (pageID)
+        {
+            //page one
+            case 0:
+                uiController.verbalInstructionA.enabled = true;
+                uiController.verbalInstructionB.enabled = false;
+                uiController.verbalRetrievalPanel.alpha = 1f;
+                break;
+            //    yield return StartCoroutine(WaitForActionButton());
 
+            //page two
+            case 1:
+                uiController.verbalInstructionA.enabled = false;
+                uiController.verbalInstructionB.enabled = true;
+                break;
+            // yield return StartCoroutine(WaitForActionButton());
+            case 2:
+                uiController.verbalRetrievalPanel.alpha = 0f;
+                break;
 
-        uiController.verbalInstructionA.enabled = false;
-        uiController.verbalInstructionB.enabled = true;
-        yield return StartCoroutine(WaitForActionButton());
-
-        uiController.verbalRetrievalPanel.alpha = 0f;
+                //    
+        }
         yield return null;
     }
 
@@ -945,11 +1000,12 @@ public class Experiment : MonoBehaviour {
 
          IEnumerator ResetTrack()
         {
-
+        UnityEngine.Debug.Log("resetting track");
+        UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
             for (int k = 0; k < spawnedObjects.Count; k++)
             {
             //destroy the ItemColliderBox which is the parent
-                Destroy(spawnedObjects[k].transform.parent.gameObject);
+                Destroy(spawnedObjects[k].transform.gameObject);
             }
 
             //reset everything before the next block begins
@@ -989,7 +1045,6 @@ public class Experiment : MonoBehaviour {
 
         //practice
         yield return StartCoroutine("BeginPractice");
-        yield return StartCoroutine("ResetTrack");
 
         for (int i = 0; i < blockLength; i++)
             {
@@ -1145,8 +1200,14 @@ public class Experiment : MonoBehaviour {
         {
 
             trialLogTrack.LogInstructions(true);
-            uiController.SetActiveInstructionPage("Verbal");
-          //  yield return StartCoroutine();
+            yield return StartCoroutine(uiController.SetActiveInstructionPage("Verbal"));
+
+            //wait until the instructions sequence is complete
+            while (uiController.showInstructions)
+            {
+                yield return 0;
+            }
+
             trialLogTrack.LogInstructions(false);
         }
 
@@ -1194,7 +1255,14 @@ public class Experiment : MonoBehaviour {
         if (isPractice)
         {
             trialLogTrack.LogInstructions(true);
-            uiController.SetActiveInstructionPage("Spatial");
+            UnityEngine.Debug.Log("setting instructions");
+            yield return StartCoroutine(uiController.SetActiveInstructionPage("Spatial"));
+
+            //wait until the instructions sequence is complete
+            while(uiController.showInstructions)
+            {
+                yield return 0;
+            }
             //   yield return StartCoroutine(ShowRetrievalInstructions());
             trialLogTrack.LogInstructions(false);
         }
@@ -2010,7 +2078,7 @@ public class Experiment : MonoBehaviour {
             player.GetComponent<WaypointProgressTracker>().SetActiveDirection(WaypointProgressTracker.TrackDirection.Reverse);
             player.GetComponent<CarAIControl>().ReverseMovement();
             trialLogTrack.LogForwardMovement(false);
-            trialLogTrack.LogReverseMovement(true);
+            trialLogTrack.LogReverseMovement(true); 
             yield return new WaitForSeconds(0.25f);
             SetCarMovement(false);
         }
@@ -2021,6 +2089,41 @@ public class Experiment : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+
+        if(Input.GetKeyDown(KeyCode.D))
+        {
+            if (currScene != null)
+            {
+               SceneManager.UnloadSceneAsync(currScene);
+            }
+
+            ChangeLighting(Configuration.WeatherMode.Sunny);
+
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            if (currScene != null)
+            {
+                SceneManager.UnloadSceneAsync(currScene);
+            }
+
+            ChangeLighting(Configuration.WeatherMode.Night);
+        }
+
+
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            if (currScene != null)
+            {
+                SceneManager.UnloadSceneAsync(currScene);
+            }
+
+            ChangeLighting(Configuration.WeatherMode.Rainy);
+        }
+
         //UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());
         //UnityEngine.Debug.Log("car speed " + carSpeed.ToString());
         if (currentStage == TaskStage.SpatialRetrieval)

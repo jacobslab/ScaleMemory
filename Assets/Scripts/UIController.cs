@@ -123,9 +123,11 @@ public class UIController : MonoBehaviour
     private int currUIPageID = 0;
     private int maxPage = 0;
 
+    private string currInstPage = "";
 
-    private int maxVerbalPages = 0;
-    private int maxSpatialPages = 0;
+
+    private int maxVerbalPages = 2;
+    private int maxSpatialPages = 4;
 
     public bool showInstructions = false;
 
@@ -160,7 +162,7 @@ public class UIController : MonoBehaviour
 
     IEnumerator UpdateUIPage()
     {
-        UnityEngine.Debug.Log("updating UI page");
+        UnityEngine.Debug.Log("updating UI page to " + currUIPageID.ToString());
         if(Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
         {
             yield return StartCoroutine(Experiment.Instance.UpdateVerbalInstructions());
@@ -177,6 +179,7 @@ public class UIController : MonoBehaviour
     {
         //reset the page ID
         currUIPageID = 0;
+        currInstPage = instructionPage;
         switch(instructionPage)
         {
             case "Verbal":
@@ -188,6 +191,9 @@ public class UIController : MonoBehaviour
                // uiPageChange += Experiment.Instance.UpdateSpatialInstructions;
                 maxPage = maxSpatialPages;
                 UnityEngine.Debug.Log("set spatial instruction as active");
+                break;
+            default:
+                UnityEngine.Debug.Log("on the default case");
                 break;
         }
         showInstructions = true;
@@ -208,7 +214,8 @@ public class UIController : MonoBehaviour
                 uiPageChange -= Experiment.Instance.UpdateSpatialInstructions;
                 break;
         }
-
+        currUIPageID = 0;
+        UnityEngine.Debug.Log("finishing the instruction sequence");
         showInstructions = false;
     }
 
@@ -305,24 +312,33 @@ public class UIController : MonoBehaviour
     {
         if (newOption == OptionSelection.Left)
         {
+            UnityEngine.Debug.Log("moving left");
             currUIPageID--;
         }
         else
         {
+            UnityEngine.Debug.Log("moving right");
             currUIPageID++;
         }
-        //CLAMP it
+        //if exceeded beyond max page, then finish the sequence
         if (currUIPageID >= maxPage)
         {
-            currUIPageID = maxPage;
+            StartCoroutine(UpdateUIPage());
+            FinishInstructionSequence(currInstPage);
+
         }
         else if (currUIPageID < 0)
         {
+            StartCoroutine(UpdateUIPage());
             currUIPageID = 0;
         }
+        else
+        {
+            UnityEngine.Debug.Log("updating UI page to  " + currUIPageID.ToString());
 
-        //after changing the page, call the delegate associated with it so we can actually update the relevant instruction page
-        UpdateUIPage();
+            //after changing the page, call the delegate associated with it so we can actually update the relevant instruction page
+            StartCoroutine(UpdateUIPage());
+        }
 
     }
 

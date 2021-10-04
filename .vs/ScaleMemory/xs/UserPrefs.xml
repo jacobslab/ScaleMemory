@@ -1,14 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UIController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="712" Column="1" />
-      <File FileName="Assets/CarStopper.cs" Line="99" Column="13" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="170" Column="90" />
-      <File FileName="Assets/DefaultItem.cs" Line="66" Column="3" />
-      <File FileName="Assets/ObjectController.cs" Line="205" Column="6" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="40" Column="56" />
+      <File FileName="Assets/CarStopper.cs" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="165" Column="80" />
+      <File FileName="Assets/DefaultItem.cs" />
+      <File FileName="Assets/ObjectController.cs" Line="240" Column="7" />
       <File FileName="Assets/Scripts/StimulusObject.cs" />
       <File FileName="Assets/Shaders/VolumetricLight.shader" />
       <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/ObjectManager.cs" Line="27" Column="31" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,7 +18,7 @@
             <Node name="Assembly-CSharp" expanded="True">
               <Node name="Assets" expanded="True">
                 <Node name="Scripts" expanded="True">
-                  <Node name="UIController.cs" selected="True" />
+                  <Node name="Experiment.cs" selected="True" />
                 </Node>
                 <Node name="Shaders" expanded="True" />
               </Node>
