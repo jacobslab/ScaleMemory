@@ -48,6 +48,28 @@ public class UsefulFunctions {
 		}
 	}
 
+	public static List<int> ReturnShuffledIntegerList(int listLength)
+    {
+		List<int> tempList= new List<int>();
+		List<int> resultList = new List<int>();
+		for (int i=0;i<listLength;i++)
+        {
+			tempList.Add(i);
+        }
+
+		for(int i=0;i<listLength;i++)
+        {
+			int randIndex = Random.Range(0, tempList.Count);
+			resultList.Add(tempList[randIndex]);
+			tempList.RemoveAt(randIndex);
+
+        }
+
+		return resultList;
+    }
+
+	
+
 	public static void FaceObject( GameObject obj, GameObject target, bool shouldUseYPos){
 		Vector3 lookAtPos = target.transform.position;
 		if (!shouldUseYPos) {

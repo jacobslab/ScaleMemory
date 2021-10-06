@@ -28,6 +28,8 @@ public class UIController : MonoBehaviour
     public CanvasGroup practiceInstructionPanel;
     public Text preEncodingInstructions;
     public Text preSpatialRetrieval;
+    public Text preWeatherCondition;
+    public Text secondEncodingInstructions;
 
 
     //encoding panel
@@ -36,6 +38,9 @@ public class UIController : MonoBehaviour
     //retrieval panel
     public CanvasGroup retrievalPanel;
     public CanvasGroup verbalRetrievalPanel;
+
+    //follow up test panel
+    public CanvasGroup followUpTestPanel;
 
     public Text spatialInstructionA;
     public Text spatialInstructionB;

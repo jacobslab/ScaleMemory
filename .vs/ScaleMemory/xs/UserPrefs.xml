@@ -1,15 +1,19 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/LapCounter.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="40" Column="56" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1120" Column="10" />
       <File FileName="Assets/CarStopper.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="165" Column="80" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="328" Column="23" />
       <File FileName="Assets/DefaultItem.cs" />
-      <File FileName="Assets/ObjectController.cs" Line="240" Column="7" />
+      <File FileName="Assets/ObjectController.cs" />
       <File FileName="Assets/Scripts/StimulusObject.cs" />
       <File FileName="Assets/Shaders/VolumetricLight.shader" />
       <File FileName="Assets/Scripts/Configuration.cs" />
-      <File FileName="Assets/Scripts/ObjectManager.cs" Line="27" Column="31" />
+      <File FileName="Assets/Scripts/ObjectManager.cs" />
+      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="71" Column="2" />
+      <File FileName="Library/PackageCache/com.unity.postprocessing@3.1.1/PostProcessing/Runtime/PostProcessVolume.cs" Line="3" Column="11" />
+      <File FileName="Assets/CarMover.cs" Line="10" Column="20" />
+      <File FileName="Assets/LapCounter.cs" Line="61" Column="32" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,10 +21,8 @@
           <Node name="ScaleMemory" expanded="True">
             <Node name="Assembly-CSharp" expanded="True">
               <Node name="Assets" expanded="True">
-                <Node name="Scripts" expanded="True">
-                  <Node name="Experiment.cs" selected="True" />
-                </Node>
-                <Node name="Shaders" expanded="True" />
+                <Node name="Scripts" expanded="True" />
+                <Node name="LapCounter.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -30,7 +32,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4808d236-5b4b-4989-a31d-05a825e06a7c" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="9dffa0f7-6af2-404f-9c35-18651b988113" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

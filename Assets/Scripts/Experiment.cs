@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityStandardAssets.Utility;
 using UnityEngine.SceneManagement;
-using UnityEngine.PostProcessing;
+using UnityEngine.Rendering.PostProcessing;
 using UnityStandardAssets.Vehicles.Car;
 
 public class Experiment : MonoBehaviour {
@@ -37,10 +37,22 @@ public class Experiment : MonoBehaviour {
     public List<Transform> spawnableWaypoints;
     //public List<Transform> rightSpawnableWaypoints;
 
-    public PostProcessingProfile postProcessingProfile;
+    public PostProcessVolume ppVolumeRef;
+
+    public PostProcessProfile pp_Day;
+    public PostProcessProfile pp_Rainy;
+    public PostProcessProfile pp_Night;
+
+    private List<int> retrievalTypeList;
+    private List<int> weatherChangeTrials; // this list will maintain the index of trials where encoding and retrieval weather condtions will be distinct
+
+    //this will be used in cases where the weather changes between stages
+    private Configuration.WeatherMode encodingWeather;
+    private Configuration.WeatherMode retrievalWeather;
 
 
-
+    //private Dictionary<Configuration.WeatherMode, Configuration.WeatherMode> retrievalWeatherMode;
+    
     //used to control what page of instructions are shown;  when relevant
     private int currUIPageID = 0;
 
@@ -68,7 +80,9 @@ public class Experiment : MonoBehaviour {
         Encoding,
         SpatialRetrieval,
         VerbalRetrieval,
+        Retrieval,
         Feedback,
+        WeatherFamiliarization,
         PostTaskScreening
     }
 
@@ -89,7 +103,9 @@ public class Experiment : MonoBehaviour {
 
     public static int recallTime = 6;
 
-    public static int blockLength = 24;
+    public static int totalTrials = 24;
+    private int blockCount = 0;
+    public static int trialsPerBlock = 4;
 
     public static int listLength = 5;
 
@@ -106,8 +122,8 @@ public class Experiment : MonoBehaviour {
 
 
     //blackrock variables
-    public static string ExpName = "T2";
-    public static string BuildVersion = "0.9.9";
+    public static string ExpName = "CityBlock";
+    public static string BuildVersion = "0.9.92";
     public static bool isSystem2 = false;
 
     public bool verbalRetrieval = false;
@@ -219,8 +235,9 @@ public class Experiment : MonoBehaviour {
 
         //test length is stimuli items + lure items
         testLength = listLength + Configuration.luresPerTrial;
-
+        
         ChangeLighting(Configuration.WeatherMode.Night);
+
 
 
     }
@@ -238,6 +255,8 @@ public class Experiment : MonoBehaviour {
         retrievalObjList = new List<GameObject>();
         retrievalPositions = new List<Vector3>();
 
+        blockCount = totalTrials / trialsPerBlock;
+
     }
 
 
@@ -246,22 +265,31 @@ public class Experiment : MonoBehaviour {
     {
         Configuration.currentWeatherMode = targetWeather;
 
+        //unload the current scene first,if one is loaded
+
+        if (currScene != null && currScene.IsValid())
+            SceneManager.UnloadSceneAsync(currScene);
+
+
         switch (targetWeather)
         {
             case Configuration.WeatherMode.Sunny:
                 SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("DayLighting");
+                ppVolumeRef.profile = pp_Day;
                 RenderSettings.skybox = clearSkybox;
                 break;
             case Configuration.WeatherMode.Rainy:
                 SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("RainyLighting");
+                ppVolumeRef.profile = pp_Rainy;
                 RenderSettings.skybox = overcastSkybox;
                 break;
             case Configuration.WeatherMode.Night:
                 //load dusk scene by default first
                 SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("DuskLighting");
+                ppVolumeRef.profile = pp_Night;
                 RenderSettings.skybox = nightSkybox;
                 break;
 
@@ -527,6 +555,10 @@ public class Experiment : MonoBehaviour {
         //repeat blocks twice
         yield return StartCoroutine("BeginTaskBlock");
 
+
+        //once all the trials are complete, run the followup test
+        yield return StartCoroutine("RunFollowUpTest");
+
         uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
 
@@ -606,41 +638,88 @@ public class Experiment : MonoBehaviour {
     {
         isPractice = true;
         currentStage = TaskStage.Practice;
-        yield return StartCoroutine(ShowPracticeInstructions());
+        yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
 
-        //run encoding
-        yield return StartCoroutine("RunEncoding");
+        ////run encoding
+        //yield return StartCoroutine("RunEncoding");
 
-        //run retrieval
-        verbalRetrieval = false;
-        currentStage = TaskStage.SpatialRetrieval;
+        ////run retrieval
+        //verbalRetrieval = false;
+        //currentStage = TaskStage.SpatialRetrieval;
+        //trialLogTrack.LogTaskStage(currentStage, true);
+        //yield return StartCoroutine("RunSpatialRetrieval");
+        //trialLogTrack.LogTaskStage(currentStage, false);
+
+        //ToggleFixation(true);
+        //yield return new WaitForSeconds(1f);
+        //yield return StartCoroutine("ResetTrack");
+        //ToggleFixation(false);
+
+
+        // yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
+
+        ////run encoding
+        //yield return StartCoroutine("RunEncoding");
+
+        //verbalRetrieval = true;
+        //currentStage = TaskStage.VerbalRetrieval;
+        //trialLogTrack.LogTaskStage(currentStage, true);
+
+
+        ////run retrieval
+        //yield return StartCoroutine("RunVerbalRetrieval");
+        //trialLogTrack.LogTaskStage(currentStage, false);
+
+        //ToggleFixation(true);
+        //yield return new WaitForSeconds(0.5f);
+        //yield return StartCoroutine("ResetTrack");
+        //ToggleFixation(false);
+
+
+        //do two more practice laps with randomized retrieval conditions
+
+        //List<int> randRetrievalOrder = UsefulFunctions.ReturnShuffledIntegerList(2);
+
+        //for (int i=0;i<2;i++)
+        //{
+        //    yield return StartCoroutine("RunEncoding");
+
+        //    int retrievalType = randRetrievalOrder[i];
+
+        //    switch (retrievalType)
+        //    {
+        //        case 0:
+        //            verbalRetrieval = true;
+        //            currentStage = TaskStage.VerbalRetrieval;
+        //            trialLogTrack.LogTaskStage(currentStage, true);
+
+
+        //            //run retrieval
+        //            yield return StartCoroutine("RunVerbalRetrieval");
+        //            break;
+        //        case 1:
+        //            verbalRetrieval = false;
+        //            currentStage = TaskStage.SpatialRetrieval;
+        //            trialLogTrack.LogTaskStage(currentStage, true);
+        //            yield return StartCoroutine("RunSpatialRetrieval");
+        //            break;
+
+
+        //    }
+
+        //    trialLogTrack.LogTaskStage(currentStage, false);
+        //    ToggleFixation(true);
+        //    yield return new WaitForSeconds(0.5f);
+        //    yield return StartCoroutine("ResetTrack");
+        //    ToggleFixation(false);
+        //}
+
+         yield return StartCoroutine(ShowPracticeInstructions("PreWeather"));
+        currentStage = TaskStage.WeatherFamiliarization;
+
         trialLogTrack.LogTaskStage(currentStage, true);
-        yield return StartCoroutine("RunSpatialRetrieval");
+        yield return StartCoroutine("RunWeatherFamiliarization");
         trialLogTrack.LogTaskStage(currentStage, false);
-
-        ToggleFixation(true);
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine("ResetTrack");
-        ToggleFixation(false);
-
-
-
-        //run encoding
-        yield return StartCoroutine("RunEncoding");
-
-        verbalRetrieval = true;
-        currentStage = TaskStage.VerbalRetrieval;
-        trialLogTrack.LogTaskStage(currentStage, true);
-
-
-        //run retrieval
-        yield return StartCoroutine("RunVerbalRetrieval");
-        trialLogTrack.LogTaskStage(currentStage, false);
-
-        ToggleFixation(true);
-        yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine("ResetTrack");
-        ToggleFixation(false);
 
 
         isPractice = false;
@@ -705,14 +784,32 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    IEnumerator ShowPracticeInstructions()
+    IEnumerator ShowPracticeInstructions(string instType)
     {
-
-        uiController.practiceInstructionPanel.alpha = 1f;
-        uiController.preEncodingInstructions.enabled = true;
-        yield return StartCoroutine(WaitForActionButton());
-        uiController.preEncodingInstructions.enabled = false;
-        uiController.practiceInstructionPanel.alpha = 0f;
+        switch (instType)
+        {
+            case "PreEncoding":
+                uiController.practiceInstructionPanel.alpha = 1f;
+                uiController.preEncodingInstructions.enabled = true;
+                yield return StartCoroutine(WaitForActionButton());
+                uiController.preEncodingInstructions.enabled = false;
+                uiController.practiceInstructionPanel.alpha = 0f;
+                break;
+            case "SecondEncoding":
+                uiController.practiceInstructionPanel.alpha = 1f;
+                uiController.secondEncodingInstructions.enabled = true;
+                yield return StartCoroutine(WaitForActionButton());
+                uiController.secondEncodingInstructions.enabled = false;
+                uiController.practiceInstructionPanel.alpha = 0f;
+                break;
+            case "PreWeather":
+                uiController.practiceInstructionPanel.alpha = 1f;
+                uiController.preWeatherCondition.enabled = true;
+                yield return StartCoroutine(WaitForActionButton());
+                uiController.preWeatherCondition.enabled = false;
+                uiController.practiceInstructionPanel.alpha = 0f;
+                break;
+        }
         yield return null;
     }
 
@@ -842,7 +939,7 @@ public class Experiment : MonoBehaviour {
 
         return result;
     }
-
+    /*
     IEnumerator ChangeWeather(Configuration.WeatherMode targetWeatherMode)
     {
         //transition into a black fixation screen
@@ -856,7 +953,7 @@ public class Experiment : MonoBehaviour {
         ToggleFixation(false);
         yield return null;
     }
-
+    */
 
     IEnumerator GenerateLureSpots()
     {
@@ -998,13 +1095,13 @@ public class Experiment : MonoBehaviour {
             yield return null;
         }
 
-         IEnumerator ResetTrack()
+        IEnumerator ResetTrack()
         {
         UnityEngine.Debug.Log("resetting track");
         UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
             for (int k = 0; k < spawnedObjects.Count; k++)
             {
-            //destroy the ItemColliderBox which is the parent
+                //destroy the ItemColliderBox which is the parent
                 Destroy(spawnedObjects[k].transform.gameObject);
             }
 
@@ -1015,12 +1112,15 @@ public class Experiment : MonoBehaviour {
         //destroy all lure objects
         for(int i=0;i<Configuration.luresPerTrial;i++)
         {
-            if (lureObjects[i]!= null)
-                Destroy(lureObjects[i]);
+            if (i < lureObjects.Count)
+            {
+                if (lureObjects[i] != null)
+                    Destroy(lureObjects[i]);
+            }
         }
-        //reset lure lists as well
-        lureLocations.Clear();
-        lureObjects.Clear();
+            //reset lure lists as well
+            lureLocations.Clear();
+            lureObjects.Clear();
 
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
             chequeredFlag.SetActive(true);
@@ -1030,6 +1130,38 @@ public class Experiment : MonoBehaviour {
             player.transform.position = startTransform.position;
             yield return null;
         }
+
+    //this will generate fresh lists of randomized retrieval order as well as weather differences
+    void GenerateRandomizedRetrievalConditions()
+    {
+        retrievalTypeList = new List<int>();
+        weatherChangeTrials = new List<int>();
+
+
+        retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
+        weatherChangeTrials = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
+
+        Configuration.WeatherMode[,] weatherPairs = new Configuration.WeatherMode[totalTrials / 2, totalTrials / 2];
+        //weatherPairs[0, 0] = new Configuration.WeatherMode[Configuration.WeatherMode.Rainy, Configuration.WeatherMode.Rainy];
+        for(int i=0;i< 3; i++)
+        {
+           
+                //case 0:
+                //    weatherPairs[i, i] = (Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy);
+                //    break;
+                //case 1:
+                //    weatherPairs[i, i] = [Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy];
+                //    break;
+                //case 2:
+                //    weatherPairs[i, i] = [Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy];
+                //    break;
+
+            
+        }
+
+        //List<int> tempWeatherList = UsefulFunctions.ReturnShuffledIntegerList(blockLength/2); //we will only have different weather for nine trials
+
+    }
 
     IEnumerator BeginTaskBlock()
     {
@@ -1046,19 +1178,25 @@ public class Experiment : MonoBehaviour {
         //practice
         yield return StartCoroutine("BeginPractice");
 
-        for (int i = 0; i < blockLength; i++)
+        for (int i = 0; i < totalTrials; i++)
             {
                 trialCount = i + 1;
+                yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
                 //run encoding
                 yield return StartCoroutine("RunEncoding");
 
+
+                //check to see if the weather should change between the encoding and retrieval
+                yield return StartCoroutine("CheckForWeatherChange",TaskStage.Retrieval);
+
                 //run retrieval
                 yield return StartCoroutine("RunRetrieval");
-            ToggleFixation(true);
-            yield return new WaitForSeconds(0.5f);
 
-            yield return StartCoroutine("ResetTrack");
-            ToggleFixation(false);
+                ToggleFixation(true);
+                yield return new WaitForSeconds(0.5f);
+
+                yield return StartCoroutine("ResetTrack");
+                ToggleFixation(false);
         }
 
 
@@ -1069,6 +1207,27 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator CheckForWeatherChange(TaskStage upcomingStage)
+    {
+        if(weatherChangeTrials[trialCount] % 2 == 0)
+        {
+            if(upcomingStage == TaskStage.Encoding)
+            {
+                UnityEngine.Debug.Log("changing weather to " + encodingWeather.ToString());
+                ChangeLighting(encodingWeather);
+            }
+            else
+            {
+                UnityEngine.Debug.Log("changing weather for retrieval to " + retrievalWeather.ToString());
+                ChangeLighting(retrievalWeather);
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.Log("not changing weather");
+        }
+        yield return null;
+    }
 
     IEnumerator RunRetrieval()
     {
@@ -1116,8 +1275,8 @@ public class Experiment : MonoBehaviour {
 
         string targetNames = "";
 
-
-        if (trialCount % 2 == 0)
+        //check the randomly ordered list to see what the retrieval type should be
+        if (retrievalTypeList[trialCount] % 2 == 0)
         {
             verbalRetrieval = false;
             currentStage = TaskStage.SpatialRetrieval;
@@ -1233,6 +1392,7 @@ public class Experiment : MonoBehaviour {
     IEnumerator RunSpatialRetrieval()
     {
         SetCarMovement(false);
+        player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(true);
         yield return StartCoroutine(GenerateLureSpots()); //create lures
         trafficLightController.MakeVisible(false);
         carSpeed = 0f;
@@ -1338,11 +1498,50 @@ public class Experiment : MonoBehaviour {
 
         }
         SetCarMovement(false);
+        player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(false);
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
         yield return null;
     }
 
 
+    IEnumerator RunWeatherFamiliarization()
+    {
+        UnityEngine.Debug.Log("running weather familiarization");
+        for(int i=0;i<3;i++)
+        {
+            switch(i)
+            {
+                case 0:
+                    ChangeLighting(Configuration.WeatherMode.Sunny);
+                    break;
+                case 1:
+                    ChangeLighting(Configuration.WeatherMode.Rainy);
+                    break;
+                case 2:
+                    ChangeLighting(Configuration.WeatherMode.Night);
+                    break;
+            }
+
+            UnityEngine.Debug.Log("changed weather to " + Configuration.currentWeatherMode.ToString());
+            yield return StartCoroutine("RunEncoding");
+            ToggleFixation(true);
+            yield return new WaitForSeconds(0.5f);
+            yield return StartCoroutine("ResetTrack");
+            ToggleFixation(false);
+        }
+        yield return null;
+    }
+
+
+    IEnumerator RunFollowUpTest()
+    {
+        uiController.followUpTestPanel.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.followUpTestPanel.alpha = 0f;
+
+        //run the actual follow up test here
+        yield return null;
+    }
 
 
     IEnumerator PerformSpatialFeedback()
@@ -1655,7 +1854,7 @@ public class Experiment : MonoBehaviour {
 
             chosenEncodingLocations.Add(waypointLocations[randInt]);
             string temp = "";
-            UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
+         //   UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
             for (int j = 0; j < intPicker.Count; j++)
             {
                 temp += intPicker[j].ToString() + ",";
@@ -1669,7 +1868,7 @@ public class Experiment : MonoBehaviour {
             {
                 if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
                 {
-                    UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
+                 //   UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
                     intPicker.RemoveAt(randIndex); //removing next
                 }
             }
@@ -1678,7 +1877,7 @@ public class Experiment : MonoBehaviour {
             { 
                 if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
                 {
-                    UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
+                  //  UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
                     intPicker.RemoveAt(randIndex); //removing next
                 }
             }
@@ -1687,7 +1886,7 @@ public class Experiment : MonoBehaviour {
             {
                 if (Mathf.Abs(randInt - intPicker[randIndex - 1]) < Configuration.minGapBetweenStimuli)
                 {
-                    UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
+                  //  UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
                     intPicker.RemoveAt(randIndex - 1); // removing previous
                 }
             }
@@ -1696,7 +1895,7 @@ public class Experiment : MonoBehaviour {
             {
                 if (Mathf.Abs(randInt - intPicker[randIndex - 2]) < Configuration.minGapBetweenStimuli)
                 {
-                    UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
+                   // UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
                     intPicker.RemoveAt(randIndex - 2); // removing previous
                 }
             }
@@ -1974,7 +2173,7 @@ public class Experiment : MonoBehaviour {
                 SetCarMovement(true);
                 List<Vector3> chosenLocations = new List<Vector3>();
                 yield return StartCoroutine(GenerateRetrievalList());
-                for (int i = 0; i < blockLength; i++)
+                for (int i = 0; i < totalTrials; i++)
                 {
                     UnityEngine.Debug.Log("retrieval loop " + i.ToString());
                     LapCounter.finishedLap = false;

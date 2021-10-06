@@ -12,6 +12,8 @@ public class CarMover : MonoBehaviour
 
     public Rigidbody playerRigidbody;
 
+    public GameObject spatialRetrievalIndicator;
+
     [SerializeField]
     public float minTrackPointThreshold = 2f;
 
@@ -48,8 +50,14 @@ public class CarMover : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ToggleSpatialRetrievalIndicator(false);
         canMove = true;
         GetAllSpawnPoints();
+    }
+
+    public void ToggleSpatialRetrievalIndicator(bool isVisible)
+    {
+        spatialRetrievalIndicator.SetActive(isVisible);
     }
 
     void GetAllSpawnPoints()

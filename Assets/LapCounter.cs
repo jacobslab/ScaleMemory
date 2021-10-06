@@ -46,7 +46,7 @@ public class LapCounter : MonoBehaviour
                 canStop = true;
                 if (!isRetrieval)
                 {
-                    if ((lapCount + 1) % Experiment.blockLength == 0)
+                    if ((lapCount + 1) % Experiment.totalTrials == 0)
                     {
                         UnityEngine.Debug.Log("retrieval mode active");
                         isRetrieval = true;
