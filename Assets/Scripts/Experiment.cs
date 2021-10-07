@@ -50,6 +50,8 @@ public class Experiment : MonoBehaviour {
     private Configuration.WeatherMode encodingWeather;
     private Configuration.WeatherMode retrievalWeather;
 
+    private List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
+
 
     //private Dictionary<Configuration.WeatherMode, Configuration.WeatherMode> retrievalWeatherMode;
     
@@ -547,14 +549,24 @@ public class Experiment : MonoBehaviour {
 
         player.GetComponent<CarMover>().TurnCarEngine(true);
 
-        //yield return StartCoroutine("BeginItemScreening");
-        //	StartCoroutine("RandomizeTravelSpeed");
+
+        verbalRetrieval = false;
+
+        //setting up car but do not move it yet
+        StartCoroutine(player.GetComponent<CarMover>().MoveCar());
+        SetCarMovement(false);
+
+        //track familiarization
         //  yield return StartCoroutine("BeginTrackScreening");
 
-        //	yield return StartCoroutine("SpawnZones");
-        //repeat blocks twice
-        yield return StartCoroutine("BeginTaskBlock");
+        //practice
+        yield return StartCoroutine("BeginPractice");
 
+        //repeat blocks twice
+        for (int i = 0; i < blockCount; i++)
+        {
+            yield return StartCoroutine("BeginTaskBlock");
+        }
 
         //once all the trials are complete, run the followup test
         yield return StartCoroutine("RunFollowUpTest");
@@ -1165,20 +1177,10 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator BeginTaskBlock()
     {
+        //reset the block lists
+        stimuliBlockSequence = new List<GameObject>();
 
-        verbalRetrieval = false;
-
-        //setting up car but do not move it yet
-        StartCoroutine(player.GetComponent<CarMover>().MoveCar());
-        SetCarMovement(false);
-
-        //track familiarization
-      //  yield return StartCoroutine("BeginTrackScreening");
-
-        //practice
-        yield return StartCoroutine("BeginPractice");
-
-        for (int i = 0; i < totalTrials; i++)
+        for (int i = 0; i < trialsPerBlock; i++)
             {
                 trialCount = i + 1;
                 yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
@@ -1203,9 +1205,14 @@ public class Experiment : MonoBehaviour {
             uiController.targetTextPanel.alpha = 0f;
             SetCarMovement(true);
             trialLogTrack.LogTaskStage(currentStage, false);
+
+        yield return StartCoroutine(RunBlockTests());
         
         yield return null;
     }
+
+
+
 
     IEnumerator CheckForWeatherChange(TaskStage upcomingStage)
     {
@@ -1532,8 +1539,26 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator RunBlockTests()
+    {
+        yield return StartCoroutine(RunTemporalRecencyTest());
+        yield return StartCoroutine(RunTemporalDistanceTest());
+        yield return StartCoroutine(RunWeatherConditionTest());
+        yield return null;
+    }
 
-    IEnumerator RunFollowUpTest()
+    IEnumerator RunTemporalRecencyTest()
+    {
+        yield return null;
+    }
+
+    IEnumerator RunTemporalDistanceTest()
+    {
+        yield return null;
+    }
+
+
+    IEnumerator RunWeatherConditionTest()
     {
         uiController.followUpTestPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
@@ -1989,6 +2014,9 @@ public class Experiment : MonoBehaviour {
         //stop the car first
         player.GetComponent<CarMover>().ToggleCarMovement(false);
         //SetCarMovement(false);
+
+        //add the gameobject to the sequence
+        stimuliBlockSequence.Add(stimulusObject);
 
 
         //wait until the car has stopped
