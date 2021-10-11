@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Configuration : MonoBehaviour {
@@ -57,14 +58,10 @@ public class Configuration : MonoBehaviour {
     public static StimMode stimMode = StimMode.NONSTIM;
 
 
-    public enum WeatherMode
+    public static int ReturnWeatherTypes()
     {
-        Sunny,
-        Rainy,
-        Night
-    };
-
-    public static WeatherMode currentWeatherMode = WeatherMode.Night;
+        return Enum.GetNames(typeof(Weather.WeatherType)).Length;
+    }
 
     // Use this for initialization
     void Start () {

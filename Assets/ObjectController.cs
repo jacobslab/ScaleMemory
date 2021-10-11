@@ -186,7 +186,25 @@ public class ObjectController : MonoBehaviour
 
     public string ReturnStimuliDisplayText()
     {
-        string dispText = currentStimuliImage.name;
+		string dispText = "";
+		//if null, we pick a random image from a relevant list
+		if (currentStimuliImage == null)
+		{
+			if (Experiment.isPractice)
+			{
+				UnityEngine.Debug.Log("practice list " + practiceList.Count.ToString());
+				dispText = practiceList[Random.Range(0, practiceList.Count - 1)].name;
+			}
+			else
+			{
+				UnityEngine.Debug.Log("encoding list " + encodingList.Count.ToString());
+				dispText = encodingList[Random.Range(0, encodingList.Count - 1)].name;
+			}
+		}
+		else
+		{
+			dispText = currentStimuliImage.name;
+		}
         UnityEngine.Debug.Log("display name of current stimuli: " + dispText);
         return dispText;
     }

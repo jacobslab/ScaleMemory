@@ -48,6 +48,18 @@ public class UsefulFunctions {
 		}
 	}
 
+	public static List<int> ReturnListOfOrderedInts(int listLength)
+    {
+		List<int> resultList = new List<int>();
+
+		for(int i=0;i< listLength; i++)
+		{
+			resultList.Add(i);
+		}
+
+		return resultList;
+    }
+
 	public static List<int> ReturnShuffledIntegerList(int listLength)
     {
 		List<int> tempList= new List<int>();

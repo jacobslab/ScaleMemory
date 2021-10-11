@@ -47,14 +47,19 @@ public class Experiment : MonoBehaviour {
     private List<int> weatherChangeTrials; // this list will maintain the index of trials where encoding and retrieval weather condtions will be distinct
 
     //this will be used in cases where the weather changes between stages
-    private Configuration.WeatherMode encodingWeather;
-    private Configuration.WeatherMode retrievalWeather;
+    //private Configuration.WeatherMode encodingWeather;
+    //private Configuration.WeatherMode retrievalWeather;
+
+    private Weather currentWeather;
+    private Weather encodingWeather;
+    private Weather retrievalWeather;
 
     private List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
 
 
+
     //private Dictionary<Configuration.WeatherMode, Configuration.WeatherMode> retrievalWeatherMode;
-    
+
     //used to control what page of instructions are shown;  when relevant
     private int currUIPageID = 0;
 
@@ -105,7 +110,7 @@ public class Experiment : MonoBehaviour {
 
     public static int recallTime = 6;
 
-    public static int totalTrials = 24;
+    public static int totalTrials = 20;
     private int blockCount = 0;
     public static int trialsPerBlock = 4;
 
@@ -204,7 +209,7 @@ public class Experiment : MonoBehaviour {
     private int trialCount = 0;
 
 
-    private bool isPractice = false;
+    public static bool isPractice = false;
 
     private Scene currScene;
 
@@ -235,10 +240,14 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(false);
         carSpeed = 0f;
 
+        //initialize the weather as Night, by default
+        currentWeather = new Weather(Weather.WeatherType.Night);
+        ChangeLighting(currentWeather);
+
+
         //test length is stimuli items + lure items
         testLength = listLength + Configuration.luresPerTrial;
         
-        ChangeLighting(Configuration.WeatherMode.Night);
 
 
 
@@ -263,9 +272,9 @@ public class Experiment : MonoBehaviour {
 
 
     //this changes the "time of the day" in the scene through lighting
-    void ChangeLighting(Configuration.WeatherMode targetWeather)
+    void ChangeLighting(Weather targetWeather)
     {
-        Configuration.currentWeatherMode = targetWeather;
+        currentWeather = targetWeather;
 
         //unload the current scene first,if one is loaded
 
@@ -273,21 +282,21 @@ public class Experiment : MonoBehaviour {
             SceneManager.UnloadSceneAsync(currScene);
 
 
-        switch (targetWeather)
+        switch (targetWeather.weatherMode)
         {
-            case Configuration.WeatherMode.Sunny:
+            case Weather.WeatherType.Sunny:
                 SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("DayLighting");
                 ppVolumeRef.profile = pp_Day;
                 RenderSettings.skybox = clearSkybox;
                 break;
-            case Configuration.WeatherMode.Rainy:
+            case Weather.WeatherType.Foggy:
                 SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("RainyLighting");
                 ppVolumeRef.profile = pp_Rainy;
                 RenderSettings.skybox = overcastSkybox;
                 break;
-            case Configuration.WeatherMode.Night:
+            case Weather.WeatherType.Night:
                 //load dusk scene by default first
                 SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
                 currScene = SceneManager.GetSceneByName("DuskLighting");
@@ -589,8 +598,8 @@ public class Experiment : MonoBehaviour {
             while (!player.GetComponent<Rigidbody>().isKinematic)
             {
                 float timer = 0f;
-                float maxTime = UnityEngine.Random.Range(3f, 10f);
-                float speed = UnityEngine.Random.Range(30f, 60f);
+                float maxTime = Random.Range(3f, 10f);
+                float speed = Random.Range(30f, 60f);
                 UnityEngine.Debug.Log("new max time " + maxTime.ToString());
                 while (timer < maxTime)
                 {
@@ -653,19 +662,19 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
 
         ////run encoding
-        //yield return StartCoroutine("RunEncoding");
+        yield return StartCoroutine("RunEncoding");
 
         ////run retrieval
-        //verbalRetrieval = false;
-        //currentStage = TaskStage.SpatialRetrieval;
-        //trialLogTrack.LogTaskStage(currentStage, true);
-        //yield return StartCoroutine("RunSpatialRetrieval");
-        //trialLogTrack.LogTaskStage(currentStage, false);
+        verbalRetrieval = false;
+        currentStage = TaskStage.SpatialRetrieval;
+        trialLogTrack.LogTaskStage(currentStage, true);
+        yield return StartCoroutine("RunSpatialRetrieval");
+        trialLogTrack.LogTaskStage(currentStage, false);
 
-        //ToggleFixation(true);
-        //yield return new WaitForSeconds(1f);
-        //yield return StartCoroutine("ResetTrack");
-        //ToggleFixation(false);
+        ToggleFixation(true);
+        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine("ResetTrack");
+        ToggleFixation(false);
 
 
         // yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
@@ -726,7 +735,7 @@ public class Experiment : MonoBehaviour {
         //    ToggleFixation(false);
         //}
 
-         yield return StartCoroutine(ShowPracticeInstructions("PreWeather"));
+        yield return StartCoroutine(ShowPracticeInstructions("PreWeather"));
         currentStage = TaskStage.WeatherFamiliarization;
 
         trialLogTrack.LogTaskStage(currentStage, true);
@@ -1151,11 +1160,19 @@ public class Experiment : MonoBehaviour {
 
 
         retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
-        weatherChangeTrials = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
 
-        Configuration.WeatherMode[,] weatherPairs = new Configuration.WeatherMode[totalTrials / 2, totalTrials / 2];
+        //changing weather trials will be interleaved, so an ordered list of ints will suffice
+        weatherChangeTrials = UsefulFunctions.ReturnListOfOrderedInts(totalTrials);
+
+        List<WeatherPair> weatherPairs = new List<WeatherPair>();
+
+        weatherPairs = GenerateWeatherPairs();
+
+        
+
+        //Configuration.WeatherMode[,] weatherPairs = new Configuration.WeatherMode[totalTrials / 2, totalTrials / 2];
         //weatherPairs[0, 0] = new Configuration.WeatherMode[Configuration.WeatherMode.Rainy, Configuration.WeatherMode.Rainy];
-        for(int i=0;i< 3; i++)
+        for (int i=0;i< 3; i++)
         {
            
                 //case 0:
@@ -1173,6 +1190,31 @@ public class Experiment : MonoBehaviour {
 
         //List<int> tempWeatherList = UsefulFunctions.ReturnShuffledIntegerList(blockLength/2); //we will only have different weather for nine trials
 
+    }
+
+    List<WeatherPair> GenerateWeatherPairs()
+    {
+        List<WeatherPair> resultPair = new List<WeatherPair>();
+        int numWeathers = Configuration.ReturnWeatherTypes();
+        for (int i=0;i<numWeathers; i++)
+        {
+            List<int> possibleWeatherCombinations = UsefulFunctions.ReturnListOfOrderedInts(numWeathers);
+            possibleWeatherCombinations.RemoveAt(i); //remove self
+            //store the current index's weather type enum into a variable
+            Weather.WeatherType selfType = (Weather.WeatherType)i;
+
+            //cycle through all possible combinations
+            for(int j=0;j<possibleWeatherCombinations.Count;j++)
+            {
+                WeatherPair encodingPair = new WeatherPair(selfType, (Weather.WeatherType)possibleWeatherCombinations[j]);
+                WeatherPair retrievalPair = new WeatherPair((Weather.WeatherType)possibleWeatherCombinations[j],selfType);
+
+                resultPair.Add(encodingPair);
+                resultPair.Add(retrievalPair);
+            }
+        }
+
+        return resultPair;
     }
 
     IEnumerator BeginTaskBlock()
@@ -1519,17 +1561,18 @@ public class Experiment : MonoBehaviour {
             switch(i)
             {
                 case 0:
-                    ChangeLighting(Configuration.WeatherMode.Sunny);
+                    currentWeather = new Weather(Weather.WeatherType.Sunny);
                     break;
                 case 1:
-                    ChangeLighting(Configuration.WeatherMode.Rainy);
+                    currentWeather = new Weather(Weather.WeatherType.Foggy);
                     break;
                 case 2:
-                    ChangeLighting(Configuration.WeatherMode.Night);
+                    currentWeather = new Weather(Weather.WeatherType.Night);
                     break;
             }
 
-            UnityEngine.Debug.Log("changed weather to " + Configuration.currentWeatherMode.ToString());
+            ChangeLighting(currentWeather);
+            UnityEngine.Debug.Log("changed weather to " +  currentWeather.weatherMode.ToString());
             yield return StartCoroutine("RunEncoding");
             ToggleFixation(true);
             yield return new WaitForSeconds(0.5f);
@@ -1668,7 +1711,7 @@ public class Experiment : MonoBehaviour {
         canSelect = false;
         yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
 
-        float randJitterTime = Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
+        float randJitterTime = UnityEngine.Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
         yield return new WaitForSeconds(randJitterTime);
         uiController.microphoneIconImage.color = Color.green;
         UnityEngine.Debug.Log("begin verbal recall");
@@ -2317,39 +2360,7 @@ public class Experiment : MonoBehaviour {
     void Update()
     {
 
-        if(Input.GetKeyDown(KeyCode.D))
-        {
-            if (currScene != null)
-            {
-               SceneManager.UnloadSceneAsync(currScene);
-            }
 
-            ChangeLighting(Configuration.WeatherMode.Sunny);
-
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            if (currScene != null)
-            {
-                SceneManager.UnloadSceneAsync(currScene);
-            }
-
-            ChangeLighting(Configuration.WeatherMode.Night);
-        }
-
-
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            if (currScene != null)
-            {
-                SceneManager.UnloadSceneAsync(currScene);
-            }
-
-            ChangeLighting(Configuration.WeatherMode.Rainy);
-        }
 
         //UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());
         //UnityEngine.Debug.Log("car speed " + carSpeed.ToString());

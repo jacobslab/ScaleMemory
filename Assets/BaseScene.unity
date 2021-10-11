@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.066397116, g: 0.08169852, b: 0.09643061, a: 1}
+  m_IndirectSpecularColor: {r: 0.2994017, g: 0.42107868, b: 0.4956604, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -25982,7 +25982,7 @@ MonoBehaviour:
   pp_Day: {fileID: 11400000, guid: 1c55d18106b2740feba2a38505ccdf24, type: 2}
   pp_Rainy: {fileID: 11400000, guid: f12c5f89e92a74c458e064a6bfa03a40, type: 2}
   pp_Night: {fileID: 11400000, guid: a8d8330737dc24d4a84993f20c3b0f1f, type: 2}
-  skipEncoding: 0
+  skipEncoding: 1
   skipVerbalRetrieval: 0
   skipSpatialRetrieval: 0
   trafficLightController: {fileID: 831227862}
