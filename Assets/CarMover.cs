@@ -17,6 +17,7 @@ public class CarMover : MonoBehaviour
     [SerializeField]
     public float minTrackPointThreshold = 2f;
 
+    private bool directionChanged = false;
     public static bool carActive = false;
 
     private float speedFactor = 1.5f;
@@ -79,8 +80,9 @@ public class CarMover : MonoBehaviour
         {
             //exit out of the movement loop
             //canMove = false;
-            ToggleCarMovement(false);
-            
+            //ToggleCarMovement(false);
+            directionChanged = true;
+
            // StopCoroutine("DriveCar");
 
             UnityEngine.Debug.Log("set new direction");
@@ -214,7 +216,11 @@ public class CarMover : MonoBehaviour
 
     float RandomizeSpeed()
     {
-        return UnityEngine.Random.Range(2f, 2.5f);
+        //slower speed during encoding to maintain the "five-second gap" for stim
+        if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+            return UnityEngine.Random.Range(2f, 2.5f);
+        else
+            return UnityEngine.Random.Range(1f, 1.25f);
     }
 
     public void ToggleCarMovement(bool movementFlag)
@@ -271,7 +277,7 @@ public class CarMover : MonoBehaviour
         float lerpFactor = 0f; //reset factor
 
         //interpolate until you hit threshold distance to look for the next track point
-        while (dist > 2f && canMove && carActive)
+        while (dist > 2f && canMove && carActive && !directionChanged)
         {
             // UnityEngine.Debug.Log("CURRENT DIST: " + dist.ToString());
             lerpFactor += Time.deltaTime;
@@ -296,8 +302,11 @@ public class CarMover : MonoBehaviour
         UnityEngine.Debug.Log("exiting DriveCar");
 
         //if we are exiting the loop due to change in direction, then toggle the variable back so we can move in the new direction again
-        if(!canMove)
+        if (directionChanged)
+        {
             ToggleCarMovement(true);
+            directionChanged = false; //reset direction change
+        }
         yield return null;
     }
 

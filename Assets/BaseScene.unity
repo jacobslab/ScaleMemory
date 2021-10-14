@@ -9814,7 +9814,7 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 1847
-  m_RenderingPath: 3
+  m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
@@ -25982,7 +25982,7 @@ MonoBehaviour:
   pp_Day: {fileID: 11400000, guid: 1c55d18106b2740feba2a38505ccdf24, type: 2}
   pp_Rainy: {fileID: 11400000, guid: f12c5f89e92a74c458e064a6bfa03a40, type: 2}
   pp_Night: {fileID: 11400000, guid: a8d8330737dc24d4a84993f20c3b0f1f, type: 2}
-  skipEncoding: 1
+  skipEncoding: 0
   skipVerbalRetrieval: 0
   skipSpatialRetrieval: 0
   trafficLightController: {fileID: 831227862}

@@ -48,6 +48,20 @@ public class UsefulFunctions {
 		}
 	}
 
+	public static int FindIndexOfInt(List<int> intList, int numberToFind)
+    {
+		int resultIndex = 0;
+		for(int i=0;i<intList.Count;i++)
+        {
+			if(numberToFind==intList[i])
+            {
+				resultIndex = i;
+				return resultIndex;
+            }
+        }
+		return resultIndex;
+    }
+
 	public static List<int> ReturnListOfOrderedInts(int listLength)
     {
 		List<int> resultList = new List<int>();

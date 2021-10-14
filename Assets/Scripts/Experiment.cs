@@ -45,6 +45,9 @@ public class Experiment : MonoBehaviour {
 
     private List<int> retrievalTypeList;
     private List<int> weatherChangeTrials; // this list will maintain the index of trials where encoding and retrieval weather condtions will be distinct
+    private List<WeatherPair> weatherPairs;
+    private List<int> randomizedWeatherOrder; //stores the order which determines weather of trials where weather doesn't change
+
 
     //this will be used in cases where the weather changes between stages
     //private Configuration.WeatherMode encodingWeather;
@@ -110,7 +113,7 @@ public class Experiment : MonoBehaviour {
 
     public static int recallTime = 6;
 
-    public static int totalTrials = 20;
+    public static int totalTrials = 12;
     private int blockCount = 0;
     public static int trialsPerBlock = 4;
 
@@ -160,6 +163,8 @@ public class Experiment : MonoBehaviour {
     public string subjectName = "";
 
     public SubjectReaderWriter subjectReaderWriter;
+
+    public List<BlockTestPair> blockTestPairList;
 
     private bool subjectInfoEntered = false;
     private bool ipAddressEntered = false;
@@ -319,7 +324,6 @@ public class Experiment : MonoBehaviour {
     {
         string subjectDirectory = defaultLoggingPath + "/" + subjectName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
-
         sessionID = 0;
         string sessionIDString = "_0";
 
@@ -328,7 +332,7 @@ public class Experiment : MonoBehaviour {
             Directory.CreateDirectory(subjectDirectory);
         }
         while (File.Exists(sessionDirectory + sessionStartedFileName))
-        {//Directory.Exists(sessionDirectory)) {
+        {
             sessionID++;
 
             sessionIDString = "_" + sessionID.ToString();
@@ -569,7 +573,9 @@ public class Experiment : MonoBehaviour {
         //  yield return StartCoroutine("BeginTrackScreening");
 
         //practice
-        yield return StartCoroutine("BeginPractice");
+        //    yield return StartCoroutine("BeginPractice");
+
+        yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
         //repeat blocks twice
         for (int i = 0; i < blockCount; i++)
@@ -976,6 +982,25 @@ public class Experiment : MonoBehaviour {
     }
     */
 
+
+    Weather FindPairedRetrievalWeather(Weather pairWeather)
+    {
+        Weather retrievalWeather = new Weather(Weather.WeatherType.Sunny); // create a default weather first
+        //cycle through all the weather pairs until a matching weather to our argument is found
+        for (int i=0;i<weatherPairs.Count;i++)
+        {
+            if(pairWeather.weatherMode == weatherPairs[i].encodingWeather.weatherMode)
+            {
+                UnityEngine.Debug.Log("matching weather pair found");
+                retrievalWeather = weatherPairs[i].retrievalWeather;
+                i = weatherPairs.Count; // once pair is found, we break out of the loop
+
+            }
+        }
+
+        return retrievalWeather;
+    }
+
     IEnumerator GenerateLureSpots()
     {
         List<Texture> lureImageTextures =  objController.SelectImagesForLures();
@@ -1152,11 +1177,18 @@ public class Experiment : MonoBehaviour {
             yield return null;
         }
 
+    IEnumerator PrepTrials()
+    {
+           GenerateRandomizedRetrievalConditions();
+           yield return null;
+    }
+
     //this will generate fresh lists of randomized retrieval order as well as weather differences
     void GenerateRandomizedRetrievalConditions()
     {
         retrievalTypeList = new List<int>();
         weatherChangeTrials = new List<int>();
+        randomizedWeatherOrder = new List<int>();
 
 
         retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
@@ -1164,29 +1196,15 @@ public class Experiment : MonoBehaviour {
         //changing weather trials will be interleaved, so an ordered list of ints will suffice
         weatherChangeTrials = UsefulFunctions.ReturnListOfOrderedInts(totalTrials);
 
-        List<WeatherPair> weatherPairs = new List<WeatherPair>();
+        //only half the trials will have same weather
+        randomizedWeatherOrder = UsefulFunctions.ReturnShuffledIntegerList(totalTrials / 2);
 
+        //generate different combinations of weather pairs for trials with different encoding and retrieval weathers; will have 3P2 permutations
+        weatherPairs = new List<WeatherPair>();
         weatherPairs = GenerateWeatherPairs();
 
         
-
-        //Configuration.WeatherMode[,] weatherPairs = new Configuration.WeatherMode[totalTrials / 2, totalTrials / 2];
-        //weatherPairs[0, 0] = new Configuration.WeatherMode[Configuration.WeatherMode.Rainy, Configuration.WeatherMode.Rainy];
-        for (int i=0;i< 3; i++)
-        {
-           
-                //case 0:
-                //    weatherPairs[i, i] = (Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy);
-                //    break;
-                //case 1:
-                //    weatherPairs[i, i] = [Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy];
-                //    break;
-                //case 2:
-                //    weatherPairs[i, i] = [Configuration.WeatherMode.Sunny, Configuration.WeatherMode.Rainy];
-                //    break;
-
-            
-        }
+        
 
         //List<int> tempWeatherList = UsefulFunctions.ReturnShuffledIntegerList(blockLength/2); //we will only have different weather for nine trials
 
@@ -1207,10 +1225,12 @@ public class Experiment : MonoBehaviour {
             for(int j=0;j<possibleWeatherCombinations.Count;j++)
             {
                 WeatherPair encodingPair = new WeatherPair(selfType, (Weather.WeatherType)possibleWeatherCombinations[j]);
-                WeatherPair retrievalPair = new WeatherPair((Weather.WeatherType)possibleWeatherCombinations[j],selfType);
+                //WeatherPair retrievalPair = new WeatherPair((Weather.WeatherType)possibleWeatherCombinations[j],selfType);
 
                 resultPair.Add(encodingPair);
-                resultPair.Add(retrievalPair);
+                UnityEngine.Debug.Log("E: " + encodingPair.encodingWeather.weatherMode.ToString() + " R: " + encodingPair.retrievalWeather.weatherMode.ToString()); 
+              //  resultPair.Add(retrievalPair);
+              //  UnityEngine.Debug.Log("E: " + retrievalPair.encodingWeather.weatherMode.ToString() + " R: " + retrievalPair.retrievalWeather.weatherMode.ToString());
             }
         }
 
@@ -1262,8 +1282,11 @@ public class Experiment : MonoBehaviour {
         {
             if(upcomingStage == TaskStage.Encoding)
             {
-                UnityEngine.Debug.Log("changing weather to " + encodingWeather.ToString());
-                ChangeLighting(encodingWeather);
+                //we want to keep the weather the same as the previous trial's retrieval weather; so we check the currentWeather and not change anything
+                UnityEngine.Debug.Log("DIFF WEATHER TRIAL:  keeping the weather same as previous trial: " + currentWeather.weatherMode.ToString());
+
+                //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather
+                retrievalWeather = FindPairedRetrievalWeather(currentWeather); 
             }
             else
             {
@@ -1273,7 +1296,22 @@ public class Experiment : MonoBehaviour {
         }
         else
         {
-            UnityEngine.Debug.Log("not changing weather");
+            // int randWeatherIndex = randomizedWeatherOrder[trialCount/2];
+            //switch(randWeatherIndex % 3)
+            // {
+            //     case 0:
+            //         currentWeather = new Weather(Weather.WeatherType.Sunny);
+            //         break;
+            //     case 1:
+            //         currentWeather = new Weather(Weather.WeatherType.Foggy);
+            //         break;
+            //     case 2:
+            //         currentWeather = new Weather(Weather.WeatherType.Night);
+            //         break;
+            // }
+            UnityEngine.Debug.Log("SAME WEATHER TRIAL:  keeping the weather same as previous trial: " + currentWeather.weatherMode.ToString());
+            //UnityEngine.Debug.Log("trial with same weather: " + currentWeather.weatherMode.ToString());
+            ChangeLighting(currentWeather);
         }
         yield return null;
     }
@@ -1296,22 +1334,22 @@ public class Experiment : MonoBehaviour {
         //	currentStage = Experiment.TaskStage.Retrieval;
 
         //pick a randomized starting retrieval position
-        List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
-        int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
+      //  List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
+     //   int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
 
-        Transform randStartTransform = validStartTransforms[randWaypoint];
+     //   Transform randStartTransform = validStartTransforms[randWaypoint];
 
         //disable player collider box before transporting to new location
 
         player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
 
-        player.transform.position = randStartTransform.position;
-        player.transform.rotation = randStartTransform.rotation;
-        chequeredFlag.transform.position = randStartTransform.position;
-        chequeredFlag.transform.rotation = randStartTransform.rotation;
+        //player.transform.position = randStartTransform.position;
+        //player.transform.rotation = randStartTransform.rotation;
+        //chequeredFlag.transform.position = randStartTransform.position;
+        //chequeredFlag.transform.rotation = randStartTransform.rotation;
 
 
-        player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
+        //player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
 
         trialLogTrack.LogRetrievalStartPosition(player.transform.position);
 
@@ -1584,19 +1622,47 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunBlockTests()
     {
-        yield return StartCoroutine(RunTemporalRecencyTest());
+        yield return StartCoroutine(GenerateBlockTestPairs());
+
+        yield return StartCoroutine(RunTemporalOrderTest());
         yield return StartCoroutine(RunTemporalDistanceTest());
         yield return StartCoroutine(RunWeatherConditionTest());
         yield return null;
     }
 
-    IEnumerator RunTemporalRecencyTest()
+    IEnumerator GenerateBlockTestPairs()
     {
+        //add 2 pairs encountered in different loops, different weather
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[12], stimuliBlockSequence[15]));
+
+        //add 2 pairs encountered in the same loop
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[6], stimuliBlockSequence[9]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));
+
+        //add 2 pairs encountered in the different loop, same weather
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[8], stimuliBlockSequence[11]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10]));
+
+
+        //context recollection test
+
+        //blockTestPairList.Add(stimuliBlockSequence[1],)
+
+        yield return null;
+    }
+
+    IEnumerator RunTemporalOrderTest()
+    {
+       
+
+
         yield return null;
     }
 
     IEnumerator RunTemporalDistanceTest()
     {
+
         yield return null;
     }
 
@@ -1685,12 +1751,21 @@ public class Experiment : MonoBehaviour {
         uiController.ToggleSelection(true);
         canSelect = true;
         yield return StartCoroutine(WaitForSelection());
+
         uiController.itemReactivationDetails.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 0f;
         canSelect = false;
         uiController.ToggleSelection(false);
 
+        //the option index 2 will correspond to "New", if that is selected, we skip the retrieval part
+        if (uiController.GetSelectionIndex() == 2)
+        {
+            //do nothing
+        }
+        else
+        {
         yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
+        }
         yield return null;
     }
 
@@ -1709,14 +1784,22 @@ public class Experiment : MonoBehaviour {
         uiController.locationReactivationPanel.alpha = 0f;
         uiController.ToggleSelection(false);
         canSelect = false;
-        yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
 
-        float randJitterTime = UnityEngine.Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
-        yield return new WaitForSeconds(randJitterTime);
-        uiController.microphoneIconImage.color = Color.green;
-        UnityEngine.Debug.Log("begin verbal recall");
-        yield return StartCoroutine(StartVerbalRetrieval(stimObject));
-        //yield return StartCoroutine(WaitForActionButton());
+        //the option index 1 will correspond to "No", if that is selected, we skip the retrieval part
+        if (uiController.GetSelectionIndex() == 1)
+        {
+            //do nothing
+        }
+        else
+        {
+            yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
+
+            float randJitterTime = UnityEngine.Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
+            yield return new WaitForSeconds(randJitterTime);
+            uiController.microphoneIconImage.color = Color.green;
+            UnityEngine.Debug.Log("begin verbal recall");
+            yield return StartCoroutine(StartVerbalRetrieval(stimObject));
+        }
         uiController.ResetRetrievalInstructions();
         UnityEngine.Debug.Log("finished verbal recall");
         SetCarMovement(true);
@@ -1749,10 +1832,11 @@ public class Experiment : MonoBehaviour {
     List<Transform> GetValidStartTransforms()
     {
         List<Transform> result = new List<Transform>();
-        //	WaypointCircuit currentCircuit = player.GetComponent<WaypointProgressTracker>().leftCircuit;
+        List<int> intResult = new List<int>();
         for (int k = 0; k < startableTransforms.Count; k++)
         {
             result.Add(startableTransforms[k]);
+            intResult.Add(k);
         }
 
         for (int i = 0; i < listLength; i++)
@@ -1769,8 +1853,10 @@ public class Experiment : MonoBehaviour {
                 {
                     UnityEngine.Debug.Log("distance " + dist.ToString());
                     UnityEngine.Debug.Log("excluding  " + j.ToString());
-                    result.RemoveAt(j);
-                    j = startableTransforms.Count; //move onto the next spawned object; we'll exclude just one transform per item
+                    int indexToRemove = UsefulFunctions.FindIndexOfInt(intResult,j);
+                    result.RemoveAt(indexToRemove);
+                    intResult.RemoveAt(indexToRemove);
+                    j = startableTransforms.Count; //break out of this loop and move onto the next spawned object; we'll exclude just one transform per item
                 }
 
 
@@ -1780,6 +1866,7 @@ public class Experiment : MonoBehaviour {
 
         return result;
     }
+
     public void ShowPathDirection()
     {
         switch (player.GetComponent<WaypointProgressTracker>().currentDirection)

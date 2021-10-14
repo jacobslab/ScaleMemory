@@ -133,6 +133,7 @@
     <Compile Include="Assets/Scripts/Anim. &amp; Visuals/VisibilityToggler.cs" />
     <Compile Include="Assets/Scripts/AudioRecorder.cs" />
     <Compile Include="Assets/Scripts/BarrierManager.cs" />
+    <Compile Include="Assets/Scripts/BlockTestPair.cs" />
     <Compile Include="Assets/Scripts/CameraController.cs" />
     <Compile Include="Assets/Scripts/CardboardBox.cs" />
     <Compile Include="Assets/Scripts/ChequeredFlag.cs" />

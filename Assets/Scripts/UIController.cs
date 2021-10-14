@@ -236,6 +236,11 @@ public class UIController : MonoBehaviour
         yield return null;
     }
 
+    public int GetSelectionIndex()
+    {
+        return currSelection;
+    }
+
     public IEnumerator SetupSelectionOptions(string retrievalType)
     {
         //reset
