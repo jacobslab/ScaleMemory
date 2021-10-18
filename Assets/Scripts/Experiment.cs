@@ -48,18 +48,13 @@ public class Experiment : MonoBehaviour {
     private List<WeatherPair> weatherPairs;
     private List<int> randomizedWeatherOrder; //stores the order which determines weather of trials where weather doesn't change
 
-
-    //this will be used in cases where the weather changes between stages
-    //private Configuration.WeatherMode encodingWeather;
-    //private Configuration.WeatherMode retrievalWeather;
-
     private Weather currentWeather;
     private Weather encodingWeather;
     private Weather retrievalWeather;
 
     private List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
-
-
+    private List<GameObject> contextDifferentWeatherTestList;
+    private List<GameObject> contextSameWeatherTestList;
 
     //private Dictionary<Configuration.WeatherMode, Configuration.WeatherMode> retrievalWeatherMode;
 
@@ -90,6 +85,7 @@ public class Experiment : MonoBehaviour {
         Encoding,
         SpatialRetrieval,
         VerbalRetrieval,
+        BlockTests,
         Retrieval,
         Feedback,
         WeatherFamiliarization,
@@ -1622,62 +1618,108 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunBlockTests()
     {
-        yield return StartCoroutine(GenerateBlockTestPairs());
 
-        yield return StartCoroutine(RunTemporalOrderTest());
-        yield return StartCoroutine(RunTemporalDistanceTest());
-        yield return StartCoroutine(RunWeatherConditionTest());
+        yield return StartCoroutine(GenerateBlockTestPairs());
+        yield return StartCoroutine(GenerateContextRecollectionList()); //generate list from the remaining indices in the stimuliBlockSequence
+
+
+        //perform each of those tests for the paired list in sequence
+        for (int i = 0; i < blockTestPairList.Count; i++)
+        {
+            yield return StartCoroutine(RunTemporalOrderTest());
+            yield return StartCoroutine(RunTemporalDistanceTest());
+        }
+
+        //this will be run on a randomized set of items that weren't included in the tests above
+        yield return StartCoroutine(RunContextRecollectionTest());
         yield return null;
     }
 
+    //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateBlockTestPairs()
     {
-        //add 2 pairs encountered in different loops, different weather
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5]));
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[12], stimuliBlockSequence[15]));
+        //add 2 pairs encountered in different loops, different weather; see the design document for more information
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5])); //loop 1 and 2
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[12], stimuliBlockSequence[15]));  // loop 3 and 4
 
         //add 2 pairs encountered in the same loop
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[6], stimuliBlockSequence[9]));
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); //loop 4
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[0], stimuliBlockSequence[3])); //loop 1
 
         //add 2 pairs encountered in the different loop, same weather
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[8], stimuliBlockSequence[11]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[8], stimuliBlockSequence[11])); // loop 2 and 3
         blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10]));
 
+        yield return null;
+    }
 
-        //context recollection test
 
-        //blockTestPairList.Add(stimuliBlockSequence[1],)
+    //TODO: make this rule-based and not hard-coded
+    IEnumerator GenerateContextRecollectionList()
+    {
+
+        //different weather
+        contextDifferentWeatherTestList = new List<GameObject>(); //2,5,14,15
+        contextDifferentWeatherTestList.Add(stimuliBlockSequence[1]);
+        contextDifferentWeatherTestList.Add(stimuliBlockSequence[4]);
+        contextDifferentWeatherTestList.Add(stimuliBlockSequence[13]);
+        contextDifferentWeatherTestList.Add(stimuliBlockSequence[14]);
+
+
+
+        //same weather
+        contextSameWeatherTestList = new List<GameObject>(); //7,10,18,19
+        contextSameWeatherTestList.Add(stimuliBlockSequence[6]);
+        contextSameWeatherTestList.Add(stimuliBlockSequence[9]);
+        contextSameWeatherTestList.Add(stimuliBlockSequence[17]);
+        contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
 
         yield return null;
     }
 
     IEnumerator RunTemporalOrderTest()
     {
-       
 
-
+        uiController.temporalOrderTestPanel.alpha = 1f;
+        uiController.ToggleSelection(true);
+        //wait for the options to be selected
+        canSelect = true;
+        yield return StartCoroutine(WaitForSelection());
+        canSelect = false;
+        uiController.ToggleSelection(false);
+        uiController.temporalOrderTestPanel.alpha = 0f;
         yield return null;
     }
 
     IEnumerator RunTemporalDistanceTest()
     {
 
+        uiController.temporalDistanceTestPanel.alpha = 1f;
+
+        //wait for the selection of options
+        uiController.ToggleSelection(true);
+        canSelect = true;
+        yield return StartCoroutine(WaitForSelection());
+        canSelect = false;
+        uiController.ToggleSelection(false);
+
+        uiController.temporalDistanceTestPanel.alpha = 0f;
         yield return null;
     }
 
-
-    IEnumerator RunWeatherConditionTest()
+    IEnumerator RunContextRecollectionTest()
     {
-        uiController.followUpTestPanel.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
-        uiController.followUpTestPanel.alpha = 0f;
+        uiController.contextRecollectionTestPanel.alpha = 1f;
 
-        //run the actual follow up test here
+        List<int> randOrder = new List<int>();
+
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.contextRecollectionTestPanel.alpha = 0f;
         yield return null;
     }
 
 
+ 
     IEnumerator PerformSpatialFeedback()
     {
         List<GameObject> indicatorsList = new List<GameObject>();
@@ -1737,6 +1779,12 @@ public class Experiment : MonoBehaviour {
         {
             yield return null;
         }
+        yield return null;
+    }
+
+    IEnumerator CleanBlockSequence()
+    {
+
         yield return null;
     }
 
@@ -2519,7 +2567,7 @@ public class Experiment : MonoBehaviour {
             }    
         }
 
-        if ((currentStage == TaskStage.SpatialRetrieval || currentStage == TaskStage.VerbalRetrieval) && canSelect)
+        if (canSelect)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {

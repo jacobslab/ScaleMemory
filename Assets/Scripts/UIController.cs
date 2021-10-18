@@ -64,6 +64,11 @@ public class UIController : MonoBehaviour
 
     string itemRetrievalInstructionBase = "drive to location of ";
 
+    //end of block tests
+    public CanvasGroup temporalOrderTestPanel;
+    public CanvasGroup temporalDistanceTestPanel;
+    public CanvasGroup contextRecollectionTestPanel;
+
     //intro panel
     public CanvasGroup taskIntroPanel;
 
