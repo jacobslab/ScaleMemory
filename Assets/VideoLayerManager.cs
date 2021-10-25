@@ -84,8 +84,11 @@ public class VideoLayerManager : MonoBehaviour
 
         yield return StartCoroutine("TogglePauseLayerPlayback", true);
         double playbackTime = backgroundLayer.GetPlaybackTime();
-        yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(playbackTime));
-        yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(playbackTime));
+        int frame = (int)backgroundLayer.videoPlayer.frame;
+        yield return StartCoroutine(itemLayer.ScrollToFrame(frame));
+        yield return StartCoroutine(backgroundLayer.ScrollToFrame(frame));
+      //  yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(playbackTime));
+       // yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(playbackTime));
         UnityEngine.Debug.Log("moving to playback time " + playbackTime.ToString());
         yield return new WaitForSeconds(1.5f); //presentation/animation time
         yield return StartCoroutine(RemoveVideoLayer(itemLayer));

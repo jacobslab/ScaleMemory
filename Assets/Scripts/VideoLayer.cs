@@ -80,6 +80,12 @@ public class VideoLayer : MonoBehaviour
         yield return null;
     }
 
+    public IEnumerator ScrollToFrame(int frameNum)
+    {
+        videoPlayer.frame = frameNum;
+        yield return null;
+    }
+
     public IEnumerator ScrollToPlaybackTime(double playbackTime)
     {
         videoPlayer.time = playbackTime;

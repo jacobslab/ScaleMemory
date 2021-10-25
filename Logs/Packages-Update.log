@@ -75,3 +75,11 @@ The following packages were updated:
   com.unity.xr.legacyinputhelpers from version 2.0.2 to 2.1.7
 The following packages were removed:
   com.unity.package-manager-ui@2.2.0
+
+=== Mon Oct 25 12:00:05 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ide.vscode from version 1.2.3 to 1.2.4
