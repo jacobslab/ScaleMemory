@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,21 +53,11 @@
     <UnityVersion>2019.4.31f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets/CarMover.cs" />
     <Compile Include="Assets/CarStopper.cs" />
-    <Compile Include="Assets/CyberPunk_City/Scripts/Camera_particale.cs" />
-    <Compile Include="Assets/CyberPunk_City/Scripts/Rotate.cs" />
-    <Compile Include="Assets/CyberPunk_City/Scripts/Rotate_2.cs" />
-    <Compile Include="Assets/CyberPunk_City/Scripts/SimpleCameraController.cs" />
     <Compile Include="Assets/DefaultItem.cs" />
     <Compile Include="Assets/ElememTestRunner.cs" />
     <Compile Include="Assets/LapCounter.cs" />
-    <Compile Include="Assets/MCP/scripts/AdvancedCA.cs" />
-    <Compile Include="Assets/MCP/scripts/DynamicDOF.cs" />
-    <Compile Include="Assets/MCP/scripts/Filmic.cs" />
     <Compile Include="Assets/ObjectController.cs" />
     <Compile Include="Assets/ObjectSpawner.cs" />
     <Compile Include="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
@@ -169,20 +159,10 @@
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMPro.cginc" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Overlay.shader" />
-    <None Include="Assets/race-track-lake/readme.txt" />
-    <None Include="Assets/Shaders/VolumetricLight.shader" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap.shader" />
-    <None Include="Assets/Shaders/3DTextUnderShader.shader" />
     <None Include="Assets/Prefabs/RamulatorInterface/usage_notes.txt" />
     <None Include="Assets/UGUIKit Flat/ReadMe.txt" />
-    <None Include="Assets/Shaders/BlitAdd.shader" />
-    <None Include="Assets/Shaders/BilateralBlur.shader" />
-    <None Include="Assets/Shaders/TSF.shader" />
-    <None Include="Assets/race-track-lake/readmore.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface-Mobile.shader" />
-    <None Include="Assets/AllSkyFree/AllSkyFree_Readme.txt" />
-    <None Include="Assets/Shaders/TSFOutline.shader" />
-    <None Include="Assets/subj_00000001600447465713/session_0/subj_00000001600447465713Log.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Custom-Atlas.shader" />
@@ -190,10 +170,8 @@
     <None Include="Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMPro_Surface.cginc" />
-    <None Include="Assets/Shaders/DiffuseParticles.shader" />
     <None Include="Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets/Racing Tracks/Misc/Night Building.shader" />
     <None Include="Assets/list.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF Overlay.shader" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Mobile.shader" />
