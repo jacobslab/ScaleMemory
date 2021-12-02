@@ -16,7 +16,7 @@ public class Weather
     public enum WeatherType
     {
         Sunny,
-        Foggy,
+        Rainy,
         Night
     };
     public WeatherType weatherMode;

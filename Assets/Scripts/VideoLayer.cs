@@ -25,10 +25,40 @@ public class VideoLayer : MonoBehaviour
 
     }
 
+    private void OnEnable()
+    {
+
+        videoPlayer.loopPointReached += OnVideoLoop;
+    }
+
+    private void OnDisable()
+    {
+        videoPlayer.loopPointReached -= OnVideoLoop;
+    }
+    void OnVideoLoop(VideoPlayer vp)
+    {
+        UnityEngine.Debug.Log("looping");
+        LapCounter.CompleteLap();
+        StartCoroutine("ResetLoopChecker");
+    }
+
+    IEnumerator ResetLoopChecker()
+    {
+        //videoPlayer.loopPointReached -= OnVideoLoop;
+        //yield return new WaitForSeconds(1f);
+        //videoPlayer.loopPointReached += OnVideoLoop;
+        //UnityEngine.Debug.Log("reset loop checker");
+        yield return null;
+    }
+
     private void Update()
     {
-        if(gameObject.name == "BACKGROUND")
-            UnityEngine.Debug.Log("playback time " + videoPlayer.time.ToString());
+        //if(videoPlayer.frame == (long)videoPlayer.frameCount)
+        //{
+        //    OnVideoLoop();
+        //}
+        //if(gameObject.name == "BACKGROUND")
+        //    UnityEngine.Debug.Log("playback time " + videoPlayer.time.ToString());
     }
 
     public IEnumerator PrepareVideoTexture()
@@ -73,6 +103,7 @@ public class VideoLayer : MonoBehaviour
 
     public IEnumerator TogglePlayback(bool shouldPause)
     {
+        UnityEngine.Debug.Log("should pause? " + shouldPause.ToString());
         if (shouldPause)
             videoPlayer.Pause();
         else

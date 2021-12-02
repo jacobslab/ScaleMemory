@@ -32,6 +32,9 @@ public class Experiment : MonoBehaviour {
     //audio clips
     public AudioClip magicWand;
 
+    //video player
+    public VideoLayerManager videoLayerManager;
+
     public GameObject imagePlanePrefab;
 
     public List<Transform> spawnableWaypoints;
@@ -286,23 +289,26 @@ public class Experiment : MonoBehaviour {
         switch (targetWeather.weatherMode)
         {
             case Weather.WeatherType.Sunny:
-                SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
-                currScene = SceneManager.GetSceneByName("DayLighting");
-                ppVolumeRef.profile = pp_Day;
-                RenderSettings.skybox = clearSkybox;
+                UnityEngine.Debug.Log("load sunny");
+                //SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
+                //currScene = SceneManager.GetSceneByName("DayLighting");
+                //ppVolumeRef.profile = pp_Day;
+                //RenderSettings.skybox = clearSkybox;
                 break;
-            case Weather.WeatherType.Foggy:
-                SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
-                currScene = SceneManager.GetSceneByName("RainyLighting");
-                ppVolumeRef.profile = pp_Rainy;
-                RenderSettings.skybox = overcastSkybox;
+            case Weather.WeatherType.Rainy:
+                UnityEngine.Debug.Log("load rainy");
+                //SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
+                //currScene = SceneManager.GetSceneByName("RainyLighting");
+                //ppVolumeRef.profile = pp_Rainy;
+                //RenderSettings.skybox = overcastSkybox;
                 break;
             case Weather.WeatherType.Night:
+                UnityEngine.Debug.Log("load night");
                 //load dusk scene by default first
-                SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
-                currScene = SceneManager.GetSceneByName("DuskLighting");
-                ppVolumeRef.profile = pp_Night;
-                RenderSettings.skybox = nightSkybox;
+                //SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
+                //currScene = SceneManager.GetSceneByName("DuskLighting");
+                //ppVolumeRef.profile = pp_Night;
+                //RenderSettings.skybox = nightSkybox;
                 break;
 
         }
@@ -473,10 +479,12 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator BeginExperiment()
     {
-
+        //skip this if we're in the web version
+#if !UNITY_WEBGL
         yield return StartCoroutine(GetSubjectInfo());
+        subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
+#endif
 
-        // subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
 #if !UNITY_EDITOR
         yield return StartCoroutine(InitLogging());
 #endif
@@ -556,20 +564,21 @@ public class Experiment : MonoBehaviour {
         trialLogTrack.LogIntroInstruction(false);
 
 
-        player.GetComponent<CarMover>().TurnCarEngine(true);
+       // player.GetComponent<CarMover>().TurnCarEngine(true);
 
 
         verbalRetrieval = false;
 
         //setting up car but do not move it yet
-        StartCoroutine(player.GetComponent<CarMover>().MoveCar());
-        SetCarMovement(false);
+        //StartCoroutine(player.GetComponent<CarMover>().MoveCar());
+        //SetCarMovement(false);
+        
 
         //track familiarization
-        //  yield return StartCoroutine("BeginTrackScreening");
+          yield return StartCoroutine("BeginTrackScreening");
 
         //practice
-        //    yield return StartCoroutine("BeginPractice");
+         yield return StartCoroutine("BeginPractice");
 
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
@@ -585,7 +594,7 @@ public class Experiment : MonoBehaviour {
         uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
 
-        player.GetComponent<CarMover>().TurnCarEngine(false);
+        //player.GetComponent<CarMover>().TurnCarEngine(false);
         Application.Quit();
         yield return null;
     }
@@ -626,19 +635,23 @@ public class Experiment : MonoBehaviour {
     {
 
         currentStage = TaskStage.TrackScreening;
-        overheadCam.SetActive(true);
-        trackFamiliarizationQuad.SetActive(true);
-        playerIndicatorSphere.SetActive(true);
+        //overheadCam.SetActive(true);
+        //trackFamiliarizationQuad.SetActive(true);
+        //playerIndicatorSphere.SetActive(true);
         trialLogTrack.LogTaskStage(currentStage, true);
 
 
         uiController.trackScreeningPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
         uiController.trackScreeningPanel.alpha = 0f;
-        player.gameObject.SetActive(true);
-        trafficLightController.MakeVisible(true);
-        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        SetCarMovement(true);
+        //player.gameObject.SetActive(true);
+        //trafficLightController.MakeVisible(true);
+        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+        //SetCarMovement(true);
+        yield return StartCoroutine(videoLayerManager.ResumePlayback());
+
+        //do one single lap of the sunny weather
+        
 
         trafficLightController.MakeVisible(false);
         while (LapCounter.lapCount < 1)
@@ -648,10 +661,10 @@ public class Experiment : MonoBehaviour {
         //  SetCarMovement(false);
 
         LapCounter.lapCount = 0;
-        SetCarMovement(false);
-        overheadCam.SetActive(false);
-        trackFamiliarizationQuad.SetActive(false);
-        playerIndicatorSphere.SetActive(false);
+        //SetCarMovement(false);
+        //overheadCam.SetActive(false);
+        //trackFamiliarizationQuad.SetActive(false);
+        //playerIndicatorSphere.SetActive(false);
         trialLogTrack.LogTaskStage(currentStage, false);
         yield return null;
     }
@@ -1042,17 +1055,17 @@ public class Experiment : MonoBehaviour {
         }
 
         //reset the waypoint tracker of the car
-        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-        player.GetComponent<CarMover>().ResetWaypointTarget();
+        //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        //yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+        //player.GetComponent<CarMover>().ResetWaypointTarget();
 
-        player.transform.position = startTransform.position;
-            player.transform.rotation = startTransform.rotation;
+        //player.transform.position = startTransform.position;
+        //    player.transform.rotation = startTransform.rotation;
             //int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
             //player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
 
-            chequeredFlag.transform.position = startTransform.position;
-            chequeredFlag.transform.rotation = startTransform.rotation;
+            //chequeredFlag.transform.position = startTransform.position;
+            //chequeredFlag.transform.rotation = startTransform.rotation;
 
             //	player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
             yield return StartCoroutine(PickEncodingLocations());
@@ -1060,7 +1073,7 @@ public class Experiment : MonoBehaviour {
 
         if (!skipEncoding)
         {
-
+            yield return StartCoroutine(videoLayerManager.ResumePlayback());
             while (LapCounter.lapCount < 1)
             {
                 trafficLightController.MakeVisible(true);
@@ -1598,7 +1611,7 @@ public class Experiment : MonoBehaviour {
                     currentWeather = new Weather(Weather.WeatherType.Sunny);
                     break;
                 case 1:
-                    currentWeather = new Weather(Weather.WeatherType.Foggy);
+                    currentWeather = new Weather(Weather.WeatherType.Rainy);
                     break;
                 case 2:
                     currentWeather = new Weather(Weather.WeatherType.Night);

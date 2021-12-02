@@ -8,15 +8,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/BaseScene.unity
     guid: bff8c474234994abba42e91fcc053a31
-  - enabled: 0
-    path: Assets/DuskLighting.unity
-    guid: 52827e2a231049740add995f66a0b771
-  - enabled: 0
-    path: Assets/DayLighting.unity
-    guid: f3ec2762c0a8841e6aab3dfb86ea35af
-  - enabled: 0
-    path: Assets/RainyLighting.unity
-    guid: 63073269979ca47b295ac414bb32f6e6
   - enabled: 1
     path: Assets/VideoScene.unity
     guid: cc6bf8d3e0072405ebba2ad99b296afb

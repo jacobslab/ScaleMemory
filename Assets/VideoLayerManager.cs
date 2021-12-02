@@ -36,9 +36,18 @@ public class VideoLayerManager : MonoBehaviour
         layerList = new List<VideoLayer>();
         
         StartCoroutine("SetupLayers");
-        StartCoroutine("RunSpawnProcedure");
+        //StartCoroutine("RunSpawnProcedure");
 
         //StartCoroutine("PrepareForMatchProcedure");
+    }
+
+    public IEnumerator ResumePlayback()
+    {
+        UnityEngine.Debug.Log("RESUMING playback");
+        yield return StartCoroutine("TogglePauseLayerPlayback", false);
+
+           yield return null;
+
     }
 
     IEnumerator SetupLayers()
@@ -122,8 +131,12 @@ public class VideoLayerManager : MonoBehaviour
         //check to see if we should immediately begin playback of the layer
         if (isVisible)
             layer.ToggleLayerVisibility(true);
-
+        
         yield return StartCoroutine(layer.BeginPlayback());
+
+        //pause immediately after
+
+        yield return StartCoroutine("TogglePauseLayerPlayback", true);
 
         yield return null;
     }
@@ -133,22 +146,22 @@ public class VideoLayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.M))
-        {
-            StartCoroutine("MatchProcedure");
-        }
+        //if(Input.GetKeyDown(KeyCode.M))
+        //{
+        //    StartCoroutine("MatchProcedure");
+        //}
         if (Input.GetKeyDown(KeyCode.S))
         {
             StartCoroutine("SpawnItem");
         }
-            if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartCoroutine("TogglePauseLayerPlayback",true);
-        }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            StartCoroutine("TogglePauseLayerPlayback",false);
-        }
+        //    if (Input.GetKeyDown(KeyCode.R))
+        //{
+        //    StartCoroutine("TogglePauseLayerPlayback",true);
+        //}
+        //if (Input.GetKeyDown(KeyCode.X))
+        //{
+        //    StartCoroutine("TogglePauseLayerPlayback",false);
+        //}
     }
 
     IEnumerator TogglePauseLayerPlayback(bool isPaused)
