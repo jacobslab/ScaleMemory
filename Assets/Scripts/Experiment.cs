@@ -660,6 +660,8 @@ public class Experiment : MonoBehaviour {
         }
         //  SetCarMovement(false);
 
+        yield return StartCoroutine(videoLayerManager.ReturnToStart());
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         LapCounter.lapCount = 0;
         //SetCarMovement(false);
         //overheadCam.SetActive(false);
@@ -1076,31 +1078,36 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
             while (LapCounter.lapCount < 1)
             {
-                trafficLightController.MakeVisible(true);
-                SetCarMovement(false);
+                //trafficLightController.MakeVisible(true);
+                //SetCarMovement(false);
                 //set drive mode to auto
-                player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-                yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+                //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+                //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
 
 
 
 
-                trafficLightController.MakeVisible(false);
+                //trafficLightController.MakeVisible(false);
 
                 UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
-                SetCarMovement(true);
+                //SetCarMovement(true);
                 LapCounter.canStop = false;
                 while (!LapCounter.canStop)
                 {
                     yield return 0;
                 }
-                SetCarMovement(false);
+                //SetCarMovement(false);
                 LapCounter.canStop = false;
-                //can press spacebar to stop
-                float forceStopTimer = 0f;
-                trafficLightController.MakeVisible(true);
-                yield return StartCoroutine(trafficLightController.ShowRed());
 
+                yield return StartCoroutine(videoLayerManager.ReturnToStart());
+                yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+
+                //can press spacebar to stop
+                //trafficLightController.MakeVisible(true);
+                //yield return StartCoroutine(trafficLightController.ShowRed());
+
+                UnityEngine.Debug.Log("stopping now");
+                float forceStopTimer = 0f;
                 bool forceStopped = false;
                 while (!forceStopped)
                 {
@@ -1116,7 +1123,7 @@ public class Experiment : MonoBehaviour {
                 forceStopped = false;
 
 
-                trafficLightController.MakeVisible(false);
+                //trafficLightController.MakeVisible(false);
 
                 //reset collisions for encoding objects
                 for (int k = 0; k < spawnedObjects.Count; k++)
@@ -1487,11 +1494,11 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunSpatialRetrieval()
     {
-        SetCarMovement(false);
+        //SetCarMovement(false);
         player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(true);
         yield return StartCoroutine(GenerateLureSpots()); //create lures
-        trafficLightController.MakeVisible(false);
-        carSpeed = 0f;
+        //trafficLightController.MakeVisible(false);
+        //carSpeed = 0f;
         spatialFeedbackStatus.Clear();
         spatialFeedbackStatus = new List<bool>();
         UnityEngine.Debug.Log("beginning spatial retrieval");
@@ -1523,15 +1530,15 @@ public class Experiment : MonoBehaviour {
             trialLogTrack.LogInstructions(false);
         }
 
-        chequeredFlag.SetActive(false);
+        //chequeredFlag.SetActive(false);
 
 
-        trafficLightController.MakeVisible(true);
-        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        SetCarMovement(false);
+        //trafficLightController.MakeVisible(true);
+        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+        //SetCarMovement(false);
 
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
-        trafficLightController.MakeVisible(false);
+        //trafficLightController.MakeVisible(false);
 
         //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
 
@@ -1562,8 +1569,9 @@ public class Experiment : MonoBehaviour {
             //yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
 
             yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
-            SetCarMovement(true);
+            //SetCarMovement(true);
 
+            yield return StartCoroutine(videoLayerManager.ResumePlayback());
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             //  uiController.targetTextPanel.alpha = 1f;
 

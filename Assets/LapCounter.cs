@@ -19,7 +19,16 @@ public class LapCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+
+    //triggered by VideoLayer
+    public static void OnCompleteVideoLoop()
+    {
+        canStop = true;
+        UnityEngine.Debug.Log("completed video loop");
+        CompleteLap();
     }
 
     //called by external scripts

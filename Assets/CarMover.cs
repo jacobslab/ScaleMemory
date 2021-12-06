@@ -353,6 +353,7 @@ public class CarMover : MonoBehaviour
     {
         UnityEngine.Debug.Log("setting drive mode to " + newDriveMode.ToString());
         currentDriveMode = newDriveMode;
+        Experiment.Instance.videoLayerManager.SetNewPlaybackMode(currentDriveMode);
     }
 
     // Update is called once per frame
