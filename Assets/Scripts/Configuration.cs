@@ -30,6 +30,11 @@ public class Configuration : MonoBehaviour {
     public static float minJitterTime = 0.25f;
     public static float maxJitterTime = 0.8f;
 
+    //spawn possibility buffer to start and end of loop
+    public static int startBuffer = 90;
+    public static int endBuffer = 90;
+
+    public static int minFramesBetweenStimuli = 75;
 
     public static int luresPerTrial = 2;
 

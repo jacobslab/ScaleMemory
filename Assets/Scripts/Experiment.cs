@@ -98,13 +98,19 @@ public class Experiment : MonoBehaviour {
     public TaskStage currentStage = TaskStage.ItemScreening;
 
     public List<GameObject> spawnedObjects;
-    public List<Vector3> spawnLocations;
+    //public List<Vector3> spawnLocations;
+    public List<int> spawnFrames;
+
+    private List<int> sortedSpawnFrames;
+    private List<int> sortedRetrievalFrames;
 
     public List<GameObject> lureObjects;
-    public List<Vector3> lureLocations;
+    //public List<Vector3> lureLocations;
+    public List<int> lureFrames;
 
     private List<GameObject> retrievalObjList;
     private List<Vector3> retrievalPositions;
+    private List<int> retrievalFrames;
 
     public List<Transform> startableTransforms;
      
@@ -128,6 +134,9 @@ public class Experiment : MonoBehaviour {
 
     private GameObject leftSpawnObj;
     private GameObject rightSpawnObj;
+
+
+    private int currentMaxFrames = 0;
 
 
     //blackrock variables
@@ -175,6 +184,7 @@ public class Experiment : MonoBehaviour {
                                              //public Text defaultLoggingPathDisplay;
                                              //public InputField loggingPathInputField;
 
+    public Dictionary<int, Transform> playerPosDict = new Dictionary<int,Transform>();
 
     public static Subject currentSubject
     {
@@ -215,6 +225,8 @@ public class Experiment : MonoBehaviour {
 
     public static bool isPractice = false;
 
+    private string camTransformPath;
+
     private Scene currScene;
 
 
@@ -222,7 +234,7 @@ public class Experiment : MonoBehaviour {
     public Material overcastSkybox;
     public Material nightSkybox;
 
-
+    public static int nextSpawnFrame = -1000; //if no spawn, then it will be at -1000
 
 
     public TCPServer tcpServer;
@@ -245,7 +257,7 @@ public class Experiment : MonoBehaviour {
         carSpeed = 0f;
 
         //initialize the weather as Night, by default
-        currentWeather = new Weather(Weather.WeatherType.Night);
+        currentWeather = new Weather(Weather.WeatherType.Rainy);
         ChangeLighting(currentWeather);
 
 
@@ -264,14 +276,62 @@ public class Experiment : MonoBehaviour {
         spatialFeedbackPosition = new List<Vector3>();
         StartCoroutine("BeginExperiment");
         spawnedObjects = new List<GameObject>();
-        spawnLocations = new List<Vector3>();
+        //spawnLocations = new List<Vector3>();
+        spawnFrames = new List<int>();
         lureObjects = new List<GameObject>();
-        lureLocations = new List<Vector3>();
+        //lureLocations = new List<Vector3>();
+        lureFrames = new List<int>();
         retrievalObjList = new List<GameObject>();
         retrievalPositions = new List<Vector3>();
+        retrievalFrames = new List<int>();
 
         blockCount = totalTrials / trialsPerBlock;
 
+#if UNITY_EDITOR_OSX
+        camTransformPath = Application.dataPath + "/cam_transform.txt";
+#endif
+
+        StartCoroutine("ReadCamTransform");
+
+
+    }
+
+    IEnumerator ReadCamTransform()
+    {
+        string path = camTransformPath;
+
+        using (StreamReader sr = new StreamReader(path))
+        {
+            int index = 0;
+            while (sr.Peek() >= 0)
+            {
+                string currentLine = sr.ReadLine();
+                string currIndex = currentLine.Split(':')[1];
+                string currPos = currIndex.Split('R')[0];
+                string currRot = currentLine.Split(':')[2];
+
+                float posX = float.Parse(currPos.Split(',')[0]);
+                float posY = float.Parse(currPos.Split(',')[1]);
+                float posZ = float.Parse(currPos.Split(',')[2]);
+
+
+                float rotX = float.Parse(currRot.Split(',')[0]);
+                float rotY = float.Parse(currRot.Split(',')[1]);
+                float rotZ = float.Parse(currRot.Split(',')[2]);
+
+                Transform currTrans = gameObject.transform;
+                currTrans.position = new Vector3(posX, posY, posZ);
+                currTrans.eulerAngles = new Vector3(rotX, rotY, rotZ);
+
+                //then add it to the dict
+                playerPosDict.Add(index,currTrans);
+
+                index++;
+            }
+        }
+
+
+        yield return null;
     }
 
 
@@ -279,17 +339,19 @@ public class Experiment : MonoBehaviour {
     void ChangeLighting(Weather targetWeather)
     {
         currentWeather = targetWeather;
+        currentMaxFrames = videoLayerManager.GetTotalFramesOfCurrentClip();
 
         //unload the current scene first,if one is loaded
 
-        if (currScene != null && currScene.IsValid())
-            SceneManager.UnloadSceneAsync(currScene);
+        //if (currScene != null && currScene.IsValid())
+        //    SceneManager.UnloadSceneAsync(currScene);
 
 
         switch (targetWeather.weatherMode)
         {
             case Weather.WeatherType.Sunny:
                 UnityEngine.Debug.Log("load sunny");
+                videoLayerManager.UpdateWeather(Weather.WeatherType.Sunny);
                 //SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
                 //currScene = SceneManager.GetSceneByName("DayLighting");
                 //ppVolumeRef.profile = pp_Day;
@@ -297,6 +359,7 @@ public class Experiment : MonoBehaviour {
                 break;
             case Weather.WeatherType.Rainy:
                 UnityEngine.Debug.Log("load rainy");
+                videoLayerManager.UpdateWeather(Weather.WeatherType.Rainy);
                 //SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
                 //currScene = SceneManager.GetSceneByName("RainyLighting");
                 //ppVolumeRef.profile = pp_Rainy;
@@ -304,6 +367,7 @@ public class Experiment : MonoBehaviour {
                 break;
             case Weather.WeatherType.Night:
                 UnityEngine.Debug.Log("load night");
+                videoLayerManager.UpdateWeather(Weather.WeatherType.Night);
                 //load dusk scene by default first
                 //SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
                 //currScene = SceneManager.GetSceneByName("DuskLighting");
@@ -372,81 +436,6 @@ public class Experiment : MonoBehaviour {
     {
         StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
     }
-    /*
-	IEnumerator SpawnZones()
-    {
-		int prevRandom = 0;
-		int waypointCount = spawnableWaypoints.Count;
-		List<int> tempIntList = new List<int>();
-		for (int i=0;i<waypointCount;i++)
-        {
-			tempIntList.Add(i);
-        }
-
-		List<Transform> chosenWaypoints = new List<Transform>();
-		for(int j=0;j<2;j++)
-        {
-			int random = UnityEngine.Random.Range(2, tempIntList.Count-3);
-			
-			//here we make sure the two spawn locations are not too close to each other
-			if(j ==1)
-            {
-				int diff = Mathf.Abs(random - prevRandom); 
-				while(diff < 5)
-                {
-					random = UnityEngine.Random.Range(2, tempIntList.Count - 3);
-					diff = Mathf.Abs(random - prevRandom);
-					yield return 0;
-                }
-            }
-			else
-            {
-				prevRandom = random; //set index for later comparison
-            }
-			UnityEngine.Debug.Log("random int " + random.ToString());
-
-			chosenWaypoints.Add(spawnableWaypoints[random]);
-			tempIntList.RemoveAt(random);
-			tempIntList.RemoveAt(random-1);
-			tempIntList.RemoveAt(random - 2);
-
-			if (random + 1 < tempIntList.Count)
-			{
-				tempIntList.RemoveAt(random + 1);
-			}
-
-			if (random + 2 < tempIntList.Count)
-			{
-				tempIntList.RemoveAt(random + 2);
-			}
-
-			float yAngle = 0f;
-
-			if(random<=7 || random>26)
-            {
-				yAngle = 0f;
-            }
-			else
-            {
-				yAngle = 90f;
-            }
-
-			if(j==1)
-            {
-				slowZoneObj = Instantiate(slowZonePrefab, chosenWaypoints[chosenWaypoints.Count - 1].position,Quaternion.Euler(new Vector3(0f,yAngle,0f))) as GameObject;
-				trialLogTrack.LogSlowZoneLocation(slowZoneObj.transform.position);
-            }
-			else
-            {
-				speedZoneObj = Instantiate(speedZonePrefab, chosenWaypoints[chosenWaypoints.Count - 1].position, Quaternion.Euler(new Vector3(0f, yAngle, 0f))) as GameObject;
-				trialLogTrack.LogSpeedZoneLocation(speedZoneObj.transform.position);
-			}
-
-		}
-		yield return null;
-    }
-	*/
-
 
     IEnumerator ConnectToElemem()
     {
@@ -575,7 +564,7 @@ public class Experiment : MonoBehaviour {
         
 
         //track familiarization
-          yield return StartCoroutine("BeginTrackScreening");
+          //yield return StartCoroutine("BeginTrackScreening");
 
         //practice
          yield return StartCoroutine("BeginPractice");
@@ -633,7 +622,7 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator BeginTrackScreening()
     {
-
+        UnityEngine.Debug.Log("starting track screening");
         currentStage = TaskStage.TrackScreening;
         //overheadCam.SetActive(true);
         //trackFamiliarizationQuad.SetActive(true);
@@ -668,12 +657,15 @@ public class Experiment : MonoBehaviour {
         //trackFamiliarizationQuad.SetActive(false);
         //playerIndicatorSphere.SetActive(false);
         trialLogTrack.LogTaskStage(currentStage, false);
+
+        UnityEngine.Debug.Log("finished track screening");
         yield return null;
     }
 
 
     IEnumerator BeginPractice()
     {
+        UnityEngine.Debug.Log("beginning practice");
         isPractice = true;
         currentStage = TaskStage.Practice;
         yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
@@ -1018,20 +1010,20 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < Configuration.luresPerTrial; i++)
         {
-            GameObject lureParent = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            //GameObject lureParent = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
 
-            GameObject colliderBoxRef = Instantiate(objController.lureColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            //GameObject colliderBoxRef = Instantiate(objController.lureColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
             //parent the collider box with the lure 
-            colliderBoxRef.transform.parent = lureParent.transform;
+            //colliderBoxRef.transform.parent = lureParent.transform;
 
-            //associate the stimulus object 
-            lureParent.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
-            lureParent.GetComponent<VisibilityToggler>().TurnVisible(false);
+            ////associate the stimulus object 
+            //lureParent.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
+            //lureParent.GetComponent<VisibilityToggler>().TurnVisible(false);
 
-            lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
-            lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
+            //lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
+            //lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
 
-            lureObjects.Add(lureParent);
+            //lureObjects.Add(lureParent);
         }
 
 
@@ -1071,7 +1063,9 @@ public class Experiment : MonoBehaviour {
 
             //	player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
             yield return StartCoroutine(PickEncodingLocations());
-            yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
+
+        yield return StartCoroutine(UpdateNextSpawnFrame());
+            //yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
 
         if (!skipEncoding)
         {
@@ -1099,7 +1093,6 @@ public class Experiment : MonoBehaviour {
                 //SetCarMovement(false);
                 LapCounter.canStop = false;
 
-                yield return StartCoroutine(videoLayerManager.ReturnToStart());
                 yield return StartCoroutine(videoLayerManager.PauseAllLayers());
 
                 //can press spacebar to stop
@@ -1136,6 +1129,9 @@ public class Experiment : MonoBehaviour {
                 yield return new WaitForSeconds(1f);
                 ToggleFixation(true);
 
+                //return the video to the start
+                yield return StartCoroutine(videoLayerManager.ReturnToStart());
+
                 float totalFixationTime = fixedTime + UnityEngine.Random.Range(0.1f, 0.3f);
                 yield return new WaitForSeconds(totalFixationTime);
                 ToggleFixation(false);
@@ -1168,7 +1164,7 @@ public class Experiment : MonoBehaviour {
             }
 
             //reset everything before the next block begins
-            spawnLocations.Clear();
+            spawnFrames.Clear();
             spawnedObjects.Clear();
 
         //destroy all lure objects
@@ -1181,7 +1177,7 @@ public class Experiment : MonoBehaviour {
             }
         }
             //reset lure lists as well
-            lureLocations.Clear();
+            lureFrames.Clear();
             lureObjects.Clear();
 
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
@@ -1949,6 +1945,39 @@ public class Experiment : MonoBehaviour {
 
     }
 
+    public IEnumerator CompleteSpawnProcedure()
+    {
+        yield return StartCoroutine(UpdateNextSpawnFrame());
+        yield return null;
+    }
+
+     IEnumerator UpdateNextSpawnFrame()
+    {
+        if (currentStage == TaskStage.Encoding)
+        {
+            if (sortedSpawnFrames.Count > 0)
+            {
+                nextSpawnFrame = sortedSpawnFrames[0];
+                UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
+                sortedSpawnFrames.RemoveAt(0);
+            }
+        }
+
+        //this includes both stim items and lures
+        else
+        {
+            if (sortedRetrievalFrames.Count > 0)
+            {
+                nextSpawnFrame = sortedRetrievalFrames[0];
+                UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
+                sortedRetrievalFrames.RemoveAt(0);
+            }
+        }
+
+
+        yield return null;
+    }
+
     void ToggleFixation(bool shouldShow)
     {
         
@@ -2047,12 +2076,16 @@ public class Experiment : MonoBehaviour {
     IEnumerator PickEncodingLocations()
     {
         List<int> intPicker = new List<int>();
-        List<Vector3> waypointLocations = new List<Vector3>();
-        List<Vector3> chosenEncodingLocations = new List<Vector3>();
-        for (int i = 0; i < spawnableWaypoints.Count; i++)
+        List<int> waypointFrames = new List<int>();
+        List<int> chosenEncodingFrames = new List<int>();
+
+
+
+        //we keep last three and first three seconds as buffer
+        for (int i = Configuration.startBuffer; i < currentMaxFrames - Configuration.endBuffer; i++)
         {
             intPicker.Add(i);
-            waypointLocations.Add(spawnableWaypoints[i].position);
+            waypointFrames.Add(i);
         }
 
         List<int> tempStorage = new List<int>();
@@ -2061,124 +2094,54 @@ public class Experiment : MonoBehaviour {
         //we pick locations for encoding objects AND lure
         for (int i = 0; i < listLength; i++)
         {
-            int randIndex = UnityEngine.Random.Range(2, intPicker.Count); // we won't be picking too close to beginning/end
-            //UnityEngine.Debug.Log("rand index " + randIndex.ToString());
-            /*
-            while (randIndex - Configuration.minGapBetweenStimuli < 0 && randIndex + Configuration.minGapBetweenStimuli > intPicker.Count - 1)
-            {
-                randIndex = UnityEngine.Random.Range(0,intPicker.Count);
-                yield return 0;
-            }
-            */
-
+            int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
             int randInt = intPicker[randIndex];
             int nearestIndex = 0;
-            UnityEngine.Debug.Log("picked " + randInt.ToString());
+            UnityEngine.Debug.Log("picked " + intPicker[randIndex].ToString());
             
 
-            chosenEncodingLocations.Add(waypointLocations[randInt]);
-            string temp = "";
-         //   UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
-            for (int j = 0; j < intPicker.Count; j++)
+            chosenEncodingFrames.Add(waypointFrames[randIndex]);
+            int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 2);
+            int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 2);
+
+            //UnityEngine.Debug.Log("between " + intPicker[minLimit].ToString() + "  and  " + intPicker[maxLimit].ToString());
+            //UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
+            //UnityEngine.Debug.Log("min " + minLimit.ToString() + " max " + maxLimit.ToString());
+            for(int j=minLimit; j<maxLimit;j++)
             {
-                temp += intPicker[j].ToString() + ",";
+                
+                    //UnityEngine.Debug.Log("comparing " + intPicker[minLimit+1].ToString() + " with " + randInt.ToString());
+                    if (Mathf.Abs(intPicker[minLimit+1] - randInt) < Configuration.minFramesBetweenStimuli)
+                    {
+                        //UnityEngine.Debug.Log("removing " + intPicker[minLimit + 1].ToString());
+                        intPicker.RemoveAt(minLimit+1);
+                    }
+                
             }
-            // intPicker.RemoveAt(randIndex);
-            nearestIndex = FindNearestIndex(tempStorage,randInt);
-                    intPicker.RemoveAt(randIndex); //removing self
-
-            //we only remove if the remaining adjacent indices are too close to each other in value 
-            if (DetermineWaypointRemoval(randIndex, intPicker))
-            {
-                if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
-                {
-                 //   UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
-                    intPicker.RemoveAt(randIndex); //removing next
-                }
-            }
-
-            if (DetermineWaypointRemoval(randIndex, intPicker))
-            { 
-                if (Mathf.Abs(randInt - intPicker[randIndex]) < Configuration.minGapBetweenStimuli)
-                {
-                  //  UnityEngine.Debug.Log("removing " + intPicker[randIndex]);
-                    intPicker.RemoveAt(randIndex); //removing next
-                }
-            }
-
-            if (DetermineWaypointRemoval(randIndex-1, intPicker))
-            {
-                if (Mathf.Abs(randInt - intPicker[randIndex - 1]) < Configuration.minGapBetweenStimuli)
-                {
-                  //  UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
-                    intPicker.RemoveAt(randIndex - 1); // removing previous
-                }
-            }
-
-            if (DetermineWaypointRemoval(randIndex-2, intPicker))
-            {
-                if (Mathf.Abs(randInt - intPicker[randIndex - 2]) < Configuration.minGapBetweenStimuli)
-                {
-                   // UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
-                    intPicker.RemoveAt(randIndex - 2); // removing previous
-                }
-            }
-
-            //   }
-
-            //  UnityEngine.Debug.Log("removing " + intPicker[randIndex]); //remove self first
-            //  intPicker.RemoveAt(randIndex);
-
-            /*
-
-            if (Mathf.Abs(intPicker[randIndex - 1] - randInt) < Configuration.minGapBetweenStimuli)
-            {
-                UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
-                intPicker.RemoveAt(randIndex - 1);
-            }
-
-            if (Mathf.Abs(intPicker[randIndex - 2] - randInt) < Configuration.minGapBetweenStimuli)
-            {
-                UnityEngine.Debug.Log("removing " + intPicker[randIndex - 2]);
-                intPicker.RemoveAt(randIndex - 2);
-            }
-            /*
-            UnityEngine.Debug.Log("removing " + intPicker[randIndex-1]);
-            intPicker.RemoveAt(randIndex-1);
-            UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
-            intPicker.RemoveAt(randIndex - 1);
-            UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
-            intPicker.RemoveAt(randIndex - 1);
-            UnityEngine.Debug.Log("removing " + intPicker[randIndex - 1]);
-            intPicker.RemoveAt(randIndex - 1);
-            */
-
-            //  }
-
             if (i < listLength)
             {
                 UnityEngine.Debug.Log("picking object at  " + randInt.ToString());
                 tempStorage.Add(randInt);
-                spawnLocations.Add(chosenEncodingLocations[i]);
+                spawnFrames.Add(chosenEncodingFrames[i]);
             }
 
         }
 
         intPicker.Clear();
-        waypointLocations.Clear();
+        waypointFrames.Clear();
 
         //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
-        for (int i = 0; i < spawnableWaypoints.Count; i++)
+        for (int i = Configuration.startBuffer; i < currentMaxFrames - Configuration.endBuffer; i++)
         {
             //we will only add to this list if it doesn't have an existing item on it
             if (!CheckIndexHits(tempStorage, i))
             {
                 intPicker.Add(i);
-                waypointLocations.Add(spawnableWaypoints[i].position);
+                waypointFrames.Add(i);
             }
         }
 
-        //5 lures per trial
+        //2 lures per trial
         for (int j = 0; j < Configuration.luresPerTrial; j++)
         {
             int randIndex = UnityEngine.Random.Range(0, intPicker.Count);
@@ -2186,7 +2149,59 @@ public class Experiment : MonoBehaviour {
             int randInt = intPicker[randIndex];
             intPicker.RemoveAt(randIndex);
             UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
-            lureLocations.Add(waypointLocations[randIndex]);
+            lureFrames.Add(randInt);
+        }
+        UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
+        List<int> sortedLureFrames = DuplicateList(lureFrames);
+        UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
+        sortedLureFrames.Sort();
+
+        UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
+        List<int> sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
+        UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
+        sortedWaypointFrames.Sort();
+        UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
+
+        sortedSpawnFrames = new List<int>();
+        sortedRetrievalFrames = new List<int>();
+
+        List<int> tempWaypointFrames = new List<int>();
+        tempWaypointFrames = DuplicateList(sortedWaypointFrames);
+
+        for (int i = 0; i < listLength; i++)
+        {
+            
+                    UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
+                    sortedSpawnFrames.Add(sortedWaypointFrames[0]);
+                    sortedWaypointFrames.RemoveAt(0);
+            
+        }
+
+        //since it's sorted, we only concern ourself with the first index
+        for (int i=0;i<listLength + Configuration.luresPerTrial ;i++)
+        {
+            if (sortedLureFrames.Count !=0 && sortedWaypointFrames.Count != 0)
+            {
+                if (sortedLureFrames[0] < sortedWaypointFrames[0])
+                {
+                    UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted spawn frame");
+                    sortedRetrievalFrames.Add(sortedLureFrames[0]);
+                    sortedLureFrames.RemoveAt(0);
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
+                    sortedRetrievalFrames.Add(sortedWaypointFrames[0]);
+                    sortedWaypointFrames.RemoveAt(0);
+                }
+            }
+            else
+            {
+                if (sortedLureFrames.Count == 0)
+                    sortedRetrievalFrames.Add(sortedWaypointFrames[0]);
+                else
+                    sortedRetrievalFrames.Add(sortedLureFrames[0]);
+            }
         }
         
 
@@ -2214,24 +2229,21 @@ public class Experiment : MonoBehaviour {
         player.GetComponent<CarMover>().ToggleCarMovement(false);
         //SetCarMovement(false);
 
-        //add the gameobject to the sequence
-        stimuliBlockSequence.Add(stimulusObject);
-
 
         //wait until the car has stopped
-        while (player.GetComponent<CarMover>().CheckIfMoving())
-        {
-            UnityEngine.Debug.Log("waiting for the car to stop moving");
-            yield return 0;
-        }
+        //while (player.GetComponent<CarMover>().CheckIfMoving())
+        //{
+        //    UnityEngine.Debug.Log("waiting for the car to stop moving");
+        //    yield return 0;
+        //}
 
         //    string objectName = stimulusObject.GetComponent<StimulusObject>().GetObjectName();
 
         //move to stimuli presentation transform
 
         //  UnityEngine.Debug.Log("moving the item to presentation transform");
-           stimulusObject.transform.position = player.GetComponent<CarMover>().presentationTransform.position;
-           stimulusObject.transform.rotation = player.GetComponent<CarMover>().presentationTransform.rotation;
+           //stimulusObject.transform.position = player.GetComponent<CarMover>().presentationTransform.position;
+           //stimulusObject.transform.rotation = player.GetComponent<CarMover>().presentationTransform.rotation;
 
        // stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
 
@@ -2239,9 +2251,9 @@ public class Experiment : MonoBehaviour {
         float randJitterTime = Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
         float totalPresentationTime = Configuration.itemPresentationTime + randJitterTime;
 
-        //make object visible
-        if (stimulusObject.GetComponent<VisibilityToggler>() != null)
-            stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
+        ////make object visible
+        //if (stimulusObject.GetComponent<VisibilityToggler>() != null)
+        //    stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
 
         yield return StartCoroutine(SpawnSpecialObject(stimulusObject, stimulusObject.GetComponent<StimulusObject>().specialObjectSpawnPoint.position));
         UnityEngine.Debug.Log("finished running collision");
@@ -2260,6 +2272,10 @@ public class Experiment : MonoBehaviour {
 
         uiController.presentationItemText.enabled = false;
         trialLogTrack.LogItemPresentation(objectName, false);
+
+
+        //add the gameobject to the sequence
+        //stimuliBlockSequence.Add(stimulusObject);
 
         //resume movement after resetting UI
         SetCarMovement(true);
@@ -2307,20 +2323,22 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator SpawnEncodingObjects()
     {
-        UnityEngine.Debug.Log("number of spawn locations " + spawnLocations.Count.ToString());
-        for (int i = 0; i < spawnLocations.Count; i++)
+        UnityEngine.Debug.Log("number of spawn locations " + spawnFrames.Count.ToString());
+        for (int i = 0; i < spawnFrames.Count; i++)
         {
             //GameObject encodingObj = Instantiate(objController.encodingList[i], new Vector3(spawnLocations[i].x, spawnLocations[i].y + 1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y +1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            GameObject encodingObj = colliderBox.GetComponent<CarStopper>().stimulusObject;
-            encodingObj.name = encodingObj.name + "_" + i.ToString();
-            spawnedObjects.Add(encodingObj);
-            trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
+            //GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y +1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
+            //GameObject encodingObj = colliderBox.GetComponent<CarStopper>().stimulusObject;
+            //encodingObj.name = encodingObj.name + "_" + i.ToString();
+            //spawnedObjects.Add(encodingObj);
 
-            encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
-            encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
+
+            //trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
+
+            //encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
+            //encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
           
-            encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
+            //encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
 
 
             //adjust the stimulus object's position so it appears right above the indicator
@@ -2333,7 +2351,7 @@ public class Experiment : MonoBehaviour {
            // colliderBox.transform.localRotation = Quaternion.identity;
 
             //associate the stimulus object 
-            encodingObj.GetComponent<StimulusObject>().LinkColliderObj(colliderBox);
+            //encodingObj.GetComponent<StimulusObject>().LinkColliderObj(colliderBox);
 
 
 
@@ -2382,12 +2400,22 @@ public class Experiment : MonoBehaviour {
         for (int i = 0; i < retrievalSeqList.Count; i++)
         {
             UnityEngine.Debug.Log("adding " + spawnedObjects[retrievalSeqList[i]]);
-            UnityEngine.Debug.Log("adding " + spawnLocations[retrievalSeqList[i]]);
+            UnityEngine.Debug.Log("adding " + spawnFrames[retrievalSeqList[i]]);
             retrievalObjList.Add(spawnedObjects[retrievalSeqList[i]]);
-            retrievalPositions.Add(spawnLocations[retrievalSeqList[i]]);
+            retrievalFrames.Add(spawnFrames[retrievalSeqList[i]]);
         }
 
         yield return null;
+    }
+
+    public List<int> DuplicateList(List<int> targetList)
+    {
+        List<int> resultList = new List<int>();
+        for(int i=0;i<targetList.Count;i++)
+        {
+            resultList.Add(targetList[i]);
+        }
+        return resultList;
     }
 
     public IEnumerator SpawnObjects()
@@ -2444,7 +2472,7 @@ public class Experiment : MonoBehaviour {
 
                 //reset retrieval lists
                 spawnedObjects.Clear();
-                spawnLocations.Clear();
+                spawnFrames.Clear();
                 yield return 0;
             }
             else
@@ -2458,8 +2486,8 @@ public class Experiment : MonoBehaviour {
                     //	UnityEngine.Debug.Log(timer.ToString() + "/" + randTimeSpawn.ToString());
                     yield return 0;
                 }
-                UnityEngine.Debug.Log("initiating spawn sequence");
-                yield return StartCoroutine(objController.InitiateSpawnSequence());
+                //UnityEngine.Debug.Log("initiating spawn sequence");
+                //yield return StartCoroutine(objController.InitiateSpawnSequence());
 
                 UnityEngine.Debug.Log("objlapper " + objLapper.ToString() + " lapcount " + LapCounter.lapCount.ToString());
                 while (objLapper == LapCounter.lapCount)

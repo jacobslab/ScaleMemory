@@ -76,6 +76,11 @@ public class UIController : MonoBehaviour
     public CanvasGroup fixationPanel;
     public CanvasGroup fixationCross;
 
+    //stimulus display panel
+    public CanvasGroup stimDisplayPanel;
+    public RawImage stimItemImage;
+    public Text stimNameText;
+
     //blackrock connection
     public CanvasGroup blackrockConnectionPanel;
     public CanvasGroup connectionSuccessPanel;

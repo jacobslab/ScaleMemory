@@ -256,7 +256,7 @@ public class ObjectController : MonoBehaviour
 		Vector3 spawnPos = exp.player.transform.position + exp.player.transform.forward * 5f;
 		GameObject spawnObj = SpawnSpecialObject(spawnPos);
 		exp.spawnedObjects.Add(spawnObj);
-		exp.spawnLocations.Add(spawnPos);
+		//exp.spawnLocations.Add(spawnPos);
 		yield return StartCoroutine(objSpawner.MakeObjAppear(spawnObj));
 		yield return null;
     }

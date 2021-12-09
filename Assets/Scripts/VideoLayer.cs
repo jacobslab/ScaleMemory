@@ -2,15 +2,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityEngine.Events;
 
 public class VideoLayer : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
     public VideoClip vidClip;
-    public RawImage rawImage;
 
 
-    private bool isPaused = false;
+    private bool isPaused = true;
     private float directionMultiplier = 1f;
 
     private int updateVal = 0;
@@ -21,11 +21,11 @@ public class VideoLayer : MonoBehaviour
 
 
     //colors
-    private Color visibleColor = new Color(1, 1, 1, 1);
-    private Color hiddenColor = new Color(0,0,0,0);
+    //private Color visibleColor = new Color(1, 1, 1, 1);
+    //private Color hiddenColor = new Color(0,0,0,0);
 
 
-    public int numberOfFrames = 0;
+    public int numberOfFrames = 1130;
     public float frameRate = 30;
 
     private int playbackDirection = 1;
@@ -35,19 +35,37 @@ public class VideoLayer : MonoBehaviour
 
     private Texture2D[] frames;
 
+    public string layerName = "";
+
+    private UnityEvent spawnPointReachedEvent;
+
+    public VideoLayerManager videoLayerManager;
+
+    public static bool isInvoked = false;
+    
+
   
     private void Awake()
     {
-        rawImage.color = hiddenColor; //transparent by default
     }
 
 
     void Start()
     {
-        // load the frames
+        // load all frames of this layer
         frames = new Texture2D[numberOfFrames];
         for (int i = 0; i < numberOfFrames; ++i)
-            frames[i] = (Texture2D)Resources.Load("base/" + string.Format("base-{0:d3}", i + 1));
+        {
+            frames[i] = (Texture2D)Resources.Load(layerName + "/" + string.Format(layerName + "-{0:d3}", i + 1));
+        }
+
+        bgLayer.texture = frames[0];
+
+        UnityEngine.Debug.Log("loaded " + frames.Length.ToString() + " frames for " + gameObject.name);
+        if (spawnPointReachedEvent == null)
+            spawnPointReachedEvent = new UnityEvent();
+
+        spawnPointReachedEvent.AddListener(OnSpawnPointReached);
 
     }
 
@@ -72,6 +90,11 @@ public class VideoLayer : MonoBehaviour
         UnityEngine.Debug.Log("on reverse loop");
     }
 
+    public void OnSpawnPointReached()
+    {
+        videoLayerManager.SpawnPointReached();
+    }
+
 
 
     void Update()
@@ -84,6 +107,16 @@ public class VideoLayer : MonoBehaviour
                 timeVar -= Time.deltaTime;
 
             int currentFrame = (int)(timeVar * frameRate);
+            //UnityEngine.Debug.Log("current frame for " + gameObject.name + " : " + currentFrame.ToString());
+            if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 2)
+            {
+                if (!isInvoked)
+                {
+                    UnityEngine.Debug.Log("invoking spawn point event");
+                    isInvoked = true;
+                    spawnPointReachedEvent.Invoke();
+                }
+            }
             if (currentFrame >= frames.Length - 1)
             {
                 //UnityEngine.Debug.Log("exceeded video");
@@ -100,6 +133,7 @@ public class VideoLayer : MonoBehaviour
             }
             //UnityEngine.Debug.Log("current frame " + currentFrame.ToString());
             //UnityEngine.Debug.Log("timevar " + timeVar.ToString());
+            //UnityEngine.Debug.Log("associating frame" + frames[currentFrame].name.ToString());
             bgLayer.texture = frames[currentFrame];
         }
     }
@@ -123,25 +157,10 @@ public class VideoLayer : MonoBehaviour
 
     public IEnumerator PrepareVideoTexture()
     {
-        if (videoPlayer == null || rawImage == null)
+        if (videoPlayer == null || bgLayer == null)
             yield break;
 
 
-        //yield return StartCoroutine(VideoLayerManager.Instance.AddToActiveVideoLayer(this));
-
-        //load all frames
-        //yield return StartCoroutine("LoadFrames");
-
-        //UnityEngine.Debug.Log("preparing  " + gameObject.name);
-        //videoPlayer.clip = vidClip;
-        //videoPlayer.renderMode = VideoRenderMode.APIOnly;
-        //videoPlayer.Prepare();
-        //while (!videoPlayer.isPrepared)
-        //    yield return new WaitForSeconds(1);
-
-        //rawImage.texture = videoPlayer.texture;
-        //videoPlayer.Play();
-        //videoPlayer.Pause();
 
         yield return null;
     }
@@ -163,7 +182,6 @@ public class VideoLayer : MonoBehaviour
     public void ToggleLayerVisibility(bool isVisible)
     {
         UnityEngine.Debug.Log("making " + gameObject.name + " visibility: " + isVisible.ToString());
-        rawImage.color = (isVisible) ? visibleColor : hiddenColor;
     }
 
     public double GetPlaybackTime()
@@ -190,38 +208,6 @@ public class VideoLayer : MonoBehaviour
     }
 
 
-    private void FixedUpdate()
-    {
-        if (!isPaused)
-        {
-            //videoPlayer.playbackSpeed *= directionMultiplier;
-            //target += (directionMultiplier * Time.fixedDeltaTime) * Experiment.Instance.videoLayerManager.globalFrameUpdateSpeed;
-            //StartCoroutine(ScrollToFrame((long)target));
-            //long frameNum = (long)target;
-            //if (frameNum >= (long)videoPlayer.frameCount)
-            //    frameNum = 0;
-            //else if (frameNum < 0)
-            //    frameNum = (long)videoPlayer.frameCount;
-            //UnityEngine.Debug.Log("scrolling to frame " + frameNum.ToString());
-            //videoPlayer.frame = frameNum;
-        }
-    }
-
-
-    //public IEnumerator RunVideoTest()
-    //{
-    //    UnityEngine.Debug.Log("running video test");
-    //    float target = 0f;
-    //    while (Application.isPlaying)
-    //    {
-    //        //target+= (directionMultiplier*Time.fixedDeltaTime) * Experiment.Instance.videoLayerManager.globalFrameUpdateSpeed;
-    //        //yield return ScrollToFrame((long)target);
-           
-    //        yield return 0;
-    //    }
-    //    UnityEngine.Debug.Log("exiting video test");
-    //    yield return null;
-    //}
 
     public IEnumerator ScrollToFrame(long frameNum)
     {

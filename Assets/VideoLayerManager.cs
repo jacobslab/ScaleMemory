@@ -21,10 +21,16 @@ public class VideoLayerManager : MonoBehaviour
         }
     }
 
-    public VideoLayer backgroundLayer;
+    public VideoLayer sunnyLayer;
+    public VideoLayer rainyLayer;
+    public VideoLayer nightLayer;
+
+    private VideoLayer backgroundLayer;
     public VideoLayer itemLayer;
 
     public float globalFrameUpdateSpeed = 1f;
+
+    
 
     public enum Direction
     {
@@ -44,6 +50,8 @@ public class VideoLayerManager : MonoBehaviour
         }
         _instance = this;
 
+        backgroundLayer = rainyLayer;
+
        
         layerList = new List<VideoLayer>();
         
@@ -59,9 +67,56 @@ public class VideoLayerManager : MonoBehaviour
 
     }
 
+    public int GetTotalFramesOfCurrentClip()
+    {
+        return 1131;
+        //return (int)backgroundLayer.numberOfFrames;
+    }
+
+    public void SpawnPointReached()
+    {
+        //inform the experiment to pause and show the object
+        StartCoroutine("RunSpawnProcedure");
+        
+    }
+
+    IEnumerator RunSpawnProcedure()
+    {
+        //inform Experiment about spawn procedure for logging
+
+        //pause all layers first
+        yield return StartCoroutine(TogglePauseLayerPlayback(true));
+        //itemLayer.ToggleLayerVisibility(true);
+        Texture stimImage = Experiment.Instance.objController.ReturnStimuliToPresent();
+        string stimDisplayText = Experiment.Instance.objController.ReturnStimuliDisplayText();
+
+        Experiment.Instance.uiController.stimDisplayPanel.alpha = 1f;
+
+        float waitTime = Configuration.itemPresentationTime + Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
+
+        yield return new WaitForSeconds(waitTime);
+
+        Experiment.Instance.uiController.stimDisplayPanel.alpha = 0f;
+        yield return StartCoroutine(TogglePauseLayerPlayback(false));
+        Experiment.Instance.uiController.stimItemImage.texture = stimImage;
+        Experiment.Instance.uiController.stimNameText.text = stimDisplayText;
+
+        yield return StartCoroutine(Experiment.Instance.CompleteSpawnProcedure());
+
+        //reset the event invoked flag
+        VideoLayer.isInvoked = false;
+
+        //wrap up logging details about the presentation
+
+        yield return null;
+    }
+
     IEnumerator SetupLayers()
     {
-        yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, true));
+        //TODO: Control this from elsewhere
+        backgroundLayer = rainyLayer; //set background to rain by default, for now
+
+        yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
         //yield return StartCoroutine(AddToActiveVideoLayer(itemLayer, false)); //item layer is not visible by default
         yield return null;
     }
@@ -85,12 +140,44 @@ public class VideoLayerManager : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator RunSpawnProcedure()
+
+    public void UpdateWeather(Weather.WeatherType targetWeather)
     {
-        //backgroundLayer.ToggleLayerVisibility(true);
-        //yield return AddToActiveVideoLayer(backgroundLayer,true);
-        yield return null;
+        //make current layer invisible
+
+        UnityEngine.Debug.Log("updating weather to " + targetWeather.ToString());
+
+        if (backgroundLayer != null)
+        {
+            VideoLayer tempOldLayer = backgroundLayer;
+            backgroundLayer.ToggleLayerVisibility(false);
+        }
+        switch(targetWeather)
+        {
+            case Weather.WeatherType.Sunny:
+                sunnyLayer.ToggleLayerVisibility(true);
+                backgroundLayer = sunnyLayer;
+                break;
+            case Weather.WeatherType.Rainy:
+                rainyLayer.ToggleLayerVisibility(true);
+                backgroundLayer = rainyLayer;
+                break;
+            case Weather.WeatherType.Night:
+                nightLayer.ToggleLayerVisibility(true);
+                backgroundLayer = nightLayer;
+                break;
+
+            default:
+                rainyLayer.ToggleLayerVisibility(true);
+                backgroundLayer = rainyLayer;
+                break;
+
+
+        }
     }
+
+
+
 
 
     IEnumerator SpawnItem()
@@ -138,11 +225,11 @@ public class VideoLayerManager : MonoBehaviour
         if (isVisible)
             layer.ToggleLayerVisibility(true);
         
-        yield return StartCoroutine(layer.BeginPlayback());
+        //yield return StartCoroutine(layer.BeginPlayback());
 
-        //pause immediately after
+        ////pause immediately after
 
-        yield return StartCoroutine("TogglePauseLayerPlayback", true);
+        //yield return StartCoroutine("TogglePauseLayerPlayback", true);
 
         yield return null;
     }
