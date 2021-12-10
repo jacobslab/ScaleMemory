@@ -80,6 +80,16 @@ public class VideoLayerManager : MonoBehaviour
         
     }
 
+    public int GetMainLayerCurrentFrameNumber()
+    {
+        return backgroundLayer.GetCurrentFrameNumber();
+    }
+
+    public void RetrievalPointReached()
+    {
+        StartCoroutine("RunRetrievalProcedure");
+    }
+
     IEnumerator RunSpawnProcedure()
     {
         //inform Experiment about spawn procedure for logging
@@ -90,7 +100,20 @@ public class VideoLayerManager : MonoBehaviour
         Texture stimImage = Experiment.Instance.objController.ReturnStimuliToPresent();
         string stimDisplayText = Experiment.Instance.objController.ReturnStimuliDisplayText();
 
+        Experiment.Instance.uiController.stimItemImage.texture = stimImage;
+        Experiment.Instance.uiController.stimNameText.text = stimDisplayText;
         Experiment.Instance.uiController.stimDisplayPanel.alpha = 1f;
+
+        Transform currTransform = Experiment.Instance.GetTransformForFrame(backgroundLayer.GetCurrentFrameNumber()); //this gets us the position of the player corresponding to the frame
+
+        currTransform.position += currTransform.forward * 2.5f; // the object is located 2.5 units away from the player's current spot
+
+        GameObject stimObject = Instantiate(Experiment.Instance.objController.placeholder, currTransform.position, currTransform.rotation);
+        stimObject.GetComponent<StimulusObject>().stimuliDisplayName = stimDisplayText;
+        stimObject.GetComponent<StimulusObject>().stimuliDisplayTexture = stimImage;
+        Experiment.Instance.spawnedObjects.Add(stimObject); //add it tot he list
+
+        Experiment.Instance.retrievalFrameObjectDict.Add(Experiment.nextSpawnFrame, stimObject);
 
         float waitTime = Configuration.itemPresentationTime + Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
 
@@ -98,16 +121,37 @@ public class VideoLayerManager : MonoBehaviour
 
         Experiment.Instance.uiController.stimDisplayPanel.alpha = 0f;
         yield return StartCoroutine(TogglePauseLayerPlayback(false));
-        Experiment.Instance.uiController.stimItemImage.texture = stimImage;
-        Experiment.Instance.uiController.stimNameText.text = stimDisplayText;
 
-        yield return StartCoroutine(Experiment.Instance.CompleteSpawnProcedure());
+        yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
 
         //reset the event invoked flag
         VideoLayer.isInvoked = false;
 
         //wrap up logging details about the presentation
 
+        yield return null;
+    }
+
+    IEnumerator RunRetrievalProcedure()
+    {
+        GameObject retObject = null;
+        int currFrame = Experiment.nextSpawnFrame;
+        UnityEngine.Debug.Log("trying to find object for frame " + currFrame.ToString());
+        if(Experiment.Instance.retrievalFrameObjectDict.TryGetValue(currFrame, out retObject))
+        {
+            UnityEngine.Debug.Log("found object");
+            if(retObject!=null)
+            {
+                UnityEngine.Debug.Log("and its not null");
+                yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
+            }
+        }
+
+        UnityEngine.Debug.Log("finishing check");
+
+        //reset the event invoked flag
+        VideoLayer.isInvoked = false;
+        yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
         yield return null;
     }
 
@@ -306,6 +350,19 @@ public class VideoLayerManager : MonoBehaviour
                 break;
 
         }
+    }
+
+    public IEnumerator MoveToRandomPoint()
+    {
+        int randStartFrame = Random.Range(50,layerList[0].numberOfFrames-100);
+        for (int i = 0; i < layerList.Count; i++)
+        {
+            UnityEngine.Debug.Log("scrolling to start frame");
+            yield return StartCoroutine(layerList[i].ScrollToFrame(randStartFrame));
+        }
+        //log the frame in the logfile
+        Experiment.Instance.trialLogTrack.LogRetrievalStartPosition(Experiment.Instance.GetTransformForFrame(randStartFrame).position);
+        yield return null;
     }
 
     public IEnumerator ReturnToStart()

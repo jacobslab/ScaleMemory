@@ -62,6 +62,7 @@
      <Compile Include="Assets\LapCounter.cs" />
      <Compile Include="Assets\ObjectController.cs" />
      <Compile Include="Assets\ObjectSpawner.cs" />
+     <Compile Include="Assets\Placeholder.cs" />
      <Compile Include="Assets\Prefabs\RamulatorInterface\RamulatorInterface.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\Breakable.cs" />
      <Compile Include="Assets\Scripts\Anim. &amp; Visuals\ChosenIndicatorController.cs" />

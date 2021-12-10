@@ -96,7 +96,7 @@ public class CarStopper : MonoBehaviour
         if (col.gameObject.tag == "StimulusCollisions")
         {
             UnityEngine.Debug.Log("collided with player");
-            stimulusObject.GetComponent<StimulusObject>().ToggleCollisions(false); //disable collisions until the next lap
+            //stimulusObject.GetComponent<StimulusObject>().ToggleCollisions(false); //disable collisions until the next lap
             activated = true;
             Experiment.Instance.SetCarMovement(false);
             //if it is retrieval, then cue appropriately

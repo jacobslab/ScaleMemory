@@ -33,20 +33,29 @@ public class VideoLayer : MonoBehaviour
 
     private float timeVar = 0f;
 
+    public static float speed = 1f;
+
     private Texture2D[] frames;
 
     public string layerName = "";
 
     private UnityEvent spawnPointReachedEvent;
+    private UnityEvent retrievalPointReachedEvent;
 
     public VideoLayerManager videoLayerManager;
 
     public static bool isInvoked = false;
-    
+
+    private int currentFrame = 0;
 
   
     private void Awake()
     {
+    }
+
+    public int GetCurrentFrameNumber()
+    {
+        return currentFrame;
     }
 
 
@@ -67,6 +76,23 @@ public class VideoLayer : MonoBehaviour
 
         spawnPointReachedEvent.AddListener(OnSpawnPointReached);
 
+        if (retrievalPointReachedEvent == null)
+                retrievalPointReachedEvent = new UnityEvent();
+
+        retrievalPointReachedEvent.AddListener(OnRetrievalPointReached);
+        StartCoroutine("RandomizeFrameSpeed");
+
+    }
+
+    IEnumerator RandomizeFrameSpeed()
+    {
+        while (Application.isPlaying)
+        {
+            speed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
+            yield return new WaitForSeconds(5f + Random.Range(1f, 8f));
+            yield return 0;
+        }
+        yield return null;
     }
 
     //private void OnEnable()
@@ -95,6 +121,11 @@ public class VideoLayer : MonoBehaviour
         videoLayerManager.SpawnPointReached();
     }
 
+    public void OnRetrievalPointReached()
+    {
+        videoLayerManager.RetrievalPointReached();
+    }
+
 
 
     void Update()
@@ -102,19 +133,22 @@ public class VideoLayer : MonoBehaviour
         if (!isPaused)
         {
             if (playbackDirection == 1)
-                timeVar += Time.deltaTime;
+                timeVar += Time.deltaTime * speed;
             else
-                timeVar -= Time.deltaTime;
+                timeVar -= Time.deltaTime * speed;
 
-            int currentFrame = (int)(timeVar * frameRate);
-            //UnityEngine.Debug.Log("current frame for " + gameObject.name + " : " + currentFrame.ToString());
+            currentFrame = (int)(timeVar * frameRate);
+            //UnityEngine.Debug.Log("current frame: " + currentFrame.ToString());
             if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 2)
             {
                 if (!isInvoked)
                 {
                     UnityEngine.Debug.Log("invoking spawn point event");
                     isInvoked = true;
-                    spawnPointReachedEvent.Invoke();
+                    if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                        spawnPointReachedEvent.Invoke();
+                    else
+                        retrievalPointReachedEvent.Invoke();
                 }
             }
             if (currentFrame >= frames.Length - 1)
@@ -136,6 +170,11 @@ public class VideoLayer : MonoBehaviour
             //UnityEngine.Debug.Log("associating frame" + frames[currentFrame].name.ToString());
             bgLayer.texture = frames[currentFrame];
         }
+
+        //if (Input.GetKeyDown(KeyCode.Y))
+        //    speed += 0.1f;
+        //if (Input.GetKeyDown(KeyCode.H))
+        //    speed -= 0.1f;
     }
 
     //public void Forward(float deltaTime)
@@ -212,7 +251,11 @@ public class VideoLayer : MonoBehaviour
     public IEnumerator ScrollToFrame(long frameNum)
     {
         UnityEngine.Debug.Log("scrolling to frame " + frameNum.ToString());
-        videoPlayer.frame = frameNum;
+        int targetFrame = (int)frameNum;
+        float targetTime = targetFrame / frameRate;
+        timeVar = targetTime; //update time var and the frame will be set correspondigly so when the Update loop runs next time
+        currentFrame = (int)frameNum;
+        //videoPlayer.frame = frameNum;
         yield return null;
     }
 

@@ -200,6 +200,8 @@ public class Experiment : MonoBehaviour {
     public SubjectSelectionController subjectSelectionController;
 
 
+    public Dictionary<int, GameObject> retrievalFrameObjectDict;
+
 
     public SimpleTimer lapTimer;
 
@@ -227,6 +229,8 @@ public class Experiment : MonoBehaviour {
 
     private string camTransformPath;
 
+    private bool retrievedAsNew = false;
+
     private Scene currScene;
 
 
@@ -234,7 +238,7 @@ public class Experiment : MonoBehaviour {
     public Material overcastSkybox;
     public Material nightSkybox;
 
-    public static int nextSpawnFrame = -1000; //if no spawn, then it will be at -1000
+    public static int nextSpawnFrame = -10000; //if no spawn, then it will be at -1000
 
 
     public TCPServer tcpServer;
@@ -286,6 +290,7 @@ public class Experiment : MonoBehaviour {
         retrievalFrames = new List<int>();
 
         blockCount = totalTrials / trialsPerBlock;
+        retrievalFrameObjectDict = new Dictionary<int, GameObject>();
 
 #if UNITY_EDITOR_OSX
         camTransformPath = Application.dataPath + "/cam_transform.txt";
@@ -671,22 +676,22 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
 
         ////run encoding
-        yield return StartCoroutine("RunEncoding");
+        //yield return StartCoroutine("RunEncoding");
 
-        ////run retrieval
-        verbalRetrieval = false;
-        currentStage = TaskStage.SpatialRetrieval;
-        trialLogTrack.LogTaskStage(currentStage, true);
-        yield return StartCoroutine("RunSpatialRetrieval");
-        trialLogTrack.LogTaskStage(currentStage, false);
+        //////run retrieval
+        //verbalRetrieval = false;
+        //currentStage = TaskStage.SpatialRetrieval;
+        //trialLogTrack.LogTaskStage(currentStage, true);
+        //yield return StartCoroutine("RunSpatialRetrieval");
+        //trialLogTrack.LogTaskStage(currentStage, false);
 
-        ToggleFixation(true);
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine("ResetTrack");
-        ToggleFixation(false);
+        //ToggleFixation(true);
+        //yield return new WaitForSeconds(1f);
+        //yield return StartCoroutine("ResetTrack");
+        //ToggleFixation(false);
 
 
-        // yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
+        //yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
 
         ////run encoding
         //yield return StartCoroutine("RunEncoding");
@@ -1010,8 +1015,21 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < Configuration.luresPerTrial; i++)
         {
-            //GameObject lureParent = Instantiate(objController.lurePrefab, lureLocations[i], Quaternion.identity) as GameObject;
+            int associatedLureFrame = lureFrames[i];
+            Transform currentLureTransform = GetTransformForFrame(associatedLureFrame);
+            currentLureTransform.position += currentLureTransform.forward * 2.5f;
+            GameObject lureParent = Instantiate(objController.placeholder, currentLureTransform.position,currentLureTransform.rotation) as GameObject;
 
+
+            lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
+            lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
+
+            lureObjects.Add(lureParent);
+
+
+            retrievalFrameObjectDict.Add(associatedLureFrame, lureParent);
+
+            UnityEngine.Debug.Log("generated lure object " + lureParent.GetComponent<StimulusObject>().stimuliDisplayName + associatedLureFrame.ToString());
             //GameObject colliderBoxRef = Instantiate(objController.lureColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
             //parent the collider box with the lure 
             //colliderBoxRef.transform.parent = lureParent.transform;
@@ -1034,6 +1052,8 @@ public class Experiment : MonoBehaviour {
     {
             UnityEngine.Debug.Log("in encoding now");
         currentStage = TaskStage.Encoding;
+
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         LapCounter.lapCount = 0;
         if (isPractice)
         {
@@ -1119,14 +1139,14 @@ public class Experiment : MonoBehaviour {
                 //trafficLightController.MakeVisible(false);
 
                 //reset collisions for encoding objects
-                for (int k = 0; k < spawnedObjects.Count; k++)
-                {
-                    if (spawnedObjects[k] != null)
-                        spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(true);
-                }
+                //for (int k = 0; k < spawnedObjects.Count; k++)
+                //{
+                //    if (spawnedObjects[k] != null)
+                //        //spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(true);
+                //}
 
 
-                yield return new WaitForSeconds(1f);
+                //yield return new WaitForSeconds(1f);
                 ToggleFixation(true);
 
                 //return the video to the start
@@ -1182,6 +1202,10 @@ public class Experiment : MonoBehaviour {
 
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
             chequeredFlag.SetActive(true);
+
+        //make sure video is paused and returned to start
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+        yield return StartCoroutine(videoLayerManager.ReturnToStart());
 
             //	objController.encodingList.Clear();
             LapCounter.lapCount = 0;
@@ -1448,10 +1472,20 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunVerbalRetrieval()
     {
-        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-        player.GetComponent<CarMover>().ResetWaypointTarget();
+        //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        //yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+        //player.GetComponent<CarMover>().ResetWaypointTarget();
         yield return StartCoroutine(GenerateLureSpots());
+
+
+        //pick random start position
+        yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
+        //sort retrieval frames based on new starting position
+        yield return StartCoroutine("SortRetrievalFrames");
+
+        //pick next frame
+        yield return StartCoroutine(UpdateNextSpawnFrame());
+        
         UnityEngine.Debug.Log("starting verbal retrieval");
 
         if (isPractice)
@@ -1469,19 +1503,21 @@ public class Experiment : MonoBehaviour {
             trialLogTrack.LogInstructions(false);
         }
 
-        trafficLightController.MakeVisible(true);
-        yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        SetCarMovement(true);
+        //trafficLightController.MakeVisible(true);
+        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
+        //SetCarMovement(true);
 
 
-        trafficLightController.MakeVisible(false);
+        yield return StartCoroutine(videoLayerManager.ResumePlayback());
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        //trafficLightController.MakeVisible(false);
 
         while (retCount < testLength)
         {
             yield return 0;
         }
-        verbalRetrieval = false;
-        SetCarMovement(false);
+        //verbalRetrieval = false;
+        //SetCarMovement(false);
 
         trafficLightController.MakeVisible(false);
         yield return new WaitForSeconds(1f);
@@ -1502,11 +1538,11 @@ public class Experiment : MonoBehaviour {
       
         //disable collision of item collider box during spatial retrieval
 
-        for (int k = 0; k < spawnedObjects.Count; k++)
-        {
-            if (spawnedObjects[k] != null)
-                spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
-        }
+        //for (int k = 0; k < spawnedObjects.Count; k++)
+        //{
+        //    if (spawnedObjects[k] != null)
+        //        spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
+        //}
 
       
 
@@ -1546,6 +1582,7 @@ public class Experiment : MonoBehaviour {
         }
         for(int l = 0;l<lureObjects.Count;l++)
         {
+
             spatialTestList.Add(lureObjects[l]);
         }
 
@@ -1571,14 +1608,15 @@ public class Experiment : MonoBehaviour {
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             //  uiController.targetTextPanel.alpha = 1f;
 
-            //wait for the player to press X to choose their location
-            while (!Input.GetKeyDown(KeyCode.X))
+            //wait for the player to press X to choose their location OR skip it if the player retrieved the object as "New"
+            while (!Input.GetKeyDown(KeyCode.X) && !retrievedAsNew)
             {
                 yield return 0;
             }
-
+            retrievedAsNew = false; //reset this flag
+            yield return StartCoroutine(videoLayerManager.PauseAllLayers());
             //stop car and calculate then proceed to next
-            SetCarMovement(false);
+            //SetCarMovement(false);
 
 
             float dist = Vector3.Distance(spatialTestList[j].transform.position, player.transform.position);
@@ -1804,6 +1842,19 @@ public class Experiment : MonoBehaviour {
 
         yield return null;
     }
+    public Transform GetTransformForFrame(int frameNum)
+    {
+        Transform resultTrans=null;
+        if (frameNum < playerPosDict.Count)
+        {
+            if(playerPosDict.TryGetValue(frameNum,out resultTrans))
+            {
+                return resultTrans;
+            }
+
+        }
+        return resultTrans;
+    }
 
     public IEnumerator ShowItemCuedReactivation(GameObject stimObject)
     {
@@ -1826,6 +1877,9 @@ public class Experiment : MonoBehaviour {
         if (uiController.GetSelectionIndex() == 2)
         {
             //do nothing
+            retrievedAsNew = true; // set this as retrieved as new
+
+            UnityEngine.Debug.Log("retrieved as new");
         }
         else
         {
@@ -1837,7 +1891,8 @@ public class Experiment : MonoBehaviour {
 
     public IEnumerator ShowLocationCuedReactivation(GameObject stimObject)
     {
-        SetCarMovement(false);
+        //SetCarMovement(false);
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         uiController.ResetRetrievalInstructions();
         uiController.locationReactivationPanel.alpha = 1f;
         yield return StartCoroutine(uiController.SetupSelectionOptions("Location"));
@@ -1866,8 +1921,11 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(StartVerbalRetrieval(stimObject));
         }
         uiController.ResetRetrievalInstructions();
+
+        retCount++;
         UnityEngine.Debug.Log("finished verbal recall");
         SetCarMovement(true);
+        yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
     }
 
@@ -1945,13 +2003,62 @@ public class Experiment : MonoBehaviour {
 
     }
 
-    public IEnumerator CompleteSpawnProcedure()
+   
+    IEnumerator SortRetrievalFrames()
     {
-        yield return StartCoroutine(UpdateNextSpawnFrame());
+        int startFrame = videoLayerManager.GetMainLayerCurrentFrameNumber();
+        List<int> temp = new List<int>();
+        temp = DuplicateList(sortedRetrievalFrames);
+      
+        List<int> result = new List<int>();
+        int insertIndex = -100;
+        int minDiff = 10000;
+        for(int i=0;i<sortedRetrievalFrames.Count;i++)
+        {
+            int currDiff = sortedRetrievalFrames[i] - startFrame;
+            UnityEngine.Debug.Log("curr diff between " + sortedRetrievalFrames[i].ToString() + " and " + startFrame.ToString() + " = " + currDiff.ToString());
+            if (currDiff > 0 && currDiff < minDiff)
+            {
+                minDiff = currDiff;
+
+                UnityEngine.Debug.Log("min diff " + minDiff.ToString());
+                insertIndex = i;
+                UnityEngine.Debug.Log("new insert index " + insertIndex.ToString());
+            }
+        }
+        UnityEngine.Debug.Log("insert index " + insertIndex.ToString());
+
+        int reverseIndex = 0;
+        //if insert index is -1, then the order will remain same; else change it accordingly
+        if (insertIndex >=0)
+        {
+            for (int i = 0; i < sortedRetrievalFrames.Count; i++)
+            {
+                if (insertIndex + i < sortedRetrievalFrames.Count)
+                {
+                    result.Add(sortedRetrievalFrames[insertIndex + i]);
+                    UnityEngine.Debug.Log("adding " + sortedRetrievalFrames[insertIndex + i] + " at " + (insertIndex + i).ToString());
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("adding " + sortedRetrievalFrames[reverseIndex] + " at " + reverseIndex.ToString());
+                    result.Add(sortedRetrievalFrames[reverseIndex]);
+                    reverseIndex++;
+                }
+            }
+
+            //clear the sortedretrievalframes and then update it
+            sortedRetrievalFrames.Clear();
+            for(int i=0;i<result.Count;i++)
+            {
+                sortedRetrievalFrames.Add(result[i]);
+            }
+        }
+
         yield return null;
     }
 
-     IEnumerator UpdateNextSpawnFrame()
+     public IEnumerator UpdateNextSpawnFrame()
     {
         if (currentStage == TaskStage.Encoding)
         {
@@ -1960,6 +2067,10 @@ public class Experiment : MonoBehaviour {
                 nextSpawnFrame = sortedSpawnFrames[0];
                 UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
                 sortedSpawnFrames.RemoveAt(0);
+            }
+            else
+            {
+                nextSpawnFrame = -10000;   
             }
         }
 
@@ -1971,6 +2082,11 @@ public class Experiment : MonoBehaviour {
                 nextSpawnFrame = sortedRetrievalFrames[0];
                 UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
                 sortedRetrievalFrames.RemoveAt(0);
+            }
+            else
+            {
+
+                nextSpawnFrame = -10000;
             }
         }
 
@@ -2100,29 +2216,36 @@ public class Experiment : MonoBehaviour {
             UnityEngine.Debug.Log("picked " + intPicker[randIndex].ToString());
             
 
-            chosenEncodingFrames.Add(waypointFrames[randIndex]);
-            int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 2);
-            int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 2);
+            chosenEncodingFrames.Add(randInt);
+            int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
+            int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
 
             //UnityEngine.Debug.Log("between " + intPicker[minLimit].ToString() + "  and  " + intPicker[maxLimit].ToString());
             //UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
             //UnityEngine.Debug.Log("min " + minLimit.ToString() + " max " + maxLimit.ToString());
-            for(int j=minLimit; j<maxLimit;j++)
+            int ind = minLimit;
+            for (int j=minLimit; j<maxLimit;j++)
             {
                 
-                    //UnityEngine.Debug.Log("comparing " + intPicker[minLimit+1].ToString() + " with " + randInt.ToString());
-                    if (Mathf.Abs(intPicker[minLimit+1] - randInt) < Configuration.minFramesBetweenStimuli)
+                    //UnityEngine.Debug.Log("comparing " + intPicker[ind].ToString() + " with " + randInt.ToString());
+                if (Mathf.Abs(intPicker[ind] - randInt) < Configuration.minFramesBetweenStimuli)
                     {
-                        //UnityEngine.Debug.Log("removing " + intPicker[minLimit + 1].ToString());
-                        intPicker.RemoveAt(minLimit+1);
+                        //UnityEngine.Debug.Log("removing " + intPicker[ind].ToString());
+                        intPicker.RemoveAt(ind);
                     }
+                else
+                {
+                    //UnityEngine.Debug.Log("incrementing ind");
+                    ind++;
+                }
                 
             }
             if (i < listLength)
             {
-                UnityEngine.Debug.Log("picking object at  " + randInt.ToString());
+                //UnityEngine.Debug.Log("picking object at  " + randInt.ToString());
                 tempStorage.Add(randInt);
                 spawnFrames.Add(chosenEncodingFrames[i]);
+                //UnityEngine.Debug.Log("adding to spawn frames: " + chosenEncodingFrames[i].ToString());
             }
 
         }
@@ -2145,22 +2268,27 @@ public class Experiment : MonoBehaviour {
         for (int j = 0; j < Configuration.luresPerTrial; j++)
         {
             int randIndex = UnityEngine.Random.Range(0, intPicker.Count);
-            UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
+            //UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
             int randInt = intPicker[randIndex];
             intPicker.RemoveAt(randIndex);
             UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
             lureFrames.Add(randInt);
         }
-        UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
-        List<int> sortedLureFrames = DuplicateList(lureFrames);
-        UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
-        sortedLureFrames.Sort();
+        //UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
+        List<int> sortedLureFrames = new List<int>();
+        sortedLureFrames = DuplicateList(lureFrames);
+        //UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
+        sortedLureFrames = SortListInAscending(sortedLureFrames);
 
-        UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
-        List<int> sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
-        UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
-        sortedWaypointFrames.Sort();
-        UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
+        //UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
+        List<int> sortedWaypointFrames = new List<int>();
+        sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
+
+        
+        //UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
+        //sortedWaypointFrames.Sort();
+        sortedWaypointFrames = SortListInAscending(sortedWaypointFrames);
+        //UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
 
         sortedSpawnFrames = new List<int>();
         sortedRetrievalFrames = new List<int>();
@@ -2171,7 +2299,7 @@ public class Experiment : MonoBehaviour {
         for (int i = 0; i < listLength; i++)
         {
             
-                    UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
+                    //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
                     sortedSpawnFrames.Add(sortedWaypointFrames[0]);
                     sortedWaypointFrames.RemoveAt(0);
             
@@ -2180,34 +2308,44 @@ public class Experiment : MonoBehaviour {
         //since it's sorted, we only concern ourself with the first index
         for (int i=0;i<listLength + Configuration.luresPerTrial ;i++)
         {
-            if (sortedLureFrames.Count !=0 && sortedWaypointFrames.Count != 0)
+            if (sortedLureFrames.Count !=0 && tempWaypointFrames.Count != 0)
             {
-                if (sortedLureFrames[0] < sortedWaypointFrames[0])
+                if (sortedLureFrames[0] < tempWaypointFrames[0])
                 {
-                    UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted spawn frame");
+                    //UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted lure frame");
                     sortedRetrievalFrames.Add(sortedLureFrames[0]);
                     sortedLureFrames.RemoveAt(0);
                 }
                 else
                 {
-                    UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
-                    sortedRetrievalFrames.Add(sortedWaypointFrames[0]);
-                    sortedWaypointFrames.RemoveAt(0);
+                    //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted lure frame");
+                    sortedRetrievalFrames.Add(tempWaypointFrames[0]);
+                    tempWaypointFrames.RemoveAt(0);
                 }
             }
             else
             {
                 if (sortedLureFrames.Count == 0)
-                    sortedRetrievalFrames.Add(sortedWaypointFrames[0]);
+                {
+                    sortedRetrievalFrames.Add(tempWaypointFrames[0]);
+                    tempWaypointFrames.RemoveAt(0);
+                }
                 else
+                {
                     sortedRetrievalFrames.Add(sortedLureFrames[0]);
+                    sortedLureFrames.RemoveAt(0);
+                }
             }
         }
-        
-
-
 
         UnityEngine.Debug.Log("finished picking");
+
+        for(int i=0;i<sortedSpawnFrames.Count;i++)
+        {
+            UnityEngine.Debug.Log("spawn order " + i.ToString() + ": " + sortedSpawnFrames[i].ToString());
+        }
+
+        retrievalFrameObjectDict = new Dictionary<int, GameObject>();
         yield return null;
     }
 
@@ -2220,6 +2358,13 @@ public class Experiment : MonoBehaviour {
                 return true;
         }
         return false;
+    }
+
+    public List<int> SortListInAscending(List<int> targetList)
+    {
+
+        targetList = targetList.OrderBy(p => p).ToList();
+        return targetList;
     }
 
     //used to present items
@@ -2255,8 +2400,8 @@ public class Experiment : MonoBehaviour {
         //if (stimulusObject.GetComponent<VisibilityToggler>() != null)
         //    stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
 
-        yield return StartCoroutine(SpawnSpecialObject(stimulusObject, stimulusObject.GetComponent<StimulusObject>().specialObjectSpawnPoint.position));
-        UnityEngine.Debug.Log("finished running collision");
+        //yield return StartCoroutine(SpawnSpecialObject(stimulusObject, stimulusObject.GetComponent<StimulusObject>().specialObjectSpawnPoint.position));
+        //UnityEngine.Debug.Log("finished running collision");
 
         string objectName = objController.ReturnStimuliDisplayText();
        // uiController.presentationItemText.enabled = true;
@@ -2307,11 +2452,11 @@ public class Experiment : MonoBehaviour {
 
         //	string name = specialObject.GetComponent<SpawnableObject>().GetDisplayName();
         //set special object text
-        stimObject.GetComponent<StimulusObject>().SetSpecialObjectText(stimDisplayText);
+        //stimObject.GetComponent<StimulusObject>().SetSpecialObjectText(stimDisplayText);
 
         //	Experiment.Instance.trialController.AddNameToList(specialObject, stimDisplayText);
 
-        stimObject.GetComponent<StimulusObject>().PlayJuice(true);
+        //stimObject.GetComponent<StimulusObject>().PlayJuice(true);
 
         //tell the trial controller to wait for the animation
         yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
@@ -2356,6 +2501,8 @@ public class Experiment : MonoBehaviour {
 
 
         }
+        //reset the dictionary
+        retrievalFrameObjectDict = new Dictionary<int, GameObject>(); 
         yield return null;
     }
 

@@ -30,6 +30,11 @@ public class Configuration : MonoBehaviour {
     public static float minJitterTime = 0.25f;
     public static float maxJitterTime = 0.8f;
 
+
+    //frame speed
+    public static float minFrameSpeed = 0.9f;
+    public static float maxFrameSpeed = 1.2f;
+
     //spawn possibility buffer to start and end of loop
     public static int startBuffer = 90;
     public static int endBuffer = 90;

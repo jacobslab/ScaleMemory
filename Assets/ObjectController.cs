@@ -19,6 +19,8 @@ public class ObjectController : MonoBehaviour
 
 	public GameObject lureColliderPrefab;
 
+	public GameObject placeholder;
+
 
 	public Texture currentStimuliImage;
 
