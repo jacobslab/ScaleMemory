@@ -39,7 +39,7 @@ public class Configuration : MonoBehaviour {
     public static int startBuffer = 90;
     public static int endBuffer = 90;
 
-    public static int minFramesBetweenStimuli = 75;
+    public static int minFramesBetweenStimuli = 150;
 
     public static int luresPerTrial = 2;
 

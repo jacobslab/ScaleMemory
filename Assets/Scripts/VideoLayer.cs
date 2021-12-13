@@ -221,6 +221,7 @@ public class VideoLayer : MonoBehaviour
     public void ToggleLayerVisibility(bool isVisible)
     {
         UnityEngine.Debug.Log("making " + gameObject.name + " visibility: " + isVisible.ToString());
+
     }
 
     public double GetPlaybackTime()
@@ -230,16 +231,16 @@ public class VideoLayer : MonoBehaviour
 
     public IEnumerator TogglePause(bool shouldPause)
     {
-        UnityEngine.Debug.Log("should pause? " + shouldPause.ToString());
+        //UnityEngine.Debug.Log("should pause? " + shouldPause.ToString());
         if (shouldPause)
         {
-            UnityEngine.Debug.Log("paused");
+            //UnityEngine.Debug.Log("paused");
             isPaused = true;
         }
         //videoPlayer.Pause();
         else
         {
-            UnityEngine.Debug.Log("unpaused");
+            //UnityEngine.Debug.Log("unpaused");
             isPaused = false;
         }
         //videoPlayer.Play();
@@ -250,12 +251,13 @@ public class VideoLayer : MonoBehaviour
 
     public IEnumerator ScrollToFrame(long frameNum)
     {
-        UnityEngine.Debug.Log("scrolling to frame " + frameNum.ToString());
+        UnityEngine.Debug.Log("scrolling to frame " + frameNum.ToString() + " for  " + gameObject.name);
         int targetFrame = (int)frameNum;
         float targetTime = targetFrame / frameRate;
         timeVar = targetTime; //update time var and the frame will be set correspondigly so when the Update loop runs next time
         currentFrame = (int)frameNum;
         //videoPlayer.frame = frameNum;
+
         yield return null;
     }
 

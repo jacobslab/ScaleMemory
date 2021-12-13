@@ -55,7 +55,7 @@ public class Experiment : MonoBehaviour {
     private Weather encodingWeather;
     private Weather retrievalWeather;
 
-    private List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
+    public List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
     private List<GameObject> contextDifferentWeatherTestList;
     private List<GameObject> contextSameWeatherTestList;
 
@@ -261,7 +261,7 @@ public class Experiment : MonoBehaviour {
         carSpeed = 0f;
 
         //initialize the weather as Night, by default
-        currentWeather = new Weather(Weather.WeatherType.Rainy);
+        currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(currentWeather);
 
 
@@ -288,6 +288,7 @@ public class Experiment : MonoBehaviour {
         retrievalObjList = new List<GameObject>();
         retrievalPositions = new List<Vector3>();
         retrievalFrames = new List<int>();
+        blockTestPairList = new List<BlockTestPair>();
 
         blockCount = totalTrials / trialsPerBlock;
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
@@ -569,10 +570,10 @@ public class Experiment : MonoBehaviour {
         
 
         //track familiarization
-          //yield return StartCoroutine("BeginTrackScreening");
+          //yield return StartCoroutine(BeginTrackScreening(false));
 
         //practice
-         yield return StartCoroutine("BeginPractice");
+         //yield return StartCoroutine("BeginPractice");
 
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
@@ -625,19 +626,29 @@ public class Experiment : MonoBehaviour {
 
 
 
-    IEnumerator BeginTrackScreening()
+    IEnumerator BeginTrackScreening(bool isWeatherFamiliarization)
     {
-        UnityEngine.Debug.Log("starting track screening");
-        currentStage = TaskStage.TrackScreening;
-        //overheadCam.SetActive(true);
-        //trackFamiliarizationQuad.SetActive(true);
-        //playerIndicatorSphere.SetActive(true);
-        trialLogTrack.LogTaskStage(currentStage, true);
+
+        if (!isWeatherFamiliarization)
+        {
+            UnityEngine.Debug.Log("starting track screening");
+            currentStage = TaskStage.TrackScreening;
+            //overheadCam.SetActive(true);
+            //trackFamiliarizationQuad.SetActive(true);
+            //playerIndicatorSphere.SetActive(true);
+            trialLogTrack.LogTaskStage(currentStage, true);
 
 
-        uiController.trackScreeningPanel.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
-        uiController.trackScreeningPanel.alpha = 0f;
+            uiController.trackScreeningPanel.alpha = 1f;
+            yield return StartCoroutine(WaitForActionButton());
+            uiController.trackScreeningPanel.alpha = 0f;
+        }
+        else
+        {
+            currentStage = TaskStage.WeatherFamiliarization;
+            trialLogTrack.LogTaskStage(currentStage, true);
+
+        }
         //player.gameObject.SetActive(true);
         //trafficLightController.MakeVisible(true);
         //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
@@ -661,9 +672,9 @@ public class Experiment : MonoBehaviour {
         //overheadCam.SetActive(false);
         //trackFamiliarizationQuad.SetActive(false);
         //playerIndicatorSphere.SetActive(false);
-        trialLogTrack.LogTaskStage(currentStage, false);
-
-        UnityEngine.Debug.Log("finished track screening");
+     
+        trialLogTrack.LogTaskStage(currentStage, true);
+        
         yield return null;
     }
 
@@ -1054,6 +1065,7 @@ public class Experiment : MonoBehaviour {
         currentStage = TaskStage.Encoding;
 
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward)); //encoding will always move in forward direction
         LapCounter.lapCount = 0;
         if (isPractice)
         {
@@ -1063,9 +1075,14 @@ public class Experiment : MonoBehaviour {
         {
             trialLogTrack.LogTaskStage(currentStage, true);
             yield return StartCoroutine(objController.SelectEncodingItems());
-            trialLogTrack.LogInstructions(true);
-            yield return StartCoroutine(ShowEncodingInstructions());
-            trialLogTrack.LogInstructions(false);
+
+            //ONLY show instructions for the first time
+            if (trialCount <= 1)
+            {
+                trialLogTrack.LogInstructions(true);
+                yield return StartCoroutine(ShowEncodingInstructions());
+                trialLogTrack.LogInstructions(false);
+            }
         }
 
         //reset the waypoint tracker of the car
@@ -1176,15 +1193,16 @@ public class Experiment : MonoBehaviour {
         IEnumerator ResetTrack()
         {
         UnityEngine.Debug.Log("resetting track");
-        UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
-            for (int k = 0; k < spawnedObjects.Count; k++)
-            {
-                //destroy the ItemColliderBox which is the parent
-                Destroy(spawnedObjects[k].transform.gameObject);
-            }
+        //UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
+        //    for (int k = 0; k < spawnedObjects.Count; k++)
+        //    {
+        //        //destroy the ItemColliderBox which is the parent
+        //        Destroy(spawnedObjects[k].transform.gameObject);
+        //    }
 
             //reset everything before the next block begins
             spawnFrames.Clear();
+        //clear the list without destroying the objects yet
             spawnedObjects.Clear();
 
         //destroy all lure objects
@@ -1203,12 +1221,15 @@ public class Experiment : MonoBehaviour {
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
             chequeredFlag.SetActive(true);
 
+        uiController.blackScreen.alpha = 1f;
         //make sure video is paused and returned to start
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         yield return StartCoroutine(videoLayerManager.ReturnToStart());
 
-            //	objController.encodingList.Clear();
-            LapCounter.lapCount = 0;
+        uiController.blackScreen.alpha = 0f;
+
+        //	objController.encodingList.Clear();
+        LapCounter.lapCount = 0;
             player.transform.position = startTransform.position;
             yield return null;
         }
@@ -1356,15 +1377,17 @@ public class Experiment : MonoBehaviour {
     {
 
         //retrieval time
-        SetCarMovement(false);
+        //SetCarMovement(false);
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+
         UnityEngine.Debug.Log("beginning retrieval");
         //hide encoding objects and text
-        for (int j = 0; j < spawnedObjects.Count; j++)
-        {
-            //spawnedObjects[j].gameObject.SetActive(false);
-            spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
+        //for (int j = 0; j < spawnedObjects.Count; j++)
+        //{
+        //    //spawnedObjects[j].gameObject.SetActive(false);
+        //    //spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
 
-        }
+        //}
 
 
         //	currentStage = Experiment.TaskStage.Retrieval;
@@ -1377,7 +1400,7 @@ public class Experiment : MonoBehaviour {
 
         //disable player collider box before transporting to new location
 
-        player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
+        //player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
 
         //player.transform.position = randStartTransform.position;
         //player.transform.rotation = randStartTransform.rotation;
@@ -1387,11 +1410,11 @@ public class Experiment : MonoBehaviour {
 
         //player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
 
-        trialLogTrack.LogRetrievalStartPosition(player.transform.position);
+        //trialLogTrack.LogRetrievalStartPosition(player.transform.position);
 
-        player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = false;
+        //player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = false;
 
-        player.GetComponent<CarMover>().Reset();
+        //player.GetComponent<CarMover>().Reset();
         //player.GetComponent<WaypointProgressTracker>().Reset();
 
         LapCounter.lapCount = 0; //reset lap count for retrieval 
@@ -1445,9 +1468,10 @@ public class Experiment : MonoBehaviour {
 
 
             finishedRetrieval = true;
-            SetCarMovement(false);
+            //SetCarMovement(false);
+            yield return StartCoroutine(videoLayerManager.PauseAllLayers());
 
-            uiController.fixationPanel.alpha = 1f;
+            uiController.blackScreen.alpha = 1f;
 
             uiController.targetTextPanel.alpha = 0f;
             /*
@@ -1457,9 +1481,9 @@ public class Experiment : MonoBehaviour {
             uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
             */
 
-            trafficLightController.MakeVisible(false);
-            yield return new WaitForSeconds(1f);
-            uiController.fixationPanel.alpha = 0f;
+            //trafficLightController.MakeVisible(false);
+            //yield return new WaitForSeconds(1f);
+            uiController.blackScreen.alpha = 0f;
 
             //set the car movement in forward direction
             yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -1472,6 +1496,7 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunVerbalRetrieval()
     {
+        uiController.blackScreen.alpha = 1f;
         //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         //yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
         //player.GetComponent<CarMover>().ResetWaypointTarget();
@@ -1482,6 +1507,8 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
         //sort retrieval frames based on new starting position
         yield return StartCoroutine("SortRetrievalFrames");
+
+        uiController.blackScreen.alpha = 0f;
 
         //pick next frame
         yield return StartCoroutine(UpdateNextSpawnFrame());
@@ -1514,6 +1541,7 @@ public class Experiment : MonoBehaviour {
 
         while (retCount < testLength)
         {
+            UnityEngine.Debug.Log("ret count " + retCount.ToString());
             yield return 0;
         }
         //verbalRetrieval = false;
@@ -1526,10 +1554,25 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunSpatialRetrieval()
     {
+        uiController.fixationPanel.alpha = 1f;
         //SetCarMovement(false);
         player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(true);
         yield return StartCoroutine(GenerateLureSpots()); //create lures
-        //trafficLightController.MakeVisible(false);
+                                                          //trafficLightController.MakeVisible(false);
+
+
+        //pick random start position
+        yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
+        //sort retrieval frames based on new starting position
+        yield return StartCoroutine("SortRetrievalFrames");
+
+
+        //pick next frame
+        yield return StartCoroutine(UpdateNextSpawnFrame());
+
+
+        uiController.fixationPanel.alpha = 0f;
+
         //carSpeed = 0f;
         spatialFeedbackStatus.Clear();
         spatialFeedbackStatus = new List<bool>();
@@ -1662,7 +1705,8 @@ public class Experiment : MonoBehaviour {
 
             ChangeLighting(currentWeather);
             UnityEngine.Debug.Log("changed weather to " +  currentWeather.weatherMode.ToString());
-            yield return StartCoroutine("RunEncoding");
+            yield return StartCoroutine(BeginTrackScreening(true));
+            //yield return StartCoroutine("RunEncoding");
             ToggleFixation(true);
             yield return new WaitForSeconds(0.5f);
             yield return StartCoroutine("ResetTrack");
@@ -1674,6 +1718,9 @@ public class Experiment : MonoBehaviour {
     IEnumerator RunBlockTests()
     {
 
+        UnityEngine.Debug.Log("running end of block tests");
+        UnityEngine.Debug.Log("stim block sequence length" + stimuliBlockSequence.Count.ToString());
+
         yield return StartCoroutine(GenerateBlockTestPairs());
         yield return StartCoroutine(GenerateContextRecollectionList()); //generate list from the remaining indices in the stimuliBlockSequence
 
@@ -1681,12 +1728,14 @@ public class Experiment : MonoBehaviour {
         //perform each of those tests for the paired list in sequence
         for (int i = 0; i < blockTestPairList.Count; i++)
         {
-            yield return StartCoroutine(RunTemporalOrderTest());
-            yield return StartCoroutine(RunTemporalDistanceTest());
+            yield return StartCoroutine(RunTemporalOrderTest(blockTestPairList[i]));
+            yield return StartCoroutine(RunTemporalDistanceTest(blockTestPairList[i]));
         }
-
-        //this will be run on a randomized set of items that weren't included in the tests above
-        yield return StartCoroutine(RunContextRecollectionTest());
+        for (int i = 0; i < contextDifferentWeatherTestList.Count; i++)
+        {
+            //this will be run on a randomized set of items that weren't included in the tests above
+            yield return StartCoroutine(RunContextRecollectionTest(contextDifferentWeatherTestList[i]));
+        }
         yield return null;
     }
 
@@ -1732,29 +1781,43 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    IEnumerator RunTemporalOrderTest()
+    IEnumerator RunTemporalOrderTest(BlockTestPair testPair)
     {
+        uiController.temporalOrderItemA.text = testPair.firstItem.gameObject.name;
+        uiController.temporalOrderItemB.text = testPair.secondItem.gameObject.name;
+
+        string selectionType = "TemporalOrder";
+
+        yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
 
         uiController.temporalOrderTestPanel.alpha = 1f;
+
         uiController.ToggleSelection(true);
         //wait for the options to be selected
         canSelect = true;
-        yield return StartCoroutine(WaitForSelection());
+        yield return StartCoroutine(WaitForSelection(selectionType));
         canSelect = false;
         uiController.ToggleSelection(false);
         uiController.temporalOrderTestPanel.alpha = 0f;
         yield return null;
     }
 
-    IEnumerator RunTemporalDistanceTest()
+    IEnumerator RunTemporalDistanceTest(BlockTestPair testPair)
     {
 
+        uiController.temporalDistanceItemA.text = testPair.firstItem.gameObject.name;
+        uiController.temporalDistanceItemB.text = testPair.secondItem.gameObject.name;
+
+        string selectionType = "TemporalDistancr]e";
+
+        yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         uiController.temporalDistanceTestPanel.alpha = 1f;
+
 
         //wait for the selection of options
         uiController.ToggleSelection(true);
         canSelect = true;
-        yield return StartCoroutine(WaitForSelection());
+        yield return StartCoroutine(WaitForSelection(selectionType));
         canSelect = false;
         uiController.ToggleSelection(false);
 
@@ -1762,13 +1825,20 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    IEnumerator RunContextRecollectionTest()
+    IEnumerator RunContextRecollectionTest(GameObject testGameObject)
     {
+        uiController.contextRecollectionItem.text = testGameObject.name;
         uiController.contextRecollectionTestPanel.alpha = 1f;
 
         List<int> randOrder = new List<int>();
 
+        //wait for the selection of options
+        uiController.ToggleSelection(true);
+        canSelect = true;
+
         yield return StartCoroutine(WaitForActionButton());
+        canSelect = false;
+        uiController.ToggleSelection(false);
         uiController.contextRecollectionTestPanel.alpha = 0f;
         yield return null;
     }
@@ -1828,12 +1898,13 @@ public class Experiment : MonoBehaviour {
 
     }
 
-    IEnumerator WaitForSelection()
+    IEnumerator WaitForSelection(string selectionType)
     {
         while (!Input.GetKeyDown(KeyCode.X))
         {
             yield return null;
         }
+        trialLogTrack.LogUserChoiceSelection(uiController.GetSelectionIndex(), selectionType);
         yield return null;
     }
 
@@ -1861,12 +1932,15 @@ public class Experiment : MonoBehaviour {
         uiController.ResetRetrievalInstructions();
         uiController.itemReactivationPanel.alpha = 1f;
         uiController.itemReactivationText.text = stimObject.GetComponent<StimulusObject>().GetObjectName();
-        yield return StartCoroutine(uiController.SetupSelectionOptions("Item"));
+
+        string selectionType = "Item";
+
+        yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         yield return new WaitForSeconds(Configuration.itemReactivationTime);
         uiController.itemReactivationDetails.alpha = 1f;
         uiController.ToggleSelection(true);
         canSelect = true;
-        yield return StartCoroutine(WaitForSelection());
+        yield return StartCoroutine(WaitForSelection(selectionType));
 
         uiController.itemReactivationDetails.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 0f;
@@ -1895,12 +1969,15 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         uiController.ResetRetrievalInstructions();
         uiController.locationReactivationPanel.alpha = 1f;
-        yield return StartCoroutine(uiController.SetupSelectionOptions("Location"));
+
+        string selectionType = "Location";
+
+        yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
         uiController.ToggleSelection(true);
         canSelect = true;
-        yield return StartCoroutine(WaitForSelection());
+        yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.locationReactivationPanel.alpha = 0f;
         uiController.ToggleSelection(false);
         canSelect = false;
@@ -1946,7 +2023,7 @@ public class Experiment : MonoBehaviour {
         //play off beep
         audioRecorder.beepLow.Play();
 
-        retCount++;
+        //retCount++;
        // uiController.verbalInstruction.alpha = 0f;
         SetCarMovement(false);
         yield return null;
@@ -2077,11 +2154,19 @@ public class Experiment : MonoBehaviour {
         //this includes both stim items and lures
         else
         {
-            if (sortedRetrievalFrames.Count > 0)
+            if (currentStage == TaskStage.VerbalRetrieval)
             {
-                nextSpawnFrame = sortedRetrievalFrames[0];
-                UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
-                sortedRetrievalFrames.RemoveAt(0);
+                if (sortedRetrievalFrames.Count > 0)
+                {
+                    nextSpawnFrame = sortedRetrievalFrames[0];
+                    UnityEngine.Debug.Log("next retrieval frame " + nextSpawnFrame.ToString());
+                    sortedRetrievalFrames.RemoveAt(0);
+                }
+                else
+                {
+
+                    nextSpawnFrame = -10000;
+                }
             }
             else
             {

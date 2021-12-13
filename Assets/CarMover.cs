@@ -87,10 +87,16 @@ public class CarMover : MonoBehaviour
 
             UnityEngine.Debug.Log("set new direction");
             currentMovementDirection = newMovementDirection;
+            if (currentMovementDirection == MovementDirection.Forward)
+                Experiment.Instance.videoLayerManager.ChangePlaybackDirection(VideoLayerManager.Direction.Forward);
+            else
+                Experiment.Instance.videoLayerManager.ChangePlaybackDirection(VideoLayerManager.Direction.Backward);
+
+
 
 
             //  yield return new WaitForSeconds(0.5f);
-           // UnityEngine.Debug.Log("set new movement direction  " + currentMovementDirection.ToString());
+            // UnityEngine.Debug.Log("set new movement direction  " + currentMovementDirection.ToString());
         }
         yield return null;
     }

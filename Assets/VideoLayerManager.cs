@@ -111,7 +111,18 @@ public class VideoLayerManager : MonoBehaviour
         GameObject stimObject = Instantiate(Experiment.Instance.objController.placeholder, currTransform.position, currTransform.rotation);
         stimObject.GetComponent<StimulusObject>().stimuliDisplayName = stimDisplayText;
         stimObject.GetComponent<StimulusObject>().stimuliDisplayTexture = stimImage;
-        Experiment.Instance.spawnedObjects.Add(stimObject); //add it tot he list
+        stimObject.gameObject.name = stimDisplayText;
+        Experiment.Instance.spawnedObjects.Add(stimObject); //add it to the list
+
+        UnityEngine.Debug.Log("adding to stim block sequence");
+        Experiment.Instance.stimuliBlockSequence.Add(stimObject); //add to the stim block sequence for end of the block tests
+        UnityEngine.Debug.Log("new length of stim block sequence " + Experiment.Instance.stimuliBlockSequence.Count.ToString());
+
+        for(int i=0;i<Experiment.Instance.stimuliBlockSequence.Count;i++)
+        {
+            UnityEngine.Debug.Log("inside stim block sequence " + i.ToString() + " : " + Experiment.Instance.stimuliBlockSequence[i].ToString());
+        }
+
 
         Experiment.Instance.retrievalFrameObjectDict.Add(Experiment.nextSpawnFrame, stimObject);
 
@@ -158,9 +169,12 @@ public class VideoLayerManager : MonoBehaviour
     IEnumerator SetupLayers()
     {
         //TODO: Control this from elsewhere
+        yield return StartCoroutine(AddToActiveVideoLayer(sunnyLayer, false));
+        yield return StartCoroutine(AddToActiveVideoLayer(rainyLayer, false));
+        yield return StartCoroutine(AddToActiveVideoLayer(nightLayer, false));
         backgroundLayer = rainyLayer; //set background to rain by default, for now
 
-        yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
+        //yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
         //yield return StartCoroutine(AddToActiveVideoLayer(itemLayer, false)); //item layer is not visible by default
         yield return null;
     }
@@ -194,26 +208,37 @@ public class VideoLayerManager : MonoBehaviour
         if (backgroundLayer != null)
         {
             VideoLayer tempOldLayer = backgroundLayer;
-            backgroundLayer.ToggleLayerVisibility(false);
+            //backgroundLayer.ToggleLayerVisibility(false);
+            backgroundLayer.gameObject.SetActive(false);
+            backgroundLayer.TogglePause(true);
         }
         switch(targetWeather)
         {
             case Weather.WeatherType.Sunny:
-                sunnyLayer.ToggleLayerVisibility(true);
+                //sunnyLayer.ToggleLayerVisibility(true);
+                sunnyLayer.gameObject.SetActive(true);
+                sunnyLayer.TogglePause(false);
                 backgroundLayer = sunnyLayer;
                 break;
             case Weather.WeatherType.Rainy:
-                rainyLayer.ToggleLayerVisibility(true);
+                //rainyLayer.ToggleLayerVisibility(true);
+                rainyLayer.gameObject.SetActive(true);
+                rainyLayer.TogglePause(false);
                 backgroundLayer = rainyLayer;
                 break;
             case Weather.WeatherType.Night:
-                nightLayer.ToggleLayerVisibility(true);
+                //nightLayer.ToggleLayerVisibility(true);
+
+                nightLayer.gameObject.SetActive(true);
+                nightLayer.TogglePause(false);
                 backgroundLayer = nightLayer;
                 break;
 
             default:
-                rainyLayer.ToggleLayerVisibility(true);
-                backgroundLayer = rainyLayer;
+                //sunnyLayer.ToggleLayerVisibility(true);
+                sunnyLayer.gameObject.SetActive(true);
+                sunnyLayer.TogglePause(false);
+                backgroundLayer = sunnyLayer;
                 break;
 
 
@@ -265,9 +290,8 @@ public class VideoLayerManager : MonoBehaviour
             yield return StartCoroutine(layer.PrepareVideoTexture());
 
 
-        //check to see if we should immediately begin playback of the layer
-        if (isVisible)
-            layer.ToggleLayerVisibility(true);
+        //check to see if layer should be visible for playback
+        layer.ToggleLayerVisibility(isVisible);
         
         //yield return StartCoroutine(layer.BeginPlayback());
 
@@ -315,7 +339,7 @@ public class VideoLayerManager : MonoBehaviour
     }
 
 
-    void ChangePlaybackDirection(Direction newDirection)
+    public void ChangePlaybackDirection(Direction newDirection)
     {
         for(int i=0;i<layerList.Count;i++)
         {
@@ -325,7 +349,7 @@ public class VideoLayerManager : MonoBehaviour
 
     IEnumerator TogglePauseLayerPlayback(bool isPaused)
     {
-        UnityEngine.Debug.Log("toggling pause " + isPaused.ToString() + " for " + layerList.Count.ToString());
+        //UnityEngine.Debug.Log("toggling pause " + isPaused.ToString() + " for " + layerList.Count.ToString());
         for (int i = 0; i < layerList.Count; i++)
         {
                 yield return StartCoroutine(layerList[i].TogglePause(isPaused));
@@ -359,6 +383,10 @@ public class VideoLayerManager : MonoBehaviour
         {
             UnityEngine.Debug.Log("scrolling to start frame");
             yield return StartCoroutine(layerList[i].ScrollToFrame(randStartFrame));
+
+            yield return StartCoroutine(layerList[i].TogglePause(false));
+            yield return new WaitForSeconds(0.2f);
+            yield return StartCoroutine(layerList[i].TogglePause(true));
         }
         //log the frame in the logfile
         Experiment.Instance.trialLogTrack.LogRetrievalStartPosition(Experiment.Instance.GetTransformForFrame(randStartFrame).position);
@@ -370,7 +398,10 @@ public class VideoLayerManager : MonoBehaviour
         for(int i=0;i<layerList.Count;i++)
         {
             UnityEngine.Debug.Log("scrolling to start frame");
-            yield return StartCoroutine(layerList[i].ScrollToFrame(0));
+            yield return StartCoroutine(layerList[i].ScrollToFrame(1));
+            yield return StartCoroutine(layerList[i].TogglePause(false));
+            yield return new WaitForSeconds(0.2f);
+            yield return StartCoroutine(layerList[i].TogglePause(true));
         }
         yield return null;
     }

@@ -1,18 +1,20 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/VideoLayerManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="359" Column="41" IsPinned="True" />
-      <File FileName="Assets/Scripts/VideoLayer.cs" IsPinned="True" />
-      <File FileName="Assets/VideoLayerManager.cs" Line="203" Column="39" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" Line="250" Column="1" IsPinned="True" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1975" Column="85" IsPinned="True" />
+      <File FileName="Assets/VideoLayerManager.cs" Line="123" Column="146" IsPinned="True" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="71" Column="23" />
       <File FileName="Assets/SpeedZoneChecker.cs" />
       <File FileName="Assets/DefaultItem.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" />
-      <File FileName="Assets/CarStopper.cs" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="270" Column="29" />
+      <File FileName="Assets/CarStopper.cs" Line="5" Column="35" />
       <File FileName="Assets/ObjectController.cs" />
       <File FileName="Assets/Placeholder.cs" />
       <File FileName="Assets/Scripts/StimulusObject.cs" />
-      <File FileName="Assets/CarMover.cs" />
+      <File FileName="Assets/CarMover.cs" Line="91" Column="74" />
+      <File FileName="Assets/Scripts/BlockTestPair.cs" Line="18" Column="12" />
+      <File FileName="Assets/Scripts/Logging/TrialLogTrack.cs" Line="151" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-firstpass PreferredExecutionTarget="MonoDevelop.Default" />

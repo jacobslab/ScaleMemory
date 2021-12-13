@@ -147,6 +147,23 @@ public class TrialLogTrack : LogTrack {
 
 	}
 
+	public void LogUserChoiceSelection(int selectionIndex, string selectionType)
+    {
+		switch(selectionType)
+        {
+			case "Item":
+				break;
+			case "Location":
+				break;
+			case "TemporalOrder":
+				break;
+			case "TemporalDistance":
+				break;
+			case "ContextRecollection":
+				break;
+		}
+    }
+
 	public void LogTrafficLightVisibility(bool isVisible)
     {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "TRAFFIC_LIGHT_VISIBLE" + separator + ((isVisible) ? "TRUE" : "FALSE"));

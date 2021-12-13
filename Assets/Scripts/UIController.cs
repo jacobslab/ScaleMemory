@@ -69,6 +69,15 @@ public class UIController : MonoBehaviour
     public CanvasGroup temporalDistanceTestPanel;
     public CanvasGroup contextRecollectionTestPanel;
 
+    public Text temporalOrderItemA;
+    public Text temporalOrderItemB;
+
+    public Text temporalDistanceItemA;
+    public Text temporalDistanceItemB;
+
+
+    public Text contextRecollectionItem;
+
     //intro panel
     public CanvasGroup taskIntroPanel;
 
@@ -124,9 +133,12 @@ public class UIController : MonoBehaviour
 
     public List<GameObject> itemCuedSelectionCanvasElements = new List<GameObject>();
     public List<GameObject> locationCuedSelectionCanvasElements = new List<GameObject>();
+    public List<GameObject> temporalDistanceCanvasElements = new List<GameObject>();
+
 
     private List<Vector3> itemCuedSelectionPositions = new List<Vector3>();
     private List<Vector3> locationCuedSelectionPositions = new List<Vector3>();
+    private List<Vector3> temporalDistancePositions = new List<Vector3>();
 
     private List<Vector3> activeSelectionPositions;
     private int currSelection = 0;
@@ -156,6 +168,8 @@ public class UIController : MonoBehaviour
         presentationItemText.enabled = false;
         selectionImage.enabled = false;
 
+        blackScreen.alpha = 0f;
+
 
         activeSelectionPositions = new List<Vector3>();
      //   retrievalTextPanel.alpha = 0f;
@@ -167,6 +181,11 @@ public class UIController : MonoBehaviour
         for (int i = 0; i < locationCuedSelectionCanvasElements.Count; i++)
         {
             locationCuedSelectionPositions.Add(locationCuedSelectionCanvasElements[i].GetComponent<RectTransform>().anchoredPosition);
+        }
+
+        for (int i = 0; i < temporalDistanceCanvasElements.Count; i++)
+        {
+            temporalDistancePositions.Add(temporalDistanceCanvasElements[i].GetComponent<RectTransform>().anchoredPosition);
         }
     }
 
@@ -251,29 +270,50 @@ public class UIController : MonoBehaviour
         return currSelection;
     }
 
-    public IEnumerator SetupSelectionOptions(string retrievalType)
+    public IEnumerator SetupSelectionOptions(string selectionType)
     {
         //reset
         activeSelectionPositions.Clear();
 
         activeSelectionPositions = new List<Vector3>();
-        if (retrievalType == "Item")
+
+        switch (selectionType)
         {
-            for(int i=0;i<itemCuedSelectionPositions.Count;i++)
+            case "Item":
+            for (int i = 0; i < itemCuedSelectionPositions.Count; i++)
             {
                 activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
             }
             maxOptions = itemCuedSelectionPositions.Count;
+            break;
 
-        }
-        else if (retrievalType == "Location")
-        {
+            case "Location":
             for (int i = 0; i < locationCuedSelectionPositions.Count; i++)
             {
                 activeSelectionPositions.Add(locationCuedSelectionPositions[i]);
             }
             maxOptions = locationCuedSelectionPositions.Count;
-        }
+            break;
+            case "TemporalOrder":
+                for (int i = 0; i < locationCuedSelectionPositions.Count; i++)
+                {
+                    activeSelectionPositions.Add(locationCuedSelectionPositions[i]);
+                }
+                break;
+            case "TemporalDistance":
+                for (int i = 0; i < temporalDistancePositions.Count; i++)
+                {
+                    activeSelectionPositions.Add(temporalDistancePositions[i]);
+                }
+                break;
+            case "ContextRecollection":
+                for (int i = 0; i < itemCuedSelectionPositions.Count; i++)
+                {
+                    activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
+                }
+                break;
+
+        }   
 
         UnityEngine.Debug.Log("setting selection options with max options at " + maxOptions.ToString());
         currSelection = 0;
