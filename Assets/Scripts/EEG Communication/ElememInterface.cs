@@ -22,6 +22,7 @@ public abstract class IHostPC : EventLoop
 
 public class ElememListener
 {
+#if !UNITY_WEBGL
     ElememInterface elemem;
     Byte[] buffer;
     const Int32 bufferSize = 2048;
@@ -368,4 +369,5 @@ public class ElememInterface : IHostPC
         im.Do(new EventBase<string, Dictionary<string, object>, DateTime>(im.ReportEvent, "network",
                                 messageDataDict, HighResolutionDateTime.UtcNow));
     }
+#endif
 }

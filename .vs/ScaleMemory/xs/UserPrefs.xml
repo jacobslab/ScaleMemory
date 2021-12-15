@@ -1,26 +1,28 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Logging/Logger_Threading.cs">
     <Files>
-      <File FileName="Assets/Scripts/VideoLayer.cs" Line="250" Column="1" IsPinned="True" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1975" Column="85" IsPinned="True" />
-      <File FileName="Assets/VideoLayerManager.cs" Line="123" Column="146" IsPinned="True" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="71" Column="23" />
-      <File FileName="Assets/SpeedZoneChecker.cs" />
-      <File FileName="Assets/DefaultItem.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="270" Column="29" />
-      <File FileName="Assets/CarStopper.cs" Line="5" Column="35" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" Line="95" Column="62" IsPinned="True" />
+      <File FileName="Assets/VideoLayerManager.cs" Line="329" Column="27" IsPinned="True" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/ObjectController.cs" />
-      <File FileName="Assets/Placeholder.cs" />
       <File FileName="Assets/Scripts/StimulusObject.cs" />
-      <File FileName="Assets/CarMover.cs" Line="91" Column="74" />
-      <File FileName="Assets/Scripts/BlockTestPair.cs" Line="18" Column="12" />
-      <File FileName="Assets/Scripts/Logging/TrialLogTrack.cs" Line="151" Column="6" />
+      <File FileName="Assets/CarMover.cs" />
+      <File FileName="Assets/Scripts/Logging/TrialLogTrack.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="509" Column="19" />
+      <File FileName="Assets/Editor/RemoveAssetBundles.cs" />
+      <File FileName="Assets/Scripts/AudioRecorder.cs" />
+      <File FileName="Assets/Scripts/TestMic.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="132" Column="58" />
+      <File FileName="Assets/Scripts/LoadScenePrefabs.cs" />
+      <File FileName="Assets/ItemLayer.cs" Line="40" Column="27" />
+      <File FileName="Assets/Scripts/Logging/Logger_Threading.cs" Line="114" Column="36" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-firstpass PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="39808dec-a732-4b71-9e3a-c5368bacaa45" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="40f7f358-21de-40c4-888b-48456fb5f01f" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

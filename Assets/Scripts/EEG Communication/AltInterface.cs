@@ -13,10 +13,10 @@ using System.Linq;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 
+#if !UNITY_WEBGL
 
 public class AltWrapper : IHostPC
 {
-
 
     // InterfaceManager manager;
 
@@ -638,5 +638,10 @@ public class AltInterface : MonoBehaviour
     {
         elememWorker.Stop();
     }
+}
+#else
+public class AltInterface : MonoBehaviour
+{
 
 }
+#endif

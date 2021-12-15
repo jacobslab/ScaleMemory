@@ -122,6 +122,64 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &134086
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 134088}
+  - component: {fileID: 134087}
+  m_Layer: 0
+  m_Name: AssetBundleLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &134087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc07ee0cedb34af18a22b05aed4827a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentActiveObj: {fileID: 0}
+  treasureChestPrefab: {fileID: 0}
+  treasureBundle: {fileID: 0}
+  envBundle: {fileID: 0}
+  audioBundle: {fileID: 0}
+  beepLow: {fileID: 0}
+  beepHigh: {fileID: 0}
+  magicWand: {fileID: 0}
+  correct: {fileID: 0}
+  wrong: {fileID: 0}
+  source: {fileID: 0}
+  scenePrefabLoader: {fileID: 960797089}
+  isWeb: 1
+  vidLayerManager: {fileID: 1512702594}
+--- !u!4 &134088
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134086}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 960, y: 540, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 960797090}
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8694533
 GameObject:
   m_ObjectHideFlags: 0
@@ -5248,7 +5306,7 @@ GameObject:
   - component: {fileID: 716523871}
   - component: {fileID: 716523872}
   m_Layer: 0
-  m_Name: ITEM_LAYER
+  m_Name: ITEM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5277,16 +5335,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 716523870}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9aa4bb0d92dd148e9a5bfe24f6c54714, type: 3}
+  m_Script: {fileID: 11500000, guid: c4dcacf28f427489eab4558f8fed1ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  videoPlayer: {fileID: 2146605778}
-  vidClip: {fileID: 32900000, guid: 297ef5a578c1e452d97e51bdd62e18fd, type: 3}
-  numberOfFrames: 3
-  frameRate: 30
   bgLayer: {fileID: 1893939584}
-  layerName: rain_card
-  videoLayerManager: {fileID: 1512702594}
 --- !u!1 &717559152
 GameObject:
   m_ObjectHideFlags: 0
@@ -6901,8 +6953,52 @@ MonoBehaviour:
   numberOfFrames: 1131
   frameRate: 30
   bgLayer: {fileID: 1270324081}
+  frames: []
   layerName: rain
   videoLayerManager: {fileID: 1512702594}
+--- !u!1 &960797088
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 960797090}
+  - component: {fileID: 960797089}
+  m_Layer: 0
+  m_Name: LoadScenePrefabs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &960797089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960797088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f18bb36d5d7834021a35728465ac5c83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &960797090
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960797088}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 134088}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &978307206
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7888,6 +7984,7 @@ MonoBehaviour:
   numberOfFrames: 1131
   frameRate: 30
   bgLayer: {fileID: 1270324081}
+  frames: []
   layerName: night
   videoLayerManager: {fileID: 1512702594}
 --- !u!1001 &1139378473
@@ -8610,16 +8707,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe1c259f8f0715146b172defd09e777f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioLogger: {fileID: 1250358486}
-  sensitivity: 100
-  samplerate: 44100
-  ramFlushSpeed: 5
-  sourceVolume: 100
-  GuiSelectDevice: 1
-  micControl: 0
-  beepHigh: {fileID: 1977442533}
-  beepLow: {fileID: 747777902}
-  recordText: {fileID: 0}
 --- !u!4 &1250358485
 Transform:
   m_ObjectHideFlags: 0
@@ -8910,6 +8997,36 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1251720745}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1253711133
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1253711134}
+  m_Layer: 0
+  m_Name: ImageLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1253711134
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253711133}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 960, y: 540, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1270324079
 GameObject:
   m_ObjectHideFlags: 0
@@ -9481,7 +9598,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 486e54f8403ba471383efdf3a6ef7c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 1351768507}
 --- !u!4 &1351768506
 Transform:
   m_ObjectHideFlags: 0
@@ -9508,11 +9624,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18922e5f4d500e4cae1cc7c47537ebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highBeep: {fileID: 0}
-  lowBeep: {fileID: 0}
-  lowerBeep: {fileID: 0}
-  playback: {fileID: 0}
-  ramulator: {fileID: 1351768505}
 --- !u!1001 &1358325179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9657,8 +9768,7 @@ MonoBehaviour:
   objManager: {fileID: 0}
   uiController: {fileID: 1772457633}
   objController: {fileID: 365386425}
-  interfaceManager: {fileID: 1351768507}
-  ramulatorInterface: {fileID: 1351768505}
+  assetBundleLoader: {fileID: 134087}
   player: {fileID: 1450706164}
   magicWand: {fileID: 8300000, guid: 76f3133a75e0c4ad3b4294551b5f2e70, type: 3}
   videoLayerManager: {fileID: 1512702594}
@@ -10626,6 +10736,7 @@ MonoBehaviour:
   itemLayer: {fileID: 716523872}
   globalFrameUpdateSpeed: 30
   currentPlaybackDirection: 0
+  newTextures: []
 --- !u!4 &1512702595
 Transform:
   m_ObjectHideFlags: 0
@@ -11804,6 +11915,7 @@ MonoBehaviour:
   numberOfFrames: 120
   frameRate: 30
   bgLayer: {fileID: 1270324081}
+  frames: []
   layerName: 
   videoLayerManager: {fileID: 0}
 --- !u!1 &1670487993
@@ -12833,7 +12945,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 12.900024, y: 7}
+  m_AnchoredPosition: {x: 12.899902, y: 7}
   m_SizeDelta: {x: 25.776245, y: 14.059692}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1806373932
@@ -13763,6 +13875,7 @@ MonoBehaviour:
   numberOfFrames: 1131
   frameRate: 30
   bgLayer: {fileID: 1270324081}
+  frames: []
   layerName: sunny
   videoLayerManager: {fileID: 1512702594}
 --- !u!1 &1920373026

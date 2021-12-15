@@ -14,6 +14,7 @@ using UnityEngine;
 
 public class InterfaceManager : MonoBehaviour
 {
+#if !UNITY_WEBGL
     private static string quitKey = "escape"; // escape to quit
     const string SYSTEM_CONFIG = "config.json";
 
@@ -692,4 +693,5 @@ public class InterfaceManager : MonoBehaviour
     {
         mainEvents.DoRepeating(thisEvent, iterations, delay, interval);
     }
+#endif
 }

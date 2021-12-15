@@ -110,6 +110,8 @@ public class Logger_Threading : MonoBehaviour{
 
 	LoggerQueue myLoggerQueue;
 	LoggerWriter myLoggerWriter;
+
+	public static bool canLog = false;
 	public bool isRunning=false;
 	long frameCount;
 	public StreamWriter logfile;

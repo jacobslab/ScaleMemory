@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -35,7 +36,7 @@ public class VideoLayer : MonoBehaviour
 
     public static float speed = 1f;
 
-    private Texture2D[] frames;
+    public Texture2D[] frames;
 
     public string layerName = "";
 
@@ -62,6 +63,8 @@ public class VideoLayer : MonoBehaviour
     void Start()
     {
         // load all frames of this layer
+
+#if !UNITY_WEBGL
         frames = new Texture2D[numberOfFrames];
         for (int i = 0; i < numberOfFrames; ++i)
         {
@@ -69,7 +72,7 @@ public class VideoLayer : MonoBehaviour
         }
 
         bgLayer.texture = frames[0];
-
+#endif
         UnityEngine.Debug.Log("loaded " + frames.Length.ToString() + " frames for " + gameObject.name);
         if (spawnPointReachedEvent == null)
             spawnPointReachedEvent = new UnityEvent();
@@ -82,6 +85,20 @@ public class VideoLayer : MonoBehaviour
         retrievalPointReachedEvent.AddListener(OnRetrievalPointReached);
         StartCoroutine("RandomizeFrameSpeed");
 
+    }
+
+    public IEnumerator FillImages(List<Texture2D> newTextures)
+    {
+        frames = new Texture2D[numberOfFrames];
+        for (int i = 0; i < newTextures.Count; ++i)
+        {
+            //UnityEngine.Debug.Log("adding " + newTextures[i].name.ToString());
+            frames[i] = newTextures[i];
+            //frames[i] = (Texture2D)Resources.Load(layerName + "/" + string.Format(layerName + "-{0:d3}", i + 1));
+        }
+
+        bgLayer.texture = frames[0];
+        yield return null;
     }
 
     IEnumerator RandomizeFrameSpeed()

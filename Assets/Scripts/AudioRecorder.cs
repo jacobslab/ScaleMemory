@@ -9,6 +9,7 @@ using System.Reflection;
 [RequireComponent(typeof(AudioSource))]
 public class AudioRecorder : MonoBehaviour
 {
+#if !UNITY_WEBGL
 
     Experiment exp { get { return Experiment.Instance; } }
     public AudioLogTrack audioLogger;
@@ -202,4 +203,5 @@ public class AudioRecorder : MonoBehaviour
         }
         return a / amountSamples;
     }
+#endif
 }

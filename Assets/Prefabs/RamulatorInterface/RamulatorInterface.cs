@@ -7,9 +7,9 @@ using UnityEngine;
 using NetMQ;
 using Newtonsoft.Json.Linq;
 
+#if !UNITY_WEBGL
 public class RamulatorWrapper : IHostPC
 {
-
 
     InterfaceManager manager;
 
@@ -209,4 +209,7 @@ public class RamulatorInterface : MonoBehaviour
         messageDataDict.Add("sent", sent.ToString());
         manager.ReportEvent("network", messageDataDict);
     }
-}
+    }
+#else
+public class RamulatorWrapper : MonoBehaviour { }
+#endif

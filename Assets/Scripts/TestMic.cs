@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class TestMic : MonoBehaviour
 {
-
+#if !UNITY_WEBGL
     public static float MicLoudness;
     private float maxLoud = 0f;
     private string _device;
@@ -109,4 +109,5 @@ public class TestMic : MonoBehaviour
 
         }
     }
-}
+#endif
+    }

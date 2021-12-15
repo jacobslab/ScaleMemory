@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ElememTestRunner : MonoBehaviour
 {
+#if !UNITY_WEBGL
 
     public InterfaceManager interfaceManager;
     public CanvasGroup connectingPanel;
@@ -51,4 +52,6 @@ public class ElememTestRunner : MonoBehaviour
     {
         
     }
+
+#endif
 }

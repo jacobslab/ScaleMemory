@@ -17,8 +17,12 @@ public class Experiment : MonoBehaviour {
     public UIController uiController;
     public ObjectController objController;
 
+    public AssetBundleLoader assetBundleLoader;
+
+#if !UNITY_WEBGL
     public InterfaceManager interfaceManager;
     public RamulatorInterface ramulatorInterface;
+#endif
 
     public GameObject player;
 
@@ -202,6 +206,8 @@ public class Experiment : MonoBehaviour {
 
     public Dictionary<int, GameObject> retrievalFrameObjectDict;
 
+
+    private string enteredSubjName;
 
     public SimpleTimer lapTimer;
 
@@ -391,6 +397,8 @@ public class Experiment : MonoBehaviour {
         ipAddressEntered = true;
     }
 
+
+#if !UNITY_WEBGL
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
     {
@@ -433,7 +441,75 @@ public class Experiment : MonoBehaviour {
 
         yield return null;
     }
+#else
+    IEnumerator WriteAndSend()
+    {
+        string msg = "";
+        while (Experiment.Instance.subjectLog.myLoggerQueue.logQueue.Count > 0)
+        {
+            msg += Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue() + "\n";
+            yield return 0;
+        }
+        // UnityEngine.Debug.Log("writing " + msg);
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.WriteOutput(msg,subjectName);
+	//	BrowserPlugin.SendTextFileToS3();
+#endif
+        yield return null;
+    }
+
+    void InitLogging()
+    {
+        Debug.Log("beginning initLogging");
+        //string subjName = GameClock.SystemTime_MillisecondsString;
+
+        string subjName = enteredSubjName;
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.SetSubject(subjName);
+#endif
+        string subjectDirectory = defaultLoggingPath + subjName + "/";
+        sessionDirectory = subjectDirectory + "session_0" + "/";
+
+        sessionID = 0;
+        string sessionIDString = "_0";
+        Debug.Log("about to create directory");
+        if (!Directory.Exists(subjectDirectory))
+        {
+            Directory.CreateDirectory(subjectDirectory);
+        }
+        Debug.Log("does " + sessionDirectory + "and" + sessionStartedFileName + " exist");
+        while (File.Exists(sessionDirectory + sessionStartedFileName))
+        {
+            sessionID++;
+
+            sessionIDString = "_" + sessionID.ToString();
+
+            sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
+        }
+
+
+        //delete old files.
+        if (Directory.Exists(sessionDirectory))
+        {
+            DirectoryInfo info = new DirectoryInfo(sessionDirectory);
+            FileInfo[] fileInfo = info.GetFiles();
+            for (int i = 0; i < fileInfo.Length; i++)
+            {
+                File.Delete(fileInfo[i].ToString());
+            }
+        }
+        else
+        { //if directory didn't exist, make it!
+            Directory.CreateDirectory(sessionDirectory);
+        }
+
+        subjectLog.fileName = sessionDirectory + subjName + "Log" + ".txt";
+        eegLog.fileName = sessionDirectory + subjName + "EEGLog" + ".txt";
+        Logger_Threading.canLog = true;
+    }
+
+#endif
 
     //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
     //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
@@ -445,8 +521,10 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator ConnectToElemem()
     {
-       // ramulatorInterface.StartThread();
+#if !UNITY_WEBGL
+        // ramulatorInterface.StartThread();
         yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
+#endif
         yield return null;
     }
 
@@ -456,6 +534,56 @@ public class Experiment : MonoBehaviour {
         UnityEngine.Debug.Log("got subject name");
         subjectInfoEntered = true;
     }
+
+
+
+    public void SetSubjectName()
+    {
+        // enteredSubjName = uiController.subjectNameField.text;
+        enteredSubjName = "subj_" + GameClock.SystemTime_MillisecondsString;
+        UnityEngine.Debug.Log("enteredsubj name " + enteredSubjName);
+
+        if (string.IsNullOrEmpty(enteredSubjName))
+        {
+            UnityEngine.Debug.Log("NO SUBJECT NAME ENTERED");
+            //   StartCoroutine(uiController.ShowSubjectWarning());
+        }
+        else
+        {
+            //uiController.subjectEntryGroup.alpha = 0f;
+
+            uiController.micInstructionsGroup.alpha = 0f;
+            uiController.micSuccessGroup.alpha = 0f;
+            uiController.micTestGroup.alpha = 0f;
+            InitLogging();
+            StartCoroutine("BeginListeningForWorkerID");
+            StartCoroutine("PerformMicTest");
+
+        }
+
+    }
+
+    IEnumerator BeginListeningForWorkerID()
+    {
+        bool shouldListen = true;
+        while (shouldListen)
+        {
+            int res = 0;
+#if UNITY_WEBGL && !UNITY_EDITOR
+	BrowserPlugin.CheckAssignmentIDStatus();
+#endif
+            if (res == 1)
+            {
+                shouldListen = false;
+                UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " + study_id);
+            }
+
+            yield return new WaitForSeconds(1f);
+            yield return 0;
+        }
+        yield return null;
+    }
+
 
     IEnumerator GetSubjectInfo()
     {
@@ -483,11 +611,32 @@ public class Experiment : MonoBehaviour {
 #if !UNITY_EDITOR
         yield return StartCoroutine(InitLogging());
 #endif
+
+        subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
+        SetSubjectName();
+        /*
+#if !UNITY_EDITOR
+		yield return StartCoroutine(InitLogging());
+#endif
+*/
+        //	UnityEngine.Debug.Log("set subject name: " + subjectName);
+        //	trialLogTrack.LogBegin();
+
+        //going full-screen
+        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+        Screen.fullScreen = true;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.GoFullScreen();
+#endif
+
+
         UnityEngine.Debug.Log("set subject name: " + subjectName);
         trialLogTrack.LogBegin();
         //only run if system2 is expected
-        
-    if (isSystem2)
+#if !UNITY_WEBGL
+        if (isSystem2)
     {
             /*
         uiController.ipEntryPanel.alpha = 1f;
@@ -507,8 +656,9 @@ public class Experiment : MonoBehaviour {
      //   tcpServer.gameObject.SetActive(true);
             uiController.blackrockConnectionPanel.alpha = 1f;
 
-
+#if !UNITY_WEBGL
             interfaceManager.Do(new EventBase(interfaceManager.LaunchExperiment));
+#endif
             //   yield return StartCoroutine(ConnectToElemem());
 
 
@@ -536,7 +686,7 @@ public class Experiment : MonoBehaviour {
         uiController.blackrockConnectionPanel.alpha = 0f;
         trialLogTrack.LogBlackrockConnectionSuccess();
 
-
+#endif
 /////REMOVE THIS
 ///
  /*
@@ -551,12 +701,14 @@ public class Experiment : MonoBehaviour {
 
         ///END REMOVE THIS
         ///
-        trialLogTrack.LogIntroInstruction(true);
-        uiController.taskIntroPanel.alpha = 1f;
 
-        yield return StartCoroutine(WaitForActionButton());
-        uiController.taskIntroPanel.alpha = 0f;
-        trialLogTrack.LogIntroInstruction(false);
+        //removing intro
+        //trialLogTrack.LogIntroInstruction(true);
+        //uiController.taskIntroPanel.alpha = 1f;
+
+        //yield return StartCoroutine(WaitForActionButton());
+        //uiController.taskIntroPanel.alpha = 0f;
+        //trialLogTrack.LogIntroInstruction(false);
 
 
        // player.GetComponent<CarMover>().TurnCarEngine(true);
@@ -2014,15 +2166,19 @@ public class Experiment : MonoBehaviour {
         yield return new WaitForSeconds(1f);
         //uiController.verbalInstruction.alpha = 1f;
         string fileName = trialCount.ToString() + "_" + retCount.ToString();
-        audioRecorder.beepHigh.Play();
+#if !UNITY_WEBGL
+        //audioRecorder.beepHigh.Play();
+#endif
 
-
-        //start recording
+//start recording
+#if !UNITY_WEBGL
         yield return StartCoroutine(audioRecorder.Record(sessionDirectory + "audio", fileName, recallTime));
+#endif
         trialLogTrack.LogVerbalRetrievalAttempt(objectQueried, fileName);
         //play off beep
+#if !UNITY_WEBGL
         audioRecorder.beepLow.Play();
-
+#endif
         //retCount++;
        // uiController.verbalInstruction.alpha = 0f;
         SetCarMovement(false);

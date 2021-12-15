@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -26,11 +27,12 @@ public class VideoLayerManager : MonoBehaviour
     public VideoLayer nightLayer;
 
     private VideoLayer backgroundLayer;
-    public VideoLayer itemLayer;
+    public ItemLayer itemLayer;
 
     public float globalFrameUpdateSpeed = 1f;
 
-    
+    private string baseURL = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/";
+
 
     public enum Direction
     {
@@ -40,9 +42,12 @@ public class VideoLayerManager : MonoBehaviour
 
     public Direction currentPlaybackDirection = Direction.Forward;
 
+    public List<Texture2D> newTextures = new List<Texture2D>();
+
 
     void Awake()
     {
+
         if (_instance != null)
         {
             UnityEngine.Debug.Log("Instance already exists!");
@@ -52,7 +57,7 @@ public class VideoLayerManager : MonoBehaviour
 
         backgroundLayer = rainyLayer;
 
-       
+        newTextures = new List<Texture2D>();
         layerList = new List<VideoLayer>();
         
         StartCoroutine("SetupLayers");
@@ -65,6 +70,36 @@ public class VideoLayerManager : MonoBehaviour
 
            yield return null;
 
+    }
+
+
+
+    IEnumerator GetTextureRequest(string url)
+    {
+        UnityEngine.Debug.Log("attempting to retrieve from URL " + url);
+
+        using (var www = UnityWebRequestTexture.GetTexture(url))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                    var texture = DownloadHandlerTexture.GetContent(www);
+                    UnityEngine.Debug.Log("retrieved texture " + texture.name);
+                    newTextures.Add(texture); //we add it to the list which will then be passed on to specific VideoLayer in the DownloadImages coroutine
+                    //var rect = new Rect(0, 0, 600f, 600f);
+                    //var sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+                    //callback(sprite);
+                }
+            }
+        }
+        yield return null;
     }
 
     public int GetTotalFramesOfCurrentClip()
@@ -166,13 +201,60 @@ public class VideoLayerManager : MonoBehaviour
         yield return null;
     }
 
+    IEnumerator DownloadImages(string weather)
+    {
+        string layerName = "";
+        VideoLayer targetLayer = null;
+        switch(weather)
+        {
+            case "Sunny":
+                layerName = "sunny";
+                targetLayer = sunnyLayer;
+                break;
+            case "Rainy":
+                layerName = "rain";
+                targetLayer = rainyLayer;
+                break;
+            case "Night":
+                layerName = "night";
+                targetLayer = nightLayer;
+                break;
+        }
+        //string targetURL = Application.streamingAssetsPath + "/sunny/sunny-001.jpg";
+        //yield return StartCoroutine(GetTextureRequest(targetURL));
+
+        yield return StartCoroutine(Experiment.Instance.assetBundleLoader.LoadTexturesFromBundle(layerName));
+        //for (int i = 0; i < targetLayer.numberOfFrames; i++)
+        //{
+        //    yield return StartCoroutine(GetTextureRequest(baseURL + layerName + "/" + string.Format(layerName + "-{0:d3}", i + 1) + ".jpg"));
+        //}
+        yield return StartCoroutine(targetLayer.FillImages(newTextures));
+        //clear the texture list
+        newTextures.Clear();
+        yield return null;
+    }
+
+    IEnumerator SetupItemLayer()
+    {
+        yield return StartCoroutine(Experiment.Instance.assetBundleLoader.LoadItemLayer("item"));
+        yield return null;
+    }
+
     IEnumerator SetupLayers()
     {
+        //load images in all layers
+
+        yield return StartCoroutine(DownloadImages("Sunny"));
+        yield return StartCoroutine(DownloadImages("Rainy"));
+        yield return StartCoroutine(DownloadImages("Night"));
+
         //TODO: Control this from elsewhere
         yield return StartCoroutine(AddToActiveVideoLayer(sunnyLayer, false));
         yield return StartCoroutine(AddToActiveVideoLayer(rainyLayer, false));
         yield return StartCoroutine(AddToActiveVideoLayer(nightLayer, false));
         backgroundLayer = rainyLayer; //set background to rain by default, for now
+
+        yield return StartCoroutine(SetupItemLayer());
 
         //yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
         //yield return StartCoroutine(AddToActiveVideoLayer(itemLayer, false)); //item layer is not visible by default
@@ -194,7 +276,7 @@ public class VideoLayerManager : MonoBehaviour
         float randPlaybackTime = Random.Range(0f, (float)backgroundLayer.vidClip.length);
         UnityEngine.Debug.Log("moving to playback time " + randPlaybackTime.ToString());
         yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(randPlaybackTime));
-        yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(randPlaybackTime));
+        //yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(randPlaybackTime));
         yield return null;
     }
 
@@ -243,6 +325,8 @@ public class VideoLayerManager : MonoBehaviour
 
 
         }
+
+        itemLayer.UpdateImage(targetWeather);
     }
 
 
@@ -254,7 +338,7 @@ public class VideoLayerManager : MonoBehaviour
         //pause all other active layers; mostly the background
         //yield return AddToActiveVideoLayer(itemLayer,true);
 
-        itemLayer.ToggleLayerVisibility(true);
+        //itemLayer.ToggleLayerVisibility(true);
 
         yield return StartCoroutine("TogglePauseLayerPlayback", true);
         double playbackTime = backgroundLayer.GetPlaybackTime();
@@ -311,10 +395,7 @@ public class VideoLayerManager : MonoBehaviour
         //{
         //    StartCoroutine("MatchProcedure");
         //}
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            StartCoroutine("SpawnItem");
-        }
+       
         //    if (Input.GetKeyDown(KeyCode.R))
         //{
         //    StartCoroutine("TogglePauseLayerPlayback",true);
