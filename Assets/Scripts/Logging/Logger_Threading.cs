@@ -108,7 +108,7 @@ public class LoggerWriter : ThreadedJob
 public class Logger_Threading : MonoBehaviour{
 	public static string LogTextSeparator = "\t";
 
-	LoggerQueue myLoggerQueue;
+	public LoggerQueue myLoggerQueue;
 	LoggerWriter myLoggerWriter;
 
 	public static bool canLog = false;

@@ -170,14 +170,14 @@ public class VideoLayer : MonoBehaviour
             }
             if (currentFrame >= frames.Length - 1)
             {
-                //UnityEngine.Debug.Log("exceeded video");
+                UnityEngine.Debug.Log("exceeded video");
                 timeVar = 0f;
                 OnVideoLoop();
                 currentFrame = 0;
             }
             if (currentFrame < 0)
             {
-                //UnityEngine.Debug.Log("before start");
+                UnityEngine.Debug.Log("before start");
                 currentFrame = frames.Length - 3;
                 OnVideoReverseLoop();
                 timeVar = currentFrame / frameRate;
@@ -185,6 +185,7 @@ public class VideoLayer : MonoBehaviour
             //UnityEngine.Debug.Log("current frame " + currentFrame.ToString());
             //UnityEngine.Debug.Log("timevar " + timeVar.ToString());
             //UnityEngine.Debug.Log("associating frame" + frames[currentFrame].name.ToString());
+            //Experiment.Instance.trialLogTrack.LogFramePosition(currentFrame);
             bgLayer.texture = frames[currentFrame];
         }
 

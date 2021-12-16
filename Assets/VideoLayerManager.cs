@@ -59,8 +59,6 @@ public class VideoLayerManager : MonoBehaviour
 
         newTextures = new List<Texture2D>();
         layerList = new List<VideoLayer>();
-        
-        StartCoroutine("SetupLayers");
     }
 
     public IEnumerator ResumePlayback()
@@ -149,6 +147,9 @@ public class VideoLayerManager : MonoBehaviour
         stimObject.gameObject.name = stimDisplayText;
         Experiment.Instance.spawnedObjects.Add(stimObject); //add it to the list
 
+        Experiment.Instance.trialLogTrack.LogItemEncodingEvent(stimDisplayText, GetMainLayerCurrentFrameNumber(),Experiment.Instance.encodingIndex);
+        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, true);
+
         UnityEngine.Debug.Log("adding to stim block sequence");
         Experiment.Instance.stimuliBlockSequence.Add(stimObject); //add to the stim block sequence for end of the block tests
         UnityEngine.Debug.Log("new length of stim block sequence " + Experiment.Instance.stimuliBlockSequence.Count.ToString());
@@ -168,6 +169,9 @@ public class VideoLayerManager : MonoBehaviour
         Experiment.Instance.uiController.stimDisplayPanel.alpha = 0f;
         yield return StartCoroutine(TogglePauseLayerPlayback(false));
 
+
+        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, false);
+
         yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
 
         //reset the event invoked flag
@@ -183,13 +187,16 @@ public class VideoLayerManager : MonoBehaviour
         GameObject retObject = null;
         int currFrame = Experiment.nextSpawnFrame;
         UnityEngine.Debug.Log("trying to find object for frame " + currFrame.ToString());
+        bool isLure = Experiment.Instance.isLure;
         if(Experiment.Instance.retrievalFrameObjectDict.TryGetValue(currFrame, out retObject))
         {
             UnityEngine.Debug.Log("found object");
             if(retObject!=null)
             {
                 UnityEngine.Debug.Log("and its not null");
-                yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
+
+                    yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
+               
             }
         }
 
@@ -240,13 +247,16 @@ public class VideoLayerManager : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator SetupLayers()
+    public IEnumerator SetupLayers()
     {
         //load images in all layers
 
         yield return StartCoroutine(DownloadImages("Sunny"));
+        Experiment.Instance.uiController.UpdateLoadingProgress(40f);
         yield return StartCoroutine(DownloadImages("Rainy"));
+        Experiment.Instance.uiController.UpdateLoadingProgress(60f);
         yield return StartCoroutine(DownloadImages("Night"));
+        Experiment.Instance.uiController.UpdateLoadingProgress(80f);
 
         //TODO: Control this from elsewhere
         yield return StartCoroutine(AddToActiveVideoLayer(sunnyLayer, false));
@@ -481,7 +491,7 @@ public class VideoLayerManager : MonoBehaviour
             UnityEngine.Debug.Log("scrolling to start frame");
             yield return StartCoroutine(layerList[i].ScrollToFrame(1));
             yield return StartCoroutine(layerList[i].TogglePause(false));
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.1f);
             yield return StartCoroutine(layerList[i].TogglePause(true));
         }
         yield return null;

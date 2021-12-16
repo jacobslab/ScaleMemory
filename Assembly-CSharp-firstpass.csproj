@@ -63,6 +63,7 @@
      <Compile Include="Assets\Plugins\UnityComponents\GazeMonoBehaviourController.cs" />
      <Compile Include="Assets\Plugins\UnityComponents\GazeMonobehaviour.cs" />
      <Compile Include="Assets\Plugins\UnityComponents\SMIGazeController.cs" />
+     <Compile Include="Assets\Plugins\WebGL\BrowserPlugin.cs" />
      <Compile Include="Assets\Standard Assets\Characters\FirstPersonCharacter\Scripts\FirstPersonController.cs" />
      <Compile Include="Assets\Standard Assets\Characters\FirstPersonCharacter\Scripts\HeadBob.cs" />
      <Compile Include="Assets\Standard Assets\Characters\FirstPersonCharacter\Scripts\MouseLook.cs" />

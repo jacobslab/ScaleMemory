@@ -6,7 +6,9 @@ using UnityEngine;
 
 public class ObjectController : MonoBehaviour
 {
-    private List<Texture> stimuliImageList;
+	public List<Texture> permanentImageList;
+
+	private List<Texture> stimuliImageList;
 
 	public List<Texture> encodingList;
 
@@ -28,14 +30,27 @@ public class ObjectController : MonoBehaviour
 	// Start is called before the first frame update
 	void Awake()
 	{
-        stimuliImageList = new List<Texture>();
-		CreateSpecialImageList(stimuliImageList);
+		permanentImageList = new List<Texture>();
+		stimuliImageList = new List<Texture>();
 
 	}
 
-	void CreateSpecialImageList(List<Texture> imageListToFill)
+
+	public IEnumerator FillPermanentImageList(Object[] imageObjects)
+    {
+		for (int i = 0; i < imageObjects.Length; i++)
+		{
+			permanentImageList.Add((Texture)imageObjects[i]);
+		}
+
+		CreateSpecialImageList(); //fill the stim image list immediately after
+
+		yield return null;
+    }
+
+	void CreateSpecialImageList()
 	{
-        imageListToFill.Clear();
+        stimuliImageList.Clear();
         UnityEngine.Debug.Log("filling");
         Object[] prefabs;
 #if MRIVERSION
@@ -45,13 +60,22 @@ public class ObjectController : MonoBehaviour
 		else{
 			prefabs = Resources.LoadAll("Prefabs/Objects");
 		}
+#elif UNITY_WEBGL
+		for(int i=0;i<permanentImageList.Count;i++)
+        {
+			stimuliImageList.Add(permanentImageList[i]);
+
+		}
 #else
 		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
 #endif
+
+#if !UNITY_WEBGL
 		for (int i = 0; i < prefabs.Length; i++)
 		{
-            imageListToFill.Add((Texture)prefabs[i]);
+			stimuliImageList.Add((Texture)prefabs[i]);
 		}
+#endif
 
         UnityEngine.Debug.Log("finished filling");
 	}
@@ -77,7 +101,7 @@ public class ObjectController : MonoBehaviour
 		if (stimuliImageList.Count == 0)
 		{
 			Debug.Log("No MORE images pick! Recreating image list.");
-			CreateSpecialImageList(stimuliImageList); //IN ORDER TO REFILL THE LIST ONCE ALL OBJECTS HAVE BEEN USED
+			CreateSpecialImageList(); //IN ORDER TO REFILL THE LIST ONCE ALL OBJECTS HAVE BEEN USED
 			if (stimuliImageList.Count == 0)
 			{
 				Debug.Log("No images to pick at all!"); //if there are still no objects in the list, then there weren't any to begin with...
@@ -162,7 +186,9 @@ public class ObjectController : MonoBehaviour
 		}
 		for(int j=0;j<Experiment.listLength;j++)
 		{
+			UnityEngine.Debug.Log("all ints count " + allInts.Count.ToString());
 			int randomIndex = UnityEngine.Random.Range(0, allInts.Count-1);
+			UnityEngine.Debug.Log("random index: " + randomIndex.ToString());
 			randInts.Add(allInts[randomIndex]);
 			allInts.RemoveAt(randomIndex);
 		}

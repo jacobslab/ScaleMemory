@@ -17,6 +17,10 @@ public class UIController : MonoBehaviour
     //presentation text
     public Text presentationItemText;
 
+    //loading screen
+    public CanvasGroup loadingScreen;
+    public bl_ProgressBar loadingBar;
+
     //subject info entry panel
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
@@ -51,6 +55,12 @@ public class UIController : MonoBehaviour
     public Text itemOneName;
     public Text itemTwoName;
     public CanvasGroup spatialRetrievalFeedbackPanel;
+
+
+    //controls instruction images
+    public CanvasGroup spacebarContinue;
+    public CanvasGroup pageControls;
+    public CanvasGroup selectionControls;
 
     //reactivation panel
     public CanvasGroup locationReactivationPanel;
@@ -209,6 +219,12 @@ public class UIController : MonoBehaviour
         //uiPageChange();
     }
 
+
+    public void UpdateLoadingProgress(float loadPercent)
+    {
+        loadingBar.Value = loadPercent;
+    }
+
     public IEnumerator SetActiveInstructionPage(string instructionPage)
     {
         //reset the page ID
@@ -231,6 +247,7 @@ public class UIController : MonoBehaviour
                 break;
         }
         showInstructions = true;
+        pageControls.alpha = 1f;
         //then force update it so it shows up with the first page
         yield return StartCoroutine(UpdateUIPage());
 
@@ -249,6 +266,8 @@ public class UIController : MonoBehaviour
                 break;
         }
         currUIPageID = 0;
+
+        pageControls.alpha = 0f;
         UnityEngine.Debug.Log("finishing the instruction sequence");
         showInstructions = false;
     }

@@ -63,6 +63,19 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, "0" + separator + "MIC_TEST");
 	}
 
+
+	public void LogBlock(int blockNum, bool hasBegun)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLOCK" + separator + blockNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED"));
+	}
+
+	public void LogTrialLoop(int loopNum, bool hasBegun)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "TRIAL_LOOP" + separator + loopNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED"));
+	}
+
+	
+
 	void LogSessionStart(){
 		Debug.Log ("LOGGED SESSION START");
 		string buildVersion = Experiment.BuildVersion.ToString ();
@@ -74,8 +87,22 @@ public class TrialLogTrack : LogTrack {
         subjectLog.Log(GameClock.SystemTime_Milliseconds, "TREASURE_ITEM" + separator + labelText);
     }
 
+	public void LogLocationCuedReactivation(GameObject stimObject, bool isLure, int retIndex)
+	{
+		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "LOCATION_CUED_REACTIVATION" + separator + stimObject.name + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
 
-    public void LogBlackrockConnectionAttempt()
+	}
+	public void LogItemCuedReactivation(GameObject stimObject, bool isLure, int retIndex)
+	{
+		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ITEM_CUED_REACTIVATION" + separator + stimObject.name + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
+
+	}
+
+
+
+	public void LogBlackrockConnectionAttempt()
 	{ 
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "BLACKROCK_CONNECTION_ATTEMPT");
 	}
@@ -84,6 +111,13 @@ public class TrialLogTrack : LogTrack {
     {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ENCODING_START_POSITION" + separator + pos.x.ToString() + separator + pos.y.ToString() + separator + pos.z.ToString());
 
+	}
+
+	public void LogItemEncodingEvent(string objName, int frameNum, int encodingOrder)
+    {
+
+		Transform presentationTrans = Experiment.Instance.GetTransformForFrame(frameNum);
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "ENCODING_ITEM" + separator + objName + separator + encodingOrder.ToString() +  separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
 	}
 
 	public void LogItemPresentation(string objName,bool isActive)
@@ -99,8 +133,9 @@ public class TrialLogTrack : LogTrack {
 
 	}
 	public void LogVerbalRetrievalAttempt(GameObject objQueried, string fileName)
-    {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, "VERBAL_RETRIEVAL_ATTEMPT" + separator + objQueried.name + separator + fileName);
+	{
+		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "VERBAL_RETRIEVAL" + separator + objQueried.name + separator + fileName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + currTrans.position.z.ToString());
 
 	}
 	public void LogBlackrockConnectionSuccess()
@@ -137,32 +172,56 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "SHOWING_INSTRUCTIONS" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 	}
 
-	public void LogRetrievalAttempt(GameObject targetObj, GameObject car)
+	public void LogRetrievalAttempt(GameObject targetObj)
 	{
+		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
 		string targetObjName = targetObj.gameObject.name.Split('(')[0];
-		float dist = Vector3.Distance(targetObj.transform.position, car.transform.position);
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_ATTEMPT" + separator + targetObjName + separator + car.transform.position.x.ToString() + separator + car.transform.position.y.ToString() + separator + car.transform.position.z.ToString());
+		float dist = Vector3.Distance(targetObj.transform.position, currTrans.position);
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_ATTEMPT" + separator + targetObjName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, "RETRIEVAL_ATTEMPT_DISTANCE_ERROR" + separator + targetObjName + separator + dist.ToString());
 
 
 	}
 
+	public void LogTemporalOrderTest(BlockTestPair testPair,bool hasStarted)
+    {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "TEMPORAL_ORDER_TEST" + separator + testPair.firstItem.gameObject.name +separator  + testPair.secondItem.gameObject.name +  separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	}
+
+	public void LogTemporalDistanceTest(BlockTestPair testPair, bool hasStarted)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "TEMPORAL_DISTANCE_TEST" + separator + testPair.firstItem.gameObject.name + separator + testPair.secondItem.gameObject.name + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	}
+
+
+	public void LogContextRecollectionTest(GameObject testObj, bool hasStarted)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "CONTEXT_RECOLLECTION_TEST" + separator + testObj.name + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	}
+
 	public void LogUserChoiceSelection(int selectionIndex, string selectionType)
     {
-		switch(selectionType)
-        {
-			case "Item":
-				break;
-			case "Location":
-				break;
-			case "TemporalOrder":
-				break;
-			case "TemporalDistance":
-				break;
-			case "ContextRecollection":
-				break;
-		}
-    }
+		//switch(selectionType)
+		//      {
+		//	case "Item":
+
+		//		break;
+		//	case "Location":
+		//		break;
+		//	case "TemporalOrder":
+		//		break;
+		//	case "TemporalDistance":
+		//		break;
+		//	case "ContextRecollection":
+		//		break;
+		//}
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, "USER_SELECTION_INDEX" + separator + selectionIndex.ToString() + separator + selectionType.ToString());
+
+	}
 
 	public void LogTrafficLightVisibility(bool isVisible)
     {
@@ -229,6 +288,13 @@ public class TrialLogTrack : LogTrack {
 				break;
 		}
 	}
+
+	//public void LogFramePosition(int frameNum)
+ //   {
+	//	Transform currTransform = Experiment.Instance.GetTransformForFrame(frameNum);
+	//	subjectLog.Log(GameClock.SystemTime_Milliseconds, "PLAYER_POSITION" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	//}
 
 	public void LogForwardMovement(bool hasStarted)
     {

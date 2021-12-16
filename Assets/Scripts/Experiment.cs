@@ -28,6 +28,9 @@ public class Experiment : MonoBehaviour {
 
     public static bool isPaused = false;
 
+
+    public int encodingIndex  = -1;
+    public int retrievalIndex = -1;
     //to determine if keypresses can page forward/backwards UI instructions
     private bool uiActive = false;
     //to determine if keypresses can select onscreen options
@@ -112,6 +115,9 @@ public class Experiment : MonoBehaviour {
     //public List<Vector3> lureLocations;
     public List<int> lureFrames;
 
+    private bool showVerbalInstructions = true;
+    private bool showSpatialInstructions = true;
+
     private List<GameObject> retrievalObjList;
     private List<Vector3> retrievalPositions;
     private List<int> retrievalFrames;
@@ -131,6 +137,9 @@ public class Experiment : MonoBehaviour {
     private int testLength = 10;
 
     public Transform startTransform;
+
+    public bool isLure = false;
+    private List<bool> lureBools = new List<bool>();
 
     private bool wasMovingForward = false;
     private bool wasMovingReverse = false;
@@ -209,11 +218,20 @@ public class Experiment : MonoBehaviour {
 
     private string enteredSubjName;
 
+
+    string prolific_pid = "";
+    string study_id = "";
+    string session_id = "";
+    bool idAssigned = false;
+
     public SimpleTimer lapTimer;
 
     public GameObject chequeredFlag;
 
     private float fixedTime = 1f;
+
+    private int micStatus = 0;
+
 
     private int maxLaps = 1;
 
@@ -266,7 +284,7 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(false);
         carSpeed = 0f;
 
-        //initialize the weather as Night, by default
+        //initialize the weather as Sunny, by default
         currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(currentWeather);
 
@@ -459,7 +477,7 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
-    void InitLogging()
+    IEnumerator InitLogging()
     {
         Debug.Log("beginning initLogging");
         //string subjName = GameClock.SystemTime_MillisecondsString;
@@ -507,6 +525,8 @@ public class Experiment : MonoBehaviour {
         subjectLog.fileName = sessionDirectory + subjName + "Log" + ".txt";
         eegLog.fileName = sessionDirectory + subjName + "EEGLog" + ".txt";
         Logger_Threading.canLog = true;
+
+        yield return null;
     }
 
 #endif
@@ -552,16 +572,52 @@ public class Experiment : MonoBehaviour {
         {
             //uiController.subjectEntryGroup.alpha = 0f;
 
-            uiController.micInstructionsGroup.alpha = 0f;
-            uiController.micSuccessGroup.alpha = 0f;
-            uiController.micTestGroup.alpha = 0f;
-            InitLogging();
+//uiController.micInstructionsGroup.alpha = 0f;
+//uiController.micSuccessGroup.alpha = 0f;
+//uiController.micTestGroup.alpha = 0f;
+            StartCoroutine("InitLogging");
+#if UNITY_WEBGL && !UNITY_EDITOR
             StartCoroutine("BeginListeningForWorkerID");
             StartCoroutine("PerformMicTest");
+#endif
 
         }
 
     }
+
+    public int ListenForAssignmentID(string id)
+    {
+        UnityEngine.Debug.Log("inside unity;listening for assignment ID " + id);
+        if (!idAssigned)
+        {
+            if (id != "")
+            {
+
+                //assignmentID = id;
+                prolific_pid = id.Split(';')[0];
+                study_id = id.Split(';')[1];
+                session_id = id.Split(';')[2];
+
+                idAssigned = true;
+                return 1;
+            }
+            else
+                return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+
+    public void ListenForMicAccess()
+    {
+        UnityEngine.Debug.Log("mic access granted");
+        micStatus = 1;
+
+    }
+
+
 
     IEnumerator BeginListeningForWorkerID()
     {
@@ -634,6 +690,11 @@ public class Experiment : MonoBehaviour {
 
         UnityEngine.Debug.Log("set subject name: " + subjectName);
         trialLogTrack.LogBegin();
+
+        //load the layers and all the relevant data from AssetBundles
+
+        yield return StartCoroutine(BeginLoadingTaskData());
+
         //only run if system2 is expected
 #if !UNITY_WEBGL
         if (isSystem2)
@@ -687,52 +748,22 @@ public class Experiment : MonoBehaviour {
         trialLogTrack.LogBlackrockConnectionSuccess();
 
 #endif
-/////REMOVE THIS
-///
- /*
-        Experiment.Instance.uiController.connectionSuccessPanel.alpha = 1f;
-        while(!Input.GetKeyDown(KeyCode.Escape))
-        {
-            
-            yield return 0;
-        }
-        Application.Quit();
-        */
-
-        ///END REMOVE THIS
-        ///
-
-        //removing intro
-        //trialLogTrack.LogIntroInstruction(true);
-        //uiController.taskIntroPanel.alpha = 1f;
-
-        //yield return StartCoroutine(WaitForActionButton());
-        //uiController.taskIntroPanel.alpha = 0f;
-        //trialLogTrack.LogIntroInstruction(false);
-
-
-       // player.GetComponent<CarMover>().TurnCarEngine(true);
-
-
         verbalRetrieval = false;
-
-        //setting up car but do not move it yet
-        //StartCoroutine(player.GetComponent<CarMover>().MoveCar());
-        //SetCarMovement(false);
-        
 
         //track familiarization
           //yield return StartCoroutine(BeginTrackScreening(false));
 
         //practice
-         //yield return StartCoroutine("BeginPractice");
+        yield return StartCoroutine("BeginPractice");
 
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
         //repeat blocks twice
         for (int i = 0; i < blockCount; i++)
         {
+            trialLogTrack.LogBlock(i, true);
             yield return StartCoroutine("BeginTaskBlock");
+            trialLogTrack.LogBlock(i, false);
         }
 
         //once all the trials are complete, run the followup test
@@ -742,11 +773,27 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(WaitForActionButton());
 
         //player.GetComponent<CarMover>().TurnCarEngine(false);
+#if !UNITY_WEBGL
         Application.Quit();
+#endif
         yield return null;
     }
 
 
+
+    IEnumerator BeginLoadingTaskData()
+    {
+        uiController.loadingScreen.alpha = 1f;
+        uiController.UpdateLoadingProgress(0f); //reset the loading progress
+        yield return StartCoroutine(assetBundleLoader.LoadStimuliImages());
+        uiController.UpdateLoadingProgress(20f);
+        yield return StartCoroutine(videoLayerManager.SetupLayers());
+
+        Experiment.Instance.uiController.UpdateLoadingProgress(100f);
+
+        uiController.loadingScreen.alpha = 0f;
+        yield return null;
+    }
 
 
     IEnumerator RandomizeTravelSpeed()
@@ -788,11 +835,18 @@ public class Experiment : MonoBehaviour {
             //overheadCam.SetActive(true);
             //trackFamiliarizationQuad.SetActive(true);
             //playerIndicatorSphere.SetActive(true);
+
+            //track screening will have sunny weather
+            currentWeather = new Weather(Weather.WeatherType.Sunny);
+            ChangeLighting(currentWeather);
+
             trialLogTrack.LogTaskStage(currentStage, true);
 
 
             uiController.trackScreeningPanel.alpha = 1f;
+            uiController.spacebarContinue.alpha = 1f;
             yield return StartCoroutine(WaitForActionButton());
+            uiController.spacebarContinue.alpha = 0f;
             uiController.trackScreeningPanel.alpha = 0f;
         }
         else
@@ -838,79 +892,82 @@ public class Experiment : MonoBehaviour {
         currentStage = TaskStage.Practice;
         yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
 
+        
+         
         ////run encoding
-        //yield return StartCoroutine("RunEncoding");
+        yield return StartCoroutine("RunEncoding");
 
         //////run retrieval
-        //verbalRetrieval = false;
-        //currentStage = TaskStage.SpatialRetrieval;
-        //trialLogTrack.LogTaskStage(currentStage, true);
-        //yield return StartCoroutine("RunSpatialRetrieval");
-        //trialLogTrack.LogTaskStage(currentStage, false);
+        verbalRetrieval = false;
+        currentStage = TaskStage.SpatialRetrieval;
+        trialLogTrack.LogTaskStage(currentStage, true);
+        yield return StartCoroutine("RunSpatialRetrieval");
+        trialLogTrack.LogTaskStage(currentStage, false);
 
-        //ToggleFixation(true);
-        //yield return new WaitForSeconds(1f);
-        //yield return StartCoroutine("ResetTrack");
-        //ToggleFixation(false);
+        ToggleFixation(true);
+        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine("ResetTrack");
+        ToggleFixation(false);
 
 
-        //yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
+        yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
 
         ////run encoding
-        //yield return StartCoroutine("RunEncoding");
+        yield return StartCoroutine("RunEncoding");
 
-        //verbalRetrieval = true;
-        //currentStage = TaskStage.VerbalRetrieval;
-        //trialLogTrack.LogTaskStage(currentStage, true);
+        verbalRetrieval = true;
+        currentStage = TaskStage.VerbalRetrieval;
+        trialLogTrack.LogTaskStage(currentStage, true);
 
 
         ////run retrieval
-        //yield return StartCoroutine("RunVerbalRetrieval");
-        //trialLogTrack.LogTaskStage(currentStage, false);
+        yield return StartCoroutine("RunVerbalRetrieval");
+        trialLogTrack.LogTaskStage(currentStage, false);
 
-        //ToggleFixation(true);
-        //yield return new WaitForSeconds(0.5f);
-        //yield return StartCoroutine("ResetTrack");
-        //ToggleFixation(false);
+        ToggleFixation(true);
+        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine("ResetTrack");
+        ToggleFixation(false);
 
+        
 
         //do two more practice laps with randomized retrieval conditions
 
-        //List<int> randRetrievalOrder = UsefulFunctions.ReturnShuffledIntegerList(2);
+        List<int> randRetrievalOrder = UsefulFunctions.ReturnShuffledIntegerList(2);
 
-        //for (int i=0;i<2;i++)
-        //{
-        //    yield return StartCoroutine("RunEncoding");
+        for (int i = 0; i < 2; i++)
+        {
+            yield return StartCoroutine("RunEncoding");
 
-        //    int retrievalType = randRetrievalOrder[i];
+            int retrievalType = randRetrievalOrder[i];
 
-        //    switch (retrievalType)
-        //    {
-        //        case 0:
-        //            verbalRetrieval = true;
-        //            currentStage = TaskStage.VerbalRetrieval;
-        //            trialLogTrack.LogTaskStage(currentStage, true);
-
-
-        //            //run retrieval
-        //            yield return StartCoroutine("RunVerbalRetrieval");
-        //            break;
-        //        case 1:
-        //            verbalRetrieval = false;
-        //            currentStage = TaskStage.SpatialRetrieval;
-        //            trialLogTrack.LogTaskStage(currentStage, true);
-        //            yield return StartCoroutine("RunSpatialRetrieval");
-        //            break;
+            switch (retrievalType)
+            {
+                case 0:
+                    verbalRetrieval = true;
+                    currentStage = TaskStage.VerbalRetrieval;
+                    trialLogTrack.LogTaskStage(currentStage, true);
 
 
-        //    }
+                    //run retrieval
+                    yield return StartCoroutine("RunVerbalRetrieval");
+                    break;
+                case 1:
+                    verbalRetrieval = false;
+                    currentStage = TaskStage.SpatialRetrieval;
+                    trialLogTrack.LogTaskStage(currentStage, true);
+                    yield return StartCoroutine("RunSpatialRetrieval");
+                    break;
 
-        //    trialLogTrack.LogTaskStage(currentStage, false);
-        //    ToggleFixation(true);
-        //    yield return new WaitForSeconds(0.5f);
-        //    yield return StartCoroutine("ResetTrack");
-        //    ToggleFixation(false);
-        //}
+
+            }
+
+            trialLogTrack.LogTaskStage(currentStage, false);
+            ToggleFixation(true);
+            yield return new WaitForSeconds(0.5f);
+            yield return StartCoroutine("ResetTrack");
+            ToggleFixation(false);
+        }
 
         yield return StartCoroutine(ShowPracticeInstructions("PreWeather"));
         currentStage = TaskStage.WeatherFamiliarization;
@@ -989,21 +1046,27 @@ public class Experiment : MonoBehaviour {
             case "PreEncoding":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preEncodingInstructions.enabled = true;
+                uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(WaitForActionButton());
+                uiController.spacebarContinue.alpha = 0f;
                 uiController.preEncodingInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
                 break;
             case "SecondEncoding":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.secondEncodingInstructions.enabled = true;
+                uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(WaitForActionButton());
+                uiController.spacebarContinue.alpha = 0f;
                 uiController.secondEncodingInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
                 break;
             case "PreWeather":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preWeatherCondition.enabled = true;
+                uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(WaitForActionButton());
+                uiController.spacebarContinue.alpha = 0f;
                 uiController.preWeatherCondition.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
                 break;
@@ -1014,7 +1077,9 @@ public class Experiment : MonoBehaviour {
     IEnumerator ShowEncodingInstructions()
     {
         uiController.encodingPanel.alpha = 1f;
+        uiController.spacebarContinue.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
+        uiController.spacebarContinue.alpha = 0f;
         uiController.encodingPanel.alpha = 0f;
         yield return null;
     }
@@ -1050,6 +1115,7 @@ public class Experiment : MonoBehaviour {
 
                 //    
         }
+
         yield return null;
     }
 
@@ -1099,7 +1165,6 @@ public class Experiment : MonoBehaviour {
                 break;
 
         }
-
 
 
         yield return null;
@@ -1213,8 +1278,12 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator RunEncoding()
     {
+
             UnityEngine.Debug.Log("in encoding now");
         currentStage = TaskStage.Encoding;
+
+        //reset encoding index; used to keep track of the order of encoding items
+        encodingIndex = -1;
 
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward)); //encoding will always move in forward direction
@@ -1373,6 +1442,7 @@ public class Experiment : MonoBehaviour {
             //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
             chequeredFlag.SetActive(true);
 
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward)); //by default, we will always move in forward direction
         uiController.blackScreen.alpha = 1f;
         //make sure video is paused and returned to start
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
@@ -1453,6 +1523,7 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < trialsPerBlock; i++)
             {
+            trialLogTrack.LogTrialLoop(i, true);
                 trialCount = i + 1;
                 yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
                 //run encoding
@@ -1469,7 +1540,8 @@ public class Experiment : MonoBehaviour {
                 yield return new WaitForSeconds(0.5f);
 
                 yield return StartCoroutine("ResetTrack");
-                ToggleFixation(false);
+            trialLogTrack.LogTrialLoop(i, false);
+            ToggleFixation(false);
         }
 
 
@@ -1533,6 +1605,10 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
 
         UnityEngine.Debug.Log("beginning retrieval");
+
+
+        //reset retrieval index; used to keep track of the order of retrieval items
+        retrievalIndex = 0;
         //hide encoding objects and text
         //for (int j = 0; j < spawnedObjects.Count; j++)
         //{
@@ -1545,10 +1621,10 @@ public class Experiment : MonoBehaviour {
         //	currentStage = Experiment.TaskStage.Retrieval;
 
         //pick a randomized starting retrieval position
-      //  List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
-     //   int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
+        //  List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
+        //   int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
 
-     //   Transform randStartTransform = validStartTransforms[randWaypoint];
+        //   Transform randStartTransform = validStartTransforms[randWaypoint];
 
         //disable player collider box before transporting to new location
 
@@ -1667,7 +1743,7 @@ public class Experiment : MonoBehaviour {
         
         UnityEngine.Debug.Log("starting verbal retrieval");
 
-        if (isPractice)
+        if (showVerbalInstructions)
         {
 
             trialLogTrack.LogInstructions(true);
@@ -1680,6 +1756,7 @@ public class Experiment : MonoBehaviour {
             }
 
             trialLogTrack.LogInstructions(false);
+            showVerbalInstructions = false;
         }
 
         //trafficLightController.MakeVisible(true);
@@ -1693,12 +1770,13 @@ public class Experiment : MonoBehaviour {
 
         while (retCount < testLength)
         {
-            UnityEngine.Debug.Log("ret count " + retCount.ToString());
+            //UnityEngine.Debug.Log("ret count " + retCount.ToString());
             yield return 0;
         }
         //verbalRetrieval = false;
         //SetCarMovement(false);
 
+        retCount = 0;
         trafficLightController.MakeVisible(false);
         yield return new WaitForSeconds(1f);
         yield return null;
@@ -1742,7 +1820,7 @@ public class Experiment : MonoBehaviour {
       
 
         //show instructions only during the practice
-        if (isPractice)
+        if (showSpatialInstructions)
         {
             trialLogTrack.LogInstructions(true);
             UnityEngine.Debug.Log("setting instructions");
@@ -1755,6 +1833,7 @@ public class Experiment : MonoBehaviour {
             }
             //   yield return StartCoroutine(ShowRetrievalInstructions());
             trialLogTrack.LogInstructions(false);
+            showSpatialInstructions = false;
         }
 
         //chequeredFlag.SetActive(false);
@@ -1796,6 +1875,7 @@ public class Experiment : MonoBehaviour {
             //uiController.zRetrievalText.text = targetNames;
             //yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
 
+            trialLogTrack.LogItemCuedReactivation(spatialTestList[j].gameObject, isLure, j);
             yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
             //SetCarMovement(true);
 
@@ -1804,7 +1884,7 @@ public class Experiment : MonoBehaviour {
             //  uiController.targetTextPanel.alpha = 1f;
 
             //wait for the player to press X to choose their location OR skip it if the player retrieved the object as "New"
-            while (!Input.GetKeyDown(KeyCode.X) && !retrievedAsNew)
+            while (!Input.GetKeyDown(KeyCode.Space) && !retrievedAsNew)
             {
                 yield return 0;
             }
@@ -1813,8 +1893,8 @@ public class Experiment : MonoBehaviour {
             //stop car and calculate then proceed to next
             //SetCarMovement(false);
 
-
-            float dist = Vector3.Distance(spatialTestList[j].transform.position, player.transform.position);
+            Transform currTrans = GetTransformForFrame(videoLayerManager.GetMainLayerCurrentFrameNumber());
+            float dist = Vector3.Distance(spatialTestList[j].transform.position, currTrans.position);
             UnityEngine.Debug.Log("spatial feedback dist for  " + spatialTestList[j].gameObject.name + " is  " + dist.ToString());
             if (dist < 15f)
             {
@@ -1825,7 +1905,7 @@ public class Experiment : MonoBehaviour {
                 spatialFeedbackStatus.Add(false);
             }
             spatialFeedbackPosition.Add(player.transform.position);
-            trialLogTrack.LogRetrievalAttempt(spatialTestList[j].gameObject, player);
+            trialLogTrack.LogRetrievalAttempt(spatialTestList[j].gameObject);
 
             yield return new WaitForSeconds(0.2f);
 
@@ -1938,6 +2018,8 @@ public class Experiment : MonoBehaviour {
         uiController.temporalOrderItemA.text = testPair.firstItem.gameObject.name;
         uiController.temporalOrderItemB.text = testPair.secondItem.gameObject.name;
 
+        trialLogTrack.LogTemporalOrderTest(testPair,true);
+
         string selectionType = "TemporalOrder";
 
         yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
@@ -1945,12 +2027,16 @@ public class Experiment : MonoBehaviour {
         uiController.temporalOrderTestPanel.alpha = 1f;
 
         uiController.ToggleSelection(true);
+        uiController.selectionControls.alpha = 1f;
         //wait for the options to be selected
         canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         canSelect = false;
         uiController.ToggleSelection(false);
+        uiController.selectionControls.alpha = 0f;
         uiController.temporalOrderTestPanel.alpha = 0f;
+        trialLogTrack.LogTemporalOrderTest(testPair, false);
+
         yield return null;
     }
 
@@ -1960,7 +2046,8 @@ public class Experiment : MonoBehaviour {
         uiController.temporalDistanceItemA.text = testPair.firstItem.gameObject.name;
         uiController.temporalDistanceItemB.text = testPair.secondItem.gameObject.name;
 
-        string selectionType = "TemporalDistancr]e";
+        trialLogTrack.LogTemporalDistanceTest(testPair, true);
+        string selectionType = "TemporalDistance";
 
         yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         uiController.temporalDistanceTestPanel.alpha = 1f;
@@ -1968,12 +2055,15 @@ public class Experiment : MonoBehaviour {
 
         //wait for the selection of options
         uiController.ToggleSelection(true);
+        uiController.selectionControls.alpha = 1f;
         canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         canSelect = false;
         uiController.ToggleSelection(false);
+        uiController.selectionControls.alpha = 0f;
 
         uiController.temporalDistanceTestPanel.alpha = 0f;
+        trialLogTrack.LogTemporalDistanceTest(testPair, false);
         yield return null;
     }
 
@@ -1982,16 +2072,20 @@ public class Experiment : MonoBehaviour {
         uiController.contextRecollectionItem.text = testGameObject.name;
         uiController.contextRecollectionTestPanel.alpha = 1f;
 
+        trialLogTrack.LogContextRecollectionTest(testGameObject, true);
         List<int> randOrder = new List<int>();
 
         //wait for the selection of options
         uiController.ToggleSelection(true);
         canSelect = true;
 
+        uiController.selectionControls.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
+        uiController.selectionControls.alpha = 0f;
         canSelect = false;
         uiController.ToggleSelection(false);
         uiController.contextRecollectionTestPanel.alpha = 0f;
+        trialLogTrack.LogContextRecollectionTest(testGameObject, false);
         yield return null;
     }
 
@@ -2052,7 +2146,7 @@ public class Experiment : MonoBehaviour {
 
     IEnumerator WaitForSelection(string selectionType)
     {
-        while (!Input.GetKeyDown(KeyCode.X))
+        while (!Input.GetKeyDown(KeyCode.Space))
         {
             yield return null;
         }
@@ -2091,12 +2185,14 @@ public class Experiment : MonoBehaviour {
         yield return new WaitForSeconds(Configuration.itemReactivationTime);
         uiController.itemReactivationDetails.alpha = 1f;
         uiController.ToggleSelection(true);
+        uiController.selectionControls.alpha = 1f;
         canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
 
         uiController.itemReactivationDetails.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 0f;
         canSelect = false;
+        uiController.selectionControls.alpha = 0f;
         uiController.ToggleSelection(false);
 
         //the option index 2 will correspond to "New", if that is selected, we skip the retrieval part
@@ -2122,16 +2218,20 @@ public class Experiment : MonoBehaviour {
         uiController.ResetRetrievalInstructions();
         uiController.locationReactivationPanel.alpha = 1f;
 
+        trialLogTrack.LogLocationCuedReactivation(stimObject, isLure, retrievalIndex);
+
         string selectionType = "Location";
 
         yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
         uiController.ToggleSelection(true);
+        uiController.selectionControls.alpha = 1f;
         canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.locationReactivationPanel.alpha = 0f;
         uiController.ToggleSelection(false);
+        uiController.selectionControls.alpha = 0f;
         canSelect = false;
 
         //the option index 1 will correspond to "No", if that is selected, we skip the retrieval part
@@ -2300,6 +2400,7 @@ public class Experiment : MonoBehaviour {
                 nextSpawnFrame = sortedSpawnFrames[0];
                 UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
                 sortedSpawnFrames.RemoveAt(0);
+                encodingIndex++;
             }
             else
             {
@@ -2315,8 +2416,12 @@ public class Experiment : MonoBehaviour {
                 if (sortedRetrievalFrames.Count > 0)
                 {
                     nextSpawnFrame = sortedRetrievalFrames[0];
+                    isLure = lureBools[0];
                     UnityEngine.Debug.Log("next retrieval frame " + nextSpawnFrame.ToString());
+                    lureBools.RemoveAt(0);
                     sortedRetrievalFrames.RemoveAt(0);
+                    if(!isLure)
+                        retrievalIndex++; //only increment if not a lure
                 }
                 else
                 {
@@ -2534,6 +2639,8 @@ public class Experiment : MonoBehaviour {
         sortedSpawnFrames = new List<int>();
         sortedRetrievalFrames = new List<int>();
 
+        lureBools = new List<bool>();
+
         List<int> tempWaypointFrames = new List<int>();
         tempWaypointFrames = DuplicateList(sortedWaypointFrames);
 
@@ -2555,12 +2662,14 @@ public class Experiment : MonoBehaviour {
                 {
                     //UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted lure frame");
                     sortedRetrievalFrames.Add(sortedLureFrames[0]);
+                    lureBools.Add(true);
                     sortedLureFrames.RemoveAt(0);
                 }
                 else
                 {
                     //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted lure frame");
                     sortedRetrievalFrames.Add(tempWaypointFrames[0]);
+                    lureBools.Add(false);
                     tempWaypointFrames.RemoveAt(0);
                 }
             }
@@ -2569,11 +2678,13 @@ public class Experiment : MonoBehaviour {
                 if (sortedLureFrames.Count == 0)
                 {
                     sortedRetrievalFrames.Add(tempWaypointFrames[0]);
+                    lureBools.Add(false);
                     tempWaypointFrames.RemoveAt(0);
                 }
                 else
                 {
                     sortedRetrievalFrames.Add(sortedLureFrames[0]);
+                    lureBools.Add(true);
                     sortedLureFrames.RemoveAt(0);
                 }
             }
