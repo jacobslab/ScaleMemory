@@ -139,7 +139,7 @@ return micStatus;
 public static void WriteOutput(string outputLine,string subj)
 {
 //UnityEngine.Debug.Log("writing : " + outputLine);
-string line = outputLine + "\n";
+string line = outputLine;
 WriteToFile(line,subj);
 
 }

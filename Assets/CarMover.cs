@@ -50,6 +50,7 @@ public class CarMover : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        currentMovementDirection = MovementDirection.Forward;
         ToggleSpatialRetrievalIndicator(false);
         canMove = true;
         GetAllSpawnPoints();
@@ -98,6 +99,8 @@ public class CarMover : MonoBehaviour
             //  yield return new WaitForSeconds(0.5f);
             // UnityEngine.Debug.Log("set new movement direction  " + currentMovementDirection.ToString());
         }
+
+        UnityEngine.Debug.Log("finished changing direction");
         yield return null;
     }
 

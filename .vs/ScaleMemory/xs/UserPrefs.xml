@@ -1,33 +1,26 @@
-﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Logging/TrialLogTrack.cs">
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/VideoLayer.cs" Line="181" Column="50" IsPinned="True" />
-      <File FileName="Assets/VideoLayerManager.cs" Line="483" Column="59" IsPinned="True" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1728" Column="62" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="22" Column="20" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="287" Column="16" />
-      <File FileName="Assets/ObjectController.cs" Line="49" Column="6" />
-      <File FileName="Assets/Scripts/StimulusObject.cs" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="2155" Column="33" />
+      <File FileName="Assets/VideoLayerManager.cs" />
+      <File FileName="Assets/Scripts/Logging/TrialLogTrack.cs" Line="190" Column="14" />
+      <File FileName="Assets/Plugins/WebGL/BrowserPlugin.cs" />
+      <File FileName="Assets/Scripts/WebGLMicrophone.cs" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" />
+      <File FileName="Assets/Scripts/UIController.cs" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/Logging/Logger_Threading.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
+      <File FileName="Assets/Scripts/Logging/CanvasGroupLogTrack.cs" />
       <File FileName="Assets/CarMover.cs" />
-      <File FileName="Assets/Scripts/Logging/TrialLogTrack.cs" Line="141" Column="45" />
-      <File FileName="Assets/Editor/RemoveAssetBundles.cs" />
-      <File FileName="Assets/Scripts/AudioRecorder.cs" Line="13" Column="1" />
-      <File FileName="Assets/Scripts/TestMic.cs" />
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="109" Column="68" />
-      <File FileName="Assets/Scripts/LoadScenePrefabs.cs" />
-      <File FileName="Assets/ItemLayer.cs" Line="38" Column="1" />
-      <File FileName="Assets/Scripts/Logging/Logger_Threading.cs" Line="111" Column="9" />
-      <File FileName="Assets/Plugins/WebGL/BrowserPlugin.cs" Line="178" Column="7" />
-      <File FileName="Assets/Scripts/ObjectManager.cs" Line="57" Column="53" />
-      <File FileName="Assets/DefaultItem.cs" Line="75" Column="3" />
+      <File FileName="Assets/ObjectController.cs" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="cf582a90-962d-41d7-ad58-6ae93d5353b0" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4608228e-07a3-4dd3-98b5-a913a3492c94" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-Editor-firstpass PreferredExecutionTarget="cf582a90-962d-41d7-ad58-6ae93d5353b0" />
 </Properties>

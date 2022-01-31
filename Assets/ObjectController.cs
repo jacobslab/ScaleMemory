@@ -38,6 +38,7 @@ public class ObjectController : MonoBehaviour
 
 	public IEnumerator FillPermanentImageList(Object[] imageObjects)
     {
+		UnityEngine.Debug.Log("image objects length " + imageObjects.Length.ToString());
 		for (int i = 0; i < imageObjects.Length; i++)
 		{
 			permanentImageList.Add((Texture)imageObjects[i]);
@@ -60,22 +61,22 @@ public class ObjectController : MonoBehaviour
 		else{
 			prefabs = Resources.LoadAll("Prefabs/Objects");
 		}
-#elif UNITY_WEBGL
+#else
 		for(int i=0;i<permanentImageList.Count;i++)
         {
 			stimuliImageList.Add(permanentImageList[i]);
 
 		}
-#else
-		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
+        //#else
+        //		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
 #endif
 
-#if !UNITY_WEBGL
-		for (int i = 0; i < prefabs.Length; i++)
-		{
-			stimuliImageList.Add((Texture)prefabs[i]);
-		}
-#endif
+//#if !UNITY_WEBGL
+  //      for (int i = 0; i < prefabs.Length; i++)
+		//{
+		//	stimuliImageList.Add((Texture)prefabs[i]);
+		//}
+//#endif
 
         UnityEngine.Debug.Log("finished filling");
 	}
@@ -283,7 +284,10 @@ public class ObjectController : MonoBehaviour
     {
 		Vector3 spawnPos = exp.player.transform.position + exp.player.transform.forward * 5f;
 		GameObject spawnObj = SpawnSpecialObject(spawnPos);
+		UnityEngine.Debug.Log("adding spawn object");
+
 		exp.spawnedObjects.Add(spawnObj);
+		UnityEngine.Debug.Log("spawn objects count " + exp.spawnedObjects.Count.ToString());
 		//exp.spawnLocations.Add(spawnPos);
 		yield return StartCoroutine(objSpawner.MakeObjAppear(spawnObj));
 		yield return null;

@@ -14,6 +14,11 @@ public class UIController : MonoBehaviour
     public CanvasGroup targetTextPanel;
     public Text retrievalItemName;
 
+    //prolific specific
+    public CanvasGroup prolificInfoPanel;
+    public CanvasGroup consentPanel;
+    public CanvasGroup failProlificPanel;
+
     //presentation text
     public Text presentationItemText;
 
@@ -25,8 +30,13 @@ public class UIController : MonoBehaviour
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
 
+    //next trial screen
+    public CanvasGroup nextTrialPanel;
+
     //track screening
     public CanvasGroup trackScreeningPanel;
+    public CanvasGroup familiarizationOverheadInstructions;
+    public Text familiarizationOverheadInstructionText;
 
     //practice panel
     public CanvasGroup practiceInstructionPanel;
@@ -38,6 +48,12 @@ public class UIController : MonoBehaviour
 
     //encoding panel
     public CanvasGroup encodingPanel;
+
+    //post practice panel
+    public CanvasGroup postPracticePanel;
+
+    //mic access panel
+    public CanvasGroup micAccessPanel;
 
     //retrieval panel
     public CanvasGroup retrievalPanel;
@@ -59,7 +75,9 @@ public class UIController : MonoBehaviour
 
     //controls instruction images
     public CanvasGroup spacebarContinue;
+    public CanvasGroup spacebarPlaceItem;
     public CanvasGroup pageControls;
+    public CanvasGroup driveControls;
     public CanvasGroup selectionControls;
 
     //reactivation panel
@@ -75,9 +93,11 @@ public class UIController : MonoBehaviour
     string itemRetrievalInstructionBase = "drive to location of ";
 
     //end of block tests
+    public CanvasGroup endOfBlockInstructionPanel;
     public CanvasGroup temporalOrderTestPanel;
     public CanvasGroup temporalDistanceTestPanel;
     public CanvasGroup contextRecollectionTestPanel;
+
 
     public Text temporalOrderItemA;
     public Text temporalOrderItemB;
@@ -99,6 +119,8 @@ public class UIController : MonoBehaviour
     public CanvasGroup stimDisplayPanel;
     public RawImage stimItemImage;
     public Text stimNameText;
+    //blue marker indicator
+    public CanvasGroup markerCirclePanel;
 
     //blackrock connection
     public CanvasGroup blackrockConnectionPanel;
@@ -129,6 +151,7 @@ public class UIController : MonoBehaviour
 
     //end session
     public CanvasGroup endSessionPanel;
+
 
     // info text
 //    public TextMeshPro infoText;
@@ -228,6 +251,7 @@ public class UIController : MonoBehaviour
     public IEnumerator SetActiveInstructionPage(string instructionPage)
     {
         //reset the page ID
+        bool isSpatial = false;
         currUIPageID = 0;
         currInstPage = instructionPage;
         switch(instructionPage)
@@ -238,6 +262,7 @@ public class UIController : MonoBehaviour
                 UnityEngine.Debug.Log("set verbal instruction as active");
                 break;
             case "Spatial":
+                isSpatial = true;
                // uiPageChange += Experiment.Instance.UpdateSpatialInstructions;
                 maxPage = maxSpatialPages;
                 UnityEngine.Debug.Log("set spatial instruction as active");
@@ -247,11 +272,31 @@ public class UIController : MonoBehaviour
                 break;
         }
         showInstructions = true;
-        pageControls.alpha = 1f;
+        if(!isSpatial)
+            pageControls.alpha = 1f;
         //then force update it so it shows up with the first page
         yield return StartCoroutine(UpdateUIPage());
 
         yield return null;
+    }
+
+    public void SetFamiliarizationInstructions(Weather.WeatherType currWeather)
+    {
+        familiarizationOverheadInstructions.alpha = 1f;
+        switch(currWeather)
+        {
+            case Weather.WeatherType.Sunny:
+                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Sunny";
+                break;
+            case Weather.WeatherType.Rainy:
+                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Rainy";
+                break;
+            case Weather.WeatherType.Night:
+                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Night";
+                break;
+
+        }
+
     }
 
     public void FinishInstructionSequence(string instructionPage)
@@ -316,20 +361,26 @@ public class UIController : MonoBehaviour
             case "TemporalOrder":
                 for (int i = 0; i < locationCuedSelectionPositions.Count; i++)
                 {
-                    activeSelectionPositions.Add(locationCuedSelectionPositions[i]);
+
+                    Vector3 currPos = locationCuedSelectionPositions[i] - new Vector3(200f * Mathf.Sign(locationCuedSelectionPositions[i].x),-300f,0f);
+                    activeSelectionPositions.Add(currPos);
                 }
+                maxOptions = locationCuedSelectionPositions.Count;
+
                 break;
             case "TemporalDistance":
                 for (int i = 0; i < temporalDistancePositions.Count; i++)
                 {
                     activeSelectionPositions.Add(temporalDistancePositions[i]);
                 }
+                maxOptions = temporalDistancePositions.Count;
                 break;
             case "ContextRecollection":
                 for (int i = 0; i < itemCuedSelectionPositions.Count; i++)
                 {
                     activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
                 }
+                maxOptions = itemCuedSelectionPositions.Count;
                 break;
 
         }   

@@ -136,27 +136,33 @@ public class VideoLayerManager : MonoBehaviour
         Experiment.Instance.uiController.stimItemImage.texture = stimImage;
         Experiment.Instance.uiController.stimNameText.text = stimDisplayText;
         Experiment.Instance.uiController.stimDisplayPanel.alpha = 1f;
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 1f;
 
-        Transform currTransform = Experiment.Instance.GetTransformForFrame(backgroundLayer.GetCurrentFrameNumber()); //this gets us the position of the player corresponding to the frame
+        Transform currTransform = Experiment.Instance.GetTransformForFrame(GetMainLayerCurrentFrameNumber()); //this gets us the position of the player corresponding to the frame
 
         currTransform.position += currTransform.forward * 2.5f; // the object is located 2.5 units away from the player's current spot
 
         GameObject stimObject = Instantiate(Experiment.Instance.objController.placeholder, currTransform.position, currTransform.rotation);
+        UnityEngine.Debug.Log("SPAWNED AT " + currTransform.position.ToString());
         stimObject.GetComponent<StimulusObject>().stimuliDisplayName = stimDisplayText;
         stimObject.GetComponent<StimulusObject>().stimuliDisplayTexture = stimImage;
         stimObject.gameObject.name = stimDisplayText;
         Experiment.Instance.spawnedObjects.Add(stimObject); //add it to the list
 
+        UnityEngine.Debug.Log("adding spawn object");
+        UnityEngine.Debug.Log("new spawnedobjects count " + Experiment.Instance.spawnedObjects.Count.ToString());
+
+        UnityEngine.Debug.Log("FRAME SPAWN " + GetMainLayerCurrentFrameNumber().ToString());
         Experiment.Instance.trialLogTrack.LogItemEncodingEvent(stimDisplayText, GetMainLayerCurrentFrameNumber(),Experiment.Instance.encodingIndex);
         Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, true);
 
-        UnityEngine.Debug.Log("adding to stim block sequence");
+        //UnityEngine.Debug.Log("adding to stim block sequence");
         Experiment.Instance.stimuliBlockSequence.Add(stimObject); //add to the stim block sequence for end of the block tests
-        UnityEngine.Debug.Log("new length of stim block sequence " + Experiment.Instance.stimuliBlockSequence.Count.ToString());
+        //UnityEngine.Debug.Log("new length of stim block sequence " + Experiment.Instance.stimuliBlockSequence.Count.ToString());
 
         for(int i=0;i<Experiment.Instance.stimuliBlockSequence.Count;i++)
         {
-            UnityEngine.Debug.Log("inside stim block sequence " + i.ToString() + " : " + Experiment.Instance.stimuliBlockSequence[i].ToString());
+            //UnityEngine.Debug.Log("inside stim block sequence " + i.ToString() + " : " + Experiment.Instance.stimuliBlockSequence[i].ToString());
         }
 
 
@@ -165,7 +171,7 @@ public class VideoLayerManager : MonoBehaviour
         float waitTime = Configuration.itemPresentationTime + Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
 
         yield return new WaitForSeconds(waitTime);
-
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 0f;
         Experiment.Instance.uiController.stimDisplayPanel.alpha = 0f;
         yield return StartCoroutine(TogglePauseLayerPlayback(false));
 
@@ -186,25 +192,33 @@ public class VideoLayerManager : MonoBehaviour
     {
         GameObject retObject = null;
         int currFrame = Experiment.nextSpawnFrame;
-        UnityEngine.Debug.Log("trying to find object for frame " + currFrame.ToString());
+        //UnityEngine.Debug.Log("trying to find object for frame " + currFrame.ToString());
         bool isLure = Experiment.Instance.isLure;
         if(Experiment.Instance.retrievalFrameObjectDict.TryGetValue(currFrame, out retObject))
         {
-            UnityEngine.Debug.Log("found object");
+            //UnityEngine.Debug.Log("found object");
             if(retObject!=null)
             {
-                UnityEngine.Debug.Log("and its not null");
+                //UnityEngine.Debug.Log("and its not null");
 
                     yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
                
             }
         }
 
-        UnityEngine.Debug.Log("finishing check");
+        //UnityEngine.Debug.Log("finishing check");
 
         //reset the event invoked flag
         VideoLayer.isInvoked = false;
         yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
+        yield return null;
+    }
+
+    public IEnumerator BeginFramePlay()
+    {
+        StartCoroutine(sunnyLayer.FramePlay());
+        StartCoroutine(rainyLayer.FramePlay());
+        StartCoroutine(nightLayer.FramePlay());
         yield return null;
     }
 
@@ -284,18 +298,20 @@ public class VideoLayerManager : MonoBehaviour
 
 
         float randPlaybackTime = Random.Range(0f, (float)backgroundLayer.vidClip.length);
-        UnityEngine.Debug.Log("moving to playback time " + randPlaybackTime.ToString());
+        //UnityEngine.Debug.Log("moving to playback time " + randPlaybackTime.ToString());
         yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(randPlaybackTime));
         //yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(randPlaybackTime));
         yield return null;
     }
 
 
+
+
     public void UpdateWeather(Weather.WeatherType targetWeather)
     {
         //make current layer invisible
 
-        UnityEngine.Debug.Log("updating weather to " + targetWeather.ToString());
+        //UnityEngine.Debug.Log("updating weather to " + targetWeather.ToString());
 
         if (backgroundLayer != null)
         {
@@ -309,18 +325,21 @@ public class VideoLayerManager : MonoBehaviour
             case Weather.WeatherType.Sunny:
                 //sunnyLayer.ToggleLayerVisibility(true);
                 sunnyLayer.gameObject.SetActive(true);
+                Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Sunny);
                 sunnyLayer.TogglePause(false);
                 backgroundLayer = sunnyLayer;
                 break;
             case Weather.WeatherType.Rainy:
                 //rainyLayer.ToggleLayerVisibility(true);
                 rainyLayer.gameObject.SetActive(true);
+                Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Rainy);
                 rainyLayer.TogglePause(false);
                 backgroundLayer = rainyLayer;
                 break;
             case Weather.WeatherType.Night:
                 //nightLayer.ToggleLayerVisibility(true);
 
+                Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Night);
                 nightLayer.gameObject.SetActive(true);
                 nightLayer.TogglePause(false);
                 backgroundLayer = nightLayer;
@@ -329,6 +348,7 @@ public class VideoLayerManager : MonoBehaviour
             default:
                 //sunnyLayer.ToggleLayerVisibility(true);
                 sunnyLayer.gameObject.SetActive(true);
+                Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Sunny);
                 sunnyLayer.TogglePause(false);
                 backgroundLayer = sunnyLayer;
                 break;
@@ -357,7 +377,7 @@ public class VideoLayerManager : MonoBehaviour
         yield return StartCoroutine(backgroundLayer.ScrollToFrame(frame));
       //  yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(playbackTime));
        // yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(playbackTime));
-        UnityEngine.Debug.Log("moving to playback time " + playbackTime.ToString());
+        //UnityEngine.Debug.Log("moving to playback time " + playbackTime.ToString());
         yield return new WaitForSeconds(1.5f); //presentation/animation time
         //yield return StartCoroutine(RemoveVideoLayer(itemLayer));
 
@@ -380,7 +400,7 @@ public class VideoLayerManager : MonoBehaviour
     {
         layerList.Add(layer);
 
-        UnityEngine.Debug.Log("adding to list " + layerList.Count.ToString());
+        //UnityEngine.Debug.Log("adding to list " + layerList.Count.ToString());
             yield return StartCoroutine(layer.PrepareVideoTexture());
 
 
@@ -419,12 +439,14 @@ public class VideoLayerManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
-                ChangePlaybackDirection(Direction.Forward);
+                StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+                //ChangePlaybackDirection(Direction.Forward);
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
-                ChangePlaybackDirection(Direction.Backward);
+                StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+                //ChangePlaybackDirection(Direction.Backward);
             }
         }
     }
@@ -432,6 +454,7 @@ public class VideoLayerManager : MonoBehaviour
 
     public void ChangePlaybackDirection(Direction newDirection)
     {
+        UnityEngine.Debug.Log("changing direction to " + newDirection.ToString());
         for(int i=0;i<layerList.Count;i++)
         {
             layerList[i].ChangePlaybackDirection(newDirection);
@@ -450,6 +473,7 @@ public class VideoLayerManager : MonoBehaviour
 
     public void SetNewPlaybackMode(CarMover.DriveMode newDriveMode)
     {
+        UnityEngine.Debug.Log("changing drive mode to " + newDriveMode.ToString());
         switch(newDriveMode)
         {
             case CarMover.DriveMode.Auto:
@@ -472,7 +496,7 @@ public class VideoLayerManager : MonoBehaviour
         int randStartFrame = Random.Range(50,layerList[0].numberOfFrames-100);
         for (int i = 0; i < layerList.Count; i++)
         {
-            UnityEngine.Debug.Log("scrolling to start frame");
+            //UnityEngine.Debug.Log("scrolling to start frame");
             yield return StartCoroutine(layerList[i].ScrollToFrame(randStartFrame));
 
             yield return StartCoroutine(layerList[i].TogglePause(false));
@@ -488,7 +512,7 @@ public class VideoLayerManager : MonoBehaviour
     {
         for(int i=0;i<layerList.Count;i++)
         {
-            UnityEngine.Debug.Log("scrolling to start frame");
+            //UnityEngine.Debug.Log("scrolling to start frame");
             yield return StartCoroutine(layerList[i].ScrollToFrame(1));
             yield return StartCoroutine(layerList[i].TogglePause(false));
             yield return new WaitForSeconds(0.1f);
@@ -501,7 +525,7 @@ public class VideoLayerManager : MonoBehaviour
     {
         for(int i=0;i<layerList.Count;i++)
         {
-            UnityEngine.Debug.Log("pausing layers");
+            //UnityEngine.Debug.Log("pausing layers");
             yield return StartCoroutine(layerList[i].TogglePause(true));
         }
         yield return null;

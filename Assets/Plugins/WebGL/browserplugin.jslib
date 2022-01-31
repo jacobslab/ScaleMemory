@@ -24,9 +24,11 @@ WriteToFile:function(str,subj)
                   console.log("Server returned: ",e.target.responseText);
               }
           };
+          console.log("writing line for  " + subjectLine);
           var fd=new FormData();
           fd.append("functionname","WriteLine");
           fd.append("subjectName",subjectLine);
+
           fd.append("line",lines);
           xhr.open("POST","functions.php",true);
           xhr.send(fd);
@@ -61,11 +63,11 @@ PrintString: function(str)
 
 SubjectSet : function(subjName)
 {
-     var date=new Date().toISOString();
+    // var date=new Date().toISOString();
      console.log("subj name is " + subjName)
     // console.log(date);
      //subject=date;
-    console.log("subject " + date);
+   // console.log("subject " + date);
     subject = Pointer_stringify(subjName);
     console.log(subject);
 console.log("subject in js is " + subject);

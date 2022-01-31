@@ -73,7 +73,7 @@ public class VideoLayer : MonoBehaviour
 
         bgLayer.texture = frames[0];
 #endif
-        UnityEngine.Debug.Log("loaded " + frames.Length.ToString() + " frames for " + gameObject.name);
+        //UnityEngine.Debug.Log("loaded " + frames.Length.ToStri ng() + " frames for " + gameObject.name);
         if (spawnPointReachedEvent == null)
             spawnPointReachedEvent = new UnityEvent();
 
@@ -105,7 +105,10 @@ public class VideoLayer : MonoBehaviour
     {
         while (Application.isPlaying)
         {
-            speed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
+            if(Experiment.Instance.currentStage  == Experiment.TaskStage.SpatialRetrieval || Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
+                speed = Random.Range(Configuration.minRetrievalFrameSpeed, Configuration.maxRetrievalFrameSpeed);
+            else
+                speed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
             yield return new WaitForSeconds(5f + Random.Range(1f, 8f));
             yield return 0;
         }
@@ -143,6 +146,91 @@ public class VideoLayer : MonoBehaviour
         videoLayerManager.RetrievalPointReached();
     }
 
+    public IEnumerator FramePlay()
+    {
+        while (Experiment.Instance.IsExpActive())
+        {
+            if (!isPaused)
+            {
+                if (playbackDirection == 1)
+                    timeVar += Time.deltaTime * speed;
+                else
+                    timeVar -= Time.deltaTime * speed;
+
+                currentFrame = (int)(timeVar * frameRate);
+                UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
+                {
+                    if (!isInvoked)
+                    {
+                        UnityEngine.Debug.Log("invoking spawn point event");
+                        isInvoked = true;
+                        if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                            spawnPointReachedEvent.Invoke();
+                        else
+                            retrievalPointReachedEvent.Invoke();
+                    }
+                }
+                if (currentFrame >= frames.Length - 1)
+                {
+                    UnityEngine.Debug.Log("exceeded video");
+                    timeVar = 0f;
+                    OnVideoLoop();
+                    currentFrame = 0;
+                }
+                if (currentFrame < 0)
+                {
+                    UnityEngine.Debug.Log("before start");
+                    currentFrame = frames.Length - 3;
+                    OnVideoReverseLoop();
+                    timeVar = currentFrame / frameRate;
+                }
+                bgLayer.texture = frames[currentFrame];
+            }
+            yield return 0;
+        }
+
+        //if (Input.GetKeyDown(KeyCode.Y))
+        //    speed += 0.1f;
+        //if (Input.GetKeyDown(KeyCode.H))
+        //    speed -= 0.1f;
+        yield return null;
+    }
+
+    private void FixedUpdate()
+    {
+        if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
+        {
+            if (!isInvoked)
+            {
+                UnityEngine.Debug.Log("invoking spawn point event");
+                isInvoked = true;
+                if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                    spawnPointReachedEvent.Invoke();
+                else
+                    retrievalPointReachedEvent.Invoke();
+            }
+        }
+        if (currentFrame >= frames.Length - 1)
+        {
+            UnityEngine.Debug.Log("exceeded video");
+            timeVar = 0f;
+            OnVideoLoop();
+            currentFrame = 0;
+        }
+        if (currentFrame < 0)
+        {
+            UnityEngine.Debug.Log("before start");
+            currentFrame = frames.Length - 3;
+            OnVideoReverseLoop();
+            timeVar = currentFrame / frameRate;
+        }
+        //UnityEngine.Debug.Log("current frame " + currentFrame.ToString());
+        //UnityEngine.Debug.Log("timevar " + timeVar.ToString());
+        //UnityEngine.Debug.Log("associating frame" + frames[currentFrame].name.ToString());
+        //Experiment.Instance.trialLogTrack.LogFramePosition(currentFrame);
+        bgLayer.texture = frames[currentFrame];
+    }
 
 
     void Update()
@@ -156,43 +244,13 @@ public class VideoLayer : MonoBehaviour
 
             currentFrame = (int)(timeVar * frameRate);
             //UnityEngine.Debug.Log("current frame: " + currentFrame.ToString());
-            if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 2)
-            {
-                if (!isInvoked)
-                {
-                    UnityEngine.Debug.Log("invoking spawn point event");
-                    isInvoked = true;
-                    if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
-                        spawnPointReachedEvent.Invoke();
-                    else
-                        retrievalPointReachedEvent.Invoke();
-                }
-            }
-            if (currentFrame >= frames.Length - 1)
-            {
-                UnityEngine.Debug.Log("exceeded video");
-                timeVar = 0f;
-                OnVideoLoop();
-                currentFrame = 0;
-            }
-            if (currentFrame < 0)
-            {
-                UnityEngine.Debug.Log("before start");
-                currentFrame = frames.Length - 3;
-                OnVideoReverseLoop();
-                timeVar = currentFrame / frameRate;
-            }
-            //UnityEngine.Debug.Log("current frame " + currentFrame.ToString());
-            //UnityEngine.Debug.Log("timevar " + timeVar.ToString());
-            //UnityEngine.Debug.Log("associating frame" + frames[currentFrame].name.ToString());
-            //Experiment.Instance.trialLogTrack.LogFramePosition(currentFrame);
-            bgLayer.texture = frames[currentFrame];
-        }
 
-        //if (Input.GetKeyDown(KeyCode.Y))
-        //    speed += 0.1f;
-        //if (Input.GetKeyDown(KeyCode.H))
-        //    speed -= 0.1f;
+
+            //if (Input.GetKeyDown(KeyCode.Y))
+            //    speed += 0.1f;
+            //if (Input.GetKeyDown(KeyCode.H))
+            //    speed -= 0.1f;
+        }
     }
 
     //public void Forward(float deltaTime)
@@ -252,13 +310,13 @@ public class VideoLayer : MonoBehaviour
         //UnityEngine.Debug.Log("should pause? " + shouldPause.ToString());
         if (shouldPause)
         {
-            //UnityEngine.Debug.Log("paused");
+            //UnityEngine.Debug.Log(gameObject.name  + " paused");
             isPaused = true;
         }
         //videoPlayer.Pause();
         else
         {
-            //UnityEngine.Debug.Log("unpaused");
+            //UnityEngine.Debug.Log(gameObject.name + " unpaused");
             isPaused = false;
         }
         //videoPlayer.Play();

@@ -21,21 +21,30 @@ public class LoggerQueue
 
 	public Queue<String> logQueue;
 
+	public bool hasMessages = false;
 	public LoggerQueue(){
 		logQueue = new Queue<String> ();
 	}
 
 	public void AddToLogQueue(string newLogInfo){
 		lock (logQueue) {
-			logQueue.Enqueue (newLogInfo);
+			//if(!string.IsNullOrEmpty(newLogInfo))
+				logQueue.Enqueue (newLogInfo);
 		}
 	}
+
+	public bool CheckForMessages()
+    {
+		return hasMessages;
+    }
 
 	public String GetFromLogQueue(){
 		string toWrite = "";
 		lock (logQueue) {
 			toWrite = logQueue.Dequeue ();
-			if (toWrite == null) {
+			if (toWrite == null)
+			{
+				UnityEngine.Debug.Log("IS NULL making blank line");
 				toWrite = "";
 			}
 		}
@@ -122,7 +131,7 @@ public class Logger_Threading : MonoBehaviour{
 	{
 		if (Experiment.isLogging) {
 			myLoggerQueue = new LoggerQueue ();
-			StartCoroutine ("LogWriter");
+		//	StartCoroutine ("LogWriter");
 			//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
 			//		
 			//			myLoggerWriter.Start ();
@@ -135,7 +144,41 @@ public class Logger_Threading : MonoBehaviour{
 		fileName = file;
 	}
 
+	
+
+#if UNITY_WEBGL
 	IEnumerator LogWriter()
+	{
+		isRunning = true;
+		while (!canLog)
+		{
+			yield return 0;
+		}
+		UnityEngine.Debug.Log("filename is " + fileName);
+		logfile = new StreamWriter(fileName, true, Encoding.ASCII, 0x10000);
+		UnityEngine.Debug.Log("running logwriter coroutine writing at " + fileName);
+		while (isRunning)
+		{
+
+			while (myLoggerQueue.logQueue.Count > 0)
+			{
+			//	string msg = myLoggerQueue.GetFromLogQueue ();
+
+				//UnityEngine.Debug.Log ("writing: " + msg);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+			//	BrowserPlugin.WriteOutput(msg);
+#endif
+				//	logfile.WriteLine (msg);
+				yield return 0;
+			}
+			yield return 0;
+		}
+		UnityEngine.Debug.Log("closing this");
+		yield return null;
+	}
+#else
+IEnumerator LogWriter()
 	{
 		isRunning = true;
 		UnityEngine.Debug.Log("filename is " + fileName);
@@ -155,7 +198,7 @@ public class Logger_Threading : MonoBehaviour{
 		UnityEngine.Debug.Log ("closing this");
 		yield return null;
 	}
-
+#endif
 	//logging itself can happen in regular update. the rate at which ILoggable objects add to the log Queue should be in FixedUpdate for framerate independence.
 	void Update()
 	{

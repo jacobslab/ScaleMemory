@@ -60,8 +60,54 @@ public class AssetBundleLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine("LoadAudioClip");
     }
+
+
+    public IEnumerator LoadCamTransform()
+    {
+        AssetBundle myLoadedAssetBundle;
+        string bundleName = "misc";
+        string uri = "";
+        if (isWeb)
+        {
+            uri = Path.Combine(AssetBundleLoader.baseBundlePath, bundleName);
+
+            UnityEngine.Debug.Log("URI " + uri);
+            UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(uri, 0);
+            UnityEngine.Debug.Log("sending request");
+            yield return StartCoroutine(WebReq(request));
+            UnityEngine.Debug.Log("received data from the request");
+            myLoadedAssetBundle = DownloadHandlerAssetBundle.GetContent(request);
+            string obj = "";
+        }
+        else
+        {
+            uri = Path.Combine(Application.dataPath + "/AssetBundles", bundleName);
+            UnityEngine.Debug.Log("URI " + uri);
+            myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/AssetBundles/", bundleName));
+            if (myLoadedAssetBundle == null)
+            {
+                UnityEngine.Debug.Log("Failed to load AssetBundle!");
+                yield return null;
+            }
+        }
+        if (myLoadedAssetBundle == null)
+        {
+            UnityEngine.Debug.Log("Failed to load AssetBundle!");
+            yield return null;
+        }
+
+
+        //string[]names = myLoadedAssetBundle.GetAllAssetNames();
+        //UnityEngine.Debug.Log("name length " + names.Length.ToString());
+        var loadedCamTransform = myLoadedAssetBundle.LoadAsset<TextAsset>("cam_transform");
+
+        Experiment.Instance.camTransformTextAsset = loadedCamTransform;
+
+
+        yield return null;
+    }
+
 
 
     public IEnumerator LoadItemLayer(string bundleName)
@@ -167,7 +213,8 @@ public class AssetBundleLoader : MonoBehaviour
 
         if (isWeb)
         {
-            uri = Path.Combine(AssetBundleLoader.baseBundlePath, bundleName); UnityEngine.Debug.Log("URI " + uri);
+            uri = Path.Combine(AssetBundleLoader.baseBundlePath, bundleName);
+            UnityEngine.Debug.Log("URI " + uri);
             UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(uri, 0);
             UnityEngine.Debug.Log("sending request");
             yield return StartCoroutine(WebReq(request));
@@ -210,7 +257,7 @@ public class AssetBundleLoader : MonoBehaviour
     }
 
 
-    IEnumerator LoadAudioClip()
+    public IEnumerator LoadAudioClip()
     {
 
         //beep high

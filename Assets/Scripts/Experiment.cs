@@ -17,8 +17,12 @@ public class Experiment : MonoBehaviour {
     public UIController uiController;
     public ObjectController objController;
 
-    public AssetBundleLoader assetBundleLoader;
+    public GameObject resultObj; //invisible object to keep track of results from GetTransformForFrame
 
+    public AssetBundleLoader assetBundleLoader;
+    private bool expActive = false;
+
+    private bool firstAudio = true; //a flag to make sure in case of the microphone permission access popup, task can be forced into fullscreen after
 #if !UNITY_WEBGL
     public InterfaceManager interfaceManager;
     public RamulatorInterface ramulatorInterface;
@@ -104,6 +108,8 @@ public class Experiment : MonoBehaviour {
 
     public TaskStage currentStage = TaskStage.ItemScreening;
 
+    private int currBlockNum = 0;
+
     public List<GameObject> spawnedObjects;
     //public List<Vector3> spawnLocations;
     public List<int> spawnFrames;
@@ -128,13 +134,13 @@ public class Experiment : MonoBehaviour {
 
     public static int recallTime = 6;
 
-    public static int totalTrials = 12;
+    public static int totalTrials = 20;
     private int blockCount = 0;
     public static int trialsPerBlock = 4;
 
     public static int listLength = 5;
 
-    private int testLength = 10;
+    private int testLength = 7;
 
     public Transform startTransform;
 
@@ -154,7 +160,7 @@ public class Experiment : MonoBehaviour {
 
     //blackrock variables
     public static string ExpName = "CityBlock";
-    public static string BuildVersion = "0.9.92";
+    public static string BuildVersion = "0.9.95";
     public static bool isSystem2 = false;
 
     public bool verbalRetrieval = false;
@@ -172,7 +178,7 @@ public class Experiment : MonoBehaviour {
     private List<Vector3> spatialFeedbackPosition;
 
     //logging
-    public static bool isLogging = false;
+    public static bool isLogging = true;
     private string subjectLogfile; //gets set based on the current subject in Awake()
     public Logger_Threading subjectLog;
     private string eegLogfile; //gets set based on the current subject in Awake()
@@ -182,6 +188,8 @@ public class Experiment : MonoBehaviour {
     public static int sessionID;
 
     public string subjectName = "";
+
+    private bool canProceed = false;
 
     public SubjectReaderWriter subjectReaderWriter;
 
@@ -198,6 +206,10 @@ public class Experiment : MonoBehaviour {
                                              //public InputField loggingPathInputField;
 
     public Dictionary<int, Transform> playerPosDict = new Dictionary<int,Transform>();
+
+
+    public List<Vector3> playerPositions = new List<Vector3>();
+    public List<Vector3> playerRotations = new List<Vector3>();
 
     public static Subject currentSubject
     {
@@ -218,11 +230,11 @@ public class Experiment : MonoBehaviour {
 
     private string enteredSubjName;
 
-
     string prolific_pid = "";
     string study_id = "";
     string session_id = "";
     bool idAssigned = false;
+    bool givenConsent = false;
 
     public SimpleTimer lapTimer;
 
@@ -244,6 +256,8 @@ public class Experiment : MonoBehaviour {
     public TrialLogTrack trialLogTrack;
     private int objLapper = 0;
 
+
+    public WebGLMicrophone audioRec;
     public AudioRecorder audioRecorder;
     private int retCount = 0;
     private int trialCount = 0;
@@ -252,6 +266,8 @@ public class Experiment : MonoBehaviour {
     public static bool isPractice = false;
 
     private string camTransformPath;
+
+    public TextAsset camTransformTextAsset;
 
     private bool retrievedAsNew = false;
 
@@ -284,9 +300,6 @@ public class Experiment : MonoBehaviour {
         trackFamiliarizationQuad.SetActive(false);
         carSpeed = 0f;
 
-        //initialize the weather as Sunny, by default
-        currentWeather = new Weather(Weather.WeatherType.Sunny);
-        ChangeLighting(currentWeather);
 
 
         //test length is stimuli items + lure items
@@ -317,13 +330,44 @@ public class Experiment : MonoBehaviour {
         blockCount = totalTrials / trialsPerBlock;
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
 
-#if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX && !UNITY_WEBGL
         camTransformPath = Application.dataPath + "/cam_transform.txt";
-#endif
-
+        camTransformPath = AssetBundleLoader.baseBundlePath + "/camTransform.txt";
         StartCoroutine("ReadCamTransform");
 
+#elif UNITY_WEBGL
 
+#endif
+
+
+
+    }
+
+    IEnumerator LoadCamTransform()
+    {
+        yield return StartCoroutine(assetBundleLoader.LoadCamTransform());
+
+        if(camTransformTextAsset!=null)
+        {
+            yield return StartCoroutine(ParseTextAsset(camTransformTextAsset));
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ParseTextAsset(TextAsset targetAsset)
+    {
+        playerPositions = new List<Vector3>();
+        playerRotations = new List<Vector3>();
+        string fs = targetAsset.text;
+        string[] fLines = fs.Split('\n');
+
+        for (int i = 0; i < fLines.Length; i++)
+        {
+            string valueLine = fLines[i];
+            ParseCamTransformLine(valueLine, i);
+        }
+            yield return null;
     }
 
     IEnumerator ReadCamTransform()
@@ -336,7 +380,22 @@ public class Experiment : MonoBehaviour {
             while (sr.Peek() >= 0)
             {
                 string currentLine = sr.ReadLine();
-                string currIndex = currentLine.Split(':')[1];
+                 ParseCamTransformLine(currentLine,index);
+                index++;
+                    yield return 0;
+            }
+        }
+
+
+
+        yield return null;
+    }
+
+
+     void ParseCamTransformLine(string currentLine, int index)
+        {
+        UnityEngine.Debug.Log("current line " + index.ToString() + ":" + currentLine);
+            string currIndex = currentLine.Split(':')[1];
                 string currPos = currIndex.Split('R')[0];
                 string currRot = currentLine.Split(':')[2];
 
@@ -344,26 +403,32 @@ public class Experiment : MonoBehaviour {
                 float posY = float.Parse(currPos.Split(',')[1]);
                 float posZ = float.Parse(currPos.Split(',')[2]);
 
+        UnityEngine.Debug.Log("position " + posX.ToString() + "," + posY.ToString() + "," + posZ.ToString());
+
 
                 float rotX = float.Parse(currRot.Split(',')[0]);
                 float rotY = float.Parse(currRot.Split(',')[1]);
                 float rotZ = float.Parse(currRot.Split(',')[2]);
 
-                Transform currTrans = gameObject.transform;
-                currTrans.position = new Vector3(posX, posY, posZ);
-                currTrans.eulerAngles = new Vector3(rotX, rotY, rotZ);
 
-                //then add it to the dict
-                playerPosDict.Add(index,currTrans);
+        UnityEngine.Debug.Log("rotation " + rotX.ToString() + "," + rotY.ToString() + "," + rotZ.ToString());
+        //Transform currTrans = gameObject.transform;
+                //currTrans.position = new Vector3(posX, posY, posZ);
+                //currTrans.eulerAngles = new Vector3(rotX, rotY, rotZ);
 
-                index++;
-            }
+        playerPositions.Add(new Vector3(posX, posY, posZ));
+        playerRotations.Add(new Vector3(rotX, rotY, rotZ));
+
+        //then add it to the dict
+        //playerPosDict.Add(index,currTrans);
+
+        //Transform result;
+        //if(playerPosDict.TryGetValue(index,out result))
+        //{
+        //    UnityEngine.Debug.Log("immediate check:  " + result.position.x.ToString() + "," + result.position.y.ToString() + "," + result.position.z.ToString());
+        //}
+
         }
-
-
-        yield return null;
-    }
-
 
     //this changes the "time of the day" in the scene through lighting
     void ChangeLighting(Weather targetWeather)
@@ -415,7 +480,7 @@ public class Experiment : MonoBehaviour {
         ipAddressEntered = true;
     }
 
-
+  
 #if !UNITY_WEBGL
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
@@ -463,29 +528,43 @@ public class Experiment : MonoBehaviour {
     IEnumerator WriteAndSend()
     {
         string msg = "";
+        bool skipLog = true;
+        string ignore_msg = "";
+        //UnityEngine.Debug.Log("subject log " + Experiment.Instance.subjectLog.ToString());
+        //UnityEngine.Debug.Log("my logger queue " + Experiment.Instance.subjectLog.myLoggerQueue.ToString());
+        //UnityEngine.Debug.Log("messages in log queue " + Experiment.Instance.subjectLog.myLoggerQueue.logQueue.Count.ToString());
         while (Experiment.Instance.subjectLog.myLoggerQueue.logQueue.Count > 0)
         {
-            msg += Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue() + "\n";
+            skipLog = false;
+            string messageToAdd = Experiment.Instance.subjectLog.myLoggerQueue.GetFromLogQueue();
+            //if (Experiment.Instance.subjectLog.myLoggerQueue.CheckForMessages())
+            //msg += messageToAdd + "\n";
+            //UnityEngine.Debug.Log("messagetoadd " + messageToAdd);
+            msg += messageToAdd+ "\n";
             yield return 0;
         }
-        // UnityEngine.Debug.Log("writing " + msg);
-
+      
 #if UNITY_WEBGL && !UNITY_EDITOR
+if(!skipLog)
 		BrowserPlugin.WriteOutput(msg,subjectName);
 	//	BrowserPlugin.SendTextFileToS3();
+#else
+        //if(!skipLog)
+            //UnityEngine.Debug.Log("msg  " + msg);
 #endif
         yield return null;
     }
 
     IEnumerator InitLogging()
     {
-        Debug.Log("beginning initLogging");
-        //string subjName = GameClock.SystemTime_MillisecondsString;
+        UnityEngine.Debug.Log("beginning initLogging");
+        string subjName = "subj_" + GameClock.SystemTime_MillisecondsString;
 
-        string subjName = enteredSubjName;
+        //string subjName = enteredSubjName;
 #if UNITY_WEBGL && !UNITY_EDITOR
+        UnityEngine.Debug.Log("inside webgl part of initlogging");
 		BrowserPlugin.SetSubject(subjName);
-#endif
+#else
         string subjectDirectory = defaultLoggingPath + subjName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
 
@@ -524,12 +603,14 @@ public class Experiment : MonoBehaviour {
 
         subjectLog.fileName = sessionDirectory + subjName + "Log" + ".txt";
         eegLog.fileName = sessionDirectory + subjName + "EEGLog" + ".txt";
-        Logger_Threading.canLog = true;
 
+#endif
+        Logger_Threading.canLog = true;
         yield return null;
     }
 
 #endif
+
 
     //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
     //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
@@ -576,14 +657,37 @@ public class Experiment : MonoBehaviour {
 //uiController.micSuccessGroup.alpha = 0f;
 //uiController.micTestGroup.alpha = 0f;
             StartCoroutine("InitLogging");
+
+            /*
 #if UNITY_WEBGL && !UNITY_EDITOR
             StartCoroutine("BeginListeningForWorkerID");
             StartCoroutine("PerformMicTest");
 #endif
+            */
 
         }
 
     }
+
+    public bool IsExpActive()
+    {
+        return expActive;
+    }
+
+    IEnumerator PeriodicallyWrite()
+    {
+        //UnityEngine.Debug.Log("periodically writing");
+        while (expActive)
+        {
+            //UnityEngine.Debug.Log("writing");
+            yield return StartCoroutine("WriteAndSend");
+            yield return new WaitForSeconds(3f);
+            yield return 0;
+        }
+        yield return null;
+    }
+
+
 
     public int ListenForAssignmentID(string id)
     {
@@ -597,7 +701,8 @@ public class Experiment : MonoBehaviour {
                 prolific_pid = id.Split(';')[0];
                 study_id = id.Split(';')[1];
                 session_id = id.Split(';')[2];
-
+                trialLogTrack.LogProlificWorkerInfo(prolific_pid, study_id, session_id);
+                canProceed = true;
                 idAssigned = true;
                 return 1;
             }
@@ -617,26 +722,97 @@ public class Experiment : MonoBehaviour {
 
     }
 
+    IEnumerator InitialSetup()
+    {
+        //show consent and wait till they agree to it
+        yield return StartCoroutine(ShowConsentScreen());
 
+#if !UNITY_EDITOR
+        uiController.prolificInfoPanel.alpha = 1f;
+
+        yield return StartCoroutine("BeginListeningForWorkerID");
+        uiController.prolificInfoPanel.alpha = 0f;
+
+        yield return StartCoroutine(CheckMicAccess());
+
+        yield return StartCoroutine(GoFullScreen());
+#endif
+        yield return null;
+    }
+
+    IEnumerator ShowConsentScreen()
+    {
+        UnityEngine.Debug.Log("showing consent screen");
+        uiController.consentPanel.alpha = 1f;
+        trialLogTrack.LogUIEvent("CONSENT_SCREEN", true);
+
+        //wait until consent button is pressed
+        while (!givenConsent)
+        {
+            yield return 0;
+
+        }
+        UnityEngine.Debug.Log("given consent");
+
+        trialLogTrack.LogUIEvent("CONSENT_SCREEN", false);
+        uiController.consentPanel.alpha = 0f;
+        yield return null;
+    }
+
+
+    //initiated by UI button on screen during the consent panel
+    public void GiveConsent()
+    {
+        givenConsent = true;
+    }
 
     IEnumerator BeginListeningForWorkerID()
     {
+        trialLogTrack.LogUIEvent("PROLIFIC_INFO", true);
         bool shouldListen = true;
+        int timesWaited = 0;
         while (shouldListen)
         {
-            int res = 0;
 #if UNITY_WEBGL && !UNITY_EDITOR
 	BrowserPlugin.CheckAssignmentIDStatus();
 #endif
-            if (res == 1)
+
+            if (idAssigned)
             {
                 shouldListen = false;
-                UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " + study_id);
+                	UnityEngine.Debug.Log("got the proper prolific PID " + prolific_pid + " study ID " + study_id + " session id " +  study_id);
             }
 
             yield return new WaitForSeconds(1f);
+            timesWaited++;
+            if (timesWaited >= 5)
+            {
+                uiController.failProlificPanel.alpha = 1f;
+                trialLogTrack.LogProlificFailEvent();
+
+                StartCoroutine("WriteAndSend");
+
+            }
             yield return 0;
         }
+        trialLogTrack.LogUIEvent("PROLIFIC_INFO", false);
+        yield return null;
+    }
+
+
+    IEnumerator GoFullScreen()
+    {
+
+        //going full-screen
+        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+        Screen.fullScreen = true;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.GoFullScreen();
+#endif
+
+
         yield return null;
     }
 
@@ -659,33 +835,17 @@ public class Experiment : MonoBehaviour {
     IEnumerator BeginExperiment()
     {
         //skip this if we're in the web version
+        
 #if !UNITY_WEBGL
         yield return StartCoroutine(GetSubjectInfo());
         subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
 #endif
 
-#if !UNITY_EDITOR
-        yield return StartCoroutine(InitLogging());
-#endif
-
         subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
         SetSubjectName();
-        /*
-#if !UNITY_EDITOR
-		yield return StartCoroutine(InitLogging());
-#endif
-*/
+  
         //	UnityEngine.Debug.Log("set subject name: " + subjectName);
         //	trialLogTrack.LogBegin();
-
-        //going full-screen
-        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
-        Screen.fullScreen = true;
-
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-		BrowserPlugin.GoFullScreen();
-#endif
 
 
         UnityEngine.Debug.Log("set subject name: " + subjectName);
@@ -748,29 +908,45 @@ public class Experiment : MonoBehaviour {
         trialLogTrack.LogBlackrockConnectionSuccess();
 
 #endif
+
+        expActive = true;
+        StartCoroutine("PeriodicallyWrite");
         verbalRetrieval = false;
 
-        //track familiarization
-          //yield return StartCoroutine(BeginTrackScreening(false));
+        //yield return StartCoroutine(videoLayerManager.BeginFramePlay());
+        //yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+        //initialize the weather as Sunny, by default
+        currentWeather = new Weather(Weather.WeatherType.Sunny);
+        ChangeLighting(currentWeather);
 
+        //track familiarization
+        //yield return StartCoroutine(BeginTrackScreening(false));
+
+        yield return StartCoroutine(InitialSetup());
         //practice
         yield return StartCoroutine("BeginPractice");
 
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
+        uiController.postPracticePanel.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.postPracticePanel.alpha = 0f;
+
         //repeat blocks twice
         for (int i = 0; i < blockCount; i++)
         {
+            currBlockNum = i;
             trialLogTrack.LogBlock(i, true);
             yield return StartCoroutine("BeginTaskBlock");
             trialLogTrack.LogBlock(i, false);
         }
 
         //once all the trials are complete, run the followup test
-        yield return StartCoroutine("RunFollowUpTest");
+        //yield return StartCoroutine("RunFollowUpTest");
 
         uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(WaitForActionButton());
+        expActive = false;
 
         //player.GetComponent<CarMover>().TurnCarEngine(false);
 #if !UNITY_WEBGL
@@ -788,6 +964,8 @@ public class Experiment : MonoBehaviour {
         yield return StartCoroutine(assetBundleLoader.LoadStimuliImages());
         uiController.UpdateLoadingProgress(20f);
         yield return StartCoroutine(videoLayerManager.SetupLayers());
+        yield return StartCoroutine(assetBundleLoader.LoadAudio());
+        yield return StartCoroutine(LoadCamTransform());
 
         Experiment.Instance.uiController.UpdateLoadingProgress(100f);
 
@@ -828,59 +1006,71 @@ public class Experiment : MonoBehaviour {
     IEnumerator BeginTrackScreening(bool isWeatherFamiliarization)
     {
 
-        if (!isWeatherFamiliarization)
-        {
-            UnityEngine.Debug.Log("starting track screening");
-            currentStage = TaskStage.TrackScreening;
-            //overheadCam.SetActive(true);
-            //trackFamiliarizationQuad.SetActive(true);
-            //playerIndicatorSphere.SetActive(true);
+        //if (!isWeatherFamiliarization)
+        //{
+        //    UnityEngine.Debug.Log("starting track screening");
+        //    currentStage = TaskStage.TrackScreening;
+        //    //overheadCam.SetActive(true);
+        //    //trackFamiliarizationQuad.SetActive(true);
+        //    //playerIndicatorSphere.SetActive(true);
 
-            //track screening will have sunny weather
-            currentWeather = new Weather(Weather.WeatherType.Sunny);
-            ChangeLighting(currentWeather);
+        //    //track screening will have sunny weather
+        //    currentWeather = new Weather(Weather.WeatherType.Sunny);
+        //    ChangeLighting(currentWeather);
 
-            trialLogTrack.LogTaskStage(currentStage, true);
+            //trialLogTrack.LogTaskStage(currentStage, true);
 
 
-            uiController.trackScreeningPanel.alpha = 1f;
-            uiController.spacebarContinue.alpha = 1f;
-            yield return StartCoroutine(WaitForActionButton());
-            uiController.spacebarContinue.alpha = 0f;
-            uiController.trackScreeningPanel.alpha = 0f;
-        }
-        else
-        {
-            currentStage = TaskStage.WeatherFamiliarization;
-            trialLogTrack.LogTaskStage(currentStage, true);
+        //}
+        //else
+        //{
+            //currentStage = TaskStage.WeatherFamiliarization;
+            //trialLogTrack.LogTaskStage(currentStage, true);
 
-        }
+        //}
+
+
+        uiController.SetFamiliarizationInstructions(currentWeather.weatherMode);
+
         //player.gameObject.SetActive(true);
         //trafficLightController.MakeVisible(true);
         //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
         //SetCarMovement(true);
+
+        Experiment.Instance.uiController.driveControls.alpha = 1f;
+          
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
 
         //do one single lap of the sunny weather
-        
+
 
         trafficLightController.MakeVisible(false);
-        while (LapCounter.lapCount < 1)
+
+        float timerVal = 0f;
+        while(timerVal < Configuration.familiarizationMaxTime)
         {
+            timerVal += Time.deltaTime;
             yield return 0;
         }
+        //while (LapCounter.lapCount < 1)
+        //{
+        //    yield return 0;
+        //}
         //  SetCarMovement(false);
 
-        yield return StartCoroutine(videoLayerManager.ReturnToStart());
-        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         LapCounter.lapCount = 0;
+        
         //SetCarMovement(false);
         //overheadCam.SetActive(false);
         //trackFamiliarizationQuad.SetActive(false);
         //playerIndicatorSphere.SetActive(false);
      
         trialLogTrack.LogTaskStage(currentStage, true);
-        
+
+        uiController.familiarizationOverheadInstructions.alpha = 0f;
+        Experiment.Instance.uiController.driveControls.alpha = 0f;
+
         yield return null;
     }
 
@@ -890,10 +1080,32 @@ public class Experiment : MonoBehaviour {
         UnityEngine.Debug.Log("beginning practice");
         isPractice = true;
         currentStage = TaskStage.Practice;
+
+            trialLogTrack.LogInstructions(true);
+        yield return StartCoroutine(ShowEncodingInstructions());
+        trialLogTrack.LogInstructions(false);
+
+
+        //yield return StartCoroutine(ShowPracticeInstructions(""));
+        currentStage = TaskStage.WeatherFamiliarization;
+
+        trialLogTrack.LogTaskStage(currentStage, true);
+        yield return StartCoroutine("RunWeatherFamiliarization");
+        trialLogTrack.LogTaskStage(currentStage, false);
+        
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+
+        //reset the weather to sunny for the next two trials
+        currentWeather = new Weather(Weather.WeatherType.Sunny);
+        ChangeLighting(currentWeather);
+
+        stimuliBlockSequence = new List<GameObject>();
+
         yield return StartCoroutine(ShowPracticeInstructions("PreEncoding"));
 
-        
-         
+        trialCount = 0;
+
         ////run encoding
         yield return StartCoroutine("RunEncoding");
 
@@ -902,6 +1114,9 @@ public class Experiment : MonoBehaviour {
         currentStage = TaskStage.SpatialRetrieval;
         trialLogTrack.LogTaskStage(currentStage, true);
         yield return StartCoroutine("RunSpatialRetrieval");
+
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
         trialLogTrack.LogTaskStage(currentStage, false);
 
         ToggleFixation(true);
@@ -911,9 +1126,10 @@ public class Experiment : MonoBehaviour {
 
 
         yield return StartCoroutine(ShowPracticeInstructions("SecondEncoding"));
-
+        trialCount++;
         ////run encoding
         yield return StartCoroutine("RunEncoding");
+        
 
         verbalRetrieval = true;
         currentStage = TaskStage.VerbalRetrieval;
@@ -922,11 +1138,15 @@ public class Experiment : MonoBehaviour {
 
         ////run retrieval
         yield return StartCoroutine("RunVerbalRetrieval");
+
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
         trialLogTrack.LogTaskStage(currentStage, false);
 
         ToggleFixation(true);
         yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine("ResetTrack");
+
         ToggleFixation(false);
 
         
@@ -937,6 +1157,21 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < 2; i++)
         {
+            trialCount++;
+            switch(i)
+            {
+                case 0:
+                    currentWeather = new Weather(Weather.WeatherType.Rainy);
+                    ChangeLighting(currentWeather);
+                    break;
+                case 1:
+                    currentWeather = new Weather(Weather.WeatherType.Night);
+                    ChangeLighting(currentWeather);
+                    break;
+
+            }
+
+            yield return StartCoroutine(DisplayNextTrialScreen());
             yield return StartCoroutine("RunEncoding");
 
             int retrievalType = randRetrievalOrder[i];
@@ -962,6 +1197,8 @@ public class Experiment : MonoBehaviour {
 
             }
 
+            player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+            yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
             trialLogTrack.LogTaskStage(currentStage, false);
             ToggleFixation(true);
             yield return new WaitForSeconds(0.5f);
@@ -969,15 +1206,10 @@ public class Experiment : MonoBehaviour {
             ToggleFixation(false);
         }
 
-        yield return StartCoroutine(ShowPracticeInstructions("PreWeather"));
-        currentStage = TaskStage.WeatherFamiliarization;
-
-        trialLogTrack.LogTaskStage(currentStage, true);
-        yield return StartCoroutine("RunWeatherFamiliarization");
-        trialLogTrack.LogTaskStage(currentStage, false);
-
+        yield return StartCoroutine(RunBlockTests());
 
         isPractice = false;
+
         yield return null;
     }
 
@@ -1246,7 +1478,7 @@ public class Experiment : MonoBehaviour {
             int associatedLureFrame = lureFrames[i];
             Transform currentLureTransform = GetTransformForFrame(associatedLureFrame);
             currentLureTransform.position += currentLureTransform.forward * 2.5f;
-            GameObject lureParent = Instantiate(objController.placeholder, currentLureTransform.position,currentLureTransform.rotation) as GameObject;
+            GameObject lureParent = Instantiate(objController.placeholder, currentLureTransform.position,Quaternion.identity) as GameObject;
 
 
             lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
@@ -1298,12 +1530,12 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(objController.SelectEncodingItems());
 
             //ONLY show instructions for the first time
-            if (trialCount <= 1)
-            {
-                trialLogTrack.LogInstructions(true);
-                yield return StartCoroutine(ShowEncodingInstructions());
-                trialLogTrack.LogInstructions(false);
-            }
+            //if (currBlockNum ==0)
+            //{
+            //    trialLogTrack.LogInstructions(true);
+            //    yield return StartCoroutine(ShowEncodingInstructions());
+            //    trialLogTrack.LogInstructions(false);
+            //}
         }
 
         //reset the waypoint tracker of the car
@@ -1411,21 +1643,22 @@ public class Experiment : MonoBehaviour {
             yield return null;
         }
 
+  
+
         IEnumerator ResetTrack()
         {
         UnityEngine.Debug.Log("resetting track");
-        //UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
-        //    for (int k = 0; k < spawnedObjects.Count; k++)
-        //    {
-        //        //destroy the ItemColliderBox which is the parent
-        //        Destroy(spawnedObjects[k].transform.gameObject);
-        //    }
+        UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
 
-            //reset everything before the next block begins
-            spawnFrames.Clear();
-        //clear the list without destroying the objects yet
-            spawnedObjects.Clear();
-
+        //for (int k = 0; k < spawnedObjects.Count; k++)
+        //{
+        //    //destroy the ItemColliderBox which is the parent
+        //    Destroy(spawnedObjects[k].transform.gameObject);
+        //}
+        spawnedObjects.Clear();
+        //reset everything before the next block begins
+        spawnFrames.Clear();
+      
         //destroy all lure objects
         for(int i=0;i<Configuration.luresPerTrial;i++)
         {
@@ -1523,6 +1756,9 @@ public class Experiment : MonoBehaviour {
 
         for (int i = 0; i < trialsPerBlock; i++)
             {
+            //we will avoid showing this immediately after the practice
+            if(currBlockNum>0 || i>0)
+                yield return StartCoroutine(DisplayNextTrialScreen());
             trialLogTrack.LogTrialLoop(i, true);
                 trialCount = i + 1;
                 yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
@@ -1542,6 +1778,7 @@ public class Experiment : MonoBehaviour {
                 yield return StartCoroutine("ResetTrack");
             trialLogTrack.LogTrialLoop(i, false);
             ToggleFixation(false);
+
         }
 
 
@@ -1554,6 +1791,14 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+
+    IEnumerator DisplayNextTrialScreen()
+    {
+        uiController.nextTrialPanel.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.nextTrialPanel.alpha = 0f;
+        yield return null;
+    }
 
 
 
@@ -1770,7 +2015,7 @@ public class Experiment : MonoBehaviour {
 
         while (retCount < testLength)
         {
-            //UnityEngine.Debug.Log("ret count " + retCount.ToString());
+            //UnityEngine.Debug.Log("verbal ret count " + retCount.ToString());
             yield return 0;
         }
         //verbalRetrieval = false;
@@ -1794,7 +2039,10 @@ public class Experiment : MonoBehaviour {
         //pick random start position
         yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
         //sort retrieval frames based on new starting position
-        yield return StartCoroutine("SortRetrievalFrames");
+        //yield return StartCoroutine("SortRetrievalFrames");
+
+        //randomize frame test order
+        yield return StartCoroutine(RandomizeRetrievalFrames());
 
 
         //pick next frame
@@ -1824,6 +2072,7 @@ public class Experiment : MonoBehaviour {
         {
             trialLogTrack.LogInstructions(true);
             UnityEngine.Debug.Log("setting instructions");
+            uiController.pageControls.alpha = 1f;
             yield return StartCoroutine(uiController.SetActiveInstructionPage("Spatial"));
 
             //wait until the instructions sequence is complete
@@ -1833,6 +2082,7 @@ public class Experiment : MonoBehaviour {
             }
             //   yield return StartCoroutine(ShowRetrievalInstructions());
             trialLogTrack.LogInstructions(false);
+            uiController.pageControls.alpha = 0f;
             showSpatialInstructions = false;
         }
 
@@ -1844,6 +2094,10 @@ public class Experiment : MonoBehaviour {
         //SetCarMovement(false);
 
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
+
+
+        uiController.driveControls.alpha = 1f;
+
         //trafficLightController.MakeVisible(false);
 
         //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
@@ -1862,10 +2116,12 @@ public class Experiment : MonoBehaviour {
 
         UnityEngine.Debug.Log("spatial test list has " + spatialTestList.Count.ToString() + " items in it");
 
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 1f;
+
         //shuffle the list
         var rand = new System.Random();
         var randomList = spatialTestList.OrderBy(x => rand.Next()).ToList();
-
+        spatialTestList = randomList;
 
         for (int j = 0; j < testLength; j++)
         {
@@ -1882,12 +2138,14 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             //  uiController.targetTextPanel.alpha = 1f;
-
+            uiController.spacebarPlaceItem.alpha = 1f;
             //wait for the player to press X to choose their location OR skip it if the player retrieved the object as "New"
             while (!Input.GetKeyDown(KeyCode.Space) && !retrievedAsNew)
             {
                 yield return 0;
             }
+
+            uiController.spacebarPlaceItem.alpha = 0f;
             retrievedAsNew = false; //reset this flag
             yield return StartCoroutine(videoLayerManager.PauseAllLayers());
             //stop car and calculate then proceed to next
@@ -1911,6 +2169,9 @@ public class Experiment : MonoBehaviour {
 
         }
         SetCarMovement(false);
+
+        uiController.driveControls.alpha = 0f;
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 0f;
         player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(false);
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
         yield return null;
@@ -1920,7 +2181,18 @@ public class Experiment : MonoBehaviour {
     IEnumerator RunWeatherFamiliarization()
     {
         UnityEngine.Debug.Log("running weather familiarization");
-        for(int i=0;i<3;i++)
+
+        currentStage = TaskStage.TrackScreening;
+        trialLogTrack.LogTaskStage(currentStage, true);
+
+        uiController.trackScreeningPanel.alpha = 1f;
+        uiController.spacebarContinue.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.spacebarContinue.alpha = 0f;
+        uiController.trackScreeningPanel.alpha = 0f;
+
+
+        for (int i=0;i<3;i++)
         {
             switch(i)
             {
@@ -1940,19 +2212,35 @@ public class Experiment : MonoBehaviour {
             yield return StartCoroutine(BeginTrackScreening(true));
             //yield return StartCoroutine("RunEncoding");
             ToggleFixation(true);
+            yield return StartCoroutine(videoLayerManager.ReturnToStart());
+            yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+
             yield return new WaitForSeconds(0.5f);
             yield return StartCoroutine("ResetTrack");
             ToggleFixation(false);
         }
+
+        trialLogTrack.LogTaskStage(currentStage, false);
         yield return null;
     }
 
     IEnumerator RunBlockTests()
     {
+        //pause all movement
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+        uiController.blackScreen.alpha = 1f;
 
+        trialLogTrack.LogTaskStage(TaskStage.BlockTests, true);
+
+        uiController.pageControls.alpha = 0f;
         UnityEngine.Debug.Log("running end of block tests");
         UnityEngine.Debug.Log("stim block sequence length" + stimuliBlockSequence.Count.ToString());
+        //show instructions
+        uiController.followUpTestPanel.alpha = 1f;
+        yield return StartCoroutine(WaitForActionButton());
+        uiController.followUpTestPanel.alpha = 0f;
 
+        
         yield return StartCoroutine(GenerateBlockTestPairs());
         yield return StartCoroutine(GenerateContextRecollectionList()); //generate list from the remaining indices in the stimuliBlockSequence
 
@@ -1968,6 +2256,14 @@ public class Experiment : MonoBehaviour {
             //this will be run on a randomized set of items that weren't included in the tests above
             yield return StartCoroutine(RunContextRecollectionTest(contextDifferentWeatherTestList[i]));
         }
+
+        blockTestPairList.Clear();
+        stimuliBlockSequence.Clear();
+        uiController.blackScreen.alpha = 0f;
+
+        trialLogTrack.LogTaskStage(TaskStage.BlockTests, false);
+
+        yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
     }
 
@@ -2075,7 +2371,9 @@ public class Experiment : MonoBehaviour {
         trialLogTrack.LogContextRecollectionTest(testGameObject, true);
         List<int> randOrder = new List<int>();
 
+        string selectionType = "ContextRecollection";
         //wait for the selection of options
+        yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         uiController.ToggleSelection(true);
         canSelect = true;
 
@@ -2161,22 +2459,38 @@ public class Experiment : MonoBehaviour {
     }
     public Transform GetTransformForFrame(int frameNum)
     {
-        Transform resultTrans=null;
-        if (frameNum < playerPosDict.Count)
-        {
-            if(playerPosDict.TryGetValue(frameNum,out resultTrans))
-            {
-                return resultTrans;
-            }
+        //UnityEngine.Debug.Log("for frame num  " + frameNum.ToString());
+        Vector3 tempPos = Vector3.zero;
+        Vector3 tempRot = Vector3.zero;
+    
 
+        //UnityEngine.Debug.Log("player positions count  " + playerPositions.Count.ToString());
+        if (frameNum < playerPositions.Count)
+        {
+            //UnityEngine.Debug.Log("playerpositions pos " + playerPositions[frameNum].ToString());
+            tempPos = playerPositions[frameNum];
+            //resultTrans.position = playerPositions[frameNum];
         }
-        return resultTrans;
+
+        if(frameNum < playerRotations.Count)
+        {
+            tempRot = playerRotations[frameNum];
+        }
+
+        resultObj.transform.position = tempPos;
+        resultObj.transform.eulerAngles = tempRot;
+
+        //UnityEngine.Debug.Log("final transform pos " + resultObj.transform.position.ToString());
+        return resultObj.transform;
     }
 
     public IEnumerator ShowItemCuedReactivation(GameObject stimObject)
     {
         uiController.ResetRetrievalInstructions();
+        uiController.driveControls.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 1f;
+
+        uiController.spacebarPlaceItem.alpha = 0f;
         uiController.itemReactivationText.text = stimObject.GetComponent<StimulusObject>().GetObjectName();
 
         string selectionType = "Item";
@@ -2207,6 +2521,8 @@ public class Experiment : MonoBehaviour {
         {
         yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
         }
+        uiController.spacebarPlaceItem.alpha = 0f;
+        uiController.driveControls.alpha = 1f; //reset this when the driving resumes
         yield return null;
     }
 
@@ -2252,7 +2568,7 @@ public class Experiment : MonoBehaviour {
         uiController.ResetRetrievalInstructions();
 
         retCount++;
-        UnityEngine.Debug.Log("finished verbal recall");
+        //UnityEngine.Debug.Log("finished verbal recall");
         SetCarMovement(true);
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
@@ -2265,12 +2581,37 @@ public class Experiment : MonoBehaviour {
     {
         yield return new WaitForSeconds(1f);
         //uiController.verbalInstruction.alpha = 1f;
-        string fileName = trialCount.ToString() + "_" + retCount.ToString();
+
+        string fileName = "";
+        if(isPractice)
+        {
+            fileName = subjectName + "_practice_" + trialCount.ToString() + "_" + retCount.ToString() + ".ogg";
+        }
+        else
+        {
+            fileName = subjectName + "_" + trialCount.ToString() + "_" + retCount.ToString() + ".ogg";
+        }
+         
 #if !UNITY_WEBGL
         //audioRecorder.beepHigh.Play();
 #endif
 
-//start recording
+
+
+        //start recording
+#if UNITY_WEBGL && !UNITY_EDITOR
+			yield return StartCoroutine(Experiment.Instance.audioRec.Record(fileName, 5));
+          //  if(firstAudio)
+          //  {
+            
+		        //BrowserPlugin.GoFullScreen();
+          //      firstAudio=false;
+          //  }
+
+#endif
+
+
+        //start recording
 #if !UNITY_WEBGL
         yield return StartCoroutine(audioRecorder.Record(sessionDirectory + "audio", fileName, recallTime));
 #endif
@@ -2299,7 +2640,7 @@ public class Experiment : MonoBehaviour {
         {
             
 
-            UnityEngine.Debug.Log("for item " + i.ToString());
+            //UnityEngine.Debug.Log("for item " + i.ToString());
             for (int j = 0; j < startableTransforms.Count; j++)
             {
 
@@ -2307,8 +2648,8 @@ public class Experiment : MonoBehaviour {
               
                 if (dist < 10f)
                 {
-                    UnityEngine.Debug.Log("distance " + dist.ToString());
-                    UnityEngine.Debug.Log("excluding  " + j.ToString());
+                    //UnityEngine.Debug.Log("distance " + dist.ToString());
+                    //UnityEngine.Debug.Log("excluding  " + j.ToString());
                     int indexToRemove = UsefulFunctions.FindIndexOfInt(intResult,j);
                     result.RemoveAt(indexToRemove);
                     intResult.RemoveAt(indexToRemove);
@@ -2335,8 +2676,25 @@ public class Experiment : MonoBehaviour {
         }
 
     }
+    public IEnumerator CheckMicAccess()
+    {
+        uiController.micAccessPanel.alpha = 1f;
+#if UNITY_WEBGL && !UNITY_EDITOR
+		BrowserPlugin.CheckMicStatus();
+#endif
+        //hold here until we get permissions granted
+        //UnityEngine.Debug.Log("waiting to be granted mic permissions");
 
-   
+        while(micStatus == 0)
+        {
+            yield return 0;
+        }
+        uiController.micAccessPanel.alpha = 0f;
+
+        yield return null;
+    }
+
+
     IEnumerator SortRetrievalFrames()
     {
         int startFrame = videoLayerManager.GetMainLayerCurrentFrameNumber();
@@ -2349,7 +2707,7 @@ public class Experiment : MonoBehaviour {
         for(int i=0;i<sortedRetrievalFrames.Count;i++)
         {
             int currDiff = sortedRetrievalFrames[i] - startFrame;
-            UnityEngine.Debug.Log("curr diff between " + sortedRetrievalFrames[i].ToString() + " and " + startFrame.ToString() + " = " + currDiff.ToString());
+            //UnityEngine.Debug.Log("curr diff between " + sortedRetrievalFrames[i].ToString() + " and " + startFrame.ToString() + " = " + currDiff.ToString());
             if (currDiff > 0 && currDiff < minDiff)
             {
                 minDiff = currDiff;
@@ -2391,6 +2749,26 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator RandomizeRetrievalFrames()
+    {
+        List<int> temp = new List<int>();
+        
+        temp = DuplicateList(sortedRetrievalFrames);
+        List<int> tempIndex = new List<int>();
+        tempIndex = UsefulFunctions.ReturnShuffledIntegerList(sortedRetrievalFrames.Count);
+        for (int i = 0; i < sortedRetrievalFrames.Count; i++)
+        {
+            int randindex = Random.Range(0, tempIndex.Count - 1);
+            temp.Add(sortedRetrievalFrames[tempIndex[randindex]]);
+            tempIndex.RemoveAt(randindex);
+        }
+
+        sortedRetrievalFrames.Clear();
+        sortedRetrievalFrames = DuplicateList(temp);
+
+        yield return null;
+    }
+
      public IEnumerator UpdateNextSpawnFrame()
     {
         if (currentStage == TaskStage.Encoding)
@@ -2417,7 +2795,7 @@ public class Experiment : MonoBehaviour {
                 {
                     nextSpawnFrame = sortedRetrievalFrames[0];
                     isLure = lureBools[0];
-                    UnityEngine.Debug.Log("next retrieval frame " + nextSpawnFrame.ToString());
+                    //UnityEngine.Debug.Log("next retrieval frame " + nextSpawnFrame.ToString());
                     lureBools.RemoveAt(0);
                     sortedRetrievalFrames.RemoveAt(0);
                     if(!isLure)
@@ -2590,6 +2968,13 @@ public class Experiment : MonoBehaviour {
             {
                 //UnityEngine.Debug.Log("picking object at  " + randInt.ToString());
                 tempStorage.Add(randInt);
+
+                //add two frames in to create a min buffer between spawned items and lures
+                for (int j = 0; j < Configuration.minBufferLures; j++)
+                {
+                    if(randInt+ j < currentMaxFrames)
+                        tempStorage.Add(randInt + j);
+                }
                 spawnFrames.Add(chosenEncodingFrames[i]);
                 //UnityEngine.Debug.Log("adding to spawn frames: " + chosenEncodingFrames[i].ToString());
             }
@@ -2607,6 +2992,7 @@ public class Experiment : MonoBehaviour {
             {
                 intPicker.Add(i);
                 waypointFrames.Add(i);
+                i += 2; //we don't want lures to be too close to each other; so we skip two spots
             }
         }
 
@@ -2691,6 +3077,8 @@ public class Experiment : MonoBehaviour {
         }
 
         UnityEngine.Debug.Log("finished picking");
+
+        UnityEngine.Debug.Log("total retrieval frames " + sortedRetrievalFrames.Count.ToString());
 
         for(int i=0;i<sortedSpawnFrames.Count;i++)
         {
@@ -3042,7 +3430,11 @@ public class Experiment : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-
+        Transform resultTrans = null;
+        if (playerPosDict.Count > 0 && playerPosDict.TryGetValue(169, out resultTrans))
+        {
+            UnityEngine.Debug.Log("result for frame  169: " + resultTrans.position.x.ToString() + ","+ resultTrans.position.y.ToString() + "," + resultTrans.position.z.ToString());
+        }
 
 
         //UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());

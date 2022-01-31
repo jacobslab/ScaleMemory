@@ -12,7 +12,10 @@ public class Configuration : MonoBehaviour {
 	public static float tornadoPenaltyTime=5f;
 	public static float tornadoWarningDisplayTime=3f;
 
-	public static float distanceThreshold=5f; //minimum distance before an object is said to be "on the point"
+    public static float familiarizationMaxTime = 60f;
+
+
+    public static float distanceThreshold=5f; //minimum distance before an object is said to be "on the point"
 	public static float timeThreshold=2f; //minimum time before or after an action can be said to be "on cue"
 
 	public static float timeBetweenLaps=4f;
@@ -24,6 +27,8 @@ public class Configuration : MonoBehaviour {
 
     public static int heartbeatInterval = 1000;
 
+    public static int minBufferLures = 50;
+
     public static int minGapBetweenStimuli = 3; //measured in waypoints
 
     //presentation jitter time
@@ -34,6 +39,9 @@ public class Configuration : MonoBehaviour {
     //frame speed
     public static float minFrameSpeed = 0.9f;
     public static float maxFrameSpeed = 1.2f;
+
+    public static float minRetrievalFrameSpeed = 1f;
+    public static float maxRetrievalFrameSpeed = 1.4f;
 
     //spawn possibility buffer to start and end of loop
     public static int startBuffer = 90;
