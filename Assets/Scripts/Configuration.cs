@@ -12,7 +12,17 @@ public class Configuration : MonoBehaviour {
 	public static float tornadoPenaltyTime=5f;
 	public static float tornadoWarningDisplayTime=3f;
 
+#if UNITY_EDITOR
+    public static float familiarizationMaxTime = 1f;
+#else
     public static float familiarizationMaxTime = 60f;
+#endif
+
+#if UNITY_WEBGL
+    public static string audioFileExtension = ".ogg";
+#else
+    public static string audioFileExtension = ".wav";
+#endif
 
 
     public static float distanceThreshold=5f; //minimum distance before an object is said to be "on the point"

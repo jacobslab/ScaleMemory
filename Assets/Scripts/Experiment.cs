@@ -134,7 +134,7 @@ public class Experiment : MonoBehaviour {
 
     public static int recallTime = 6;
 
-    public static int totalTrials = 20;
+    public static int totalTrials = 24;
     private int blockCount = 0;
     public static int trialsPerBlock = 4;
 
@@ -485,10 +485,15 @@ public class Experiment : MonoBehaviour {
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
     {
-        string subjectDirectory = defaultLoggingPath + "/" + subjectName + "/";
+        string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"..\"));
+        
+        string subjectDirectory = newPath + "/" + subjectName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
         sessionID = 0;
         string sessionIDString = "_0";
+
+        UnityEngine.Debug.Log("new logging path is " + newPath);
+        UnityEngine.Debug.Log("subject directory "+ subjectDirectory);
 
         if (!Directory.Exists(subjectDirectory))
         {
@@ -519,7 +524,9 @@ public class Experiment : MonoBehaviour {
         }
 
         subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
-        eegLog.fileName = sessionDirectory + subjectName + "EEGLog" + ".txt";
+
+        //now you can initiate logging
+        yield return StartCoroutine(subjectLog.BeginLogging());
 
 
         yield return null;
@@ -727,7 +734,7 @@ if(!skipLog)
         //show consent and wait till they agree to it
         yield return StartCoroutine(ShowConsentScreen());
 
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_WEBGL
         uiController.prolificInfoPanel.alpha = 1f;
 
         yield return StartCoroutine("BeginListeningForWorkerID");
@@ -790,7 +797,7 @@ if(!skipLog)
                 uiController.failProlificPanel.alpha = 1f;
                 trialLogTrack.LogProlificFailEvent();
 
-                StartCoroutine("WriteAndSend");
+                //StartCoroutine("WriteAndSend");
 
             }
             yield return 0;
@@ -910,10 +917,10 @@ if(!skipLog)
 #endif
 
         expActive = true;
-        StartCoroutine("PeriodicallyWrite");
+     //   StartCoroutine("PeriodicallyWrite");
         verbalRetrieval = false;
 
-        //yield return StartCoroutine(videoLayerManager.BeginFramePlay());
+        yield return StartCoroutine(videoLayerManager.BeginFramePlay());
         //yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         //initialize the weather as Sunny, by default
         currentWeather = new Weather(Weather.WeatherType.Sunny);
@@ -932,6 +939,7 @@ if(!skipLog)
         yield return StartCoroutine(WaitForActionButton());
         uiController.postPracticePanel.alpha = 0f;
 
+        trialCount = -1;
         //repeat blocks twice
         for (int i = 0; i < blockCount; i++)
         {
@@ -964,8 +972,10 @@ if(!skipLog)
         yield return StartCoroutine(assetBundleLoader.LoadStimuliImages());
         uiController.UpdateLoadingProgress(20f);
         yield return StartCoroutine(videoLayerManager.SetupLayers());
+#if UNITY_WEBGL
         yield return StartCoroutine(assetBundleLoader.LoadAudio());
         yield return StartCoroutine(LoadCamTransform());
+#endif
 
         Experiment.Instance.uiController.UpdateLoadingProgress(100f);
 
@@ -1686,6 +1696,8 @@ if(!skipLog)
         //	objController.encodingList.Clear();
         LapCounter.lapCount = 0;
             player.transform.position = startTransform.position;
+
+        yield return StartCoroutine(subjectLog.FlushLogFile());
             yield return null;
         }
 
@@ -1759,9 +1771,9 @@ if(!skipLog)
             //we will avoid showing this immediately after the practice
             if(currBlockNum>0 || i>0)
                 yield return StartCoroutine(DisplayNextTrialScreen());
-            trialLogTrack.LogTrialLoop(i, true);
-                trialCount = i + 1;
-                yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
+                trialCount++;
+                 trialLogTrack.LogTrialLoop(trialCount, true);
+            yield return StartCoroutine("CheckForWeatherChange", TaskStage.Encoding);
                 //run encoding
                 yield return StartCoroutine("RunEncoding");
 
@@ -2585,15 +2597,15 @@ if(!skipLog)
         string fileName = "";
         if(isPractice)
         {
-            fileName = subjectName + "_practice_" + trialCount.ToString() + "_" + retCount.ToString() + ".ogg";
+            fileName = subjectName + "_practice_" + trialCount.ToString() + "_" + retCount.ToString() + Configuration.audioFileExtension;
         }
         else
         {
-            fileName = subjectName + "_" + trialCount.ToString() + "_" + retCount.ToString() + ".ogg";
+            fileName = subjectName + "_" + trialCount.ToString() + "_" + retCount.ToString() + Configuration.audioFileExtension;
         }
          
 #if !UNITY_WEBGL
-        //audioRecorder.beepHigh.Play();
+        audioRecorder.beepHigh.Play();
 #endif
 
 
@@ -3538,8 +3550,9 @@ if(!skipLog)
 		if (isLogging)
 		{
 			subjectLog.close();
-			eegLog.close();
-			//File.Copy("/Users/" + System.Environment.UserName + "/Library/Logs/Unity/Player.log", sessionDirectory + "Player.log");
+            Application.OpenURL("https://forms.gle/LRqwhAXe75bXRMZs9");
+
+			File.Copy("C:/Users/" + System.Environment.UserName + "/AppData/LocalLow/JacobsLab/CityBlock/Player.log", sessionDirectory + "Player.log");
 		}
 	}
 }

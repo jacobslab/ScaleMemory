@@ -83,3 +83,11 @@ Update Mode: updateDependencies
 
 The following packages were updated:
   com.unity.ide.vscode from version 1.2.3 to 1.2.4
+
+=== Mon Jan 31 14:31:33 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ide.visualstudio from version 2.0.11 to 2.0.12

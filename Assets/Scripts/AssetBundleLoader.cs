@@ -209,6 +209,8 @@ public class AssetBundleLoader : MonoBehaviour
     {
         //var myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(AssetBundleLoader.baseBundlePath, bundleName));
         AssetBundle myLoadedAssetBundle;
+
+        UnityEngine.Debug.Log("about to load " + bundleName);
         string uri = "";
 
         if (isWeb)
@@ -249,10 +251,11 @@ public class AssetBundleLoader : MonoBehaviour
         {
             string targetName = string.Format(layerName + "-{0:d3}", i + 1) + ".jpg";
             var loadedTexture = myLoadedAssetBundle.LoadAsset<Texture2D>(targetName);
-            //UnityEngine.Debug.Log("loading  " + loadedTexture.name);
+            UnityEngine.Debug.Log("loading  " + loadedTexture.name);
             vidLayerManager.newTextures.Add(loadedTexture);
 
         }
+        UnityEngine.Debug.Log("finished loading for weather " + bundleName);
         yield return null;
     }
 

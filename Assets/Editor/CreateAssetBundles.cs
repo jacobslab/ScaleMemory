@@ -13,6 +13,6 @@ public class CreateAssetBundles
         }
         BuildPipeline.BuildAssetBundles(assetBundleDirectory,
                                         BuildAssetBundleOptions.ChunkBasedCompression,
-                                        BuildTarget.WebGL);
+                                        BuildTarget.StandaloneWindows);
     }
 }

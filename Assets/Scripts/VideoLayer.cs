@@ -63,7 +63,7 @@ public class VideoLayer : MonoBehaviour
     void Start()
     {
         // load all frames of this layer
-
+        /*
 #if !UNITY_WEBGL
         frames = new Texture2D[numberOfFrames];
         for (int i = 0; i < numberOfFrames; ++i)
@@ -73,6 +73,7 @@ public class VideoLayer : MonoBehaviour
 
         bgLayer.texture = frames[0];
 #endif
+        */
         //UnityEngine.Debug.Log("loaded " + frames.Length.ToStri ng() + " frames for " + gameObject.name);
         if (spawnPointReachedEvent == null)
             spawnPointReachedEvent = new UnityEvent();
@@ -84,6 +85,7 @@ public class VideoLayer : MonoBehaviour
 
         retrievalPointReachedEvent.AddListener(OnRetrievalPointReached);
         StartCoroutine("RandomizeFrameSpeed");
+
 
     }
 
@@ -150,15 +152,18 @@ public class VideoLayer : MonoBehaviour
     {
         while (Experiment.Instance.IsExpActive())
         {
-            if (!isPaused)
+            if (gameObject.activeSelf)
             {
-                if (playbackDirection == 1)
-                    timeVar += Time.deltaTime * speed;
-                else
-                    timeVar -= Time.deltaTime * speed;
+                if (!isPaused)
+                {
+                    if (playbackDirection == 1)
+                        timeVar += Time.deltaTime * speed;
+                    else
+                        timeVar -= Time.deltaTime * speed;
 
-                currentFrame = (int)(timeVar * frameRate);
-                UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                    currentFrame = (int)(timeVar * frameRate);
+                    UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                }
                 if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
                 {
                     if (!isInvoked)
@@ -187,6 +192,10 @@ public class VideoLayer : MonoBehaviour
                 }
                 bgLayer.texture = frames[currentFrame];
             }
+            else
+            {
+                UnityEngine.Debug.Log(gameObject.name + " is paused");
+            }
             yield return 0;
         }
 
@@ -196,7 +205,7 @@ public class VideoLayer : MonoBehaviour
         //    speed -= 0.1f;
         yield return null;
     }
-
+    /*
     private void FixedUpdate()
     {
         if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
@@ -252,6 +261,7 @@ public class VideoLayer : MonoBehaviour
             //    speed -= 0.1f;
         }
     }
+    */
 
     //public void Forward(float deltaTime)
     //{

@@ -131,7 +131,7 @@ public class Logger_Threading : MonoBehaviour{
 	{
 		if (Experiment.isLogging) {
 			myLoggerQueue = new LoggerQueue ();
-		//	StartCoroutine ("LogWriter");
+
 			//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
 			//		
 			//			myLoggerWriter.Start ();
@@ -143,6 +143,15 @@ public class Logger_Threading : MonoBehaviour{
 	public Logger_Threading(string file){
 		fileName = file;
 	}
+
+	public IEnumerator BeginLogging()
+	{
+		UnityEngine.Debug.Log("beginning logging");
+#if !UNITY_WEBGL
+		StartCoroutine("LogWriter");
+#endif
+		yield return null;
+    }
 
 	
 
@@ -189,7 +198,7 @@ IEnumerator LogWriter()
 			while (myLoggerQueue.logQueue.Count > 0) {
 				string msg = myLoggerQueue.GetFromLogQueue ();
 
-			//	UnityEngine.Debug.Log ("writing: " + msg);
+				//UnityEngine.Debug.Log ("writing: " + msg);
 				logfile.WriteLine (msg);
 				yield return 0;
 			}
@@ -198,6 +207,16 @@ IEnumerator LogWriter()
 		UnityEngine.Debug.Log ("closing this");
 		yield return null;
 	}
+
+	public IEnumerator FlushLogFile()
+    {
+		if (logfile != null)
+		{
+			UnityEngine.Debug.Log("flushing logfile");
+			logfile.Flush();
+		}
+		yield return null;
+    }
 #endif
 	//logging itself can happen in regular update. the rate at which ILoggable objects add to the log Queue should be in FixedUpdate for framerate independence.
 	void Update()
@@ -238,9 +257,13 @@ IEnumerator LogWriter()
 	public void close(){
 		//Application stopped running -- close() was called
 		//applicationIsRunning = false;
-//		UnityEngine.Debug.Log("is running will be false");
-		logfile.Flush ();
-		logfile.Close ();
+		//		UnityEngine.Debug.Log("is running will be false");
+
+		if (logfile != null)
+		{
+			logfile.Flush();
+			logfile.Close();
+		}
 		isRunning=false;
 		//		myLoggerWriter.End ();
 	}
