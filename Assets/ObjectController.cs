@@ -200,12 +200,13 @@ public class ObjectController : MonoBehaviour
 			{
 				encodingList.Add(stimuliImageList[stimuliImageList.Count - 1]);
                 stimuliImageList.RemoveAt(stimuliImageList.Count-1);
+				UnityEngine.Debug.Log("exceeded! picking from the last in the list now");
 			}
 			else
 			{
 				encodingList.Add(stimuliImageList[randInts[i]]);
-                stimuliImageList.RemoveAt(randInts[i]);
-			//	UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
+				UnityEngine.Debug.Log("adding to encoding list " + stimuliImageList[randInts[i]].ToString());
+				stimuliImageList.RemoveAt(randInts[i]);
 			}
 		}
 

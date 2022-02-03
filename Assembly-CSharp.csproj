@@ -180,7 +180,6 @@
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
-     <None Include="Assets\subj_00000001643749164801\session_0\subj_00000001643749164801Log.txt" />
      <None Include="Assets\list.txt" />
      <None Include="Assets\Resources_IGNORE\misc_info\cam_transform.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />

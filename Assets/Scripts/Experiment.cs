@@ -1500,18 +1500,8 @@ if(!skipLog)
             retrievalFrameObjectDict.Add(associatedLureFrame, lureParent);
 
             UnityEngine.Debug.Log("generated lure object " + lureParent.GetComponent<StimulusObject>().stimuliDisplayName + associatedLureFrame.ToString());
-            //GameObject colliderBoxRef = Instantiate(objController.lureColliderPrefab, lureLocations[i], Quaternion.identity) as GameObject;
-            //parent the collider box with the lure 
-            //colliderBoxRef.transform.parent = lureParent.transform;
+           
 
-            ////associate the stimulus object 
-            //lureParent.GetComponent<StimulusObject>().LinkColliderObj(colliderBoxRef);
-            //lureParent.GetComponent<VisibilityToggler>().TurnVisible(false);
-
-            //lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
-            //lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
-
-            //lureObjects.Add(lureParent);
         }
 
 
@@ -1539,13 +1529,8 @@ if(!skipLog)
             trialLogTrack.LogTaskStage(currentStage, true);
             yield return StartCoroutine(objController.SelectEncodingItems());
 
-            //ONLY show instructions for the first time
-            //if (currBlockNum ==0)
-            //{
-            //    trialLogTrack.LogInstructions(true);
-            //    yield return StartCoroutine(ShowEncodingInstructions());
-            //    trialLogTrack.LogInstructions(false);
-            //}
+        
+
         }
 
         //reset the waypoint tracker of the car
@@ -1703,12 +1688,14 @@ if(!skipLog)
 
     IEnumerator PrepTrials()
     {
-           GenerateRandomizedRetrievalConditions();
-           yield return null;
+        UnityEngine.Debug.Log("prepping trials");
+           yield return StartCoroutine(GenerateRandomizedRetrievalConditions());
+        UnityEngine.Debug.Log("finished prepping trials");
+        yield return null;
     }
 
     //this will generate fresh lists of randomized retrieval order as well as weather differences
-    void GenerateRandomizedRetrievalConditions()
+    IEnumerator GenerateRandomizedRetrievalConditions()
     {
         retrievalTypeList = new List<int>();
         weatherChangeTrials = new List<int>();
@@ -1717,21 +1704,43 @@ if(!skipLog)
 
         retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(totalTrials);
 
+
+        while(retrievalTypeList.Count < totalTrials)
+        {
+            yield return 0;
+        }
+
+        UnityEngine.Debug.Log("returned shuffled retrieval type list");
         //changing weather trials will be interleaved, so an ordered list of ints will suffice
         weatherChangeTrials = UsefulFunctions.ReturnListOfOrderedInts(totalTrials);
 
+        while (weatherChangeTrials.Count < totalTrials)
+        {
+            yield return 0;
+        }
+        UnityEngine.Debug.Log("returned shuffled weather change list");
         //only half the trials will have same weather
         randomizedWeatherOrder = UsefulFunctions.ReturnShuffledIntegerList(totalTrials / 2);
 
+        while (randomizedWeatherOrder.Count < totalTrials/2)
+        {
+            yield return 0;
+        }
+        UnityEngine.Debug.Log("returned shuffled weather order");
         //generate different combinations of weather pairs for trials with different encoding and retrieval weathers; will have 3P2 permutations
         weatherPairs = new List<WeatherPair>();
         weatherPairs = GenerateWeatherPairs();
 
-        
-        
+        while(weatherPairs.Count <=0)
+        {
+            yield return 0;
+        }
 
+
+        yield return new WaitForSeconds(1f);
+        UnityEngine.Debug.Log("weather pairs obtained " + weatherPairs.Count.ToString());
         //List<int> tempWeatherList = UsefulFunctions.ReturnShuffledIntegerList(blockLength/2); //we will only have different weather for nine trials
-
+        yield return null;
     }
 
     List<WeatherPair> GenerateWeatherPairs()
@@ -1989,7 +1998,8 @@ if(!skipLog)
 
 
         //pick random start position
-        yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
+          yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
+      //  yield return StartCoroutine(videoLayerManager.ReturnToStart());
         //sort retrieval frames based on new starting position
         yield return StartCoroutine("SortRetrievalFrames");
 
@@ -2269,13 +2279,19 @@ if(!skipLog)
             yield return StartCoroutine(RunContextRecollectionTest(contextDifferentWeatherTestList[i]));
         }
 
-        blockTestPairList.Clear();
+        
+        blockTestPairList.Clear(); 
+        for (int i = 0; i < stimuliBlockSequence.Count; i++)
+        {
+            Destroy(stimuliBlockSequence[i]);
+        }
+        UnityEngine.Debug.Log("finished destroying all objects from previous trials");
         stimuliBlockSequence.Clear();
         uiController.blackScreen.alpha = 0f;
 
         trialLogTrack.LogTaskStage(TaskStage.BlockTests, false);
 
-        yield return StartCoroutine(videoLayerManager.ResumePlayback());
+      //  yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
     }
 

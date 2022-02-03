@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.Linq;
 
 public class VideoLayerManager : MonoBehaviour
 {
@@ -44,6 +45,8 @@ public class VideoLayerManager : MonoBehaviour
 
     public List<Texture2D> newTextures = new List<Texture2D>();
 
+    List<int> validStartFrames = new List<int>();
+
 
     void Awake()
     {
@@ -59,6 +62,7 @@ public class VideoLayerManager : MonoBehaviour
 
         newTextures = new List<Texture2D>();
         layerList = new List<VideoLayer>();
+         validStartFrames = new List<int>();
     }
 
     public IEnumerator ResumePlayback()
@@ -491,18 +495,45 @@ public class VideoLayerManager : MonoBehaviour
         }
     }
 
+    List<int> ReturnValidStartFrames()
+    {
+        validStartFrames = new List<int>();
+        
+        for (int i = 50; i < layerList[0].numberOfFrames-100; i++)
+        {
+            validStartFrames.Add(i);
+        }
+        List<int> keys = Experiment.Instance.retrievalFrameObjectDict.Keys.ToList();
+        for (int i=0;i<keys.Count;i++)
+        {
+            int indexToRemove = keys[i] - 50;
+            if(indexToRemove>0)
+            {
+                validStartFrames.RemoveAt(indexToRemove);
+            }
+        }
+
+        return validStartFrames;
+    }
+
     public IEnumerator MoveToRandomPoint()
     {
-        int randStartFrame = Random.Range(50,layerList[0].numberOfFrames-100);
+        ReturnValidStartFrames();
+        while(validStartFrames.Count<=0)
+        {
+            yield return 0;
+        }
+        int randStartFrame = validStartFrames[Random.Range(0,validStartFrames.Count)];
+        UnityEngine.Debug.Log("scrolling to random frame: " + randStartFrame.ToString());
         for (int i = 0; i < layerList.Count; i++)
         {
-            //UnityEngine.Debug.Log("scrolling to start frame");
             yield return StartCoroutine(layerList[i].ScrollToFrame(randStartFrame));
 
             yield return StartCoroutine(layerList[i].TogglePause(false));
             yield return new WaitForSeconds(0.2f);
             yield return StartCoroutine(layerList[i].TogglePause(true));
         }
+
         //log the frame in the logfile
         Experiment.Instance.trialLogTrack.LogRetrievalStartPosition(Experiment.Instance.GetTransformForFrame(randStartFrame).position);
         yield return null;

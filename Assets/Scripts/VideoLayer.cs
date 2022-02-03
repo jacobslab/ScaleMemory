@@ -162,7 +162,7 @@ public class VideoLayer : MonoBehaviour
                         timeVar -= Time.deltaTime * speed;
 
                     currentFrame = (int)(timeVar * frameRate);
-                    UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                   // UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
                 }
                 if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
                 {
@@ -194,7 +194,7 @@ public class VideoLayer : MonoBehaviour
             }
             else
             {
-                UnityEngine.Debug.Log(gameObject.name + " is paused");
+                //UnityEngine.Debug.Log(gameObject.name + " is paused");
             }
             yield return 0;
         }
