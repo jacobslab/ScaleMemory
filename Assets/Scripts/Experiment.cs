@@ -484,8 +484,12 @@ public class Experiment : MonoBehaviour {
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
     {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"..\"));
-        
+#else
+        string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
+#endif
+
         string subjectDirectory = newPath + subjectName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
         sessionID = 0;
@@ -618,10 +622,10 @@ if(!skipLog)
 #endif
 
 
-    //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
-    //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
-    //Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
-    public void CreateSessionStartedFile()
+        //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
+        //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
+        //Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
+        public void CreateSessionStartedFile()
     {
         StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
     }
@@ -2503,7 +2507,7 @@ if(!skipLog)
         canSelect = true;
 
         uiController.selectionControls.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
+        yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.selectionControls.alpha = 0f;
         canSelect = false;
         uiController.ToggleSelection(false);
@@ -3695,8 +3699,11 @@ if(!skipLog)
 #if !UNITY_EDITOR
             Application.OpenURL("https://forms.gle/LRqwhAXe75bXRMZs9");
 #endif
-
+#if UNITY_STANDALONE_WIN
             File.Copy("C:/Users/" + System.Environment.UserName + "/AppData/LocalLow/JacobsLab/CityBlock/Player.log", sessionDirectory + "Player.log");
-		}
-	}
+#else
+            File.Copy("/Users/" + System.Environment.UserName + "/Library/Logs/JacobsLab/CityBlock/Player.log", sessionDirectory + "Player.log");
+#endif
+        }
+    }
 }
