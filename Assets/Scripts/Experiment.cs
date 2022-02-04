@@ -1505,6 +1505,7 @@ if(!skipLog)
             lureParent.GetComponent<StimulusObject>().stimuliDisplayTexture = lureImageTextures[i];
             lureParent.GetComponent<StimulusObject>().stimuliDisplayName = lureImageTextures[i].name;
 
+            lureParent.gameObject.name = lureImageTextures[i].name;
             lureObjects.Add(lureParent);
 
 
@@ -1728,10 +1729,10 @@ if(!skipLog)
         {
             if (randIndex[i] % 2 == 0)
             {
-                weatherChangeIndicator.Add(0);
+                weatherChangeIndicator.Add(0); //DW-SW-DW-SW
             }
             else
-                weatherChangeIndicator.Add(1);
+                weatherChangeIndicator.Add(1); //SW-DW-SW-DW
         }
 
         yield return null;
@@ -2376,17 +2377,21 @@ if(!skipLog)
     //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateBlockTestPairs()
     {
-        //add 2 pairs encountered in different loops, different weather; see the design document for more information
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5])); //loop 1 and 2
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[12], stimuliBlockSequence[15]));  // loop 3 and 4
-
         //add 2 pairs encountered in the same loop
         blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); //loop 4
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[0], stimuliBlockSequence[3])); //loop 1
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4])); //loop 1
+
+
 
         //add 2 pairs encountered in the different loop, same weather
         blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[8], stimuliBlockSequence[11])); // loop 2 and 3
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10]));
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[9], stimuliBlockSequence[12]));
+
+        //add 2 pairs encountered in different loops, different weather; see the design document for more information
+        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[3], stimuliBlockSequence[6])); //loop 1 and 2
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17]));  // loop 3 and 4
+
+    
 
         yield return null;
     }
@@ -2395,32 +2400,46 @@ if(!skipLog)
     //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateContextRecollectionList()
     {
-
-        //different weather
-        contextDifferentWeatherTestList = new List<GameObject>(); //2,5,14,15
-        contextDifferentWeatherTestList.Add(stimuliBlockSequence[1]);
-        contextDifferentWeatherTestList.Add(stimuliBlockSequence[4]);
-        contextDifferentWeatherTestList.Add(stimuliBlockSequence[13]);
-        contextDifferentWeatherTestList.Add(stimuliBlockSequence[14]);
-
+            //different weather
+            contextDifferentWeatherTestList = new List<GameObject>(); //1,3,11,14
+            contextDifferentWeatherTestList.Add(stimuliBlockSequence[0]);
+            contextDifferentWeatherTestList.Add(stimuliBlockSequence[2]);
+            contextDifferentWeatherTestList.Add(stimuliBlockSequence[10]);
+            contextDifferentWeatherTestList.Add(stimuliBlockSequence[13]);
 
 
-        //same weather
-        contextSameWeatherTestList = new List<GameObject>(); //7,10,18,19
-        contextSameWeatherTestList.Add(stimuliBlockSequence[6]);
-        contextSameWeatherTestList.Add(stimuliBlockSequence[9]);
-        contextSameWeatherTestList.Add(stimuliBlockSequence[17]);
-        contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
+
+            //same weather
+            contextSameWeatherTestList = new List<GameObject>(); //6,8,16,19
+            contextSameWeatherTestList.Add(stimuliBlockSequence[5]);
+            contextSameWeatherTestList.Add(stimuliBlockSequence[7]);
+            contextSameWeatherTestList.Add(stimuliBlockSequence[15]);
+            contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
+       
+
 
         yield return null;
     }
 
     IEnumerator RunTemporalOrderTest(BlockTestPair testPair)
     {
-        uiController.temporalOrderItemA.text = testPair.firstItem.gameObject.name;
-        uiController.temporalOrderItemB.text = testPair.secondItem.gameObject.name;
+        GameObject firstItem,secondItem;
 
-        trialLogTrack.LogTemporalOrderTest(testPair,true);
+        if (UnityEngine.Random.value > 0.5f)
+        {
+            firstItem = testPair.firstItem;
+            secondItem = testPair.secondItem;
+        }
+        else
+        {
+            firstItem = testPair.secondItem;
+            secondItem = testPair.firstItem;
+        }
+            uiController.temporalOrderItemA.text =firstItem.gameObject.name;
+            uiController.temporalOrderItemB.text = secondItem.gameObject.name;
+        
+
+        trialLogTrack.LogTemporalOrderTest(firstItem,secondItem,true);
 
         string selectionType = "TemporalOrder";
 
@@ -2437,7 +2456,7 @@ if(!skipLog)
         uiController.ToggleSelection(false);
         uiController.selectionControls.alpha = 0f;
         uiController.temporalOrderTestPanel.alpha = 0f;
-        trialLogTrack.LogTemporalOrderTest(testPair, false);
+        trialLogTrack.LogTemporalOrderTest(firstItem,secondItem, false);
 
         yield return null;
     }
@@ -3090,14 +3109,43 @@ if(!skipLog)
         intPicker.Clear();
         waypointFrames.Clear();
 
-        //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
-        for (int i = Configuration.startBuffer; i < currentMaxFrames - Configuration.endBuffer; i++)
+        List<int> validLureFrames = new List<int>();
+        for(int i=Configuration.startBuffer;i<currentMaxFrames-Configuration.endBuffer;i++)
         {
-            //we will only add to this list if it doesn't have an existing item on it
-            if (!CheckIndexHits(tempStorage, i))
+            
+            validLureFrames.Add(i);
+        }
+
+        //UnityEngine.Debug.Log("valid lure frame count " + validLureFrames.Count.ToString());
+
+        for(int i=0;i<spawnFrames.Count;i++)
+        {
+            for(int j=spawnFrames[i]-20;j<spawnFrames[i]+20;j++)
             {
-                intPicker.Add(i);
-                waypointFrames.Add(i);
+                if(j> Configuration.startBuffer && j < currentMaxFrames-Configuration.endBuffer)
+                {
+                    for (int k = 0; k < validLureFrames.Count; k++)
+                    {
+                        if (j == validLureFrames[k])
+                        {
+                            //UnityEngine.Debug.Log("valid lure attempt removing  " + j.ToString());
+                            validLureFrames.RemoveAt(k);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
+        for (int i = 0; i < validLureFrames.Count; i++)
+        {
+            int currFrame = validLureFrames[i];
+            //we will only add to this list if it doesn't have an existing item on it
+            if (!CheckIndexHits(tempStorage, currFrame))
+            {
+                intPicker.Add(currFrame);
+                waypointFrames.Add(currFrame);
                 i += 2; //we don't want lures to be too close to each other; so we skip two spots
             }
         }

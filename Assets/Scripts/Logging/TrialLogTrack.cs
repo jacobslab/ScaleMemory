@@ -198,9 +198,9 @@ public class TrialLogTrack : LogTrack {
 
 	}
 
-	public void LogTemporalOrderTest(BlockTestPair testPair,bool hasStarted)
+	public void LogTemporalOrderTest(GameObject firstItem, GameObject secondItem,bool hasStarted)
     {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_ORDER_TEST" + separator + testPair.firstItem.gameObject.name +separator  + testPair.secondItem.gameObject.name +  separator + ((hasStarted) ? "STARTED" : "ENDED"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_ORDER_TEST" + separator + firstItem.gameObject.name +separator  + secondItem.gameObject.name +  separator + ((hasStarted) ? "STARTED" : "ENDED"));
 
 	}
 
