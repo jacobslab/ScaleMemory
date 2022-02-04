@@ -129,15 +129,14 @@ public class Logger_Threading : MonoBehaviour{
 
 	void Start ()
 	{
-		if (Experiment.isLogging) {
-			myLoggerQueue = new LoggerQueue ();
+			//myLoggerQueue = new LoggerQueue ();
 
 			//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
 			//		
 			//			myLoggerWriter.Start ();
 
 			//	myLoggerWriter.log ("DATE: " + DateTime.Now.ToString ("M/d/yyyy")); //might not be needed
-		}
+		
 	}
 
 	public Logger_Threading(string file){
@@ -145,8 +144,9 @@ public class Logger_Threading : MonoBehaviour{
 	}
 
 	public IEnumerator BeginLogging()
-	{
-		UnityEngine.Debug.Log("beginning logging");
+{
+	myLoggerQueue = new LoggerQueue();
+	UnityEngine.Debug.Log("beginning logging");
 #if !UNITY_WEBGL
 		StartCoroutine("LogWriter");
 #endif

@@ -241,6 +241,7 @@ public class TrialLogTrack : LogTrack {
 
 	public void LogWeather(Weather.WeatherType currWeather)
     {
+		UnityEngine.Debug.Log("CHECK WEATHER LOG " + currWeather.ToString());
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "WEATHER_TYPE" + separator + currWeather.ToString());
 
 

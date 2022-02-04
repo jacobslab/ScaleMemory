@@ -506,10 +506,13 @@ public class VideoLayerManager : MonoBehaviour
         List<int> keys = Experiment.Instance.retrievalFrameObjectDict.Keys.ToList();
         for (int i=0;i<keys.Count;i++)
         {
-            int indexToRemove = keys[i] - 50;
-            if(indexToRemove>0)
+            for (int j = keys[i] - 24; j < keys[i] + 24; j++)
             {
-                validStartFrames.RemoveAt(indexToRemove);
+                int indexToRemove = j - 50;
+                if (indexToRemove > 0 && indexToRemove < validStartFrames.Count)
+                {
+                    validStartFrames.RemoveAt(indexToRemove);
+                }
             }
         }
 

@@ -251,7 +251,7 @@ public class AssetBundleLoader : MonoBehaviour
         {
             string targetName = string.Format(layerName + "-{0:d3}", i + 1) + ".jpg";
             var loadedTexture = myLoadedAssetBundle.LoadAsset<Texture2D>(targetName);
-            UnityEngine.Debug.Log("loading  " + loadedTexture.name);
+           // UnityEngine.Debug.Log("loading  " + loadedTexture.name);
             vidLayerManager.newTextures.Add(loadedTexture);
 
         }

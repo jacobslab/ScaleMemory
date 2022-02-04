@@ -11952,7 +11952,8 @@ MonoBehaviour:
   trialLogTrack: {fileID: 1361952290}
   audioRec: {fileID: 1275771396}
   audioRecorder: {fileID: 1250358484}
-  camTransformTextAsset: {fileID: 0}
+  camTransformTextAsset: {fileID: 4900000, guid: 469621830ba9a43cc8a109ca1f0868d1,
+    type: 3}
   clearSkybox: {fileID: 2100000, guid: 53412155bc1016547b1a77b2333c0380, type: 2}
   overcastSkybox: {fileID: 2100000, guid: d4d16ca3d56fb7142a32d49bbd323836, type: 2}
   nightSkybox: {fileID: 0}
