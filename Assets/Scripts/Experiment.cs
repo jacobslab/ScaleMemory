@@ -2503,7 +2503,7 @@ if(!skipLog)
         canSelect = true;
 
         uiController.selectionControls.alpha = 1f;
-        yield return StartCoroutine(WaitForActionButton());
+        yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.selectionControls.alpha = 0f;
         canSelect = false;
         uiController.ToggleSelection(false);
