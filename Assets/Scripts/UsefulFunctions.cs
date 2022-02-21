@@ -21,6 +21,16 @@ public class UsefulFunctions {
 		return randomOrderList;
 	}
 
+
+	public static IEnumerator WaitForActionButton()
+	{
+		while (!Input.GetKeyDown(KeyCode.Space))
+		{
+			yield return 0;
+		}
+		yield return null;
+	}
+
 	//set layer of gameobject and all its children using the layer ID (int)
 	public static void SetLayerRecursively (GameObject obj, int newLayer){
 		obj.layer = newLayer;
@@ -94,6 +104,16 @@ public class UsefulFunctions {
 		return resultList;
     }
 
+	public static List<int> DuplicateList(List<int> originalList)
+    {
+		List<int> resultList = new List<int>();
+		for(int i=0;i<originalList.Count;i++)
+        {
+			resultList.Add(originalList[i]);
+        }
+		return resultList;
+    }
+
 
 	
 
@@ -146,18 +166,5 @@ public class UsefulFunctions {
 		}
 		
 //		Experiment.Instance.trialController.GetComponent<TrialLogTrack>().LogWaitForJitterEnded(currentTime);
-	}
-
-	public static IEnumerator WaitForActionButton(){
-		bool hasPressedButton = false;
-		while(Input.GetAxis("Action Button") != 0f){
-			yield return 0;
-		}
-		while(!hasPressedButton){
-			if(Input.GetAxis("Action Button") == 1.0f){
-				hasPressedButton = true;
-			}
-			yield return 0;
-		}
 	}
 }

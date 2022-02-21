@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour
 {
 
-
+    Experiment exp { get { return Experiment.Instance; } }
     private float prevLapTime = 0f;
 
     //retrieval
@@ -232,11 +232,11 @@ public class UIController : MonoBehaviour
         UnityEngine.Debug.Log("updating UI page to " + currUIPageID.ToString());
         if(Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
         {
-            yield return StartCoroutine(Experiment.Instance.UpdateVerbalInstructions());
+            yield return StartCoroutine(exp.instructionsManager.UpdateVerbalInstructions());
         }
         else if(Experiment.Instance.currentStage == Experiment.TaskStage.SpatialRetrieval)
         {
-            yield return StartCoroutine(Experiment.Instance.UpdateSpatialInstructions());
+            yield return StartCoroutine(exp.instructionsManager.UpdateSpatialInstructions());
         }
 
         //uiPageChange();
@@ -304,10 +304,10 @@ public class UIController : MonoBehaviour
         switch (instructionPage)
         {
             case "Verbal":
-                uiPageChange -= Experiment.Instance.UpdateVerbalInstructions;
+                uiPageChange -= exp.instructionsManager.UpdateVerbalInstructions;
                 break;
             case "Spatial":
-                uiPageChange -= Experiment.Instance.UpdateSpatialInstructions;
+                uiPageChange -= exp.instructionsManager.UpdateSpatialInstructions;
                 break;
         }
         currUIPageID = 0;
