@@ -9,21 +9,27 @@ public class TCP_Config : MonoBehaviour
 {
 
     public static float numSecondsBeforeAlignment = 10.0f;
-    //#if UNITY_EDITOR
-    //    public static string HostIPAddress { get { return GetLocalIPAddress(); } }
-    //    public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
-    //#else
-    public static string HostIPAddress = "192.168.137.1"; //"169.254.50.2" for Mac Pro Desktop.
+	//#if UNITY_EDITOR
+	//    public static string HostIPAddress { get { return GetLocalIPAddress(); } }
+	//    public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
+	//#else
+
+#if UNITY_EDITOR_OSX
+	public static string HostIPAddress = "128.59.87.230"; //"169.254.50.2" for Mac Pro Desktop.
+	public static int ConnectionPort = 8889; //8001 for Mac Pro Desktop communication
+#else
+	public static string HostIPAddress = "192.168.137.1"; //"169.254.50.2" for Mac Pro Desktop.
     public static int ConnectionPort = 8889; //8001 for Mac Pro Desktop communication
-    //public static string HostIPAddress = "127.0.0.1"; //"169.254.50.2" for Mac Pro Desktop.
-    //public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
+#endif
+	//public static string HostIPAddress = "127.0.0.1"; //"169.254.50.2" for Mac Pro Desktop.
+	//public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
 
-    //public static string HostIPAddress { get { return GetLocalIPAddress(); } }
-    //public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
-    //#endif
+	//public static string HostIPAddress { get { return GetLocalIPAddress(); } }
+	//public static int ConnectionPort = 8001; //8001 for Mac Pro Desktop communication
+	//#endif
 
 
-    public static char MSG_START = '{';
+	public static char MSG_START = '{';
 	public static char MSG_END = '}';
 
 	public static string ExpName { get { return GetExpName (); } }

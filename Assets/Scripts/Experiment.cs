@@ -25,8 +25,8 @@ public class Experiment : MonoBehaviour {
 
     private bool _firstAudio = true; //a flag to make sure in case of the microphone permission access popup, task can be forced into fullscreen after
 #if !UNITY_WEBGL
-    public InterfaceManager interfaceManager;
-    public RamulatorInterface ramulatorInterface;
+
+    public AltInterface elememInterface;
 #endif
 
     public GameObject player;
@@ -151,10 +151,10 @@ public class Experiment : MonoBehaviour {
     private int _currentMaxFrames = 0;
 
 
-    //blackrock variables
+    //elemem variables
     public static string ExpName = "CityBlock";
     public static string BuildVersion = "0.9.95";
-    public static bool isSystem2 = false;
+    public static bool isElemem = true;
 
     public bool verbalRetrieval = false;
 
@@ -615,7 +615,7 @@ if(!skipLog)
     {
 #if !UNITY_WEBGL
         // ramulatorInterface.StartThread();
-        yield return StartCoroutine(ramulatorInterface.BeginNewSession(sessionID));
+        yield return StartCoroutine(elememInterface.BeginNewSession(sessionID));
 #endif
         yield return null;
     }
@@ -866,55 +866,22 @@ if(!skipLog)
 
         //only run if system2 is expected
 #if !UNITY_WEBGL
-        if (isSystem2)
+        if (isElemem)
     {
-            /*
-        uiController.ipEntryPanel.alpha = 1f;
 
-        while(!_ipAddressEntered)
-        {
-            yield return 0;
-        }
-        int portNum = int.Parse(uiController.ipAddrInput.text);
-        UnityEngine.Debug.Log("target port  " + portNum.ToString());
-        TCP_Config.ConnectionPort = portNum;
-        _ipAddressEntered = false;
-        uiController.ipEntryPanel.alpha = 0f;
-        
-        */
-        
-     //   tcpServer.gameObject.SetActive(true);
-            uiController.blackrockConnectionPanel.alpha = 1f;
+         uiController.elememConnectionPanel.alpha = 1f;
 
-#if !UNITY_WEBGL
-            interfaceManager.Do(new EventBase(interfaceManager.LaunchExperiment));
-#endif
-            //   yield return StartCoroutine(ConnectToElemem());
-
-
-            trialLogTrack.LogBlackrockConnectionAttempt();
-        uiController.connectionText.text = "Attempting to connect with server...";
-        //wait till the SYS2 Server connects
-        while (!tcpServer.isConnected)
-        {
-            yield return 0;
-        }
-        uiController.connectionText.text = "Waiting for server to start...";
-        while (!tcpServer.canStartGame)
-        {
-            yield return 0;
-        }
-
-        uiController.blackrockConnectionPanel.alpha = 0f;
+         yield return StartCoroutine(ConnectToElemem());
+     
+        uiController.elememConnectionPanel.alpha = 0f;
     }
     else
     {
-        uiController.blackrockConnectionPanel.alpha = 0f;
+        uiController.elememConnectionPanel.alpha = 0f;
     }
-    trialLogTrack.LogBlackrockConnectionSuccess();
     
-        uiController.blackrockConnectionPanel.alpha = 0f;
-        trialLogTrack.LogBlackrockConnectionSuccess();
+        uiController.elememConnectionPanel.alpha = 0f;
+        trialLogTrack.LogElememConnectionSuccess();
 
 #endif
 
@@ -1099,7 +1066,8 @@ if(!skipLog)
         isPractice = true;
         currentStage = TaskStage.Practice;
 
-            trialLogTrack.LogInstructions(true);
+
+        trialLogTrack.LogInstructions(true);
         yield return StartCoroutine(instructionsManager.ShowEncodingInstructions());
         trialLogTrack.LogInstructions(false);
 

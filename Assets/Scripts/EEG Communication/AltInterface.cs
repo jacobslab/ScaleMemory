@@ -12,6 +12,7 @@ using NetMQ.Sockets;
 using System.Linq;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
+using UnityEngine.UI;
 
 #if !UNITY_WEBGL
 
@@ -98,7 +99,7 @@ public class ElememWorker
         using (server = new PairSocket())
         {
             UnityEngine.Debug.Log("binding");
-            server.Connect("tcp://192.168.0.8:5555");
+            server.Connect("tcp://"+Configuration.ipAddress+":" + Configuration.portNumber.ToString());
 
             UnityEngine.Debug.Log("binded");
             Connected = true;
@@ -145,9 +146,7 @@ public class ElememWorker
 
     public void SendMessage(string messageToSend)
     {
-        //UnityEngine.Debug.Log("added message to queue");
         messageQueue.Enqueue(messageToSend);
-        //UnityEngine.Debug.Log("message queue " + messageQueue.Count.ToString());
     }
 
 
@@ -172,55 +171,52 @@ public class ElememWorker
         heartbeatCount++;
     }
 
-    public void WaitForHeartbeat()
+    public void WaitForHeartbeat(bool isLatencyCheck)
     {
         waitingForHeartbeat = true;
         string receivedMessage = "";
-        float startTime = 0f;
         string targetStr = "HEARTBEAT_OK";
-        //  while (receivedMessage == null || !receivedMessage.Contains(targetStr))
-        //  {
-        startTime += Time.deltaTime;
-        server.TryReceiveFrameString(out receivedMessage);
-        if (receivedMessage != "" && receivedMessage != null)
-        {
-            string messageString = receivedMessage.ToString();
-            // UnityEngine.Debug.Log("received: " + messageString);
+        int timeoutMS = 0;
 
-            waitingForHeartbeat = false;
-            //  UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
-            ReportMessage(messageString);
+        if (isLatencyCheck)
+            timeoutMS = Configuration.elememHeartbeatTimeoutMS;//20ms timeout
+        else
+            timeoutMS = Configuration.elememTimeoutMS; //1000ms timeout
 
-            //reset the unreceived heartbeats counter if we receive a response message from the host
-            unreceivedHeartbeats = 0;
-            //ReportMessage(messageString, false);
-        }
+        TimeSpan heartbeatTimeout = new TimeSpan(0, 0, 0, 0, timeoutMS); 
 
-        //if we have exceeded the timeout time, show warning and stop trying to connect
-        //   UnityEngine.Debug.Log("TIME " + startTime.ToString());
-        if (startTime > timeoutDelay)
-        {
-            unreceivedHeartbeats++;
-            string errorString = "MISSED HEARTBEAT COUNT " + unreceivedHeartbeats.ToString();
-            waitingForHeartbeat = false;
-            ReportMessage(errorString);
-            // waitingForMessage = false;
-            return;
-            //    }
-            //return;
-        }
+        server.TryReceiveFrameString(heartbeatTimeout, out receivedMessage);
+
+            if (receivedMessage != "" && receivedMessage != null)
+            {
+                string messageString = receivedMessage.ToString();
+                UnityEngine.Debug.Log("received heartbeat successfully");
+                waitingForHeartbeat = false;
+                ReportMessage(messageString);
+                ResetMissedHeartbeats();
+            }
+            else
+            {
+                UnityEngine.Debug.Log("received invalid HEARTBEAT or timed out");
+                unreceivedHeartbeats++;
+                string errorString = "MISSED HEARTBEAT COUNT " + unreceivedHeartbeats.ToString();
+                waitingForHeartbeat = false;
+                ReportMessage(errorString);
+                return;
+            }
+        
     }
 
-    public void WaitForMessage(string containingString, string errorMessage)
+    public void WaitForMessage(string containingString, string errorMessage, int timeoutMS)
     {
         waitingForMessage = true;
         string receivedMessage = "";
-        float startTime = 0f;
-        // while (receivedMessage == null || !receivedMessage.Contains(containingString))
-        //{
-        startTime += Time.deltaTime;
-        server.TryReceiveFrameString(out receivedMessage);
 
+
+        TimeSpan timeout = new TimeSpan(0, 0, 0, 0, timeoutMS); //1000ms timeout
+        UnityEngine.Debug.Log("about to receive");
+        server.TryReceiveFrameString(timeout, out receivedMessage);
+        UnityEngine.Debug.Log("finished receiving");
 
         if (receivedMessage != "" && receivedMessage != null)
         {
@@ -236,28 +232,26 @@ public class ElememWorker
             {
                 ReportMessage("Got incorrect message");
             }
-            //  UnityEngine.Debug.Log("received: " + messageString);
-
-          //  waitingForMessage = false;
-            //  UnityEngine.Debug.Log("TODO: Implement report back to mono thread");
             ReportMessage("received " + receivedMessage);
-            //ReportMessage(messageString, false);
+        }
+        else
+        {
+            UnityEngine.Debug.Log("received invalid message " + receivedMessage);
+            WaitForMessage(containingString,errorMessage,timeoutMS); //repeat the wait for message
         }
 
-        //if we have exceeded the timeout time, show warning and stop trying to connect
-        if (startTime > timeoutDelay)
-        {
-            ReportMessage("BREAKING due to timeout");
-            return;
-            //    break;
-        }
+    
         return;
-        //  }
     }
 
     private void ReportMessage(string msg)
     {
         AltInterface.PrintReport(msg);
+    }
+
+    public void ResetMissedHeartbeats()
+    {
+        unreceivedHeartbeats = 0;
     }
 
     public bool DidExceedHeartbeatMissedThreshold()
@@ -308,9 +302,9 @@ public class AltInterface : MonoBehaviour
 {
 
     private NetMQ.Sockets.PairSocket zmqSocket;
-    private const string address = "tcp://*:8889";
 
     private ElememWorker elememWorker;
+
 
     //public InterfaceManager manager;
 
@@ -319,7 +313,7 @@ public class AltInterface : MonoBehaviour
 
         elememWorker = new ElememWorker();
         StartThread();
-        InitiateConnectionForSession(1);
+        //InitiateConnectionForSession(1);
     }
 
     void OnApplicationQuit()
@@ -407,13 +401,16 @@ public class AltInterface : MonoBehaviour
         }
 
         UnityEngine.Debug.Log("sending connected message");
+
+
+        Experiment.Instance.uiController.SetElememInstructions("Sending CONNECTED...");
         //send connected message to host
         DataPoint connected = new DataPoint("CONNECTED", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
         elememWorker.SendMessageToRamulator(connected.ToJSON());
 
         //wait for confirmation
         UnityEngine.Debug.Log("waiting for CONNECTED_OK");
-        elememWorker.WaitForMessage("CONNECTED_OK", "Did not receive confirmation");
+        elememWorker.WaitForMessage("CONNECTED_OK", "Did not receive confirmation",Configuration.elememTimeoutMS);
 
         float resendTimer = 0f;
         while (elememWorker.CheckIfWaitingForMessage())
@@ -448,14 +445,15 @@ public class AltInterface : MonoBehaviour
         configureData.Add("experiment", Experiment.ExpName);
         configureData.Add("subject", "test_subj");
         DataPoint configureDataPoint = new DataPoint("CONFIGURE", HighResolutionDateTime.UtcNow, configureData);
+        UnityEngine.Debug.Log("sending CONFIGURE message");
         elememWorker.SendMessageToRamulator(configureDataPoint.ToJSON());
-   
+
 
         //wait for confirmation
-        elememWorker.WaitForMessage("CONFIGURE_OK", "Did not receive confirmation");
+        UnityEngine.Debug.Log("waiting for CONFIGURE_OK");
+        elememWorker.WaitForMessage("CONFIGURE_OK", "Did not receive confirmation", Configuration.elememTimeoutMS);
 
         resendTimer = 0f;
-        UnityEngine.Debug.Log("waiting for CONFIGURE_OK");
         while (elememWorker.CheckIfWaitingForMessage())
         {
             resendTimer += Time.deltaTime;
@@ -468,6 +466,7 @@ public class AltInterface : MonoBehaviour
             }
             yield return 0;
         }
+        Experiment.Instance.uiController.SetElememInstructions("Performing latency check...");
 
         //wait while doing latency check
         UnityEngine.Debug.Log("performing latency check");
@@ -475,8 +474,6 @@ public class AltInterface : MonoBehaviour
 
 
 
-        //Begin Heartbeats///////////////////////////////////////////////////////////////////////
-      //  InvokeRepeating("SendHeartbeat", 0, 1);
 
 
         UnityEngine.Debug.Log("sending READY");
@@ -486,16 +483,20 @@ public class AltInterface : MonoBehaviour
         yield return null;
 
 
+        Experiment.Instance.uiController.SetElememInstructions("Finishing up...");
+
         UnityEngine.Debug.Log("waiting for START");
-        elememWorker.WaitForMessage("START", "Start signal not received");
+        elememWorker.WaitForMessage("START", "Start signal not received", Configuration.elememTimeoutMS);
         while (elememWorker.CheckIfWaitingForMessage())
         {
             yield return 0;
         }
 
+        //Begin Heartbeats///////////////////////////////////////////////////////////////////////
+          InvokeRepeating("SendHeartbeat", 0, 1); //repeat every 1 second
 
         //   UnityEngine.Debug.Log("TODO: Implement receiving heartbeats (?)");
-        // InvokeRepeating("ReceiveHeartbeat", 0, 1);
+        //InvokeRepeating("ReceiveHeartbeat", 0, 1);
 
 
     }
@@ -511,16 +512,20 @@ public class AltInterface : MonoBehaviour
         {
             UnityEngine.Debug.Log("sending latency heartbeat " + i.ToString());
             sw.Restart();
-            yield return StartCoroutine(Heartbeat());
+            yield return StartCoroutine(Heartbeat(true));
             sw.Stop();
 
             delay[i] = sw.ElapsedTicks * (1000f / Stopwatch.Frequency);
+            UnityEngine.Debug.Log("delay  " + delay[i].ToString());
+#if !UNITY_EDITOR
+
             if (delay[i] > 20)
             {
                 UnityEngine.Debug.Log("break");
                 break;
             }
             yield return new WaitForSeconds(0.05f - delay[i]);
+#endif
             //Thread.Sleep(50 - (int)delay[i]);
         }
 
@@ -533,6 +538,7 @@ public class AltInterface : MonoBehaviour
         dict.Add("mean_latency", mean);
         dict.Add("accuracy", acc);
 
+        UnityEngine.Debug.Log("LATENCY MEAN " + mean.ToString());
         UnityEngine.Debug.Log("LATENCY MAX " + max.ToString());
 #if !UNITY_EDITOR
         if (max > 20f)
@@ -542,13 +548,13 @@ public class AltInterface : MonoBehaviour
         }
 #endif
         UnityEngine.Debug.Log("passed latency check");
-
+        elememWorker.ResetMissedHeartbeats(); //reset missed heartbeat count if we've passed the latency check
         yield return null;
     }
 
 
 
-    private IEnumerator Heartbeat()
+    private IEnumerator Heartbeat(bool isLatencyCheck)
     {
         // UnityEngine.Debug.Log("sending heartbeat");
         var data = new Dictionary<string, object>();
@@ -557,16 +563,14 @@ public class AltInterface : MonoBehaviour
         DataPoint heartbeatDatapoint = new DataPoint("HEARTBEAT", HighResolutionDateTime.UtcNow, data);
         elememWorker.SendMessageToRamulator(heartbeatDatapoint.ToJSON());
 
-        //UnityEngine.Debug.Log("waiting for heartbeat");
-        elememWorker.WaitForHeartbeat();
+        elememWorker.WaitForHeartbeat(isLatencyCheck);
         //elememWorker.WaitForMessage("HEARTBEAT_OK","Did not receive heartbeat confirmation");
 
         while (elememWorker.CheckIfWaitingForHeartbeat())
         {
             yield return 0;
         }
-
-        // UnityEngine.Debug.Log("finished waiting for heartbeat");
+         UnityEngine.Debug.Log("finished waiting for heartbeat");
 
         yield return null;
     }
@@ -621,7 +625,7 @@ public class AltInterface : MonoBehaviour
         //performing heartbeat check
         PerformHeartbeatCheck();
 
-        StartCoroutine("Heartbeat");
+        StartCoroutine("Heartbeat",false);
     }
 
     private void ReportMessage(string message, bool sent)

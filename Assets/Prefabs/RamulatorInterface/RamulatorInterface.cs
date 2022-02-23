@@ -71,6 +71,8 @@ public class RamulatorInterface : MonoBehaviour
     //SetState calls
     public IEnumerator BeginNewSession(int sessionNumber)
     {
+
+
         //Connect to ramulator///////////////////////////////////////////////////////////////////
         zmqSocket = new NetMQ.Sockets.PairSocket();
         zmqSocket.Bind(address);

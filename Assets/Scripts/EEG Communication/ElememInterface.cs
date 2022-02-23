@@ -185,6 +185,7 @@ public class ElememInterface : IHostPC
         try
         {
             // IAsyncResult result = elemem.BeginConnect((string)im.GetSetting("ip"), (int)im.GetSetting("port"), null, null);
+            UnityEngine.Debug.Log("elemem connecting now");
             IAsyncResult result = elemem.BeginConnect((string)TCP_Config.HostIPAddress, (int)TCP_Config.ConnectionPort, null, null);
 
             result.AsyncWaitHandle.WaitOne(messageTimeout);

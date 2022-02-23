@@ -77,6 +77,9 @@ public class Configuration : MonoBehaviour {
     public static int portNumber = 8889;
 #endif
 
+    public static int elememTimeoutMS = 1000;
+    public static int elememHeartbeatTimeoutMS = 20;
+
     public enum StimMode
     {
         NONSTIM,

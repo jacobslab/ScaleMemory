@@ -122,8 +122,8 @@ public class UIController : MonoBehaviour
     //blue marker indicator
     public CanvasGroup markerCirclePanel;
 
-    //blackrock connection
-    public CanvasGroup blackrockConnectionPanel;
+    //elemem connection
+    public CanvasGroup elememConnectionPanel;
     public CanvasGroup connectionSuccessPanel;
     public Text connectionText;
 
@@ -246,6 +246,11 @@ public class UIController : MonoBehaviour
     public void UpdateLoadingProgress(float loadPercent)
     {
         loadingBar.Value = loadPercent;
+    }
+
+    public void SetElememInstructions(string newText)
+    {
+        connectionText.text = newText;
     }
 
     public IEnumerator SetActiveInstructionPage(string instructionPage)

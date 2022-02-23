@@ -65,7 +65,7 @@ public class TCPServer : MonoBehaviour
 
 	void Start()
 	{
-		if (Experiment.isSystem2)
+		if (Experiment.isElemem)
 		{
 			RunServer();
 		}
@@ -93,14 +93,6 @@ public class TCPServer : MonoBehaviour
 		}
 	}
 
-	/*//test encoding phase, every x seconds
-	IEnumerator SendPhase(bool value){
-		yield return new WaitForSeconds(TCP_Config.numSecondsBeforeAlignment);
-		while(true){
-			myServer.SendStateEvent(GameClock.SystemTime_Milliseconds, "ENCODING", value);
-			yield return new WaitForSeconds(10.0f);
-		}
-	}*/
 
 	void RunServer()
 	{

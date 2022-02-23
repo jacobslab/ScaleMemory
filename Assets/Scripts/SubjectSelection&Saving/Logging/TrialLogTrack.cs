@@ -117,9 +117,9 @@ public class TrialLogTrack : LogTrack {
 
 
 
-	public void LogBlackrockConnectionAttempt()
+	public void LogElememConnectionAttempt()
 	{ 
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "BLACKROCK_CONNECTION_ATTEMPT");
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ELEMEM_CONNECTION_ATTEMPT");
 	}
 
 	public void LogEncodingStartPosition(Vector3 pos)
@@ -153,9 +153,9 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "VERBAL_RETRIEVAL" + separator + objQueried.name + separator + fileName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
 
 	}
-	public void LogBlackrockConnectionSuccess()
+	public void LogElememConnectionSuccess()
 	{
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "BLACKROCK_CONNECTION_SUCCESSFUL");
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ELEMEM_CONNECTION_SUCCESSFUL");
 	}
 	
 	public void LogItemDisplay(string objName,bool isShown)
