@@ -186,6 +186,11 @@ public class TrialLogTrack : LogTrack {
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SHOWING_INSTRUCTIONS" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 	}
+	public void LogIntermission(bool hasStarted)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "INTERMISSION_PERIOD" + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+
+	}
 
 	public void LogRetrievalAttempt(GameObject targetObj)
 	{

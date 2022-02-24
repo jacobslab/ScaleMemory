@@ -76,9 +76,9 @@ public class Experiment : MonoBehaviour {
     //private Dictionary<Configuration.WeatherMode, Configuration.WeatherMode> _retrievalWeatherMode;
 
 #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX
-    public bool skipEncoding = false;
-        public bool skipVerbalRetrieval = false;
-        public bool skipSpatialRetrieval = false;
+    public bool _skipEncoding = false;
+        public bool _skipVerbalRetrieval = false;
+        public bool _skipSpatialRetrieval = false;
 #else
     private bool _skipEncoding = false;
     private bool _skipVerbalRetrieval = false;
@@ -152,9 +152,14 @@ public class Experiment : MonoBehaviour {
 
 
     //elemem variables
-    public static string ExpName = "CityBlock";
     public static string BuildVersion = "0.9.95";
+#if CLINICAL
+    public static string ExpName = "CityBlock_Clinical";
     public static bool isElemem = true;
+#else
+    public static string ExpName = "CityBlock_Behavioral";
+    public static bool isElemem = false;
+#endif
 
     public bool verbalRetrieval = false;
 
@@ -730,11 +735,12 @@ if(!skipLog)
 
         yield return StartCoroutine(GoFullScreen());
 #endif
-//if this is the first session
+//if this is the first session, create data for both sessions
         if (sessionID == 0)
         {
             yield return StartCoroutine(CreateSessionData());
         }
+        //if second day session, then parse text/JSON files and gather relevant data for this session
         else
         {
             yield return StartCoroutine(GatherSessionData());
@@ -746,6 +752,15 @@ if(!skipLog)
     IEnumerator CreateSessionData()
     {
         //split sessions into
+        List<int> shuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
+        for(int i=0;i<i*(shuffledStimuliIndices.Count/Configuration.totalSessions)+i;i++)
+        {
+            List<int> currList = new List<int>();
+            string fileName = "sess_" + i.ToString() + "_stimuli.txt";
+
+            currList.Add(shuffledStimuliIndices[i]);
+            UsefulFunctions.WriteIntoTextFile(fileName, currList);
+        }
         yield return null;
     }
 
@@ -917,6 +932,11 @@ if(!skipLog)
         for (int i = 0; i < _blockCount; i++)
         {
             _currBlockNum = i;
+            //only show intermission instructions if it is a behavioral pilot
+#if BEHAVIORAL
+            if (_currBlockNum == 3)
+                yield return StartCoroutine(uiController.ShowIntermissionInstructions());
+#endif
             trialLogTrack.LogBlock(i, true);
             yield return StartCoroutine("BeginTaskBlock");
             trialLogTrack.LogBlock(i, false);
@@ -1395,7 +1415,7 @@ if(!skipLog)
         yield return StartCoroutine(UpdateNextSpawnFrame());
             //yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
 
-        if (!skipEncoding)
+        if (!_skipEncoding)
         {
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
             while (LapCounter.lapCount < 1)
@@ -1849,7 +1869,7 @@ if(!skipLog)
         {
             if (verbalRetrieval)
             {
-                if (!skipVerbalRetrieval)
+                if (!_skipVerbalRetrieval)
                 {
                     yield return StartCoroutine("RunVerbalRetrieval");
 
@@ -1858,7 +1878,7 @@ if(!skipLog)
             }
             else
             {
-                if (!skipSpatialRetrieval)
+                if (!_skipSpatialRetrieval)
                 {
                     yield return StartCoroutine("RunSpatialRetrieval");
                     

@@ -7,6 +7,7 @@ using UnityEngine;
 public class ObjectController : MonoBehaviour
 {
 	public List<Texture> permanentImageList;
+	private List<Texture> sessionImageList;
 
 	private List<Texture> stimuliImageList;
 
@@ -31,6 +32,8 @@ public class ObjectController : MonoBehaviour
 	void Awake()
 	{
 		permanentImageList = new List<Texture>();
+
+		sessionImageList= new List<Texture>();
 		stimuliImageList = new List<Texture>();
 
 	}
@@ -48,6 +51,11 @@ public class ObjectController : MonoBehaviour
 
 		yield return null;
     }
+	public IEnumerator CreateSessionImageList()
+    {
+		yield return null;
+    }
+
 
 	void CreateSpecialImageList()
 	{

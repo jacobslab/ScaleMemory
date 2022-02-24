@@ -127,6 +127,9 @@ public class UIController : MonoBehaviour
     public CanvasGroup connectionSuccessPanel;
     public Text connectionText;
 
+    //intermission
+    public CanvasGroup intermissionInstructionPanel;
+
     //ip entry
     public CanvasGroup ipEntryPanel;
     public InputField ipAddrInput;
@@ -253,6 +256,17 @@ public class UIController : MonoBehaviour
         connectionText.text = newText;
     }
 
+    //these are used to ask subject to check with the testing supervisor
+    public IEnumerator ShowIntermissionInstructions()
+    {
+        intermissionInstructionPanel.alpha = 1f;
+        exp.trialLogTrack.LogIntermission(true);
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        intermissionInstructionPanel.alpha = 0f;
+        exp.trialLogTrack.LogIntermission(false);
+        yield return null;
+    }
+
     public IEnumerator SetActiveInstructionPage(string instructionPage)
     {
         //reset the page ID
@@ -288,19 +302,21 @@ public class UIController : MonoBehaviour
     public void SetFamiliarizationInstructions(Weather.WeatherType currWeather)
     {
         familiarizationOverheadInstructions.alpha = 1f;
-        switch(currWeather)
-        {
-            case Weather.WeatherType.Sunny:
-                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Sunny";
-                break;
-            case Weather.WeatherType.Rainy:
-                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Rainy";
-                break;
-            case Weather.WeatherType.Night:
-                familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Night";
-                break;
+        string baseInst = "Take a moment to drive around and learn the city layout and surroundings while it is " + currWeather.ToString();
+        familiarizationOverheadInstructionText.text = baseInst;
+        //switch (currWeather)
+        //{
+        //    case Weather.WeatherType.Sunny:
+        //        familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Sunny";
+        //        break;
+        //    case Weather.WeatherType.Rainy:
+        //        familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Rainy";
+        //        break;
+        //    case Weather.WeatherType.Night:
+        //        familiarizationOverheadInstructionText.text = "Take a moment to drive around and learn the city layout and surroundings while it is Night";
+        //        break;
 
-        }
+        //}
 
     }
 

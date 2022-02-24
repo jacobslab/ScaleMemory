@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.IO;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 public class UsefulFunctions {
@@ -167,4 +169,12 @@ public class UsefulFunctions {
 		
 //		Experiment.Instance.trialController.GetComponent<TrialLogTrack>().LogWaitForJitterEnded(currentTime);
 	}
+
+
+	//WRITE UTILTY FUNCTIONS
+
+	public void WriteIntoTextFile(string fileName, List<int> intList)
+    {
+
+    }
 }

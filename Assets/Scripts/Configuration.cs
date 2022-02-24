@@ -45,6 +45,9 @@ public class Configuration : MonoBehaviour {
     public static float minJitterTime = 0.25f;
     public static float maxJitterTime = 0.8f;
 
+    //session count
+    public static int totalSessions = 2; //how many sessions to split the whole task into
+
 
     //frame speed
     public static float minFrameSpeed = 0.9f;
