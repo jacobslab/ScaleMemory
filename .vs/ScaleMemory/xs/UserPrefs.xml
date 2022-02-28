@@ -1,22 +1,22 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="761" Column="53" />
-      <File FileName="Assets/VideoLayerManager.cs" Line="6" Column="25" />
-      <File FileName="Assets/Scripts/EEG Communication/AltInterface.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" Line="191" Column="119" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="514" Column="1" IsPinned="True" />
+      <File FileName="Assets/VideoLayerManager.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/AltInterface.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="289" Column="20" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/SubjectSelectionController.cs" Line="98" Column="4" />
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="202" Column="84" />
-      <File FileName="Assets/ObjectController.cs" Line="55" Column="6" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="49" Column="90" />
-      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="174" Column="15" />
+      <File FileName="Assets/Scripts/UIController.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/SubjectSelectionController.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="202" Column="71" />
+      <File FileName="Assets/ObjectController.cs" Line="48" Column="4" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="196" Column="19" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e62c05cb-9857-4a47-b587-3226d3f7ce89" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="35c34f0e-b578-4628-9f38-b9141174ac27" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

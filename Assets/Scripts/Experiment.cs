@@ -753,19 +753,50 @@ if(!skipLog)
     {
         //split sessions into
         List<int> shuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
-        for(int i=0;i<i*(shuffledStimuliIndices.Count/Configuration.totalSessions)+i;i++)
-        {
-            List<int> currList = new List<int>();
-            string fileName = "sess_" + i.ToString() + "_stimuli.txt";
+        UnityEngine.Debug.Log("shuffled indices" + shuffledStimuliIndices.Count.ToString());
 
-            currList.Add(shuffledStimuliIndices[i]);
+
+        //// 0 to 30 ; 30 to 60
+        int stimuliCountPerSession = shuffledStimuliIndices.Count / Configuration.totalSessions;
+
+        int stim = 0;
+        List<int> currList = new List<int>();
+        for (int j = 0; j < Configuration.totalSessions; j++)
+        {
+            currList.Clear();
+            string fileName = sessionDirectory + "sess_" + j.ToString() + "_stimuli.txt";
+            for (int i = stim * stimuliCountPerSession; i < (j + 1) * stimuliCountPerSession; i++)
+            {
+                UnityEngine.Debug.Log("writing for session ");
+                currList.Add(shuffledStimuliIndices[i]);
+            }
             UsefulFunctions.WriteIntoTextFile(fileName, currList);
+            stim++;
         }
         yield return null;
     }
 
     IEnumerator GatherSessionData()
     {
+        UnityEngine.Debug.Log("gathering session data for  " + sessionID.ToString());
+        int prevSessID = sessionID - 1;
+        if(prevSessID >=0)
+        {
+            //read the two text files
+            string targetFilePath = sessionDirectory + "sess_" + sessionID.ToString() + "_stimuli.txt";
+            if(File.Exists(targetFilePath))
+            {
+                string fileContents = File.ReadAllText(targetFilePath);
+
+                string[] splitStimuliIndices = fileContents.Split('\n');
+                UnityEngine.Debug.Log("read " + splitStimuliIndices.Length.ToString() + " stimuli indices");
+
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.Log("invalid session number");
+        }
         yield return null;
     }
 
