@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ public class UsefulFunctions
 		List<int> randomOrderList = new List<int>();
 		for (int i = 0; i < count; i++)
 		{
-			int randomIndex = Random.Range(0, inOrderList.Count);
+			int randomIndex = UnityEngine.Random.Range(0, inOrderList.Count);
 			randomOrderList.Add(inOrderList[randomIndex]);
 			inOrderList.RemoveAt(randomIndex);
 		}
@@ -105,7 +106,7 @@ public class UsefulFunctions
 
 		for (int i = 0; i < listLength; i++)
 		{
-			int randIndex = Random.Range(0, tempList.Count);
+			int randIndex = UnityEngine.Random.Range(0, tempList.Count);
 			resultList.Add(tempList[randIndex]);
 			tempList.RemoveAt(randIndex);
 
@@ -176,7 +177,7 @@ public class UsefulFunctions
 
 	public static IEnumerator WaitForJitter(float minJitter, float maxJitter)
 	{
-		float randomJitter = Random.Range(minJitter, maxJitter);
+		float randomJitter = UnityEngine.Random.Range(minJitter, maxJitter);
 		//		Experiment.Instance.trialController.GetComponent<TrialLogTrack>().LogWaitForJitterStarted(randomJitter);
 
 		float currentTime = 0.0f;
@@ -201,5 +202,56 @@ public class UsefulFunctions
         }
 		File.WriteAllText(fileName, res);
 		UnityEngine.Debug.Log("writing list " + res.ToString());
+	}
+
+	public static Tuple<List<int>,List<int>> SplitIntList(List<int> targetList)
+    {
+
+		//check if even
+		if (targetList.Count % 2 == 0 && targetList.Count > 0)
+		{
+			UnityEngine.Debug.Log("list is even");
+		}
+		else
+		{
+			UnityEngine.Debug.Log("ERROR: We will get uneven lists");
+		}
+		int halfIndex = targetList.Count / 2;
+
+		List<int> listA = new List<int>();
+		List<int> listB = new List<int>();
+		//store first half in one list
+		for (int i = 0; i < halfIndex; i++)
+		{
+			listA.Add(targetList[0]);
+			targetList.RemoveAt(0);
+		}
+		//duplicate the remaining part of the list and store it in the second list
+		listB = DuplicateList(targetList);
+		return Tuple.Create(listA, listB); //return as a tuple
+	}
+
+	//split list into half and return both as lists as part of a tuple
+	public static Tuple<TrialConditions,TrialConditions> SplitTrialConditions(TrialConditions trialConditions)
+    {
+
+		List<int> retType = trialConditions.retrievalTypeList;
+		List<int> weatherChange = trialConditions.weatherChangeTrials;
+		List<int> randomizedWeather = trialConditions.randomizedWeatherOrder;
+
+
+
+
+		Tuple<List<int>, List<int>> tuple_retType = SplitIntList(retType);
+		Tuple<List<int>, List<int>> tuple_weatherChange = SplitIntList(weatherChange);
+		Tuple<List<int>, List<int>> tuple_randomizedWeather = SplitIntList(randomizedWeather);
+
+		TrialConditions session_1 = new TrialConditions(tuple_retType.Item1,tuple_weatherChange.Item1,tuple_randomizedWeather.Item1);
+		TrialConditions session_2 = new TrialConditions(tuple_retType.Item2,tuple_weatherChange.Item2,tuple_randomizedWeather.Item2) ;
+
+
+
+		return Tuple.Create(session_1, session_2);
+
 	}
 }

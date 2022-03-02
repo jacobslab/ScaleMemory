@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Net;
 using System.Linq;
 using UnityEngine;
@@ -59,6 +60,8 @@ public class Experiment : MonoBehaviour {
     public PostProcessProfile pp_Day;
     public PostProcessProfile pp_Rainy;
     public PostProcessProfile pp_Night;
+
+    private TrialConditions _trialConditions;
 
     private List<int> _retrievalTypeList;
     private List<int> _weatherChangeTrials; // this list will maintain the index of trials where encoding and retrieval weather condtions will be distinct
@@ -181,6 +184,7 @@ public class Experiment : MonoBehaviour {
     public Logger_Threading subjectLog;
     private string _eegLogfile; //gets set based on the current subject in Awake()
     public Logger_Threading eegLog;
+    private string subjectDirectory;
     public string sessionDirectory;
     public static string sessionStartedFileName = "sessionStarted.txt";
     public static int sessionID;
@@ -476,7 +480,7 @@ public class Experiment : MonoBehaviour {
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 #endif
 
-        string subjectDirectory = newPath + subjectName + "/";
+        subjectDirectory = newPath + subjectName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
         sessionID = 0;
         string sessionIDString = "_0";
@@ -495,6 +499,15 @@ public class Experiment : MonoBehaviour {
             sessionIDString = "_" + sessionID.ToString();
 
             sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
+        }
+
+        //once the current session directory has been created make sure, future sessions directory have also been created
+        for(int i=1;i<Configuration.totalSessions;i++)
+        {
+            string dirPath = Path.Combine(sessionDirectory, subjectDirectory, "session_" + i.ToString());
+            if(!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+
         }
 
         //delete old files.
@@ -751,6 +764,9 @@ if(!skipLog)
 
     IEnumerator CreateSessionData()
     {
+
+
+
         //split sessions into
         List<int> shuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
         UnityEngine.Debug.Log("shuffled indices" + shuffledStimuliIndices.Count.ToString());
@@ -771,8 +787,13 @@ if(!skipLog)
                 currList.Add(shuffledStimuliIndices[i]);
             }
             UsefulFunctions.WriteIntoTextFile(fileName, currList);
+
             stim++;
         }
+
+        //create randomized trial conditions
+        yield return StartCoroutine(GenerateRandomizedTrialConditions());
+
         yield return null;
     }
 
@@ -783,12 +804,13 @@ if(!skipLog)
         if(prevSessID >=0)
         {
             //read the two text files
-            string targetFilePath = sessionDirectory + "sess_" + sessionID.ToString() + "_stimuli.txt";
+            string targetFilePath = subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + sessionID.ToString() + "_stimuli.txt";
+            UnityEngine.Debug.Log("trying to find file at " + targetFilePath.ToString());
             if(File.Exists(targetFilePath))
             {
                 string fileContents = File.ReadAllText(targetFilePath);
-
                 string[] splitStimuliIndices = fileContents.Split('\n');
+                yield return StartCoroutine(objController.CreateSessionImageList(splitStimuliIndices));
                 UnityEngine.Debug.Log("read " + splitStimuliIndices.Length.ToString() + " stimuli indices");
 
             }
@@ -949,8 +971,8 @@ if(!skipLog)
 
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
-        if(sessionID==0)
-            yield return StartCoroutine("BeginPractice");
+        //if(sessionID==0)
+        //    yield return StartCoroutine("BeginPractice");
 
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
@@ -958,7 +980,12 @@ if(!skipLog)
         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
         uiController.postPracticePanel.alpha = 0f;
 
-        _trialCount = -1;
+        if (sessionID == 0)
+            _trialCount = -1;
+        else
+            _trialCount = (totalTrials / Configuration.totalSessions) - 1;
+
+        UnityEngine.Debug.Log("starting trial count " + _trialCount.ToString());
         //repeat blocks twice
         for (int i = 0; i < _blockCount; i++)
         {
@@ -1015,8 +1042,8 @@ if(!skipLog)
             while (!player.GetComponent<Rigidbody>().isKinematic)
             {
                 float timer = 0f;
-                float maxTime = Random.Range(3f, 10f);
-                float speed = Random.Range(30f, 60f);
+                float maxTime = UnityEngine.Random.Range(3f, 10f);
+                float speed = UnityEngine.Random.Range(30f, 60f);
                 UnityEngine.Debug.Log("new max time " + maxTime.ToString());
                 while (timer < maxTime)
                 {
@@ -1024,7 +1051,6 @@ if(!skipLog)
                     yield return 0;
                 }
                 player.GetComponent<CarController>().ChangeMaxSpeed(speed);
-                //player.GetComponent<CarController>().SetCurrentSpeed(speed);
                 UnityEngine.Debug.Log("changed speed " + speed.ToString());
                 timer = 0f;
                 yield return 0;
@@ -1620,6 +1646,11 @@ if(!skipLog)
         yield return null;
     }
 
+    IEnumerator RetrieveRandomizedTrialConditions()
+    {
+        yield return null;
+    }
+
     //this will generate fresh lists of randomized retrieval order as well as weather differences
     IEnumerator GenerateRandomizedTrialConditions()
     {
@@ -1627,11 +1658,12 @@ if(!skipLog)
         _weatherChangeTrials = new List<int>();
         _randomizedWeatherOrder = new List<int>();
 
+        int trialsPerSession = totalTrials / Configuration.totalSessions;
 
-        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerBlock);
+        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession);
 
 
-        while(_retrievalTypeList.Count < trialsPerBlock)
+        while(_retrievalTypeList.Count < trialsPerSession)
         {
             yield return 0;
         }
@@ -1643,9 +1675,9 @@ if(!skipLog)
             UnityEngine.Debug.Log("CHECK RETRIEVAL TYPE " + ((_retrievalTypeList[i] % 2 == 0) ? "SPATIAL" : "VERBAL"));
         }
         //changing weather trials will be interleaved, so an ordered list of ints will suffice
-        _weatherChangeTrials = UsefulFunctions.ReturnListOfOrderedInts(trialsPerBlock);
+        _weatherChangeTrials = UsefulFunctions.ReturnListOfOrderedInts(trialsPerSession);
 
-        while (_weatherChangeTrials.Count < trialsPerBlock)
+        while (_weatherChangeTrials.Count < trialsPerSession)
         {
             yield return 0;
         }
@@ -1653,13 +1685,31 @@ if(!skipLog)
        
         UnityEngine.Debug.Log("returned shuffled weather change list");
         //only half the trials will have same weather
-        _randomizedWeatherOrder = UsefulFunctions.ReturnShuffledIntegerList(trialsPerBlock / 2);
+        _randomizedWeatherOrder = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession / 2);
 
-        while (_randomizedWeatherOrder.Count < trialsPerBlock / 2)
+        while (_randomizedWeatherOrder.Count < trialsPerSession / 2)
         {
             yield return 0;
         }
         UnityEngine.Debug.Log("returned shuffled weather order");
+
+        //now instantiate a TrialCondition object -- split across different sessions
+
+        //this will currently ONLY work for two sessions
+        _trialConditions = new TrialConditions(_retrievalTypeList, _weatherChangeTrials, _randomizedWeatherOrder);
+
+        UnityEngine.Debug.Log("length of list before split " + _trialConditions.retrievalTypeList.Count.ToString());
+        Tuple<TrialConditions,TrialConditions> trialConditionsBySession = UsefulFunctions.SplitTrialConditions(_trialConditions);
+        TrialConditions sess1_conditions = trialConditionsBySession.Item1;
+        UnityEngine.Debug.Log("length of list after split " + sess1_conditions.retrievalTypeList.Count.ToString());
+        TrialConditions sess2_conditions = trialConditionsBySession.Item2;
+       
+        for (int i = 0; i < 2; i++)
+        {
+            string folder_path = Path.Combine(subjectDirectory, "session_"+i.ToString(),"session"+i.ToString()+"_trialConditions.txt");
+            UnityEngine.Debug.Log("writing at the path " + folder_path.ToString());
+            System.IO.File.WriteAllText(folder_path, ((i==0) ? sess1_conditions.ToJSONString() : sess2_conditions.ToJSONString())); // write conditions into JSON formatted string in separate text files
+        }
         yield return null;
     }
 
@@ -1711,9 +1761,6 @@ if(!skipLog)
             UnityEngine.Debug.Log("result pair " + i.ToString() + " encoding " + resultPair[i].encodingWeather.weatherMode.ToString() + " retrieval " + resultPair[i].retrievalWeather.weatherMode.ToString());
         }
 
-
-
-
         return resultPair;
     }
 
@@ -1721,7 +1768,6 @@ if(!skipLog)
     {
         //reset the block lists
         stimuliBlockSequence = new List<GameObject>();
-        yield return StartCoroutine(GenerateRandomizedTrialConditions());
         for (int i = 0; i < trialsPerBlock; i++)
             {
             //we will avoid showing this immediately after the practice
@@ -2779,7 +2825,7 @@ if(!skipLog)
         tempIndex = UsefulFunctions.ReturnShuffledIntegerList(_sorted_retrievalFrames.Count);
         for (int i = 0; i < _sorted_retrievalFrames.Count; i++)
         {
-            int randindex = Random.Range(0, tempIndex.Count - 1);
+            int randindex = UnityEngine.Random.Range(0, tempIndex.Count - 1);
             temp.Add(_sorted_retrievalFrames[tempIndex[randindex]]);
             tempIndex.RemoveAt(randindex);
         }
@@ -3183,7 +3229,7 @@ if(!skipLog)
        // stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(true);
 
 
-        float randJitterTime = Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
+        float randJitterTime = UnityEngine.Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);
         float totalPresentationTime = Configuration.itemPresentationTime + randJitterTime;
 
         ////make object visible

@@ -51,8 +51,23 @@ public class ObjectController : MonoBehaviour
 
 		yield return null;
     }
-	public IEnumerator CreateSessionImageList()
-    {
+	public IEnumerator CreateSessionImageList(string[] indicesArr)
+	{
+		stimuliImageList.Clear(); //clear the list
+		for (int i = 0;i<indicesArr.Length; i++)
+        {
+			string currStr = indicesArr[i];
+			int currIndex = -1;
+			if(int.TryParse(indicesArr[i], out currIndex))
+            {
+				if (currIndex <= permanentImageList.Count - 1)
+					stimuliImageList.Add(permanentImageList[currIndex]);
+				else
+					UnityEngine.Debug.Log("exceeded max arr length");
+            }
+        }
+
+		UnityEngine.Debug.Log("added total " + stimuliImageList.Count.ToString() + " to stim list");
 		yield return null;
     }
 
