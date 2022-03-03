@@ -94,10 +94,7 @@ public class VideoLayerManager : MonoBehaviour
                 {
                     var texture = DownloadHandlerTexture.GetContent(www);
                     UnityEngine.Debug.Log("retrieved texture " + texture.name);
-                    newTextures.Add(texture); //we add it to the list which will then be passed on to specific VideoLayer in the DownloadImages coroutine
-                    //var rect = new Rect(0, 0, 600f, 600f);
-                    //var sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
-                    //callback(sprite);
+                    newTextures.Add(texture); 
                 }
             }
         }
@@ -107,7 +104,6 @@ public class VideoLayerManager : MonoBehaviour
     public int GetTotalFramesOfCurrentClip()
     {
         return 1131;
-        //return (int)backgroundLayer.numberOfFrames;
     }
 
     public void SpawnPointReached()
@@ -160,9 +156,7 @@ public class VideoLayerManager : MonoBehaviour
         Experiment.Instance.trialLogTrack.LogItemEncodingEvent(stimDisplayText, GetMainLayerCurrentFrameNumber(),Experiment.Instance.encodingIndex);
         Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, true);
 
-        //UnityEngine.Debug.Log("adding to stim block sequence");
         Experiment.Instance.stimuliBlockSequence.Add(stimObject); //add to the stim block sequence for end of the block tests
-        //UnityEngine.Debug.Log("new length of stim block sequence " + Experiment.Instance.stimuliBlockSequence.Count.ToString());
 
         for(int i=0;i<Experiment.Instance.stimuliBlockSequence.Count;i++)
         {
@@ -245,14 +239,9 @@ public class VideoLayerManager : MonoBehaviour
                 targetLayer = nightLayer;
                 break;
         }
-        //string targetURL = Application.streamingAssetsPath + "/sunny/sunny-001.jpg";
-        //yield return StartCoroutine(GetTextureRequest(targetURL));
 
         yield return StartCoroutine(Experiment.Instance.assetBundleLoader.LoadTexturesFromBundle(layerName));
-        //for (int i = 0; i < targetLayer.numberOfFrames; i++)
-        //{
-        //    yield return StartCoroutine(GetTextureRequest(baseURL + layerName + "/" + string.Format(layerName + "-{0:d3}", i + 1) + ".jpg"));
-        //}
+
         yield return StartCoroutine(targetLayer.FillImages(newTextures));
         //clear the texture list
         newTextures.Clear();
@@ -373,7 +362,6 @@ public class VideoLayerManager : MonoBehaviour
         //yield return AddToActiveVideoLayer(itemLayer,true);
 
         //itemLayer.ToggleLayerVisibility(true);
-
         yield return StartCoroutine("TogglePauseLayerPlayback", true);
         double playbackTime = backgroundLayer.GetPlaybackTime();
         int frame = (int)backgroundLayer.videoPlayer.frame;
@@ -564,4 +552,35 @@ public class VideoLayerManager : MonoBehaviour
         }
         yield return null;
     }
+
+
+    public int GetFrameRangeStart()
+    {
+        return Configuration.startBuffer;
+    }
+
+    public int GetFrameRangeEnd()
+    {
+        return GetTotalFramesOfCurrentClip() - Configuration.endBuffer;
+    }
+
+
+    /// <summary>
+    /// DEBUG ONLY FUNCTIONS
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator Debug_MoveToFrame(int targetFrame)
+    {
+        for (int i = 0; i < layerList.Count; i++)
+        {
+            yield return StartCoroutine(layerList[i].ScrollToFrame(targetFrame));
+
+            yield return StartCoroutine(layerList[i].TogglePause(false));
+            yield return new WaitForSeconds(0.2f);
+            yield return StartCoroutine(layerList[i].TogglePause(true));
+        }
+
+        yield return null;
+    }
+
 }

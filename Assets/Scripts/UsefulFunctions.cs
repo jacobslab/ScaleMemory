@@ -175,6 +175,14 @@ public class UsefulFunctions
 		return stringToParse;
 	}
 
+	public static void Debug_PrintListToConsole(List<int> listToPrint)
+    {
+		for(int i=0;i<listToPrint.Count;i++)
+        {
+			UnityEngine.Debug.Log("DEBUG LIST : INDEX : " + i.ToString() + " VALUE: " + listToPrint[i].ToString());
+        }
+    }
+
 	public static IEnumerator WaitForJitter(float minJitter, float maxJitter)
 	{
 		float randomJitter = UnityEngine.Random.Range(minJitter, maxJitter);

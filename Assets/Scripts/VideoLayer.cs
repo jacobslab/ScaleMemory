@@ -162,18 +162,19 @@ public class VideoLayer : MonoBehaviour
                         timeVar -= Time.deltaTime * speed;
 
                     currentFrame = (int)(timeVar * frameRate);
-                   // UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
-                }
-                if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
-                {
-                    if (!isInvoked)
+                    // UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+
+                    if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
                     {
-                        UnityEngine.Debug.Log("invoking spawn point event");
-                        isInvoked = true;
-                        if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
-                            spawnPointReachedEvent.Invoke();
-                        else
-                            retrievalPointReachedEvent.Invoke();
+                        if (!isInvoked)
+                        {
+                            UnityEngine.Debug.Log("invoking spawn point event");
+                            isInvoked = true;
+                            if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                                spawnPointReachedEvent.Invoke();
+                            else
+                                retrievalPointReachedEvent.Invoke();
+                        }
                     }
                 }
                 if (currentFrame >= frames.Length - 1)

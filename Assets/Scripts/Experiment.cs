@@ -353,7 +353,6 @@ public class Experiment : MonoBehaviour {
         for (int i = 0; i < fLines.Length; i++)
         {
             string valueLine = fLines[i];
-           // UnityEngine.Debug.Log(fLines[i]);
             ParseCamTransformLine(valueLine, i);
         }
             yield return null;
@@ -383,7 +382,6 @@ public class Experiment : MonoBehaviour {
 
      void ParseCamTransformLine(string currentLine, int index)
         {
-        //UnityEngine.Debug.Log("current line " + index.ToString() + ":" + currentLine);
             string currIndex = currentLine.Split(':')[1];
                 string currPos = currIndex.Split('R')[0];
                 string currRot = currentLine.Split(':')[2];
@@ -392,30 +390,16 @@ public class Experiment : MonoBehaviour {
                 float posY = float.Parse(currPos.Split(',')[1]);
                 float posZ = float.Parse(currPos.Split(',')[2]);
 
-        //UnityEngine.Debug.Log("position " + posX.ToString() + "," + posY.ToString() + "," + posZ.ToString());
-
 
                 float rotX = float.Parse(currRot.Split(',')[0]);
                 float rotY = float.Parse(currRot.Split(',')[1]);
                 float rotZ = float.Parse(currRot.Split(',')[2]);
+        
 
-
-       // UnityEngine.Debug.Log("rotation " + rotX.ToString() + "," + rotY.ToString() + "," + rotZ.ToString());
-        //Transform currTrans = gameObject.transform;
-                //currTrans.position = new Vector3(posX, posY, posZ);
-                //currTrans.eulerAngles = new Vector3(rotX, rotY, rotZ);
 
         playerPositions.Add(new Vector3(posX, posY, posZ));
         playerRotations.Add(new Vector3(rotX, rotY, rotZ));
 
-        //then add it to the dict
-        //playerPosDict.Add(index,currTrans);
-
-        //Transform result;
-        //if(playerPosDict.TryGetValue(index,out result))
-        //{
-        //    UnityEngine.Debug.Log("immediate check:  " + result.position.x.ToString() + "," + result.position.y.ToString() + "," + result.position.z.ToString());
-        //}
 
         }
 
@@ -427,36 +411,20 @@ public class Experiment : MonoBehaviour {
 
         //unload the current scene first,if one is loaded
 
-        //if (currScene != null && currScene.IsValid())
-        //    SceneManager.UnloadSceneAsync(currScene);
-
 
         switch (targetWeather.weatherMode)
         {
             case Weather.WeatherType.Sunny:
                 UnityEngine.Debug.Log("load sunny");
                 videoLayerManager.UpdateWeather(Weather.WeatherType.Sunny);
-                //SceneManager.LoadScene("DayLighting", LoadSceneMode.Additive);
-                //currScene = SceneManager.GetSceneByName("DayLighting");
-                //ppVolumeRef.profile = pp_Day;
-                //RenderSettings.skybox = clearSkybox;
                 break;
             case Weather.WeatherType.Rainy:
                 UnityEngine.Debug.Log("load rainy");
                 videoLayerManager.UpdateWeather(Weather.WeatherType.Rainy);
-                //SceneManager.LoadScene("RainyLighting", LoadSceneMode.Additive);
-                //currScene = SceneManager.GetSceneByName("RainyLighting");
-                //ppVolumeRef.profile = pp_Rainy;
-                //RenderSettings.skybox = overcastSkybox;
                 break;
             case Weather.WeatherType.Night:
                 UnityEngine.Debug.Log("load night");
                 videoLayerManager.UpdateWeather(Weather.WeatherType.Night);
-                //load dusk scene by default first
-                //SceneManager.LoadScene("DuskLighting", LoadSceneMode.Additive);
-                //currScene = SceneManager.GetSceneByName("DuskLighting");
-                //ppVolumeRef.profile = pp_Night;
-                //RenderSettings.skybox = nightSkybox;
                 break;
 
         }
@@ -501,6 +469,7 @@ public class Experiment : MonoBehaviour {
             sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
         }
 
+#if CLINICAL
         //once the current session directory has been created make sure, future sessions directory have also been created
         for(int i=1;i<Configuration.totalSessions;i++)
         {
@@ -509,6 +478,7 @@ public class Experiment : MonoBehaviour {
                 Directory.CreateDirectory(dirPath);
 
         }
+#endif
 
         //delete old files.
         if (Directory.Exists(sessionDirectory))
@@ -534,7 +504,7 @@ public class Experiment : MonoBehaviour {
         yield return null;
     }
 #else
-    IEnumerator WriteAndSend()
+        IEnumerator WriteAndSend()
     {
         string msg = "";
         bool skipLog = true;
@@ -628,6 +598,8 @@ if(!skipLog)
     {
         StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
     }
+
+
 
     IEnumerator ConnectToElemem()
     {
@@ -748,7 +720,8 @@ if(!skipLog)
 
         yield return StartCoroutine(GoFullScreen());
 #endif
-//if this is the first session, create data for both sessions
+#if CLINICAL
+        //if this is the first session, create data for both sessions
         if (sessionID == 0)
         {
             yield return StartCoroutine(CreateSessionData());
@@ -758,6 +731,11 @@ if(!skipLog)
         {
             yield return StartCoroutine(GatherSessionData());
         }
+#endif
+
+        //create randomized trial conditions
+        yield return StartCoroutine(GenerateRandomizedTrialConditions());
+
         yield return null;
     }
 
@@ -791,8 +769,7 @@ if(!skipLog)
             stim++;
         }
 
-        //create randomized trial conditions
-        yield return StartCoroutine(GenerateRandomizedTrialConditions());
+       
 
         yield return null;
     }
@@ -971,11 +948,13 @@ if(!skipLog)
 
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
-        //if(sessionID==0)
-        //    yield return StartCoroutine("BeginPractice");
+        if(sessionID==0)
+            yield return StartCoroutine("BeginPractice");
 
+        UnityEngine.Debug.Log("about to prep trials");
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
 
+        UnityEngine.Debug.Log("finished prepping trials");
         uiController.postPracticePanel.alpha = 1f;
         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
         uiController.postPracticePanel.alpha = 0f;
@@ -1452,21 +1431,6 @@ if(!skipLog)
         
 
         }
-
-        //reset the waypoint tracker of the car
-        //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-        //yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-        //player.GetComponent<CarMover>().ResetWaypointTarget();
-
-        //player.transform.position = startTransform.position;
-        //    player.transform.rotation = startTransform.rotation;
-            //int targetIndex = player.GetComponent<CarAIControl>().FindSubsequentWaypointIndexFromStart(player.transform); //this sets the target waypoint when you start from a random location; will ALWAYS be facing the forward direction
-            //player.GetComponent<CarAIControl>().SetTarget(player.GetComponent<WaypointProgressTracker>().currentCircuit.Waypoints[targetIndex], targetIndex);
-
-            //chequeredFlag.transform.position = startTransform.position;
-            //chequeredFlag.transform.rotation = startTransform.rotation;
-
-            //	player.GetComponent<CarAIControl>().ResetTargetToStart(); //reset waypoint target transform to forward facing the startTransform
             yield return StartCoroutine(PickEncodingLocations());
 
         yield return StartCoroutine(UpdateNextSpawnFrame());
@@ -1693,11 +1657,13 @@ if(!skipLog)
         }
         UnityEngine.Debug.Log("returned shuffled weather order");
 
+
         //now instantiate a TrialCondition object -- split across different sessions
 
         //this will currently ONLY work for two sessions
         _trialConditions = new TrialConditions(_retrievalTypeList, _weatherChangeTrials, _randomizedWeatherOrder);
 
+#if CLINICAL
         UnityEngine.Debug.Log("length of list before split " + _trialConditions.retrievalTypeList.Count.ToString());
         Tuple<TrialConditions,TrialConditions> trialConditionsBySession = UsefulFunctions.SplitTrialConditions(_trialConditions);
         TrialConditions sess1_conditions = trialConditionsBySession.Item1;
@@ -1710,6 +1676,7 @@ if(!skipLog)
             UnityEngine.Debug.Log("writing at the path " + folder_path.ToString());
             System.IO.File.WriteAllText(folder_path, ((i==0) ? sess1_conditions.ToJSONString() : sess2_conditions.ToJSONString())); // write conditions into JSON formatted string in separate text files
         }
+#endif
         yield return null;
     }
 
@@ -1996,26 +1963,8 @@ if(!skipLog)
 
     IEnumerator RunVerbalRetrieval()
     {
-        uiController.blackScreen.alpha = 1f;
-        //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-        //yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-        //player.GetComponent<CarMover>().ResetWaypointTarget();
-        yield return StartCoroutine(GenerateLureSpots());
 
-
-        //pick random start position
-          yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
-      //  yield return StartCoroutine(videoLayerManager.ReturnToStart());
-        //sort retrieval frames based on new starting position
-        yield return StartCoroutine("Sort_retrievalFrames");
-
-        uiController.blackScreen.alpha = 0f;
-
-        //pick next frame
-        yield return StartCoroutine(UpdateNextSpawnFrame());
-        
-        UnityEngine.Debug.Log("starting verbal retrieval");
-
+        UnityEngine.Debug.Log("showing instructions for verbal retrieval");
         if (_showVerbalInstructions)
         {
 
@@ -2032,22 +1981,46 @@ if(!skipLog)
             _showVerbalInstructions = false;
         }
 
-        //trafficLightController.MakeVisible(true);
-        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        //SetCarMovement(true);
+        UnityEngine.Debug.Log("finished showing instructions for verbal retrieval");
+
+        uiController.blackScreen.alpha = 1f;
+
+
+
+        yield return StartCoroutine(GenerateLureSpots());
+        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+        //pick random start position
+        yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
+        //  yield return StartCoroutine(videoLayerManager.ReturnToStart());
+        //sort retrieval frames based on new starting position
+        yield return StartCoroutine("Sort_retrievalFrames");
+
+        uiController.blackScreen.alpha = 0f;
+
+
+
+
+        //pick next frame
+        yield return StartCoroutine(UpdateNextSpawnFrame());
+        
+        UnityEngine.Debug.Log("starting verbal retrieval");
+
+        ///DEBUG ONLY
+        //UnityEngine.Debug.Log("next retrieval frame at " + nextSpawnFrame.ToString());
+
+        //yield return StartCoroutine(videoLayerManager.Debug_MoveToFrame(nextSpawnFrame-3));
+
+        ///
 
 
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-        //trafficLightController.MakeVisible(false);
 
         while (_retCount < _testLength)
         {
-            //UnityEngine.Debug.Log("verbal ret count " + _retCount.ToString());
             yield return 0;
         }
-        //verbalRetrieval = false;
-        //SetCarMovement(false);
+
 
         _retCount = 0;
         trafficLightController.MakeVisible(false);
@@ -2988,6 +2961,7 @@ if(!skipLog)
 
 
 
+
         //we keep last three and first three seconds as buffer
         for (int i = Configuration.startBuffer; i < _currentMaxFrames - Configuration.endBuffer; i++)
         {
@@ -2996,180 +2970,215 @@ if(!skipLog)
         }
 
         List<int> tempStorage = new List<int>();
-        
 
-        //we pick locations for encoding objects AND lure
-        for (int i = 0; i < listLength; i++)
+
+        try
         {
-            int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
-            int randInt = intPicker[randIndex];
-            int nearestIndex = 0;
-            UnityEngine.Debug.Log("picked " + intPicker[randIndex].ToString());
-            
-
-            chosenEncodingFrames.Add(randInt);
-            int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
-            int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
-
-            //UnityEngine.Debug.Log("between " + intPicker[minLimit].ToString() + "  and  " + intPicker[maxLimit].ToString());
-            //UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
-            //UnityEngine.Debug.Log("min " + minLimit.ToString() + " max " + maxLimit.ToString());
-            int ind = minLimit;
-            for (int j=minLimit; j<maxLimit;j++)
+            //we pick locations for encoding objects AND lure
+            for (int i = 0; i < listLength; i++)
             {
-                
+
+                int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
+                int randInt = intPicker[randIndex];
+                int nearestIndex = 0;
+                UnityEngine.Debug.Log("picked " + intPicker[randIndex].ToString());
+
+
+                chosenEncodingFrames.Add(randInt);
+                int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
+                int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
+
+                //UnityEngine.Debug.Log("between " + intPicker[minLimit].ToString() + "  and  " + intPicker[maxLimit].ToString());
+                //UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
+                //UnityEngine.Debug.Log("min " + minLimit.ToString() + " max " + maxLimit.ToString());
+                int ind = minLimit;
+                for (int j = minLimit; j < maxLimit; j++)
+                {
+
                     //UnityEngine.Debug.Log("comparing " + intPicker[ind].ToString() + " with " + randInt.ToString());
-                if (Mathf.Abs(intPicker[ind] - randInt) < Configuration.minFramesBetweenStimuli)
+                    if (Mathf.Abs(intPicker[ind] - randInt) < Configuration.minFramesBetweenStimuli)
                     {
-                        //UnityEngine.Debug.Log("removing " + intPicker[ind].ToString());
                         intPicker.RemoveAt(ind);
                     }
-                else
-                {
-                    //UnityEngine.Debug.Log("incrementing ind");
-                    ind++;
-                }
-                
-            }
-            if (i < listLength)
-            {
-                //UnityEngine.Debug.Log("picking object at  " + randInt.ToString());
-                tempStorage.Add(randInt);
-
-                //add two frames in to create a min buffer between spawned items and lures
-                for (int j = 0; j < Configuration.minBufferLures; j++)
-                {
-                    if(randInt+ j < _currentMaxFrames)
-                        tempStorage.Add(randInt + j);
-                }
-                spawnFrames.Add(chosenEncodingFrames[i]);
-                //UnityEngine.Debug.Log("adding to spawn frames: " + chosenEncodingFrames[i].ToString());
-            }
-
-        }
-
-        intPicker.Clear();
-        waypointFrames.Clear();
-
-        List<int> validLureFrames = new List<int>();
-        for(int i=Configuration.startBuffer;i<_currentMaxFrames-Configuration.endBuffer;i++)
-        {
-            
-            validLureFrames.Add(i);
-        }
-
-        //UnityEngine.Debug.Log("valid lure frame count " + validLureFrames.Count.ToString());
-
-        for(int i=0;i<spawnFrames.Count;i++)
-        {
-            for(int j=spawnFrames[i]-20;j<spawnFrames[i]+20;j++)
-            {
-                if(j> Configuration.startBuffer && j < _currentMaxFrames-Configuration.endBuffer)
-                {
-                    for (int k = 0; k < validLureFrames.Count; k++)
+                    else
                     {
-                        if (j == validLureFrames[k])
-                        {
-                            //UnityEngine.Debug.Log("valid lure attempt removing  " + j.ToString());
-                            validLureFrames.RemoveAt(k);
-                        }
+                        ind++;
+                    }
+
+                }
+                if (i < listLength)
+                {
+                    tempStorage.Add(randInt);
+
+                    //add two frames in to create a min buffer between spawned items and lures
+                    for (int j = 0; j < Configuration.minBufferLures; j++)
+                    {
+                        if (randInt + j < _currentMaxFrames)
+                            tempStorage.Add(randInt + j);
+                    }
+                    spawnFrames.Add(chosenEncodingFrames[i]);
+                }
+
+            }
+
+            intPicker.Clear();
+            waypointFrames.Clear();
+
+            UnityEngine.Debug.Log("creating base lure frames");
+            //creating array of valid lure frames
+            List<int> validLureFrames = new List<int>();
+            for (int i = videoLayerManager.GetFrameRangeStart(); i < videoLayerManager.GetFrameRangeEnd(); i++)
+            {
+
+                validLureFrames.Add(i);
+            }
+
+
+            //TODO: Make this more efficient
+
+            //for each stimuli frame
+            for (int i = 0; i < spawnFrames.Count; i++)
+            {
+                //traverse between +/- minGapLure to make sure enough distance is maintained on either side
+                int minLureRange = spawnFrames[i] - Configuration.minGapToLure;
+                int maxLureRange = spawnFrames[i] + Configuration.minGapToLure;
+
+                minLureRange = Mathf.Clamp(minLureRange, 0, minLureRange);
+                maxLureRange = Mathf.Clamp(maxLureRange, maxLureRange,videoLayerManager.GetFrameRangeEnd());
+                for (int j = minLureRange; j < maxLureRange; j++)
+                {
+
+                    //remove frames from being considered for lures
+                    UnityEngine.Debug.Log("about to find " + j.ToString());
+                   int res = validLureFrames.FindIndex(0,validLureFrames.Count-1,
+            delegate (int x)
+            {
+                return x == j;
+            }
+            );
+
+                    UnityEngine.Debug.Log("found it at " + res.ToString());
+                    if(res!=-1)
+                        validLureFrames.RemoveAt(res);
+              
+
+                }
+            }
+
+            UnityEngine.Debug.Log("reduced possible options for lure spawning to " + validLureFrames.Count.ToString() + " frames");
+            
+            //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
+
+
+            for (int i = 0; i < 2; i++)
+            {
+                int randStartingLureFrame = UnityEngine.Random.Range(0, validLureFrames.Count - 1);
+                int currFrame = validLureFrames[randStartingLureFrame];
+                UnityEngine.Debug.Log("curr frame " + currFrame.ToString());
+
+                    intPicker.Add(currFrame);
+                    waypointFrames.Add(currFrame);
+                ////we don't want lures to be too close to each other; so we clear the indices representing the min gap +/- to the chosen lure frame
+                for (int j = currFrame - Configuration.minGapToLure; j < (currFrame + Configuration.minGapToLure); j++)
+                {
+                    int tempInt = j;
+                    UnityEngine.Debug.Log("current tempInt " + tempInt.ToString());
+                    tempInt = Mathf.Clamp(tempInt, 0, validLureFrames.Count - 1); //to ensure validity
+                    validLureFrames.Remove(tempInt);
+                }
+                //check immediately if i has exceeded updated bounds
+                if (i >= validLureFrames.Count)
+                    i = 0; //if yes, then reset the index to 0
+                ////else continue
+
+            }
+
+            //2 lures per trial
+            for (int j = 0; j < Configuration.luresPerTrial; j++)
+            {
+                int randIndex = UnityEngine.Random.Range(0, validLureFrames.Count);
+                UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
+                int randInt = validLureFrames[randIndex];
+                validLureFrames.RemoveAt(randIndex);
+                UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
+                lureFrames.Add(randInt);
+            }
+
+            UnityEngine.Debug.Log("finished picking lure frames");
+            //UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
+            List<int> sortedLureFrames = new List<int>();
+            sortedLureFrames = DuplicateList(lureFrames);
+            //UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
+            sortedLureFrames = SortListInAscending(sortedLureFrames);
+
+            //UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
+            List<int> sortedWaypointFrames = new List<int>();
+            sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
+
+
+            //UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
+            //sortedWaypointFrames.Sort();
+            sortedWaypointFrames = SortListInAscending(sortedWaypointFrames);
+            //UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
+
+            _sortedSpawnFrames = new List<int>();
+            _sorted_retrievalFrames = new List<int>();
+
+            lureBools = new List<bool>();
+
+            List<int> tempWaypointFrames = new List<int>();
+            tempWaypointFrames = DuplicateList(sortedWaypointFrames);
+
+            for (int i = 0; i < listLength; i++)
+            {
+
+                //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
+                _sortedSpawnFrames.Add(sortedWaypointFrames[0]);
+                sortedWaypointFrames.RemoveAt(0);
+
+            }
+
+            //since it's sorted, we only concern ourself with the first index
+            for (int i = 0; i < listLength + Configuration.luresPerTrial; i++)
+            {
+                if (sortedLureFrames.Count != 0 && tempWaypointFrames.Count != 0)
+                {
+                    if (sortedLureFrames[0] < tempWaypointFrames[0])
+                    {
+                        //UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted lure frame");
+                        _sorted_retrievalFrames.Add(sortedLureFrames[0]);
+                        lureBools.Add(true);
+                        sortedLureFrames.RemoveAt(0);
+                    }
+                    else
+                    {
+                        //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted lure frame");
+                        _sorted_retrievalFrames.Add(tempWaypointFrames[0]);
+                        lureBools.Add(false);
+                        tempWaypointFrames.RemoveAt(0);
                     }
                 }
-
-            }
-        }
-
-        //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
-        for (int i = 0; i < validLureFrames.Count; i++)
-        {
-            int currFrame = validLureFrames[i];
-            //we will only add to this list if it doesn't have an existing item on it
-            if (!CheckIndexHits(tempStorage, currFrame))
-            {
-                intPicker.Add(currFrame);
-                waypointFrames.Add(currFrame);
-                i += 2; //we don't want lures to be too close to each other; so we skip two spots
-            }
-        }
-
-        //2 lures per trial
-        for (int j = 0; j < Configuration.luresPerTrial; j++)
-        {
-            int randIndex = UnityEngine.Random.Range(0, intPicker.Count);
-            //UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
-            int randInt = intPicker[randIndex];
-            intPicker.RemoveAt(randIndex);
-            UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
-            lureFrames.Add(randInt);
-        }
-        //UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
-        List<int> sortedLureFrames = new List<int>();
-        sortedLureFrames = DuplicateList(lureFrames);
-        //UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
-        sortedLureFrames = SortListInAscending(sortedLureFrames);
-
-        //UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
-        List<int> sortedWaypointFrames = new List<int>();
-        sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
-
-        
-        //UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
-        //sortedWaypointFrames.Sort();
-        sortedWaypointFrames = SortListInAscending(sortedWaypointFrames);
-        //UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
-
-        _sortedSpawnFrames = new List<int>();
-        _sorted_retrievalFrames = new List<int>();
-
-        lureBools = new List<bool>();
-
-        List<int> tempWaypointFrames = new List<int>();
-        tempWaypointFrames = DuplicateList(sortedWaypointFrames);
-
-        for (int i = 0; i < listLength; i++)
-        {
-            
-                    //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
-                    _sortedSpawnFrames.Add(sortedWaypointFrames[0]);
-                    sortedWaypointFrames.RemoveAt(0);
-            
-        }
-
-        //since it's sorted, we only concern ourself with the first index
-        for (int i=0;i<listLength + Configuration.luresPerTrial ;i++)
-        {
-            if (sortedLureFrames.Count !=0 && tempWaypointFrames.Count != 0)
-            {
-                if (sortedLureFrames[0] < tempWaypointFrames[0])
-                {
-                    //UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted lure frame");
-                    _sorted_retrievalFrames.Add(sortedLureFrames[0]);
-                    lureBools.Add(true);
-                    sortedLureFrames.RemoveAt(0);
-                }
                 else
                 {
-                    //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted lure frame");
-                    _sorted_retrievalFrames.Add(tempWaypointFrames[0]);
-                    lureBools.Add(false);
-                    tempWaypointFrames.RemoveAt(0);
+                    if (sortedLureFrames.Count == 0)
+                    {
+                        _sorted_retrievalFrames.Add(tempWaypointFrames[0]);
+                        lureBools.Add(false);
+                        tempWaypointFrames.RemoveAt(0);
+                    }
+                    else
+                    {
+                        _sorted_retrievalFrames.Add(sortedLureFrames[0]);
+                        lureBools.Add(true);
+                        sortedLureFrames.RemoveAt(0);
+                    }
                 }
             }
-            else
-            {
-                if (sortedLureFrames.Count == 0)
-                {
-                    _sorted_retrievalFrames.Add(tempWaypointFrames[0]);
-                    lureBools.Add(false);
-                    tempWaypointFrames.RemoveAt(0);
-                }
-                else
-                {
-                    _sorted_retrievalFrames.Add(sortedLureFrames[0]);
-                    lureBools.Add(true);
-                    sortedLureFrames.RemoveAt(0);
-                }
-            }
+            UsefulFunctions.Debug_PrintListToConsole(_sorted_retrievalFrames);
+        }
+        catch(NullReferenceException e)
+        {
+            UnityEngine.Debug.Log("Caught null exception " + e.StackTrace);
         }
 
         UnityEngine.Debug.Log("finished picking");

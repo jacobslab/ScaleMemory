@@ -1,23 +1,24 @@
-﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
+﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/VideoLayerManager.cs" Line="299" Column="1" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="951" Column="25" />
+      <File FileName="Assets/VideoLayerManager.cs" Line="562" Column="32" />
       <File FileName="Assets/Scripts/EEG Communication/AltInterface.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
-      <File FileName="Assets/Scripts/VideoLayer.cs" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" Line="130" Column="23" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/SubjectSelectionController.cs" />
       <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
-      <File FileName="Assets/ObjectController.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="50" Column="1" />
-      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="207" Column="77" />
-      <File FileName="Assets/Scripts/TrialConditions.cs" Line="22" Column="31" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1821" Column="1" />
+      <File FileName="Assets/ObjectController.cs" Line="226" Column="38" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="64" Column="23" />
+      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="182" Column="94" />
+      <File FileName="Assets/Scripts/TrialConditions.cs" Line="1" Column="1" />
+      <File FileName="Assets/CarMover.cs" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="33f85771-b1f6-49c2-bed0-f90a8063b09d" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="32c9aaf5-e164-44c7-9c0e-b9ed40f2c0fa" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
