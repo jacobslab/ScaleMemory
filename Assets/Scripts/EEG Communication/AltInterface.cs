@@ -63,10 +63,6 @@ public class ElememWorker
 
     private bool _listenerCancelled;
 
-    //public delegate string MessageDelegate(string message);
-
-    //  private readonly MessageDelegate _messageDelegate;
-
     private readonly Stopwatch _contactWatch;
 
     private Queue<string> messageQueue;
@@ -378,36 +374,25 @@ public class AltInterface : MonoBehaviour
     //SetState calls
     public IEnumerator BeginNewSession(int sessionNumber)
     {
-        //Connect to ramulator///////////////////////////////////////////////////////////////////
-        // zmqSocket = new NetMQ.Sockets.PairSocket();
-        //  zmqSocket.Bind(address);
-        //  UnityEngine.Debug.Log ("socket bound");
-
-        /*
-        elememWorker.WaitForMessage("CONNECTED", "Ramulated not connected.");
-
-        while(elememWorker.CheckIfWaiting())
-        {
-            yield return 0;
-        }
-        */
-
-        //  StartThread();
         yield return new WaitForSeconds(1f);
         while (!elememWorker.Connected)
         {
-           // UnityEngine.Debug.Log("waiting for Elemem Server to bind");
             yield return 0;
         }
 
         UnityEngine.Debug.Log("sending connected message");
 
-
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("Sending CONNECTED...");
+#else
         Experiment.Instance.uiController.SetElememInstructions("Sending CONNECTED...");
+#endif
         //send connected message to host
         DataPoint connected = new DataPoint("CONNECTED", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
         elememWorker.SendMessageToRamulator(connected.ToJSON());
-
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("Waiting for CONNECTED_OK");
+#endif
         //wait for confirmation
         UnityEngine.Debug.Log("waiting for CONNECTED_OK");
         elememWorker.WaitForMessage("CONNECTED_OK", "Did not receive confirmation",Configuration.elememTimeoutMS);
@@ -426,19 +411,6 @@ public class AltInterface : MonoBehaviour
 
             yield return 0;
         }
-
-        //SendSessionEvent//////////////////////////////////////////////////////////////////////
-        /*
-        System.Collections.Generic.Dictionary<string, object> sessionData = new Dictionary<string, object>();
-        sessionData.Add("name", Experiment.ExpName);
-        sessionData.Add("version", Application.version);
-        sessionData.Add("subject", "test_subj");
-        //sessionData.Add("subject", Experiment.currentSubject.name);
-        sessionData.Add("session_number", Experiment.sessionID);
-        DataPoint sessionDataPoint = new DataPoint("SESSION", System.DateTime.UtcNow, sessionData);
-        elememWorker.SendMessageToRamulator(sessionDataPoint.ToJSON());
-        */
-
         //send configure message
         System.Collections.Generic.Dictionary<string, object> configureData = new Dictionary<string, object>();
         configureData.Add("stim_mode", Configuration.stimMode.ToString());
@@ -446,10 +418,16 @@ public class AltInterface : MonoBehaviour
         configureData.Add("subject", "test_subj");
         DataPoint configureDataPoint = new DataPoint("CONFIGURE", HighResolutionDateTime.UtcNow, configureData);
         UnityEngine.Debug.Log("sending CONFIGURE message");
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("Sending CONFIGURE");
+#endif
         elememWorker.SendMessageToRamulator(configureDataPoint.ToJSON());
 
 
         //wait for confirmation
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("Waiting for CONFIGURE_OK");
+#endif
         UnityEngine.Debug.Log("waiting for CONFIGURE_OK");
         elememWorker.WaitForMessage("CONFIGURE_OK", "Did not receive confirmation", Configuration.elememTimeoutMS);
 
@@ -466,7 +444,12 @@ public class AltInterface : MonoBehaviour
             }
             yield return 0;
         }
+
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("Performing latency check...");
+#else
         Experiment.Instance.uiController.SetElememInstructions("Performing latency check...");
+#endif
 
         //wait while doing latency check
         UnityEngine.Debug.Log("performing latency check");
@@ -477,14 +460,17 @@ public class AltInterface : MonoBehaviour
 
 
         UnityEngine.Debug.Log("sending READY");
-        //SendReadyEvent////////////////////////////////////////////////////////////////////
         DataPoint ready = new DataPoint("READY", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
         elememWorker.SendMessageToRamulator(ready.ToJSON());
         yield return null;
 
 
-        Experiment.Instance.uiController.SetElememInstructions("Finishing up...");
 
+#if ELEMEM_DEBUG
+        ElememTestRunner.Instance.DisplayStatusText("waiting for START...");
+#else
+        Experiment.Instance.uiController.SetElememInstructions("Finishing up...");
+#endif
         UnityEngine.Debug.Log("waiting for START");
         elememWorker.WaitForMessage("START", "Start signal not received", Configuration.elememTimeoutMS);
         while (elememWorker.CheckIfWaitingForMessage())
@@ -492,11 +478,8 @@ public class AltInterface : MonoBehaviour
             yield return 0;
         }
 
-        //Begin Heartbeats///////////////////////////////////////////////////////////////////////
           InvokeRepeating("SendHeartbeat", 0, 1); //repeat every 1 second
 
-        //   UnityEngine.Debug.Log("TODO: Implement receiving heartbeats (?)");
-        //InvokeRepeating("ReceiveHeartbeat", 0, 1);
 
 
     }
@@ -644,7 +627,7 @@ public class AltInterface : MonoBehaviour
     }
 }
 #else
-public class AltInterface : MonoBehaviour
+    public class AltInterface : MonoBehaviour
 {
 
 }

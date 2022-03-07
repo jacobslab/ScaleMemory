@@ -23,6 +23,8 @@ public class InstructionsManager : MonoBehaviour
         yield return null;
     }
 
+
+   
     public IEnumerator ShowVerbalRetrievalInstructions(int pageID)
     {
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
@@ -116,13 +118,13 @@ public class InstructionsManager : MonoBehaviour
                 uiController.preEncodingInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
                 break;
-            case "SecondEncoding":
+            case "SecondPracticeLoop":
                 uiController.practiceInstructionPanel.alpha = 1f;
-                uiController.secondEncodingInstructions.enabled = true;
+                uiController.secondPracticeLoopInstructions.enabled = true;
                 uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
                 uiController.spacebarContinue.alpha = 0f;
-                uiController.secondEncodingInstructions.enabled = false;
+                uiController.secondPracticeLoopInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
                 break;
             case "PreWeather":
@@ -137,6 +139,37 @@ public class InstructionsManager : MonoBehaviour
         }
         yield return null;
     }
+
+    //these are used to ask subject to check with the testing supervisor
+    public IEnumerator ShowIntermissionInstructions()
+    {
+        uiController.intermissionInstructionPanel.alpha = 1f;
+        exp.trialLogTrack.LogIntermission(true);
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        uiController.intermissionInstructionPanel.alpha = 0f;
+        exp.trialLogTrack.LogIntermission(false);
+        yield return null;
+    }
+
+
+    public IEnumerator ShowSecondSessionWelcomeInstructions()
+    {
+        uiController.secondSessionIntroPanel.alpha = 1f;
+        exp.trialLogTrack.LogInstructions(true);
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        uiController.secondSessionIntroPanel.alpha = 0f;
+        exp.trialLogTrack.LogInstructions(false);
+    }
+    public IEnumerator ShowSecondEncodingInstructions()
+    {
+        uiController.secondEncodingInstructionPanel.alpha = 1f;
+        exp.trialLogTrack.LogInstructions(true);
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        uiController.secondEncodingInstructionPanel.alpha = 0f;
+        exp.trialLogTrack.LogInstructions(false);
+        yield return null;
+    }
+
 
 
     void ChangeUIPage(bool isForwards)

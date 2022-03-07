@@ -22,6 +22,8 @@ public class UIController : MonoBehaviour
     //presentation text
     public Text presentationItemText;
 
+    public CanvasGroup pausePanel;
+
     //loading screen
     public CanvasGroup loadingScreen;
     public bl_ProgressBar loadingBar;
@@ -43,7 +45,7 @@ public class UIController : MonoBehaviour
     public Text preEncodingInstructions;
     public Text preSpatialRetrieval;
     public Text preWeatherCondition;
-    public Text secondEncodingInstructions;
+    public Text secondPracticeLoopInstructions;
 
 
     //encoding panel
@@ -110,6 +112,10 @@ public class UIController : MonoBehaviour
 
     //intro panel
     public CanvasGroup taskIntroPanel;
+
+    //second session specific panel
+    public CanvasGroup secondSessionIntroPanel;
+    public CanvasGroup secondEncodingInstructionPanel;
 
     //fixation panel
     public CanvasGroup fixationPanel;
@@ -256,16 +262,7 @@ public class UIController : MonoBehaviour
         connectionText.text = newText;
     }
 
-    //these are used to ask subject to check with the testing supervisor
-    public IEnumerator ShowIntermissionInstructions()
-    {
-        intermissionInstructionPanel.alpha = 1f;
-        exp.trialLogTrack.LogIntermission(true);
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-        intermissionInstructionPanel.alpha = 0f;
-        exp.trialLogTrack.LogIntermission(false);
-        yield return null;
-    }
+  
 
     public IEnumerator SetActiveInstructionPage(string instructionPage)
     {
@@ -491,6 +488,12 @@ public class UIController : MonoBehaviour
             StartCoroutine(UpdateUIPage());
         }
 
+    }
+
+    public void ShowPauseScreen(bool isPaused)
+    {
+        pausePanel.alpha = ((isPaused)? 1f : 0f);
+        exp.trialLogTrack.LogPauseEvent(isPaused);
     }
 
     void ResetSelection()

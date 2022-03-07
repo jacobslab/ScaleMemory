@@ -10,8 +10,8 @@ public class DataPoint
     private string type;
     private System.Collections.Generic.Dictionary<string, object> dataDict;
     private System.DateTime time;
-    private static int id = 0;
-    private int thisID;
+    private static ulong id = 0;
+    private ulong thisID; //64-bit unsigned integer
 
     /// <summary>
     /// Initializes a new instance of the <see cref="T:DataPoint"/> class.  This represents a piece of data that you might want to keep about your project.
@@ -80,7 +80,7 @@ public class DataPoint
         }
         else if (value is string)
         {
-            string valueString = (string)value.ToString().Replace("\n", " "); // clean newlines for writing to jsonl
+            string valueString = (string)value.ToString().Replace("\n", " "); // clean newlines for writing to json
             if (valueString.Length > 2 && valueString[0] == '{' && valueString[valueString.Length - 1] == '}')
             {
                 return valueString; // treat as embedded JSON

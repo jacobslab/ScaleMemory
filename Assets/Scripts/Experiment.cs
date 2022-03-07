@@ -456,18 +456,18 @@ public class Experiment : MonoBehaviour {
         UnityEngine.Debug.Log("new logging path is " + newPath);
         UnityEngine.Debug.Log("subject directory "+ subjectDirectory);
 
-        if (!Directory.Exists(subjectDirectory))
-        {
-            Directory.CreateDirectory(subjectDirectory);
-        }
-        while (File.Exists(sessionDirectory + sessionStartedFileName))
-        {
-            sessionID++;
+            if (!Directory.Exists(subjectDirectory))
+            {
+                Directory.CreateDirectory(subjectDirectory);
+            }
+            while (File.Exists(sessionDirectory + sessionStartedFileName))
+            {
+                sessionID++;
 
-            sessionIDString = "_" + sessionID.ToString();
+                sessionIDString = "_" + sessionID.ToString();
 
-            sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
-        }
+                sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
+            }
 
 #if CLINICAL
         //once the current session directory has been created make sure, future sessions directory have also been created
@@ -480,26 +480,27 @@ public class Experiment : MonoBehaviour {
         }
 #endif
 
-        //delete old files.
-        if (Directory.Exists(sessionDirectory))
-        {
-            DirectoryInfo info = new DirectoryInfo(sessionDirectory);
-            FileInfo[] fileInfo = info.GetFiles();
-            for (int i = 0; i < fileInfo.Length; i++)
+            //delete old files.
+            if (Directory.Exists(sessionDirectory))
             {
-                File.Delete(fileInfo[i].ToString());
+                DirectoryInfo info = new DirectoryInfo(sessionDirectory);
+                FileInfo[] fileInfo = info.GetFiles();
+                for (int i = 0; i < fileInfo.Length; i++)
+                {
+                    File.Delete(fileInfo[i].ToString());
+                }
             }
-        }
-        else
-        { //if directory didn't exist, make it!
-            Directory.CreateDirectory(sessionDirectory);
-        }
+            else
+            { //if directory didn't exist, make it!
+                Directory.CreateDirectory(sessionDirectory);
+            }
 
-        subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
-        UnityEngine.Debug.Log("_subjectLogfile " + subjectLog.fileName);
-        //now you can initiate logging
-        yield return StartCoroutine(subjectLog.BeginLogging());
-
+            subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
+            UnityEngine.Debug.Log("_subjectLogfile " + subjectLog.fileName);
+            //now you can initiate logging
+            yield return StartCoroutine(subjectLog.BeginLogging());
+        
+   
 
         yield return null;
     }
@@ -890,6 +891,14 @@ if(!skipLog)
         yield return null;
     }
 
+    IEnumerator RunPermissionsCheck()
+    {
+        //check writing permissions
+        //check microphone and audio permissions
+
+        yield return null;
+    }
+
 
     IEnumerator BeginExperiment()
     {
@@ -931,17 +940,12 @@ if(!skipLog)
 #endif
 
         _expActive = true;
-     //   StartCoroutine("PeriodicallyWrite");
         verbalRetrieval = false;
 
         yield return StartCoroutine(videoLayerManager.BeginFramePlay());
         //yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         //initialize the weather as Sunny, by default
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
-        //ChangeLighting(_currentWeather);
-
-        //track familiarization
-        //yield return StartCoroutine(BeginTrackScreening(false));
 
         //create session started file
         CreateSessionStartedFile();
@@ -949,7 +953,14 @@ if(!skipLog)
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
         if(sessionID==0)
-            yield return StartCoroutine("BeginPractice");
+            yield return StartCoroutine("BeginPractice"); //runs both weather familarization and practice
+        else
+        {
+            //show second day intro
+            yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
+            yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
+            yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+        }
 
         UnityEngine.Debug.Log("about to prep trials");
         yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
@@ -972,21 +983,17 @@ if(!skipLog)
             //only show intermission instructions if it is a behavioral pilot
 #if BEHAVIORAL
             if (_currBlockNum == 3)
-                yield return StartCoroutine(uiController.ShowIntermissionInstructions());
+                yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
 #endif
             trialLogTrack.LogBlock(i, true);
             yield return StartCoroutine("BeginTaskBlock");
             trialLogTrack.LogBlock(i, false);
         }
 
-        //once all the trials are complete, run the followup test
-        //yield return StartCoroutine("RunFollowUpTest");
-
         uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
         _expActive = false;
 
-        //player.GetComponent<CarMover>().TurnCarEngine(false);
 #if !UNITY_WEBGL
         Application.Quit();
 #endif
@@ -1129,7 +1136,7 @@ if(!skipLog)
 
 
         //yield return StartCoroutine(ShowPracticeInstructions(""));
-        yield return StartCoroutine("RunWeatherFamiliarization");
+        yield return StartCoroutine(RunWeatherFamiliarization());
         
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -1145,7 +1152,7 @@ if(!skipLog)
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(_currentWeather);
         ////run encoding
-            yield return StartCoroutine("RunEncoding");
+            yield return StartCoroutine(RunEncoding());
 
         //////run retrieval
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
@@ -1154,7 +1161,7 @@ if(!skipLog)
         currentStage = TaskStage.SpatialRetrieval;
         trialLogTrack.LogTaskStage(currentStage, true);
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
-        yield return StartCoroutine("RunSpatialRetrieval");
+        yield return StartCoroutine(RunSpatialRetrieval());
 
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -1162,16 +1169,16 @@ if(!skipLog)
 
         ToggleFixation(true);
         yield return new WaitForSeconds(1f);
-        yield return StartCoroutine("ResetTrack");
+        yield return StartCoroutine(ResetTrack());
         ToggleFixation(false);
 
 
-        yield return StartCoroutine(instructionsManager.ShowPracticeInstructions("SecondEncoding"));
+        yield return StartCoroutine(instructionsManager.ShowPracticeInstructions("SecondPracticeLoop"));
         _trialCount++;
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(_currentWeather);
         ////run encoding
-          yield return StartCoroutine("RunEncoding");
+          yield return StartCoroutine(RunEncoding());
 
 
         verbalRetrieval = true;
@@ -1183,7 +1190,7 @@ if(!skipLog)
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(_currentWeather);
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
-        yield return StartCoroutine("RunVerbalRetrieval");
+        yield return StartCoroutine(RunVerbalRetrieval());
 
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -1191,8 +1198,7 @@ if(!skipLog)
 
         ToggleFixation(true);
         yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine("ResetTrack");
-
+        yield return StartCoroutine(ResetTrack());
         ToggleFixation(false);
 
         
@@ -1218,7 +1224,7 @@ if(!skipLog)
             }
 
             yield return StartCoroutine(DisplayNextTrialScreen());
-            yield return StartCoroutine("RunEncoding");
+            yield return StartCoroutine(RunEncoding());
 
             int retrievalType = randRetrievalOrder[i];
 
@@ -1233,13 +1239,13 @@ if(!skipLog)
 
 
                     //run retrieval
-                    yield return StartCoroutine("RunVerbalRetrieval");
+                    yield return StartCoroutine(RunVerbalRetrieval());
                     break;
                 case 1:
                     verbalRetrieval = false;
                     currentStage = TaskStage.SpatialRetrieval;
                     trialLogTrack.LogTaskStage(currentStage, true);
-                    yield return StartCoroutine("RunSpatialRetrieval");
+                    yield return StartCoroutine(RunSpatialRetrieval());
                     break;
 
 
@@ -1250,7 +1256,7 @@ if(!skipLog)
             trialLogTrack.LogTaskStage(currentStage, false);
             ToggleFixation(true);
             yield return new WaitForSeconds(0.5f);
-            yield return StartCoroutine("ResetTrack");
+            yield return StartCoroutine(ResetTrack());
             ToggleFixation(false);
         }
 
@@ -1318,6 +1324,9 @@ if(!skipLog)
         //	player.GetComponent<CarController>().SetCurrentSpeed(0f);
         yield return null;
     }
+
+
+
 
 
   
@@ -2140,8 +2149,8 @@ if(!skipLog)
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             //  uiController.targetTextPanel.alpha = 1f;
             uiController.spacebarPlaceItem.alpha = 1f;
-            //wait for the player to press X to choose their location OR skip it if the player retrieved the object as "New"
-            while (!Input.GetKeyDown(KeyCode.Space) && !_retrievedAsNew)
+            //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
+            while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
             {
                 yield return 0;
             }
@@ -2465,10 +2474,7 @@ if(!skipLog)
 
         }
 
-        while (!Input.GetKeyDown(KeyCode.Space))
-        {
-            yield return 0;
-        }
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
 
         for (int i = 0; i < indicatorsList.Count; i++)
         {
@@ -2484,10 +2490,7 @@ if(!skipLog)
 
     IEnumerator WaitForSelection(string selectionType)
     {
-        while (!Input.GetKeyDown(KeyCode.Space))
-        {
-            yield return null;
-        }
+        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
         trialLogTrack.LogUserChoiceSelection(uiController.GetSelectionIndex(), selectionType);
         yield return null;
     }
@@ -2522,6 +2525,11 @@ if(!skipLog)
 
         //UnityEngine.Debug.Log("final transform pos " + resultObj.transform.position.ToString());
         return resultObj.transform;
+    }
+
+    public bool CanSelectUI()
+    {
+        return _canSelect;
     }
 
     public IEnumerator ShowItemCuedReactivation(GameObject stimObject)
@@ -3422,17 +3430,14 @@ if(!skipLog)
                     UnityEngine.Debug.Log(" what is " + _retrievalObjList[i].ToString());
                     string objName = _retrievalObjList[i].gameObject.name.Split('(')[0];
                     uiController.retrievalItemName.text = objName;
-                  //  uiController.retrievalTextPanel.alpha = 1f;
-                    while (!Input.GetKeyDown(KeyCode.Space))
-                    {
-                        yield return 0;
-                    }
-               //     uiController.retrievalTextPanel.alpha = 0f;
+
+                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
                     uiController.targetTextPanel.alpha = 1f;
                     uiController.retrievalItemName.text = objName;
                     SetCarMovement(false);
                     yield return new WaitForSeconds(1f);
-                    while (!Input.GetKeyDown(KeyCode.Space) && !LapCounter.finishedLap)
+                    while (!Input.GetButtonDown("Action") && !LapCounter.finishedLap)
                     {
                         yield return 0;
                     }
@@ -3531,54 +3536,8 @@ if(!skipLog)
         Transform resultTrans = null;
         if (playerPosDict.Count > 0 && playerPosDict.TryGetValue(169, out resultTrans))
         {
-            UnityEngine.Debug.Log("result for frame  169: " + resultTrans.position.x.ToString() + ","+ resultTrans.position.y.ToString() + "," + resultTrans.position.z.ToString());
+            UnityEngine.Debug.Log("result for frame 169: " + resultTrans.position.x.ToString() + "," + resultTrans.position.y.ToString() + "," + resultTrans.position.z.ToString());
         }
-
-
-        //UnityEngine.Debug.Log("player current  speed " + player.GetComponent<CarController>().CurrentSpeed.ToString());
-        //UnityEngine.Debug.Log("car speed " + _carSpeed.ToString());
-        if (currentStage == TaskStage.SpatialRetrieval)
-        {
-            if (Input.GetKey(KeyCode.UpArrow))
-            {
-                StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-          
-            }
-            else if (Input.GetKey(KeyCode.DownArrow))
-            {
-                StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
-              
-            }
-
-        }
-        if (uiController.showInstructions)
-        {
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                uiController.PerformUIPageChange(UIController.OptionSelection.Left);
-            }
-            if(Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                uiController.PerformUIPageChange(UIController.OptionSelection.Right);
-
-            }    
-        }
-
-        if (_canSelect)
-        {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                uiController.PerformSelection(UIController.OptionSelection.Left);
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                uiController.PerformSelection(UIController.OptionSelection.Right);
-
-            }
-
-        }
-
     }
     
 
