@@ -637,7 +637,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1218889906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -696,6 +696,7 @@ MonoBehaviour:
   interfaceManager: {fileID: 1218889906}
   connectingPanel: {fileID: 297140951}
   connectionText: {fileID: 173825379}
+  tcpServer: {fileID: 897345239}
 --- !u!4 &1265418538
 Transform:
   m_ObjectHideFlags: 0

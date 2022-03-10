@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Net;
+using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -87,15 +89,20 @@ public class ElememWorker
     private bool performingLatencyCheck = true;
 
     public bool Connected;
-    PairSocket server;
+    //PairSocket server;
+
+    TcpClient myClient;
+    TcpListener myServer;
     private void ListenerWork()
     {
         AsyncIO.ForceDotNet.Force();
-
-        using (server = new PairSocket())
-        {
+        //using (myClient = new TcpListener(IPAddress.Parse(Configuration.ipAddress), Configuration.portNumber))
+        //using (server = new PairSocket())
+        //{
             UnityEngine.Debug.Log("binding");
-            server.Connect("tcp://"+Configuration.ipAddress+":" + Configuration.portNumber.ToString());
+        myServer = new TcpListener(IPAddress.Parse(Configuration.ipAddress), Configuration.portNumber);
+
+            //server.Connect("tcp://"+Configuration.ipAddress+":" + Configuration.portNumber.ToString());
 
             UnityEngine.Debug.Log("binded");
             Connected = true;
@@ -103,10 +110,10 @@ public class ElememWorker
             {
 
                 //check message
-                //  SendMessages();
+                  SendMessages();
 
                 //Receive messages
-                //  ReceiveMessages();
+                  ReceiveMessages();
 
                 //var response = _messageDelegate(message);
 
@@ -114,7 +121,7 @@ public class ElememWorker
 
 
             }
-        }
+        //}
         NetMQConfig.Cleanup();
     }
 
@@ -135,9 +142,15 @@ public class ElememWorker
         if (messageQueue.Count > 0)
         {
             string msg = messageQueue.Dequeue();
-            server.SendFrame(msg);
+
+            //server.SendFrame(msg);
             UnityEngine.Debug.Log("sent message " + msg);
         }
+    }
+
+    private void TCPSendMessage(string msg)
+    {
+
     }
 
     public void SendMessage(string messageToSend)
@@ -307,8 +320,8 @@ public class AltInterface : MonoBehaviour
     private void Start()
     {
 
-        elememWorker = new ElememWorker();
-        StartThread();
+        //elememWorker = new ElememWorker();
+        //StartThread();
         //InitiateConnectionForSession(1);
     }
 
@@ -334,35 +347,6 @@ public class AltInterface : MonoBehaviour
     }
 
 
-    void Update()
-    {
-        /*
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            StartThread();
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            StartCoroutine("BeginNewSession", 0);
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            StartThread();
-        }
-
-        if(Input.GetKeyDown(KeyCode.N))
-        {
-         //   StartThread();
-            InitiateConnectionForSession(0);
-            /*
-            UnityEngine.Debug.Log("sending connected message");
-            DataPoint connected = new DataPoint("CONNECTED", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
-            elememWorker.SendMessageToRamulator(connected.ToJSON());
-           
-        }
-    */
-
-    }
 
     public static void PrintReport(string message)
     {

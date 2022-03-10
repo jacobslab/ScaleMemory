@@ -16,7 +16,7 @@ public class TCP_Config : MonoBehaviour
 
 #if UNITY_EDITOR_OSX
 	public static string HostIPAddress = "128.59.87.230"; //"169.254.50.2" for Mac Pro Desktop.
-	public static int ConnectionPort = 8889; //8001 for Mac Pro Desktop communication
+	public static int ConnectionPort = 8890; //8001 for Mac Pro Desktop communication
 #else
 	public static string HostIPAddress = "192.168.137.1"; //"169.254.50.2" for Mac Pro Desktop.
     public static int ConnectionPort = 8889; //8001 for Mac Pro Desktop communication

@@ -11,6 +11,8 @@ public class ElememTestRunner : MonoBehaviour
     public CanvasGroup connectingPanel;
     public Text connectionText;
 
+    public TCPServer tcpServer;
+
     private static ElememTestRunner _instance;
     public static ElememTestRunner Instance
     {
@@ -36,11 +38,12 @@ public class ElememTestRunner : MonoBehaviour
     void Start()
     {
         connectingPanel.alpha = 1f;
-        StartCoroutine(RunTest());
+        //StartCoroutine(RunTest());
     }
 
     public IEnumerator RunTest()
     {
+        //yield return StartCoroutine(tcpServer.)
 
         yield return StartCoroutine(interfaceManager.BeginNewSession(0));
         DisplayStatusText("Completed Elemem connection, invoking HEARTBEAT at a fixed interval. \n Press ESC to exit application");

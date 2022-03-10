@@ -67,6 +67,7 @@ public class TCPServer : MonoBehaviour
 	{
 		if (Experiment.isElemem)
 		{
+			UnityEngine.Debug.Log("running server");
 			RunServer();
 		}
 		//myClient = SetupClient();
@@ -98,9 +99,9 @@ public class TCPServer : MonoBehaviour
 	{
 		UnityEngine.Debug.Log("creating threaded server");
 		myServer = new ThreadedServer();
-		//SetupClient();
-		myServer.Start();
-	}
+		SetupClient();
+        myServer.Start();
+    }
 
 	bool startedAlignClocks = false;
 	void Update()
@@ -116,14 +117,6 @@ public class TCPServer : MonoBehaviour
 				myServer.SendInitMessages();
 			}
 		}
-		//DEBUGGING
-
-		//if (Input.GetKeyDown (KeyCode.A)) {
-		//	myServer.isServerConnected = true;
-		//}
-		//if (Input.GetKeyDown (KeyCode.S)) {
-		//	myServer.canStartGame = true;
-		//}
 
 	}
 
@@ -275,7 +268,7 @@ public class ThreadedServer : ThreadedJob
 
 	void InitControlPC()
 	{
-
+		UnityEngine.Debug.Log("init control pc");
 		//connect
 		OpenConnections();
 
