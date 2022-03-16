@@ -288,11 +288,11 @@ public class ThreadedServer : ThreadedJob
 		SendSimpleJSONEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.VERSION, Experiment.BuildVersion);
 
 		//send exp session
-		SendSessionEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.SESSION, Experiment.sessionID, TCP_Config.sessionType);
+		SendSessionEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.SESSION, int.TryParse(Experiment.Instance.ReturnSessionID(), out int sessID) ? sessID : 0, TCP_Config.sessionType);
 		SendSimpleJSONEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.VERSION, Experiment.BuildVersion);
 
 		//send subject ID
-		SendSimpleJSONEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.SUBJECTID, Experiment.Instance.subjectName);
+		SendSimpleJSONEvent(GameClock.SystemTime_Milliseconds, TCP_Config.EventType.SUBJECTID, Experiment.Instance.ReturnSubjectName());
 
 		//NO LONGER REQUEST ALIGNMENT HERE. START IENUMERATOR WHEN TASK IS ACTUALLY STARTING
 		//align clocks //SHOULD THIS BE FINISHED BEFORE WE START SENDING HEARTBEATS? -- NO

@@ -27,7 +27,7 @@ public class Experiment : MonoBehaviour {
     private bool _firstAudio = true; //a flag to make sure in case of the microphone permission access popup, task can be forced into fullscreen after
 #if !UNITY_WEBGL
 
-    public AltInterface elememInterface;
+    public ElememInterface elememInterface;
 #endif
 
     public GameObject player;
@@ -187,9 +187,10 @@ public class Experiment : MonoBehaviour {
     private string subjectDirectory;
     public string sessionDirectory;
     public static string sessionStartedFileName = "sessionStarted.txt";
-    public static int sessionID;
+    
+    private int _sessionID;
 
-    public string subjectName = "";
+    private string _subjectName = "";
 
     private bool _canProceed = false;
 
@@ -437,6 +438,16 @@ public class Experiment : MonoBehaviour {
         _ipAddressEntered = true;
     }
 
+
+    public string ReturnSubjectName()
+    {
+        return _subjectName;
+    }
+
+    public string ReturnSessionID()
+    {
+        return _sessionID.ToString();
+    }
   
 #if !UNITY_WEBGL
     //TODO: move to logger_threading perhaps? *shrug*
@@ -448,9 +459,9 @@ public class Experiment : MonoBehaviour {
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 #endif
 
-        subjectDirectory = newPath + subjectName + "/";
+        subjectDirectory = newPath + _subjectName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
-        sessionID = 0;
+        _sessionID = 0;
         string sessionIDString = "_0";
 
         UnityEngine.Debug.Log("new logging path is " + newPath);
@@ -462,9 +473,9 @@ public class Experiment : MonoBehaviour {
             }
             while (File.Exists(sessionDirectory + sessionStartedFileName))
             {
-                sessionID++;
+            _sessionID++;
 
-                sessionIDString = "_" + sessionID.ToString();
+                sessionIDString = "_" + _sessionID.ToString();
 
                 sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
             }
@@ -495,7 +506,7 @@ public class Experiment : MonoBehaviour {
                 Directory.CreateDirectory(sessionDirectory);
             }
 
-            subjectLog.fileName = sessionDirectory + subjectName + "Log" + ".txt";
+            subjectLog.fileName = sessionDirectory + _subjectName + "Log" + ".txt";
             UnityEngine.Debug.Log("_subjectLogfile " + subjectLog.fileName);
             //now you can initiate logging
             yield return StartCoroutine(subjectLog.BeginLogging());
@@ -548,7 +559,7 @@ if(!skipLog)
         string subjectDirectory = defaultLoggingPath + subjName + "/";
         sessionDirectory = subjectDirectory + "session_0" + "/";
 
-        sessionID = 0;
+        _sessionID = 0;
         string sessionIDString = "_0";
         Debug.Log("about to create directory");
         if (!Directory.Exists(subjectDirectory))
@@ -558,9 +569,9 @@ if(!skipLog)
         Debug.Log("does " + sessionDirectory + "and" + sessionStartedFileName + " exist");
         while (File.Exists(sessionDirectory + sessionStartedFileName))
         {
-            sessionID++;
+            _sessionID++;
 
-            sessionIDString = "_" + sessionID.ToString();
+            sessionIDString = "_" + _sessionID.ToString();
 
             sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
         }
@@ -592,10 +603,10 @@ if(!skipLog)
 #endif
 
 
-        //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
-        //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
-        //Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
-        public void CreateSessionStartedFile()
+    //In order to increment the session, this file must be present. Otherwise, the session has not actually started.
+    //This accounts for when we don't successfully connect to hardware -- wouldn't want new session folders.
+    //Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
+    public void CreateSessionStartedFile()
     {
         StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
     }
@@ -606,14 +617,14 @@ if(!skipLog)
     {
 #if !UNITY_WEBGL
         // ramulatorInterface.StartThread();
-        yield return StartCoroutine(elememInterface.BeginNewSession(sessionID));
+        yield return StartCoroutine(elememInterface.BeginNewSession());
 #endif
         yield return null;
     }
 
     public void ParseSubjectCode()
     {
-        subjectName = uiController.subjectInputField.text;
+        _subjectName = uiController.subjectInputField.text;
         UnityEngine.Debug.Log("got subject name");
         _subjectInfoEntered = true;
     }
@@ -623,13 +634,13 @@ if(!skipLog)
     public void SetSubjectName()
     {
 #if !UNITY_WEBGL
-        subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
+        _subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
 #endif
         _enteredSubjName = uiController.subjectInputField.text;
-        subjectName = _enteredSubjName;
-        UnityEngine.Debug.Log("enteredsubj name " + subjectName);
+        _subjectName = _enteredSubjName;
+        UnityEngine.Debug.Log("enteredsubj name " + _subjectName);
 
-        if (string.IsNullOrEmpty(subjectName))
+        if (string.IsNullOrEmpty(_subjectName))
         {
             UnityEngine.Debug.Log("NO SUBJECT NAME ENTERED");
             //   StartCoroutine(uiController.ShowSubjectWarning());
@@ -723,7 +734,7 @@ if(!skipLog)
 #endif
 #if CLINICAL
         //if this is the first session, create data for both sessions
-        if (sessionID == 0)
+        if (_sessionID == 0)
         {
             yield return StartCoroutine(CreateSessionData());
         }
@@ -777,12 +788,12 @@ if(!skipLog)
 
     IEnumerator GatherSessionData()
     {
-        UnityEngine.Debug.Log("gathering session data for  " + sessionID.ToString());
-        int prevSessID = sessionID - 1;
+        UnityEngine.Debug.Log("gathering session data for  " + _sessionID.ToString());
+        int prevSessID = _sessionID - 1;
         if(prevSessID >=0)
         {
             //read the two text files
-            string targetFilePath = subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + sessionID.ToString() + "_stimuli.txt";
+            string targetFilePath = subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + _sessionID.ToString() + "_stimuli.txt";
             UnityEngine.Debug.Log("trying to find file at " + targetFilePath.ToString());
             if(File.Exists(targetFilePath))
             {
@@ -911,7 +922,7 @@ if(!skipLog)
 
         SetSubjectName();
   
-        	UnityEngine.Debug.Log("set subject name: " + subjectName);
+        	UnityEngine.Debug.Log("set subject name: " + _subjectName);
         trialLogTrack.LogBegin();
 
         //load the layers and all the relevant data from AssetBundles
@@ -952,7 +963,7 @@ if(!skipLog)
 
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
-        if(sessionID==0)
+        if(_sessionID==0)
             yield return StartCoroutine("BeginPractice"); //runs both weather familarization and practice
         else
         {
@@ -970,7 +981,7 @@ if(!skipLog)
         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
         uiController.postPracticePanel.alpha = 0f;
 
-        if (sessionID == 0)
+        if (_sessionID == 0)
             _trialCount = -1;
         else
             _trialCount = (totalTrials / Configuration.totalSessions) - 1;
@@ -2633,11 +2644,11 @@ if(!skipLog)
         string fileName = "";
         if(isPractice)
         {
-            fileName = subjectName + "_practice_" + _trialCount.ToString() + "_" + _retCount.ToString() + Configuration.audioFileExtension;
+            fileName = _subjectName + "_practice_" + _trialCount.ToString() + "_" + _retCount.ToString() + Configuration.audioFileExtension;
         }
         else
         {
-            fileName = subjectName + "_" + _trialCount.ToString() + "_" + _retCount.ToString() + Configuration.audioFileExtension;
+            fileName = _subjectName + "_" + _trialCount.ToString() + "_" + _retCount.ToString() + Configuration.audioFileExtension;
         }
          
 #if !UNITY_WEBGL

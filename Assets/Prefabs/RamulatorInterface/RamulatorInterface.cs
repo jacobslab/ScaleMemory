@@ -1,51 +1,22 @@
-﻿using System;
+﻿#if !UNITY_WEBGL // Ramulator
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 using NetMQ;
-using Newtonsoft.Json.Linq;
-
-#if !UNITY_WEBGL
-public class RamulatorWrapper : IHostPC
-{
-
-    InterfaceManager manager;
-
-    public RamulatorWrapper(InterfaceManager _manager)
-    {
-        manager = _manager;
-        manager.ramulator.manager = manager;
-        Start();
-        Do(new EventBase(Connect));
-    }
-
-    public override void Connect()
-    {
-        CoroutineToEvent.StartCoroutine(manager.ramulator.BeginNewSession((int)manager.GetSetting("session")), manager);
-    }
-
-    public override void SendMessage(string type, Dictionary<string, object> data)
-    {
-        DataPoint point = new DataPoint(type, HighResolutionDateTime.UtcNow, data);
-        string message = point.ToJSON();
-
-        manager.Do(new EventBase(() => manager.ramulator.SendMessageToRamulator(message)));
-    }
-
-    public override void HandleMessage(string message, DateTime time)
-    {
-        throw new NotImplementedException("Ramulator does not expect responses to be handled externally");
-    }
-    public override JObject WaitForMessage(string type, int timeout)
-    {
-        throw new NotImplementedException("Ramulator does not expect responses to be handled externally");
-    }
-}
 
 public class RamulatorInterface : MonoBehaviour
 {
+    //This will be updated with warnings about the status of ramulator connectivity
+    public UnityEngine.UI.Text ramulatorWarningText;
+    //This will be activated when a warning needs to be displayed
+    public GameObject ramulatorWarning;
+    //This will be used to log messages
+    public ScriptedEventReporter scriptedEventReporter;
+
     //how long to wait for ramulator to connect
     const int timeoutDelay = 150;
     const int unreceivedHeartbeatsToQuit = 8;
@@ -54,8 +25,6 @@ public class RamulatorInterface : MonoBehaviour
 
     private NetMQ.Sockets.PairSocket zmqSocket;
     private const string address = "tcp://*:8889";
-
-    public InterfaceManager manager;
 
     void OnApplicationQuit()
     {
@@ -71,8 +40,6 @@ public class RamulatorInterface : MonoBehaviour
     //SetState calls
     public IEnumerator BeginNewSession(int sessionNumber)
     {
-
-
         //Connect to ramulator///////////////////////////////////////////////////////////////////
         zmqSocket = new NetMQ.Sockets.PairSocket();
         zmqSocket.Bind(address);
@@ -86,9 +53,9 @@ public class RamulatorInterface : MonoBehaviour
         System.Collections.Generic.Dictionary<string, object> sessionData = new Dictionary<string, object>();
         sessionData.Add("name", Experiment.ExpName);
         sessionData.Add("version", Experiment.BuildVersion);
-        sessionData.Add("subject", Experiment.Instance.subjectName);
-        sessionData.Add("session_number", sessionNumber.ToString());
-        DataPoint sessionDataPoint = new DataPoint("SESSION",HighResolutionDateTime.UtcNow, sessionData);
+        sessionData.Add("subject",Experiment.Instance.ReturnSubjectName());
+        sessionData.Add("session_number", Experiment.Instance.ReturnSessionID());
+        DataPoint sessionDataPoint = new DataPoint("SESSION", DataReporter.RealWorldTime(), sessionData);
         SendMessageToRamulator(sessionDataPoint.ToJSON());
         yield return null;
 
@@ -98,7 +65,7 @@ public class RamulatorInterface : MonoBehaviour
 
 
         //SendReadyEvent////////////////////////////////////////////////////////////////////
-        DataPoint ready = new DataPoint("READY", HighResolutionDateTime.UtcNow, new Dictionary<string, object>());
+        DataPoint ready = new DataPoint("READY", DataReporter.RealWorldTime(), new Dictionary<string, object>());
         SendMessageToRamulator(ready.ToJSON());
         yield return null;
 
@@ -112,6 +79,9 @@ public class RamulatorInterface : MonoBehaviour
 
     private IEnumerator WaitForMessage(string containingString, string errorMessage)
     {
+        ramulatorWarning.SetActive(true);
+        ramulatorWarningText.text = "Waiting on Ramulator";
+
         string receivedMessage = "";
         float startTime = Time.time;
         while (receivedMessage == null || !receivedMessage.Contains(containingString))
@@ -127,10 +97,13 @@ public class RamulatorInterface : MonoBehaviour
             //if we have exceeded the timeout time, show warning and stop trying to connect
             if (Time.time > startTime + timeoutDelay)
             {
+                ramulatorWarningText.text = errorMessage;
+                Debug.LogWarning("Timed out waiting for ramulator");
                 yield break;
             }
             yield return null;
         }
+        ramulatorWarning.SetActive(false);
     }
 
     //ramulator expects this before the beginning of a new list
@@ -140,7 +113,7 @@ public class RamulatorInterface : MonoBehaviour
             throw new Exception("Please begin a session before beginning trials");
         System.Collections.Generic.Dictionary<string, object> sessionData = new Dictionary<string, object>();
         sessionData.Add("trial", trialNumber.ToString());
-        DataPoint sessionDataPoint = new DataPoint("TRIAL", HighResolutionDateTime.UtcNow, sessionData);
+        DataPoint sessionDataPoint = new DataPoint("TRIAL", DataReporter.RealWorldTime(), sessionData);
         SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
@@ -150,7 +123,7 @@ public class RamulatorInterface : MonoBehaviour
     {
         sessionData.Add("name", stateName);
         sessionData.Add("value", stateToggle.ToString());
-        DataPoint sessionDataPoint = new DataPoint("STATE", HighResolutionDateTime.UtcNow, sessionData);
+        DataPoint sessionDataPoint = new DataPoint("STATE", DataReporter.RealWorldTime(), sessionData);
         SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
@@ -161,14 +134,14 @@ public class RamulatorInterface : MonoBehaviour
         mathData.Add("response", response);
         mathData.Add("response_time_ms", responseTimeMs.ToString());
         mathData.Add("correct", correct.ToString());
-        DataPoint mathDataPoint = new DataPoint("MATH", HighResolutionDateTime.UtcNow, mathData);
+        DataPoint mathDataPoint = new DataPoint("MATH", DataReporter.RealWorldTime(), mathData);
         SendMessageToRamulator(mathDataPoint.ToJSON());
     }
 
 
     private void SendHeartbeat()
     {
-        DataPoint sessionDataPoint = new DataPoint("HEARTBEAT", HighResolutionDateTime.UtcNow, null);
+        DataPoint sessionDataPoint = new DataPoint("HEARTBEAT", DataReporter.RealWorldTime(), null);
         SendMessageToRamulator(sessionDataPoint.ToJSON());
     }
 
@@ -176,13 +149,13 @@ public class RamulatorInterface : MonoBehaviour
     {
         unreceivedHeartbeats = unreceivedHeartbeats + 1;
         Debug.Log("Unreceived heartbeats: " + unreceivedHeartbeats.ToString());
-
         if (unreceivedHeartbeats > unreceivedHeartbeatsToQuit)
         {
-            CancelInvoke("ReceiveHeartbeat");
-            CancelInvoke("SendHeartbeat");
-            UnityEngine.Debug.Log("TOO MANY MISSED HEARTBEATS");
-          //  ErrorNotification.Notify(new Exception("Too many missed heartbeats."));
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+			Application.Quit();
+#endif
         }
 
         string receivedMessage = "";
@@ -197,7 +170,7 @@ public class RamulatorInterface : MonoBehaviour
         }
     }
 
-    public void SendMessageToRamulator(string message)
+    private void SendMessageToRamulator(string message)
     {
         bool wouldNotHaveBlocked = zmqSocket.TrySendFrame(message, more: false);
         Debug.Log("Tried to send a message: " + message + " \nWouldNotHaveBlocked: " + wouldNotHaveBlocked.ToString());
@@ -209,9 +182,7 @@ public class RamulatorInterface : MonoBehaviour
         Dictionary<string, object> messageDataDict = new Dictionary<string, object>();
         messageDataDict.Add("message", message);
         messageDataDict.Add("sent", sent.ToString());
-        manager.ReportEvent("network", messageDataDict);
+        scriptedEventReporter.ReportScriptedEvent("network", messageDataDict);
     }
-    }
-#else
-public class RamulatorWrapper : MonoBehaviour { }
-#endif
+}
+#endif // !UNITY_WEBGL

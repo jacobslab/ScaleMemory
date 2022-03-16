@@ -7,7 +7,7 @@ public class ElememTestRunner : MonoBehaviour
 {
 #if !UNITY_WEBGL
 
-    public AltInterface interfaceManager;
+    public ElememInterface interfaceManager;
     public CanvasGroup connectingPanel;
     public Text connectionText;
 
@@ -38,14 +38,13 @@ public class ElememTestRunner : MonoBehaviour
     void Start()
     {
         connectingPanel.alpha = 1f;
-        //StartCoroutine(RunTest());
+        StartCoroutine(RunTest());
     }
 
     public IEnumerator RunTest()
     {
-        //yield return StartCoroutine(tcpServer.)
 
-        yield return StartCoroutine(interfaceManager.BeginNewSession(0));
+        yield return StartCoroutine(interfaceManager.BeginNewSession());
         DisplayStatusText("Completed Elemem connection, invoking HEARTBEAT at a fixed interval. \n Press ESC to exit application");
 
 

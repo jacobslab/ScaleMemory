@@ -10,6 +10,7 @@ public class EventLoop : EventQueue
 
     public void Start()
     {
+        
         if (Running())
         {
             return;

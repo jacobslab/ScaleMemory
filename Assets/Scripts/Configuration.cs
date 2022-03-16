@@ -73,7 +73,7 @@ public class Configuration : MonoBehaviour {
 
     //ELEMEM settings
 #if UNITY_EDITOR
-    public static string ipAddress = "128.59.87.230";
+    public static string ipAddress = "192.168.0.4";
     public static int portNumber = 8890;
 #else
     public static string ipAddress = "192.168.137.1";

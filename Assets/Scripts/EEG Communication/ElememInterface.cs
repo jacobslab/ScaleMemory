@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -12,6 +13,7 @@ using NetMQ.Sockets;
 
 // TODO: class containing constructors for elemem messages
 
+/*
 public abstract class IHostPC : EventLoop
 {
     public abstract JObject WaitForMessage(string type, int timeout);
@@ -20,15 +22,15 @@ public abstract class IHostPC : EventLoop
     public abstract void SendMessage(string type, Dictionary<string, object> data);
 }
 
-
+*/
 // there is already an IHostPC in NiclsInterface
-// public abstract class IHostPC : EventLoop {
-//     public abstract JObject WaitForMessage(string type, int timeout);
-//     public abstract JObject WaitForMessages(string[] types, int timeout);
-//     public abstract void Connect();
-//     public abstract void HandleMessage(string message, DateTime time);
-//     public abstract void SendMessage(string type, Dictionary<string, object> data);
-// }
+ public abstract class IHostPC : EventLoop {
+     public abstract JObject WaitForMessage(string type, int timeout);
+     public abstract JObject WaitForMessages(string[] types, int timeout);
+    public abstract void Connect();
+    public abstract void HandleMessage(string message, DateTime time);
+     public abstract void SendMessage(string type, Dictionary<string, object> data);
+ }
 
 public class ElememListener
 {
@@ -141,11 +143,25 @@ public class ElememInterfaceHelper : IHostPC
     private ElememListener listener;
     private int heartbeatCount = 0;
 
-    //private ScriptedEventReporter scriptedEventReporter;
+    private ScriptedEventReporter scriptedEventReporter;
 
     public readonly object classifierResultLock = new object();
     public volatile int classifierResult = 0;
 
+
+    public ElememInterfaceHelper(ScriptedEventReporter _scriptedEventReporter)
+    { //InterfaceManager _im) {
+        //im = _im;
+        scriptedEventReporter = _scriptedEventReporter;
+        listener = new ElememListener(this);
+
+       // Start();
+        //StartLoop();
+        Connect();
+        UnityEngine.Debug.Log("FINISHED CONNECTING");
+        //Do(new EventBase(Connect));
+    }
+    /*
     public ElememInterfaceHelper()
     { //InterfaceManager _im) {
         //im = _im;
@@ -156,7 +172,7 @@ public class ElememInterfaceHelper : IHostPC
         Connect();
         //Do(new EventBase(Connect));
     }
-
+    */
     ~ElememInterfaceHelper()
     {
         elememServer.Close();
@@ -201,6 +217,7 @@ public class ElememInterfaceHelper : IHostPC
 
         //im.Do(new EventBase<string>(im.SetHostPCStatus, "INITIALIZING")); 
 
+        ElememTestRunner.Instance.connectionText.text = "Connecting..";
         UnityEngine.Debug.Log("CONNECTING");
         SendMessage("CONNECTED"); // Awake
         WaitForMessage("CONNECTED_OK", messageTimeout);
@@ -209,13 +226,17 @@ public class ElememInterfaceHelper : IHostPC
         Dictionary<string, object> configDict = new Dictionary<string, object>();
         configDict.Add("stim_mode", "closed");
         //configDict.Add("experiment", UnityEPL.GetExperimentName()); // This is added in the DataPoint class
-        configDict.Add("subject", UnityEPL.GetParticipants()[0]);
-        configDict.Add("session", UnityEPL.GetSessionNumber().ToString());
+        configDict.Add("subject", Experiment.Instance.ReturnSubjectName());
+        configDict.Add("session",Experiment.Instance.ReturnSessionID());
+        UnityEngine.Debug.Log("CONFIGURING");
+        ElememTestRunner.Instance.connectionText.text = "Configuring..";
         SendMessage("CONFIGURE", configDict);
         var ElememConfig = WaitForMessage("CONFIGURE_OK", messageTimeout);
-        var ElememerverConfigPath = System.IO.Path.Combine(UnityEPL.GetDataPath(), "elememServer_config.json");
+        var ElememerverConfigPath = System.IO.Path.Combine(Experiment.Instance.sessionDirectory, "elememServer_config.json");
         System.IO.File.AppendAllText(ElememerverConfigPath, ElememConfig.ToString());
 
+        ElememTestRunner.Instance.connectionText.text = "Performing latency check..";
+        UnityEngine.Debug.Log("DOING LATENCY CHECK");
         // excepts if there's an issue with latency, else returns
         DoLatencyCheck();
 
@@ -229,6 +250,8 @@ public class ElememInterfaceHelper : IHostPC
         //REPEAT HEARTBEAT
         //DoRepeating(new RepeatingEvent(new EventBase(Heartbeat), -1, 0, 1000));
 
+        ElememTestRunner.Instance.connectionText.text = "Ready..";
+        UnityEngine.Debug.Log("READY");
         SendMessage("READY");
         WaitForMessage("START", messageTimeout);
         //im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
@@ -410,21 +433,24 @@ public class ElememInterface : MonoBehaviour
     //This will be activated when a warning needs to be displayed
     public GameObject ElememWarning;
     //This will be used to log messages
-    //public ScriptedEventReporter scriptedEventReporter;
+    public ScriptedEventReporter scriptedEventReporter;
 
     private ElememInterfaceHelper ElememInterfaceHelper = null;
 
     private bool interfaceDisabled = false;
 
-    public IEnumerator BeginNewSession(int sessionNum, bool disableInterface = false)
+
+    public IEnumerator BeginNewSession()
     {
-        interfaceDisabled = disableInterface;
+       bool interfaceDisabled = false;
         if (interfaceDisabled)
             yield break;
 
         yield return new WaitForSeconds(1);
-        //ElememInterfaceHelper = new ElememInterfaceHelper(scriptedEventReporter);
+        ElememInterfaceHelper = new ElememInterfaceHelper(scriptedEventReporter);
         UnityEngine.Debug.Log("Started Elemem Interface");
+
+        yield return null;
     }
 
     public void SendMessage(string type, Dictionary<string, object> data = null)
