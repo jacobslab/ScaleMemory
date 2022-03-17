@@ -72,14 +72,14 @@ public class Configuration : MonoBehaviour {
 
 
     //ELEMEM settings
-#if UNITY_EDITOR
+#if UNITY_EDITOR_OSX
+    public static string ipAddress = "128.59.87.230";
+#elif UNITY_EDITOR_WIN
     public static string ipAddress = "192.168.0.4";
-    public static int portNumber = 8890;
 #else
-    public static string ipAddress = "192.168.137.1";
-    public static string ipAddress = "160.39.233.63";
-    public static int portNumber = 8889;
+public static string ipAddress="192.168.137.1";
 #endif
+    public static int portNumber = 8889;
 
     public static int elememTimeoutMS = 1000;
     public static int elememHeartbeatTimeoutMS = 20;

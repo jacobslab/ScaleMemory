@@ -101,10 +101,12 @@ public class ElememListener
         handle = state.Item2;
         queue = state.Item3;
 
+        UnityEngine.Debug.Log("inside callback");
         bytesRead = stream.EndRead(ar);
 
         foreach (string msg in ParseBuffer(bytesRead))
         {
+            UnityEngine.Debug.Log(msg + " is enqueued");
             queue?.Enqueue(msg); // queue may be deleted by this point, if wait has ended
         }
 
@@ -120,6 +122,7 @@ public class ElememListener
         while (messageBuffer.IndexOf("\n") != -1)
         {
             string message = messageBuffer.Substring(0, messageBuffer.IndexOf("\n") + 1);
+            UnityEngine.Debug.Log("added to received  " + message);
             received.Add(message);
             messageBuffer = messageBuffer.Substring(messageBuffer.IndexOf("\n") + 1);
 
@@ -224,43 +227,36 @@ public class ElememInterfaceHelper : IHostPC
 
         // LC: removed ExperimentSettings 
         Dictionary<string, object> configDict = new Dictionary<string, object>();
+#if ELEMEM_TEST
         configDict.Add("stim_mode", "closed");
-        //configDict.Add("experiment", UnityEPL.GetExperimentName()); // This is added in the DataPoint class
+        configDict.Add("experiment", "CityBlock"); 
+        configDict.Add("subject", "test_subj");
+        configDict.Add("session", "0");
+#else
+        configDict.Add("stim_mode", "closed");
+        configDict.Add("experiment", Experiment.ExpName); 
         configDict.Add("subject", Experiment.Instance.ReturnSubjectName());
-        configDict.Add("session",Experiment.Instance.ReturnSessionID());
+        configDict.Add("session", Experiment.Instance.ReturnSessionID());
+
+#endif
         UnityEngine.Debug.Log("CONFIGURING");
         ElememTestRunner.Instance.connectionText.text = "Configuring..";
         SendMessage("CONFIGURE", configDict);
         var ElememConfig = WaitForMessage("CONFIGURE_OK", messageTimeout);
+
+#if !ELEMEM_TEST
         var ElememerverConfigPath = System.IO.Path.Combine(Experiment.Instance.sessionDirectory, "elememServer_config.json");
         System.IO.File.AppendAllText(ElememerverConfigPath, ElememConfig.ToString());
+#endif
 
         ElememTestRunner.Instance.connectionText.text = "Performing latency check..";
         UnityEngine.Debug.Log("DOING LATENCY CHECK");
-        // excepts if there's an issue with latency, else returns
-        DoLatencyCheck();
 
-        //Do(new EventBase(RepeatedlyUpdateClassifierResult));
-        //DoRepeating(new RepeatingEvent(ClassifierResult, -1, 0, 1000));
-
-        // start heartbeats
-        //int interval = (int)im.GetSetting("heartbeatInterval");
-        //DoRepeating(new EventBase(Heartbeat), -1, 0, interval);
-
-        //REPEAT HEARTBEAT
-        //DoRepeating(new RepeatingEvent(new EventBase(Heartbeat), -1, 0, 1000));
 
         ElememTestRunner.Instance.connectionText.text = "Ready..";
         UnityEngine.Debug.Log("READY");
         SendMessage("READY");
         WaitForMessage("START", messageTimeout);
-        //im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
-
-        //SendMessage("CLNORMALIZE", new Dictionary<string, object>() { { "duration", 1000u }, { "id", 420 } });
-        //Thread.Sleep(3000);
-        //SendMessage("CLNORMALIZE", new Dictionary<string, object>() { { "duration", 1000u }, { "id", 421 } });
-        //Thread.Sleep(3000);
-        //SendMessage("CLSTIM", new Dictionary<string, object>() { { "classifyms", 1000u }, { "id", 422 } });
     }
 
     private void DoLatencyCheck()
@@ -304,6 +300,7 @@ public class ElememInterfaceHelper : IHostPC
 
     public override JObject WaitForMessages(string[] types, int timeout)
     {
+
         Stopwatch sw = new Stopwatch();
         sw.Start();
 
@@ -315,19 +312,24 @@ public class ElememInterfaceHelper : IHostPC
         listener.RegisterMessageQueue(queue);
         while (sw.ElapsedMilliseconds < timeout)
         {
+            UnityEngine.Debug.Log("begin waiting for messages of types" + types[0]);
             listener.Listen();
             wait = listener.GetListenHandle();
             waitDuration = timeout - (int)sw.ElapsedMilliseconds;
             waitDuration = waitDuration > 0 ? waitDuration : 0;
 
+            UnityEngine.Debug.Log("waiting");
             wait.Wait(waitDuration);
 
+            UnityEngine.Debug.Log("post waiting");
             string message;
             while (queue.TryDequeue(out message))
             {
                 json = JObject.Parse(message);
+                UnityEngine.Debug.Log("obtained message " + json);
                 if (types.Contains(json["type"]?.Value<string>()))
                 {
+                    UnityEngine.Debug.Log("found correct message of type " + json["type"].Value<string>());
                     listener.RemoveMessageQueue();
                     return json;
                 }

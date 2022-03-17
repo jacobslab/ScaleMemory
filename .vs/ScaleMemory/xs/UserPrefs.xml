@@ -1,30 +1,29 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EEG Communication/ElememInterface.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="158" Column="50" IsPinned="True" />
+      <File FileName="Assets/Scripts/Experiment.cs" IsPinned="True" />
+      <File FileName="Assets/ElememTestRunner.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InputHandler.cs" />
       <File FileName="Assets/VideoLayerManager.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/ObjectController.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="71" Column="1" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="80" Column="40" />
       <File FileName="Assets/Scripts/UsefulFunctions.cs" />
       <File FileName="Assets/Scripts/ErrorMessage.cs" />
       <File FileName="Assets/Scripts/ErrorMessageDisplay.cs" />
       <File FileName="Assets/Scripts/InstructionsManager.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/AltInterface.cs" Line="153" Column="1" />
       <File FileName="Assets/Scripts/Utility/DataPoint.cs" />
-      <File FileName="Assets/ElememTestRunner.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogTrack.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/TCP_Config.cs" Line="19" Column="40" />
+      <File FileName="Assets/Scripts/EEG Communication/TCP_Config.cs" />
       <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" Line="544" Column="29" />
-      <File FileName="Assets/Scripts/SocketControl.cs" Line="409" Column="44" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" Line="46" Column="3" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="322" Column="6" />
+      <File FileName="Assets/Scripts/SocketControl.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="247" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="6d7e3f25-3e51-450f-848a-7c6df0508ed0" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="ca847821-152b-4f65-843a-ae3033b1ef83" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
