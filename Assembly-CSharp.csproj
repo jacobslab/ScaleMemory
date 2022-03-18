@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,18 +53,6 @@
     <UnityVersion>2019.4.31f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Assets/CarMover.cs" />
-    <Compile Include="Assets/CarStopper.cs" />
-    <Compile Include="Assets/DefaultItem.cs" />
-    <Compile Include="Assets/ElememTestRunner.cs" />
-    <Compile Include="Assets/ItemLayer.cs" />
-    <Compile Include="Assets/LapCounter.cs" />
-    <Compile Include="Assets/ObjectController.cs" />
-    <Compile Include="Assets/ObjectSpawner.cs" />
-    <Compile Include="Assets/Placeholder.cs" />
     <Compile Include="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
     <Compile Include="Assets/Scripts/Anim. &amp; Visuals/Breakable.cs" />
     <Compile Include="Assets/Scripts/Anim. &amp; Visuals/ChosenIndicatorController.cs" />
@@ -81,9 +69,12 @@
     <Compile Include="Assets/Scripts/BarrierManager.cs" />
     <Compile Include="Assets/Scripts/BlockTestPair.cs" />
     <Compile Include="Assets/Scripts/CameraController.cs" />
+    <Compile Include="Assets/Scripts/CarMover.cs" />
+    <Compile Include="Assets/Scripts/CarStopper.cs" />
     <Compile Include="Assets/Scripts/ChequeredFlag.cs" />
     <Compile Include="Assets/Scripts/CoinSpawner.cs" />
     <Compile Include="Assets/Scripts/Configuration.cs" />
+    <Compile Include="Assets/Scripts/DefaultItem.cs" />
     <Compile Include="Assets/Scripts/DistanceCalculator.cs" />
     <Compile Include="Assets/Scripts/EEG Communication/ElememInterface.cs" />
     <Compile Include="Assets/Scripts/EEG Communication/EventLoop.cs" />
@@ -102,16 +93,24 @@
     <Compile Include="Assets/Scripts/EEG Communication/LitJson/ParserToken.cs" />
     <Compile Include="Assets/Scripts/EEG Communication/TCPServer.cs" />
     <Compile Include="Assets/Scripts/EEG Communication/TCP_Config.cs" />
+    <Compile Include="Assets/Scripts/ElememDataPoint.cs" />
+    <Compile Include="Assets/Scripts/ElememTestRunner.cs" />
     <Compile Include="Assets/Scripts/ErrorMessage.cs" />
     <Compile Include="Assets/Scripts/ErrorMessageDisplay.cs" />
     <Compile Include="Assets/Scripts/Experiment.cs" />
+    <Compile Include="Assets/Scripts/FlexibleConfig.cs" />
     <Compile Include="Assets/Scripts/GameClock.cs" />
     <Compile Include="Assets/Scripts/InputHandler.cs" />
     <Compile Include="Assets/Scripts/InstructionsManager.cs" />
+    <Compile Include="Assets/Scripts/ItemLayer.cs" />
     <Compile Include="Assets/Scripts/JpegViewer.cs" />
+    <Compile Include="Assets/Scripts/LapCounter.cs" />
     <Compile Include="Assets/Scripts/LoadScenePrefabs.cs" />
     <Compile Include="Assets/Scripts/LoopTest.cs" />
+    <Compile Include="Assets/Scripts/ObjectController.cs" />
     <Compile Include="Assets/Scripts/ObjectManager.cs" />
+    <Compile Include="Assets/Scripts/ObjectSpawner.cs" />
+    <Compile Include="Assets/Scripts/Placeholder.cs" />
     <Compile Include="Assets/Scripts/PlayerCollision.cs" />
     <Compile Include="Assets/Scripts/PrintLists.cs" />
     <Compile Include="Assets/Scripts/PullObject.cs" />
@@ -120,6 +119,8 @@
     <Compile Include="Assets/Scripts/SimpleDistanceMeasure.cs" />
     <Compile Include="Assets/Scripts/SimpleTimer.cs" />
     <Compile Include="Assets/Scripts/SocketControl.cs" />
+    <Compile Include="Assets/Scripts/SpawnPointTester.cs" />
+    <Compile Include="Assets/Scripts/SpeedZoneChecker.cs" />
     <Compile Include="Assets/Scripts/StimulusObject.cs" />
     <Compile Include="Assets/Scripts/SubjectSelection&amp;Saving/Logging/AudioLogTrack.cs" />
     <Compile Include="Assets/Scripts/SubjectSelection&amp;Saving/Logging/CameraLogTrack.cs" />
@@ -147,6 +148,8 @@
     <Compile Include="Assets/Scripts/SubjectSelection&amp;Saving/SubjectReaderWriter.cs" />
     <Compile Include="Assets/Scripts/SubjectSelection&amp;Saving/SubjectSelectionController.cs" />
     <Compile Include="Assets/Scripts/TestMic.cs" />
+    <Compile Include="Assets/Scripts/TestScript.cs" />
+    <Compile Include="Assets/Scripts/Trial.cs" />
     <Compile Include="Assets/Scripts/TrialConditions.cs" />
     <Compile Include="Assets/Scripts/UIController.cs" />
     <Compile Include="Assets/Scripts/UsefulFunctions.cs" />
@@ -157,23 +160,16 @@
     <Compile Include="Assets/Scripts/Utility/HighPrecisionTimer.cs" />
     <Compile Include="Assets/Scripts/Utility/ScriptedEventReporter.cs" />
     <Compile Include="Assets/Scripts/VideoLayer.cs" />
+    <Compile Include="Assets/Scripts/VideoLayerManager.cs" />
+    <Compile Include="Assets/Scripts/VideoScript.cs" />
     <Compile Include="Assets/Scripts/VolumetricLight.cs" />
     <Compile Include="Assets/Scripts/VolumetricLightRenderer.cs" />
     <Compile Include="Assets/Scripts/Weather.cs" />
     <Compile Include="Assets/Scripts/WeatherPair.cs" />
     <Compile Include="Assets/Scripts/WebGLMicrophone.cs" />
-    <Compile Include="Assets/SlowZoneChecker.cs" />
-    <Compile Include="Assets/SpawnPointTester.cs" />
-    <Compile Include="Assets/SpeedZoneChecker.cs" />
-    <Compile Include="Assets/TestScript.cs" />
-    <Compile Include="Assets/TrafficLightController.cs" />
-    <Compile Include="Assets/Trial.cs" />
-    <Compile Include="Assets/TurnZone.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
     <Compile Include="Assets/UGUIKit Flat/Content/Scripts/bl_ProgressBar.cs" />
     <Compile Include="Assets/UGUIKit Flat/Content/Scripts/bl_ToggleSwitcher.cs" />
-    <Compile Include="Assets/VideoLayerManager.cs" />
-    <Compile Include="Assets/VideoScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMPro.cginc" />

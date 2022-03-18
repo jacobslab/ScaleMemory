@@ -257,24 +257,6 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRAFFIC_LIGHT_VISIBLE" + separator + ((isVisible) ? "TRUE" : "FALSE"));
 
 	}
-
-	public void LogTrafficLightColor(TrafficLightController.TrafficLights trafficLights)
-	{
-		switch (trafficLights)
-		{
-			case TrafficLightController.TrafficLights.Red:
-				subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRAFFIC_LIGHT" + separator + "RED");
-				break;
-			case TrafficLightController.TrafficLights.Yellow:
-				subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRAFFIC_LIGHT" + separator + "YELLOW");
-				break;
-			case TrafficLightController.TrafficLights.Green:
-				subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRAFFIC_LIGHT" + separator + "GREEN");
-				break;
-		}
-
-	}
-
 	public void LogCarMovement(bool isActive)
     {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "CAR_MOVEMENT" + separator + ((isActive)? "ACTIVE" : "INACTIVE"));

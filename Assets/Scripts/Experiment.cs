@@ -91,8 +91,6 @@ public class Experiment : MonoBehaviour {
     private float _carSpeed = 0f; //this is used exclusively to control car speed directly during spatial retrieval phase
 
 
-    //traffic light controller
-    public TrafficLightController trafficLightController;
 
     public enum TaskStage
     {
@@ -156,11 +154,10 @@ public class Experiment : MonoBehaviour {
 
     //elemem variables
     public static string BuildVersion = "0.9.95";
+    public static string ExpName = "CityBlock";
 #if CLINICAL
-    public static string ExpName = "CityBlock_Clinical";
     public static bool isElemem = true;
 #else
-    public static string ExpName = "CityBlock_Behavioral";
     public static bool isElemem = false;
 #endif
 
@@ -184,7 +181,7 @@ public class Experiment : MonoBehaviour {
     public Logger_Threading subjectLog;
     private string _eegLogfile; //gets set based on the current subject in Awake()
     public Logger_Threading eegLog;
-    private string subjectDirectory;
+    private string _subjectDirectory;
     public string sessionDirectory;
     public static string sessionStartedFileName = "sessionStarted.txt";
     
@@ -448,6 +445,11 @@ public class Experiment : MonoBehaviour {
     {
         return _sessionID.ToString();
     }
+
+    public string ReturnSubjectDirectory()
+    {
+        return _subjectDirectory;
+    }
   
 #if !UNITY_WEBGL
     //TODO: move to logger_threading perhaps? *shrug*
@@ -459,17 +461,17 @@ public class Experiment : MonoBehaviour {
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 #endif
 
-        subjectDirectory = newPath + _subjectName + "/";
-        sessionDirectory = subjectDirectory + "session_0" + "/";
+        _subjectDirectory = newPath + _subjectName + "/";
+        sessionDirectory = _subjectDirectory + "session_0" + "/";
         _sessionID = 0;
         string sessionIDString = "_0";
 
         UnityEngine.Debug.Log("new logging path is " + newPath);
-        UnityEngine.Debug.Log("subject directory "+ subjectDirectory);
+        UnityEngine.Debug.Log("subject directory "+ _subjectDirectory);
 
-            if (!Directory.Exists(subjectDirectory))
+            if (!Directory.Exists(_subjectDirectory))
             {
-                Directory.CreateDirectory(subjectDirectory);
+                Directory.CreateDirectory(_subjectDirectory);
             }
             while (File.Exists(sessionDirectory + sessionStartedFileName))
             {
@@ -477,14 +479,14 @@ public class Experiment : MonoBehaviour {
 
                 sessionIDString = "_" + _sessionID.ToString();
 
-                sessionDirectory = subjectDirectory + "session" + sessionIDString + "/";
+                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
             }
 
 #if CLINICAL
         //once the current session directory has been created make sure, future sessions directory have also been created
         for(int i=1;i<Configuration.totalSessions;i++)
         {
-            string dirPath = Path.Combine(sessionDirectory, subjectDirectory, "session_" + i.ToString());
+            string dirPath = Path.Combine(sessionDirectory, _subjectDirectory, "session_" + i.ToString());
             if(!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
 
@@ -793,7 +795,7 @@ if(!skipLog)
         if(prevSessID >=0)
         {
             //read the two text files
-            string targetFilePath = subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + _sessionID.ToString() + "_stimuli.txt";
+            string targetFilePath = _subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + _sessionID.ToString() + "_stimuli.txt";
             UnityEngine.Debug.Log("trying to find file at " + targetFilePath.ToString());
             if(File.Exists(targetFilePath))
             {
@@ -1099,11 +1101,6 @@ if(!skipLog)
           
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
-
-        //do one single lap of the sunny weather
-
-
-        trafficLightController.MakeVisible(false);
 
         float timerVal = 0f;
         while(timerVal < Configuration.familiarizationMaxTime)
@@ -1692,7 +1689,7 @@ if(!skipLog)
        
         for (int i = 0; i < 2; i++)
         {
-            string folder_path = Path.Combine(subjectDirectory, "session_"+i.ToString(),"session"+i.ToString()+"_trialConditions.txt");
+            string folder_path = Path.Combine(_subjectDirectory, "session_"+i.ToString(),"session"+i.ToString()+"_trialConditions.txt");
             UnityEngine.Debug.Log("writing at the path " + folder_path.ToString());
             System.IO.File.WriteAllText(folder_path, ((i==0) ? sess1_conditions.ToJSONString() : sess2_conditions.ToJSONString())); // write conditions into JSON formatted string in separate text files
         }
@@ -2043,7 +2040,6 @@ if(!skipLog)
 
 
         _retCount = 0;
-        trafficLightController.MakeVisible(false);
         yield return new WaitForSeconds(1f);
         yield return null;
     }

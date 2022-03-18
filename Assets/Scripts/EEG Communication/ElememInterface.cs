@@ -272,10 +272,7 @@ public class ElememInterfaceHelper : IHostPC
             sw.Stop();
 
             delay[i] = sw.ElapsedTicks * (1000f / Stopwatch.Frequency);
-            if (delay[i] > 20)
-            {
-                break;
-            }
+         
 
             Thread.Sleep(50 - (int)delay[i]);
         }
@@ -375,7 +372,7 @@ public class ElememInterfaceHelper : IHostPC
     {
         if (data == null)
             data = new Dictionary<string, object>();
-        DataPoint point = new DataPoint(type, System.DateTime.UtcNow, data);
+        ElememDataPoint point = new ElememDataPoint(type, System.DateTime.UtcNow, data);
         string message = point.ToJSON();
 
         UnityEngine.Debug.Log("Sent Message");
