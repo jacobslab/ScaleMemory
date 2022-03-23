@@ -257,7 +257,7 @@ public class UIController : MonoBehaviour
         loadingBar.Value = loadPercent;
     }
 
-    public void SetElememInstructions(string newText)
+    public void SetElememInfo(string newText)
     {
         connectionText.text = newText;
     }

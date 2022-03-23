@@ -12,58 +12,58 @@ using UnityEngine.Networking;
 public class Configuration : MonoBehaviour {
 
   
-    public static float familiarizationMaxTime { get { return (float)Configuration.GetSetting("familiarizationMaxTime"); } }
+    public static float familiarizationMaxTime { get { return float.Parse(Configuration.GetSetting("familiarizationMaxTime")); } }
 
 
-    public static string audioFileExtension { get { return (string)Configuration.GetSetting("audioFileExtension"); } }
+    public static string audioFileExtension { get { return Configuration.GetSetting("audioFileExtension"); } }
 
-    public static float distanceThreshold { get { return (float)Configuration.GetSetting("distanceThreshold"); } } //minimum distance before an object is said to be "on the point"
-    public static float timeThreshold { get { return (float)Configuration.GetSetting("timeThreshold"); } } //minimum time before or after an action can be said to be "on cue"
+    public static float distanceThreshold { get { return float.Parse(Configuration.GetSetting("distanceThreshold")); } } //minimum distance before an object is said to be "on the point"
+    public static float timeThreshold { get { return float.Parse(Configuration.GetSetting("timeThreshold")); } } //minimum time before or after an action can be said to be "on cue"
 
-    public static float timeBetweenLaps { get { return (float)Configuration.GetSetting("timeBetweenLaps"); } }
+    public static float timeBetweenLaps { get { return float.Parse(Configuration.GetSetting("timeBetweenLaps")); } }
 
-     public static int spawnCount { get { return (int)Configuration.GetSetting("spawnCount"); } }
+     public static int spawnCount { get { return int.Parse(Configuration.GetSetting("spawnCount")); } }
 
-    public static float itemPresentationTime { get { return (int)Configuration.GetSetting("itemPresentationTime"); } }
+    public static float itemPresentationTime { get { return float.Parse(Configuration.GetSetting("itemPresentationTime")); } }
 
-    public static int heartbeatInterval { get { return (int)Configuration.GetSetting("heartbeatIntervalMS"); } }
+    public static int heartbeatInterval { get { return int.Parse(Configuration.GetSetting("heartbeatIntervalMS")); } }
 
-    public static int minBufferLures { get { return (int)Configuration.GetSetting("minBufferLures"); } }
+    public static int minBufferLures { get { return int.Parse(Configuration.GetSetting("minBufferLures")); } }
 
-    public static int minGapBetweenStimuli { get { return (int)Configuration.GetSetting("minGapBetweenStimuli"); } } //measured in waypoints
+    public static int minGapBetweenStimuli { get { return int.Parse(Configuration.GetSetting("minGapBetweenStimuli")); } } //measured in waypoints
 
     //presentation jitter time
-    public static float minJitterTime { get { return (float)Configuration.GetSetting("minJitterTime"); } }
-    public static float maxJitterTime { get { return (float)Configuration.GetSetting("maxJitterTime"); } }
+    public static float minJitterTime { get { return float.Parse(Configuration.GetSetting("minJitterTime")); } }
+    public static float maxJitterTime { get { return float.Parse(Configuration.GetSetting("maxJitterTime")); } }
 
     //session count
-    public static int totalSessions { get { return (int)Configuration.GetSetting("totalSessions"); } }//how many sessions to split the whole task into
+    public static int totalSessions { get { return int.Parse(Configuration.GetSetting("totalSessions")); } }//how many sessions to split the whole task into
 
 
     //frame speed
-    public static float minFrameSpeed { get { return (float)Configuration.GetSetting("minFrameSpeed"); } }
-    public static float maxFrameSpeed { get { return (float)Configuration.GetSetting("maxFrameSpeed"); } }
+    public static float minFrameSpeed { get { return float.Parse(Configuration.GetSetting("minFrameSpeed")); } }
+    public static float maxFrameSpeed { get { return float.Parse(Configuration.GetSetting("maxFrameSpeed")); } }
 
-    public static float minRetrievalFrameSpeed { get { return (float)Configuration.GetSetting("minRetrievalFrameSpeed"); } }
-    public static float maxRetrievalFrameSpeed { get { return (float)Configuration.GetSetting("maxRetrievalFrameSpeed"); } }
+    public static float minRetrievalFrameSpeed { get { return float.Parse(Configuration.GetSetting("minRetrievalFrameSpeed")); } }
+    public static float maxRetrievalFrameSpeed { get { return float.Parse(Configuration.GetSetting("maxRetrievalFrameSpeed")); } }
 
     //spawn possibility buffer to start and end of loop; measured in frames
-    public static int startBuffer { get { return (int)Configuration.GetSetting("startBuffer"); } }
-    public static int endBuffer { get { return (int)Configuration.GetSetting("endBuffer"); } }
+    public static int startBuffer { get { return int.Parse(Configuration.GetSetting("startBuffer")); } }
+    public static int endBuffer { get { return int.Parse(Configuration.GetSetting("endBuffer")); } }
 
-    public static int minFramesBetweenStimuli { get { return (int)Configuration.GetSetting("minFramesBetweenStimuli"); } }
-    public static int minGapToLure { get { return (int)Configuration.GetSetting("minGapToLure"); } }
+    public static int minFramesBetweenStimuli { get { return int.Parse(Configuration.GetSetting("minFramesBetweenStimuli")); } }
+    public static int minGapToLure { get { return int.Parse(Configuration.GetSetting("minGapToLure")); } }
 
-    public static int luresPerTrial { get { return (int)Configuration.GetSetting("luresPerTrial"); } }
+    public static int luresPerTrial { get { return int.Parse(Configuration.GetSetting("luresPerTrial")); } }
 
     //reactivation times
-    public static float itemReactivationTime { get { return (float)Configuration.GetSetting("itemReactivationTime"); } }
-    public static float locationReactivationTime { get { return (float)Configuration.GetSetting("locationReactivationTime"); } }
+    public static float itemReactivationTime { get { return float.Parse(Configuration.GetSetting("itemReactivationTime")); } }
+    public static float locationReactivationTime { get { return float.Parse(Configuration.GetSetting("locationReactivationTime")); } }
 
 
     //following two are based on the nomenclature of elemem config files, but non-elemem versions should also follow this naming convention
-    public static string ipAddress { get { return (string)Configuration.GetSetting("elememServerIP"); } }
-    public static int portNumber { get { return (int)Configuration.GetSetting("elememServerPort"); } }
+    public static string ipAddress { get { return Configuration.GetSetting("elememServerIP"); } }
+    public static int portNumber { get { return int.Parse(Configuration.GetSetting("elememServerPort")); } }
 
     public enum StimMode
     {
@@ -96,10 +96,8 @@ public class Configuration : MonoBehaviour {
         }
     }
 
-    // TODO: JPB: (Hokua) Should this function be templated? What are the pros and cons?
-    //            Note: It could also be a "dynamic" type, but WebGL doesn't support it (so we can't use dynamic)
-    //            Should it be a nullable type and remove the Get<T> function? (hint: Look up the ?? operator)
-    private static object GetSetting(string setting)
+    // TODO:instead of returning string; return appropriate value based on a new query typeOf argument
+    private static string GetSetting(string setting)
     {
         UnityEngine.Debug.Log("looking for setting " + setting);
         object value;
@@ -109,7 +107,7 @@ public class Configuration : MonoBehaviour {
         if (experimentConfig.TryGetValue(setting, out value))
         {
             UnityEngine.Debug.Log("found value for " + setting + " : " + value);
-            return value;
+            return value.ToString();
         }
 
         var systemConfig = (IDictionary<string, object>)GetSystemConfig();
@@ -117,7 +115,7 @@ public class Configuration : MonoBehaviour {
         if (systemConfig.TryGetValue(setting, out value))
         {
             UnityEngine.Debug.Log("found value for " + setting + " : " + value);
-            return value;
+            return value.ToString();
         }
 
         throw new MissingFieldException("Missing Config Setting " + setting + ".");
@@ -127,8 +125,8 @@ public class Configuration : MonoBehaviour {
     {
         if (systemConfig == null)
         {
+#if !UNITY_WEBGL
             // Setup config file
-#if ELEMEM_TEST
             string configPath = System.IO.Path.Combine(
             Directory.GetParent(Directory.GetParent(Application.dataPath).FullName).FullName,
                 "Configs");
@@ -136,11 +134,6 @@ public class Configuration : MonoBehaviour {
             string text = File.ReadAllText(Path.Combine(configPath, SYSTEM_CONFIG_NAME));
             systemConfig = FlexibleConfig.LoadFromText(text);
             UnityEngine.Debug.Log("loaded system text " + text);
-#elif !UNITY_WEBGL // System.IO
-            string configPath = System.IO.Path.Combine(
-                Directory.GetParent(Directory.GetParent(Experiment.Instance.sessionDirectory).FullName).FullName,
-                "Configs");
-            string text = File.ReadAllText(Path.Combine(configPath, SYSTEM_CONFIG_NAME));
 
             systemConfig = FlexibleConfig.LoadFromText(text);
 #else
@@ -157,8 +150,8 @@ public class Configuration : MonoBehaviour {
     {
         if (experimentConfig == null)
         {
+#if !UNITY_WEBGL
             // Setup config file
-#if ELEMEM_TEST
             string configPath = System.IO.Path.Combine(
             Directory.GetParent(Directory.GetParent(Application.dataPath).FullName).FullName,
                 "Configs");
@@ -166,11 +159,6 @@ public class Configuration : MonoBehaviour {
             string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
             experimentConfig = FlexibleConfig.LoadFromText(text);
             UnityEngine.Debug.Log("loaded experiment text " + text);
-#elif !UNITY_WEBGL // System.IO
-            string configPath = System.IO.Path.Combine(
-                Directory.GetParent(Directory.GetParent(Experiment.Instance.ReturnSubjectDirectory()).FullName).FullName,
-                "Configs");
-            string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
             experimentConfig = FlexibleConfig.LoadFromText(text);
 #else
                 if (onlineExperimentConfigText == null)

@@ -7,10 +7,19 @@ public class EventLoop : EventQueue
     private ManualResetEventSlim wait;
     private CancellationTokenSource tokenSource;
 
+    public EventLoop()
+    {
+        wait = new ManualResetEventSlim();
+        running = false;
+    }
+
+    ~EventLoop()
+    {
+        wait.Dispose();
+    }
 
     public void Start()
     {
-        
         if (Running())
         {
             return;
@@ -18,7 +27,6 @@ public class EventLoop : EventQueue
 
         running = true;
         Thread loop = new Thread(Loop);
-        wait = new ManualResetEventSlim();
 
         tokenSource = new CancellationTokenSource();
         loop.Start(tokenSource.Token);
@@ -66,7 +74,6 @@ public class EventLoop : EventQueue
                 wait.Reset();
             }
         }
-        wait.Dispose();
     }
 
     public override void Do(IEventBase thisEvent)
@@ -89,10 +96,5 @@ public class EventLoop : EventQueue
         {
             throw new Exception("Can't enqueue an event to a non running Loop");
         }
-    }
-
-    public EventLoop()
-    {
-        running = false;
     }
 }

@@ -101,12 +101,10 @@ public class ElememListener
         handle = state.Item2;
         queue = state.Item3;
 
-        UnityEngine.Debug.Log("inside callback");
         bytesRead = stream.EndRead(ar);
 
         foreach (string msg in ParseBuffer(bytesRead))
         {
-            UnityEngine.Debug.Log(msg + " is enqueued");
             queue?.Enqueue(msg); // queue may be deleted by this point, if wait has ended
         }
 
@@ -118,11 +116,9 @@ public class ElememListener
         messageBuffer += System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
         List<string> received = new List<string>();
 
-        UnityEngine.Debug.Log("ParseBuffer\n" + messageBuffer.ToString());
         while (messageBuffer.IndexOf("\n") != -1)
         {
             string message = messageBuffer.Substring(0, messageBuffer.IndexOf("\n") + 1);
-            UnityEngine.Debug.Log("added to received  " + message);
             received.Add(message);
             messageBuffer = messageBuffer.Substring(messageBuffer.IndexOf("\n") + 1);
 
@@ -151,31 +147,21 @@ public class ElememInterfaceHelper : IHostPC
     public readonly object classifierResultLock = new object();
     public volatile int classifierResult = 0;
 
+    public Experiment exp { get {return Experiment.Instance;}}
+
 
     public ElememInterfaceHelper(ScriptedEventReporter _scriptedEventReporter)
-    { //InterfaceManager _im) {
-        //im = _im;
+    { 
         scriptedEventReporter = _scriptedEventReporter;
         listener = new ElememListener(this);
 
-       // Start();
-        //StartLoop();
-        Connect();
-        UnityEngine.Debug.Log("FINISHED CONNECTING");
-        //Do(new EventBase(Connect));
-    }
-    /*
-    public ElememInterfaceHelper()
-    { //InterfaceManager _im) {
-        //im = _im;
-        //scriptedEventReporter = _scriptedEventReporter;
-        listener = new ElememListener(this);
         Start();
-        //StartLoop();
+       // StartLoop();
         Connect();
+       
         //Do(new EventBase(Connect));
     }
-    */
+
     ~ElememInterfaceHelper()
     {
         elememServer.Close();
@@ -220,7 +206,7 @@ public class ElememInterfaceHelper : IHostPC
 
         //im.Do(new EventBase<string>(im.SetHostPCStatus, "INITIALIZING")); 
 
-        ElememTestRunner.Instance.connectionText.text = "Connecting..";
+        exp.uiController.SetElememInfo("Connecting..");
         UnityEngine.Debug.Log("CONNECTING");
         SendMessage("CONNECTED"); // Awake
         WaitForMessage("CONNECTED_OK", messageTimeout);
@@ -240,7 +226,7 @@ public class ElememInterfaceHelper : IHostPC
 
 #endif
         UnityEngine.Debug.Log("CONFIGURING");
-        ElememTestRunner.Instance.connectionText.text = "Configuring..";
+        exp.uiController.SetElememInfo("Configuring..");
         SendMessage("CONFIGURE", configDict);
         var ElememConfig = WaitForMessage("CONFIGURE_OK", messageTimeout);
 
@@ -249,14 +235,18 @@ public class ElememInterfaceHelper : IHostPC
         System.IO.File.AppendAllText(ElememerverConfigPath, ElememConfig.ToString());
 #endif
 
-        ElememTestRunner.Instance.connectionText.text = "Performing latency check..";
+
+        exp.uiController.SetElememInfo("Performing latency check.."); 
         UnityEngine.Debug.Log("DOING LATENCY CHECK");
+        DoLatencyCheck();
 
 
-        ElememTestRunner.Instance.connectionText.text = "Ready..";
+        exp.uiController.SetElememInfo("Ready..");
         UnityEngine.Debug.Log("READY");
         SendMessage("READY");
         WaitForMessage("START", messageTimeout);
+
+        DoRepeating(new EventBase(Heartbeat), -1, 0, 1000);
     }
 
     private void DoLatencyCheck()
@@ -309,24 +299,19 @@ public class ElememInterfaceHelper : IHostPC
         listener.RegisterMessageQueue(queue);
         while (sw.ElapsedMilliseconds < timeout)
         {
-            UnityEngine.Debug.Log("begin waiting for messages of types" + types[0]);
             listener.Listen();
             wait = listener.GetListenHandle();
             waitDuration = timeout - (int)sw.ElapsedMilliseconds;
             waitDuration = waitDuration > 0 ? waitDuration : 0;
 
-            UnityEngine.Debug.Log("waiting");
             wait.Wait(waitDuration);
 
-            UnityEngine.Debug.Log("post waiting");
             string message;
             while (queue.TryDequeue(out message))
             {
                 json = JObject.Parse(message);
-                UnityEngine.Debug.Log("obtained message " + json);
                 if (types.Contains(json["type"]?.Value<string>()))
                 {
-                    UnityEngine.Debug.Log("found correct message of type " + json["type"].Value<string>());
                     listener.RemoveMessageQueue();
                     return json;
                 }
@@ -336,7 +321,6 @@ public class ElememInterfaceHelper : IHostPC
         sw.Stop();
         listener.StopListening();
         listener.RemoveMessageQueue();
-        UnityEngine.Debug.Log("Wait for message timed out\n" + String.Join(",", types));
         throw new TimeoutException("Timed out waiting for response");
     }
 
@@ -362,10 +346,7 @@ public class ElememInterfaceHelper : IHostPC
             return;
         }
 
-        // // start listener if not running
-        // if(!listener.IsListening()) {
-        //     listener.Listen();
-        // }
+     
     }
 
     public override void SendMessage(string type, Dictionary<string, object> data = null)
@@ -375,7 +356,6 @@ public class ElememInterfaceHelper : IHostPC
         ElememDataPoint point = new ElememDataPoint(type, System.DateTime.UtcNow, data);
         string message = point.ToJSON();
 
-        UnityEngine.Debug.Log("Sent Message");
         UnityEngine.Debug.Log(message);
 
         Byte[] bytes = System.Text.Encoding.UTF8.GetBytes(message + "\n");

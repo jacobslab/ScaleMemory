@@ -8425,24 +8425,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 831227856}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &831227858 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2788924459325682236, guid: 43a2b1a285337874dbb50a4b8df72e34,
-    type: 3}
-  m_PrefabInstance: {fileID: 831227856}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &831227859 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7248546035171136817, guid: 43a2b1a285337874dbb50a4b8df72e34,
-    type: 3}
-  m_PrefabInstance: {fileID: 831227856}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &831227860 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -9202012947721702581, guid: 43a2b1a285337874dbb50a4b8df72e34,
-    type: 3}
-  m_PrefabInstance: {fileID: 831227856}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &831227861 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 43a2b1a285337874dbb50a4b8df72e34,
@@ -8461,12 +8443,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 600d2064801b55f41a892c3ab306f2b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offRed: {fileID: 2000071869}
-  offYellow: {fileID: 279415187}
-  offGreen: {fileID: 1670487993}
-  onRed: {fileID: 831227859}
-  onYellow: {fileID: 831227858}
-  onGreen: {fileID: 831227860}
 --- !u!1 &840627683
 GameObject:
   m_ObjectHideFlags: 0
@@ -12455,7 +12431,7 @@ MonoBehaviour:
   instructionsManager: {fileID: 127549776}
   resultObj: {fileID: 1204751591}
   assetBundleLoader: {fileID: 134087}
-  elememInterface: {fileID: 0}
+  elememInterface: {fileID: 1263458498}
   player: {fileID: 1450706164}
   encodingIndex: 0
   retrievalIndex: 0

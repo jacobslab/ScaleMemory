@@ -3562,7 +3562,7 @@ if(!skipLog)
 		if (isLogging)
 		{
 			subjectLog.close();
-#if !UNITY_EDITOR
+#if UNITY_WEBGL || BEHAVIORAL
             Application.OpenURL("https://forms.gle/LRqwhAXe75bXRMZs9");
 #endif
             try
