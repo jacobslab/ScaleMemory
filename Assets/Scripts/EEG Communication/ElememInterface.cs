@@ -219,7 +219,7 @@ public class ElememInterfaceHelper : IHostPC
         configDict.Add("subject", "test_subj");
         configDict.Add("session", "0");
 #else
-        configDict.Add("stim_mode", "closed");
+        configDict.Add("stim_mode", Configuration.stimMode.ToString());
         configDict.Add("experiment", Experiment.ExpName); 
         configDict.Add("subject", Experiment.Instance.ReturnSubjectName());
         configDict.Add("session", Experiment.Instance.ReturnSessionID());

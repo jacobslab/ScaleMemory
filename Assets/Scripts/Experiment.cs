@@ -157,6 +157,8 @@ public class Experiment : MonoBehaviour {
     public static string ExpName = "CityBlock";
 #if CLINICAL
     public static bool isElemem = true;
+#elif CLINICAL_TEST
+public static bool isElemem=false;
 #else
     public static bool isElemem = false;
 #endif
@@ -302,10 +304,9 @@ public class Experiment : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        //player.GetComponent<CarController>().ChangeMaxSpeed(40f);
+        //instantiating lists and variables for use later
         _spatialFeedbackStatus = new List<bool>();
         _spatialFeedbackPosition = new List<Vector3>();
-        StartCoroutine("BeginExperiment");
         spawnedObjects = new List<GameObject>();
         //spawnLocations = new List<Vector3>();
         spawnFrames = new List<int>();
@@ -317,11 +318,17 @@ public class Experiment : MonoBehaviour {
         _retrievalFrames = new List<int>();
         blockTestPairList = new List<BlockTestPair>();
 
-        _blockCount = totalTrials / trialsPerBlock;
+        _blockCount = totalTrials / (trialsPerBlock * Configuration.totalSessions);
+        UnityEngine.Debug.Log("block count " + _blockCount.ToString());
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
 
-       _camTransformPath = Application.dataPath + "/cam_transform.txt";
-    //    _camTransformPath = AssetBundleLoader.baseBundlePath + "/camTransform.txt";
+
+
+        /* MAIN EXPERIMENT COROUTINE CALLED HERE*/
+        StartCoroutine("BeginExperiment");
+
+        //read the cam transform file
+        _camTransformPath = Application.dataPath + "/cam_transform.txt";
         StartCoroutine("ReadCamTransform");
 
 
@@ -482,7 +489,7 @@ public class Experiment : MonoBehaviour {
                 sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
             }
 
-#if CLINICAL
+#if CLINICAL || CLINICAL_TEST
         //once the current session directory has been created make sure, future sessions directory have also been created
         for(int i=1;i<Configuration.totalSessions;i++)
         {
@@ -734,7 +741,7 @@ if(!skipLog)
 
         yield return StartCoroutine(GoFullScreen());
 #endif
-#if CLINICAL
+#if CLINICAL || CLINICAL_TEST
         //if this is the first session, create data for both sessions
         if (_sessionID == 0)
         {
@@ -1004,7 +1011,7 @@ if(!skipLog)
         }
 
         uiController.endSessionPanel.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
         _expActive = false;
 
 #if !UNITY_WEBGL
@@ -1641,7 +1648,20 @@ if(!skipLog)
 
         int trialsPerSession = totalTrials / Configuration.totalSessions;
 
-        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession);
+        //split the list into one portion first
+        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession/Configuration.totalSessions);
+
+        //then fill up the remaining portions; each randomly ordered but balanced (equal odd and even numbers) across all sessions
+        for(int i=0;i<Configuration.totalSessions-1;i++)
+        {
+            List<int> tempList = new List<int>();
+            tempList = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession / Configuration.totalSessions);
+            for(int j=0;j<tempList.Count;j++)
+            {
+                _retrievalTypeList.Add(tempList[j]);
+            }
+        }
+
 
 
         while(_retrievalTypeList.Count < trialsPerSession)
@@ -1663,7 +1683,6 @@ if(!skipLog)
             yield return 0;
         }
 
-       
         UnityEngine.Debug.Log("returned shuffled weather change list");
         //only half the trials will have same weather
         _randomizedWeatherOrder = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession / 2);
@@ -1680,7 +1699,9 @@ if(!skipLog)
         //this will currently ONLY work for two sessions
         _trialConditions = new TrialConditions(_retrievalTypeList, _weatherChangeTrials, _randomizedWeatherOrder);
 
-#if CLINICAL
+
+        //for clinical versions, we'll have to further split the trial conditions into two for the two sessions
+#if CLINICAL || CLINICAL_TEST
         UnityEngine.Debug.Log("length of list before split " + _trialConditions.retrievalTypeList.Count.ToString());
         Tuple<TrialConditions,TrialConditions> trialConditionsBySession = UsefulFunctions.SplitTrialConditions(_trialConditions);
         TrialConditions sess1_conditions = trialConditionsBySession.Item1;
@@ -3545,6 +3566,20 @@ if(!skipLog)
         {
             UnityEngine.Debug.Log("result for frame 169: " + resultTrans.position.x.ToString() + "," + resultTrans.position.y.ToString() + "," + resultTrans.position.z.ToString());
         }
+
+        //CHECK FOR RAPID EXIT
+        if (Input.GetButtonDown("Exit"))
+        {
+            QuitTask();
+        }
+    }
+
+
+    void QuitTask()
+    {
+        //TODO: prompt for confirmation before quitting
+
+        Application.Quit();
     }
     
 

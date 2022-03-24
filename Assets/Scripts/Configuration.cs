@@ -67,11 +67,11 @@ public class Configuration : MonoBehaviour {
 
     public enum StimMode
     {
-        NONSTIM,
-        STIM
+        closed,
+        open
     };
 
-    public static StimMode stimMode = StimMode.NONSTIM;
+    public static StimMode stimMode { get { return (StimMode) Enum.Parse(typeof(StimMode),Configuration.GetSetting("stimMode")); } }
 
 
     public static int ReturnWeatherTypes()
@@ -151,12 +151,20 @@ public class Configuration : MonoBehaviour {
         if (experimentConfig == null)
         {
 #if !UNITY_WEBGL
+
+            UnityEngine.Debug.Log("data path " + Application.dataPath);
+            UnityEngine.Debug.Log("one level up " + Directory.GetParent(Application.dataPath).FullName);
+            UnityEngine.Debug.Log("another level up " + Directory.GetParent(Directory.GetParent(Application.dataPath).FullName).FullName);
             // Setup config file
             string configPath = System.IO.Path.Combine(
             Directory.GetParent(Directory.GetParent(Application.dataPath).FullName).FullName,
                 "Configs");
             UnityEngine.Debug.Log("config path " + configPath);
+#if BEHAVIORAL
+            string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_behavioral.json"));
+#else
             string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
+#endif
             experimentConfig = FlexibleConfig.LoadFromText(text);
             UnityEngine.Debug.Log("loaded experiment text " + text);
             experimentConfig = FlexibleConfig.LoadFromText(text);

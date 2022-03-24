@@ -738,17 +738,8 @@ public class ThreadedServer : ThreadedJob
 				break;
 
 			case "EXIT":
-				//Control PC is exiting. If heartbeat is active, this is a premature abort.
-
-				/*
-						if self.isHeartbeat and self.abortCallback:
-							self.disconnect()
-							self.abortCallback(self.clock)
-						*/
-
 				if (isHeartbeat)
 				{
-					//TODO: do this. am I supposed to check for a premature abort? does it matter? or just end it?
 					End();
 				}
 				//TODO: show message

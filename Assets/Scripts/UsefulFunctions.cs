@@ -28,6 +28,15 @@ public class UsefulFunctions
 		return randomOrderList;
 	}
 
+	public static IEnumerator WaitForExitButton()
+    {
+		while (!Input.GetButtonDown("Exit"))
+		{
+			yield return 0;
+		}
+		yield return null;
+	}
+
 
 	public static IEnumerator WaitForActionButton()
 	{

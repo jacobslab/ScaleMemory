@@ -48,10 +48,7 @@ public class ElememTestRunner : MonoBehaviour
         DisplayStatusText("Completed Elemem connection, invoking HEARTBEAT at a fixed interval. \n Press ESC to exit application");
 
 
-        while(!Input.GetKeyDown(KeyCode.Escape))
-        {
-            yield return 0;
-        }
+        yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
 
         Application.Quit();
 
