@@ -1649,8 +1649,10 @@ if(!skipLog)
         int trialsPerSession = totalTrials / Configuration.totalSessions;
 
         //split the list into one portion first
-        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession/Configuration.totalSessions);
+        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession/Configuration.totalSessions); //this should equate to all trials for the session, if running BEHAVIORAL version
 
+
+#if CLINICAL || CLINICAL_TEST
         //then fill up the remaining portions; each randomly ordered but balanced (equal odd and even numbers) across all sessions
         for(int i=0;i<Configuration.totalSessions-1;i++)
         {
@@ -1661,7 +1663,7 @@ if(!skipLog)
                 _retrievalTypeList.Add(tempList[j]);
             }
         }
-
+#endif
 
 
         while(_retrievalTypeList.Count < trialsPerSession)
@@ -1669,7 +1671,7 @@ if(!skipLog)
             yield return 0;
         }
 
-        UnityEngine.Debug.Log("returned shuffled retrieval type list");
+        UnityEngine.Debug.Log("returned shuffled retrieval type list of count " + _retrievalTypeList.Count.ToString());
 
         for(int i=0;i<_retrievalTypeList.Count;i++)
         {
@@ -1789,7 +1791,7 @@ if(!skipLog)
                 yield return StartCoroutine(CheckForWeatherChange(TaskStage.Retrieval, i));
 
                 //run retrieval
-                yield return StartCoroutine(RunRetrieval(i));
+                yield return StartCoroutine(RunRetrieval(_trialCount));
             
                 ToggleFixation(true);
                 yield return new WaitForSeconds(0.5f);
@@ -1875,7 +1877,7 @@ if(!skipLog)
         yield return null;
     }
 
-    IEnumerator RunRetrieval(int blockTrial)
+    IEnumerator RunRetrieval(int sessTrial)
     {
 
         //retrieval time
@@ -1928,7 +1930,7 @@ if(!skipLog)
         string targetNames = "";
 
         //check the randomly ordered list to see what the retrieval type should be
-        if (_retrievalTypeList[blockTrial] % 2 == 0)
+        if (_retrievalTypeList[sessTrial] % 2 == 0)
         {
             verbalRetrieval = false;
             currentStage = TaskStage.SpatialRetrieval;
@@ -1936,7 +1938,6 @@ if(!skipLog)
         else
         {
             verbalRetrieval = true;
-
             currentStage = TaskStage.VerbalRetrieval;
         }
 

@@ -1,27 +1,27 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="226" Column="1" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="74" Column="56" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="331" Column="73" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1674" Column="119" />
+      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="243" Column="1" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
       <File FileName="Assets/Scripts/ElememDataPoint.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
       <File FileName="Assets/Scripts/EEG Communication/EventQueue.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/EEG Communication/EventLoop.cs" />
       <File FileName="Assets/Scripts/FlexibleConfig.cs" />
-      <File FileName="Assets/Scripts/Development/TaskChecker.cs" Line="12" Column="2" />
-      <File FileName="Assets/Scripts/Development/TaskCriteria.cs" Line="17" Column="39" />
-      <File FileName="Assets/Scripts/Development/TaskParam.cs" Line="14" Column="6" />
-      <File FileName="Assets/Scripts/ElememTestRunner.cs" Line="56" Column="1" />
-      <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" Line="157" Column="4" />
-      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="33" Column="36" />
-      <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" Line="742" Column="6" />
+      <File FileName="Assets/Scripts/Development/TaskChecker.cs" />
+      <File FileName="Assets/Scripts/Development/TaskCriteria.cs" />
+      <File FileName="Assets/Scripts/Development/TaskParam.cs" />
+      <File FileName="Assets/Scripts/ElememTestRunner.cs" />
+      <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
+      <File FileName="Assets/Scripts/UsefulFunctions.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e6f73fa8-6cf2-4f72-a025-6e4a121b6c4f" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="06bcc571-db6e-46e8-bec0-8db3e0c00416" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
