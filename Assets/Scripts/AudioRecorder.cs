@@ -42,8 +42,6 @@ public class AudioRecorder : MonoBehaviour
 
     void Start()
     {
-        //var descriptionProperty = typeof(UnityEditor.PlayerSettings.macOS).GetProperty("microphoneUsageDescription", BindingFlags.NonPublic | BindingFlags.Static);
-        //descriptionProperty.SetValue(null, "This is my description");
         audio = GetComponent<AudioSource>();
 
         if (CheckForRecordingDevice())
@@ -74,27 +72,12 @@ public class AudioRecorder : MonoBehaviour
             maxFreq = 44100;
     }
 
-    /* //FOR DEBUGGING / TESTING
-	int numRecordings = 0;
-	void GetInput(){
-		if (Input.GetKeyDown (KeyCode.A)) {
-			StartCoroutine(Record("/Users/coreynovich/Desktop/Unity/DeliveryBoy/TextFiles", "testRecord" + numRecordings, 4));
-			numRecordings++;
-		}
-	}
-
-	void Update() {
-		GetInput ();
-	}*/
-
     public Text recordText;
     public IEnumerator Record(string filePath, string fileName, int duration)
     {
         if (Microphone.devices.Length > 0)
         {
             Debug.Log("about to record");
-            //Color origTextColor = recordText.color;
-            //recordText.color = Color.red;
             if (Experiment.Instance != null)
                 audioLogger.LogRecording(fileName, true);
             StartMicrophone(duration);
@@ -103,7 +86,6 @@ public class AudioRecorder : MonoBehaviour
             StopMicrophone();
             if (Experiment.Instance != null)
                 audioLogger.LogRecording(fileName, false);
-            //recordText.color = origTextColor;
 
             SavWav.Save(filePath, fileName, audio.clip);
         }
@@ -118,9 +100,6 @@ public class AudioRecorder : MonoBehaviour
     {
         if (Microphone.devices.Length > 0)
         {
-            //Color origTextColor = recordText.color;
-            //recordText.color = Color.red;
-            //audioLogger.LogRecording(fileName, true);
             int arbitraryDuration = 100;
             StartMicrophone(arbitraryDuration); //arbitrarily large value
             Debug.Log("beginning record");

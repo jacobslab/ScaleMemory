@@ -19,6 +19,11 @@ public class TrialConditions : MonoBehaviour
         randomizedWeatherOrder = UsefulFunctions.DuplicateList(_randWeather);
     }
 
+    public static TrialConditions CreateFromJSON(string jsonString)
+    {
+        return JsonUtility.FromJson<TrialConditions>(jsonString);
+    }
+
     public string ToJSONString()
     {
         return JsonUtility.ToJson(this);

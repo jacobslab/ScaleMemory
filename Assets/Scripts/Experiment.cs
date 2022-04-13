@@ -197,6 +197,9 @@ public static bool isElemem=false;
 
     public List<BlockTestPair> blockTestPairList;
 
+
+    private List<int> _stimuliIndices;
+
     List<int> weatherChangeIndicator;
 
     private bool _subjectInfoEntered = false;
@@ -308,10 +311,8 @@ public static bool isElemem=false;
         _spatialFeedbackStatus = new List<bool>();
         _spatialFeedbackPosition = new List<Vector3>();
         spawnedObjects = new List<GameObject>();
-        //spawnLocations = new List<Vector3>();
         spawnFrames = new List<int>();
         lureObjects = new List<GameObject>();
-        //lureLocations = new List<Vector3>();
         lureFrames = new List<int>();
         _retrievalObjList = new List<GameObject>();
         _retrievalPositions = new List<Vector3>();
@@ -323,6 +324,7 @@ public static bool isElemem=false;
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
 
 
+        listLength = Configuration.spawnCount;
 
         /* MAIN EXPERIMENT COROUTINE CALLED HERE*/
         StartCoroutine("BeginExperiment");
@@ -338,7 +340,6 @@ public static bool isElemem=false;
 
     IEnumerator LoadCamTransform()
     {
-     //   yield return StartCoroutine(assetBundleLoader.LoadCamTransform());
 
         if(camTransformTextAsset!=null)
         {
@@ -656,19 +657,7 @@ if(!skipLog)
         }
         else
         {
-            //uiController.subjectEntryGroup.alpha = 0f;
-
-//uiController.micInstructionsGroup.alpha = 0f;
-//uiController.micSuccessGroup.alpha = 0f;
-//uiController.micTestGroup.alpha = 0f;
             StartCoroutine("InitLogging");
-
-            /*
-#if UNITY_WEBGL && !UNITY_EDITOR
-            StartCoroutine("BeginListeningForWorkerID");
-            StartCoroutine("PerformMicTest");
-#endif
-            */
 
         }
 
@@ -681,7 +670,6 @@ if(!skipLog)
 
     IEnumerator PeriodicallyWrite()
     {
-        //UnityEngine.Debug.Log("periodically writing");
         while (_expActive)
         {
             //UnityEngine.Debug.Log("writing");
@@ -746,6 +734,9 @@ if(!skipLog)
         if (_sessionID == 0)
         {
             yield return StartCoroutine(CreateSessionData());
+
+            //create randomized trial conditions
+            yield return StartCoroutine(GenerateRandomizedTrialConditions());
         }
         //if second day session, then parse text/JSON files and gather relevant data for this session
         else
@@ -754,55 +745,73 @@ if(!skipLog)
         }
 #endif
 
-        //create randomized trial conditions
-        yield return StartCoroutine(GenerateRandomizedTrialConditions());
-
         yield return null;
     }
 
 
     IEnumerator CreateSessionData()
     {
-
-
-
-        //split sessions into
+        //shuffle stimuli images into a list
         List<int> shuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
         UnityEngine.Debug.Log("shuffled indices" + shuffledStimuliIndices.Count.ToString());
 
 
-        //// 0 to 30 ; 30 to 60
+        //this is the main global variable we will store our current sessions stimuli indices into
+         _stimuliIndices = new List<int>();
+
+        ////how many stimuli per session
         int stimuliCountPerSession = shuffledStimuliIndices.Count / Configuration.totalSessions;
 
         int stim = 0;
         List<int> currList = new List<int>();
+
+        //loop for each session
         for (int j = 0; j < Configuration.totalSessions; j++)
         {
             currList.Clear();
-            string fileName = sessionDirectory + "sess_" + j.ToString() + "_stimuli.txt";
-            for (int i = stim * stimuliCountPerSession; i < (j + 1) * stimuliCountPerSession; i++)
+            string fileName = sessionDirectory + "sess_" + j.ToString() + "_stimuli.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            for (int i = stim * stimuliCountPerSession; i < (j + 1) * stimuliCountPerSession; i++) // break the shuffled stimuli indices list into chunks for different sessions
             {
                 UnityEngine.Debug.Log("writing for session ");
                 currList.Add(shuffledStimuliIndices[i]);
+
+                //add stimuli indices associated with our current session into a private variable for later access
+                if (j == _sessionID)
+                    _stimuliIndices.Add(shuffledStimuliIndices[i]); 
+
             }
-            UsefulFunctions.WriteIntoTextFile(fileName, currList);
+            UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
 
             stim++;
         }
 
-       
+
+        //now let's convert _stimuliIndices into a temporary string arr so we can pass it as an argument to objController.CreateSessionImageList
+        string[] tempArr = new string[_stimuliIndices.Count];
+        for(int i=0;i<_stimuliIndices.Count;i++)
+        {
+            tempArr[i] = _stimuliIndices[i].ToString();
+        }
+
+        //this will create a stimuliImageList variable inside objController which will be our active list of stimuli images during this session
+        yield return StartCoroutine(objController.CreateSessionImageList(tempArr));
+
 
         yield return null;
     }
 
+
+    //TODO: modify it to work with checkpointing; currently this only 
     IEnumerator GatherSessionData()
     {
         UnityEngine.Debug.Log("gathering session data for  " + _sessionID.ToString());
         int prevSessID = _sessionID - 1;
         if(prevSessID >=0)
         {
-            //read the two text files
-            string targetFilePath = _subjectDirectory + "session_" + prevSessID.ToString() + "/" + "sess_" + _sessionID.ToString() + "_stimuli.txt";
+
+            //LOAD STIMULI indices for this session
+            //read the stimuli text file
+            string targetFilePath = Path.Combine(_subjectDirectory + "session_" + prevSessID.ToString(), "sess_" + _sessionID.ToString() + "_stimuli.txt");
             UnityEngine.Debug.Log("trying to find file at " + targetFilePath.ToString());
             if(File.Exists(targetFilePath))
             {
@@ -817,7 +826,31 @@ if(!skipLog)
         {
             UnityEngine.Debug.Log("invalid session number");
         }
-        yield return null;
+
+
+
+        //LOAD randomized conditions for this session
+        string conditionsFilePath = Path.Combine(_subjectDirectory, "session_" + prevSessID.ToString(), "session" + prevSessID.ToString() + "_trialConditions.txt");
+        UnityEngine.Debug.Log("trying to find file at " + conditionsFilePath.ToString());
+        if (File.Exists(conditionsFilePath))
+        {
+            //read the JSON string
+            string fileContents = File.ReadAllText(conditionsFilePath);
+            //we create a TrialConditions object from the JSON string
+            TrialConditions _tempTrialConditions = TrialConditions.CreateFromJSON(fileContents); 
+
+            //instantiate lists before populating them
+            _retrievalTypeList = new List<int>();
+            _weatherChangeTrials = new List<int>();
+            _randomizedWeatherOrder = new List<int>();
+
+            //these list variables will be used during the rest of the session
+            _retrievalTypeList = UsefulFunctions.DuplicateList(_tempTrialConditions.retrievalTypeList);
+            _weatherChangeTrials = UsefulFunctions.DuplicateList(_tempTrialConditions.weatherChangeTrials);
+            _randomizedWeatherOrder = UsefulFunctions.DuplicateList(_tempTrialConditions.randomizedWeatherOrder);
+
+        }
+            yield return null;
     }
 
     IEnumerator ShowConsentScreen()
@@ -869,8 +902,6 @@ if(!skipLog)
             {
                 uiController.failProlificPanel.alpha = 1f;
                 trialLogTrack.LogProlificFailEvent();
-
-                //StartCoroutine("WriteAndSend");
 
             }
             yield return 0;
@@ -963,7 +994,6 @@ if(!skipLog)
         verbalRetrieval = false;
 
         yield return StartCoroutine(videoLayerManager.BeginFramePlay());
-        //yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         //initialize the weather as Sunny, by default
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
 
@@ -973,7 +1003,7 @@ if(!skipLog)
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
         if(_sessionID==0)
-            yield return StartCoroutine("BeginPractice"); //runs both weather familarization and practice
+            yield return StartCoroutine(BeginPractice()); //runs both weather familarization and practice
         else
         {
             //show second day intro
@@ -983,7 +1013,7 @@ if(!skipLog)
         }
 
         UnityEngine.Debug.Log("about to prep trials");
-        yield return StartCoroutine("PrepTrials"); //will perform all necessary trial and weather randomization
+        yield return StartCoroutine(CreateWeatherPairs()); //will create WeatherPair instances that will be referred to later
 
         UnityEngine.Debug.Log("finished prepping trials");
         uiController.postPracticePanel.alpha = 1f;
@@ -1005,8 +1035,9 @@ if(!skipLog)
             if (_currBlockNum == 3)
                 yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
 #endif
+
             trialLogTrack.LogBlock(i, true);
-            yield return StartCoroutine("BeginTaskBlock");
+            yield return StartCoroutine(BeginTaskBlock());
             trialLogTrack.LogBlock(i, false);
         }
 
@@ -1072,38 +1103,9 @@ if(!skipLog)
     IEnumerator BeginTrackScreening(bool isWeatherFamiliarization)
     {
 
-        //if (!isWeatherFamiliarization)
-        //{
-        //    UnityEngine.Debug.Log("starting track screening");
-        //    currentStage = TaskStage.TrackScreening;
-        //    //overheadCam.SetActive(true);
-        //    //trackFamiliarizationQuad.SetActive(true);
-        //    //playerIndicatorSphere.SetActive(true);
-
-        //    //track screening will have sunny weather
-        //    _currentWeather = new Weather(Weather.WeatherType.Sunny);
-        //    ChangeLighting(_currentWeather);
-
-            //trialLogTrack.LogTaskStage(currentStage, true);
-
-
-        //}
-        //else
-        //{
-            //currentStage = TaskStage.WeatherFamiliarization;
-            //trialLogTrack.LogTaskStage(currentStage, true);
-
-        //}
-
-
         uiController.SetFamiliarizationInstructions(_currentWeather.weatherMode);
         currentStage = TaskStage.TrackScreening;
         trialLogTrack.LogTaskStage(currentStage, true);
-        //player.gameObject.SetActive(true);
-        //trafficLightController.MakeVisible(true);
-        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        //SetCarMovement(true);
-
         Experiment.Instance.uiController.driveControls.alpha = 1f;
           
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
@@ -1115,18 +1117,8 @@ if(!skipLog)
             timerVal += Time.deltaTime;
             yield return 0;
         }
-        //while (LapCounter.lapCount < 1)
-        //{
-        //    yield return 0;
-        //}
-        //  SetCarMovement(false);
-
         LapCounter.lapCount = 0;
 
-        //SetCarMovement(false);
-        //overheadCam.SetActive(false);
-        //trackFamiliarizationQuad.SetActive(false);
-        //playerIndicatorSphere.SetActive(false);
 
         currentStage = TaskStage.TrackScreening;
         trialLogTrack.LogTaskStage(currentStage, false);
@@ -1282,67 +1274,6 @@ if(!skipLog)
         yield return null;
     }
 
-    public void ShowTurnDirection(WaypointProgressTracker.TrackDirection turnDirection)
-    {
-        switch (turnDirection)
-        {
-            case WaypointProgressTracker.TrackDirection.Left:
-                uiController.leftTurnArrow.alpha = 1f;
-                break;
-            case WaypointProgressTracker.TrackDirection.Right:
-                uiController.rightTurnArrow.alpha = 1f;
-                break;
-        }
-    }
-
-    public void HideTurnDirection(WaypointProgressTracker.TrackDirection turnDirection)
-    {
-        switch (turnDirection)
-        {
-            case WaypointProgressTracker.TrackDirection.Left:
-                uiController.leftTurnArrow.alpha = 0f;
-                break;
-            case WaypointProgressTracker.TrackDirection.Right:
-                uiController.rightTurnArrow.alpha = 0f;
-                break;
-        }
-
-    }
-
-    public IEnumerator BeginCrashSequence(Transform crashZone)
-    {
-        SetCarMovement(true);
-        Vector3 origTransform = player.transform.position;
-        float lerpTimer = 0f;
-
-        while (lerpTimer < 2f)
-        {
-            lerpTimer += Time.deltaTime;
-            player.transform.position = Vector3.Lerp(origTransform, crashZone.position, lerpTimer / 2f);
-            yield return 0;
-        }
-        uiController.crashNotification.alpha = 1f;
-        yield return new WaitForSeconds(2f);
-
-        uiController.crashNotification.alpha = 0f;
-
-        //conceal the transformation
-        uiController.blackScreen.alpha = 1f;
-        //make sure we transport the car back to the starting transform
-        player.transform.position = startTransform.position;
-        player.transform.rotation = startTransform.rotation;
-
-        player.GetComponent<WaypointProgressTracker>().Reset(); //reset the waypoint system to begin from the beginning
-
-        uiController.blackScreen.alpha = 0f;
-        SetCarMovement(false);
-        //	player.GetComponent<CarController>().SetCurrentSpeed(0f);
-        yield return null;
-    }
-
-
-
-
 
   
     string FormatTime(float timeInSeconds)
@@ -1362,21 +1293,6 @@ if(!skipLog)
 
         return result;
     }
-    /*
-    IEnumerator ChangeWeather(Configuration.WeatherMode targetWeatherMode)
-    {
-        //transition into a black fixation screen
-        ToggleFixation(true);
-
-        //change the weather
-        Configuration._currentWeatherMode = targetWeatherMode;
-
-
-        //transition out
-        ToggleFixation(false);
-        yield return null;
-    }
-    */
 
 
     Weather FindPaired_retrievalWeather(Weather pairWeather)
@@ -1434,7 +1350,7 @@ if(!skipLog)
     IEnumerator RunEncoding()
     {
 
-            UnityEngine.Debug.Log("in encoding now");
+        UnityEngine.Debug.Log("in encoding now");
         currentStage = TaskStage.Encoding;
 
         //reset encoding index; used to keep track of the order of encoding items
@@ -1465,32 +1381,17 @@ if(!skipLog)
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
             while (LapCounter.lapCount < 1)
             {
-                //trafficLightController.MakeVisible(true);
-                //SetCarMovement(false);
-                //set drive mode to auto
-                //player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
-                //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-
-
-
-
-                //trafficLightController.MakeVisible(false);
 
                 UnityEngine.Debug.Log("began lap number : " + LapCounter.lapCount.ToString());
-                //SetCarMovement(true);
                 LapCounter.canStop = false;
                 while (!LapCounter.canStop)
                 {
                     yield return 0;
                 }
-                //SetCarMovement(false);
                 LapCounter.canStop = false;
 
                 yield return StartCoroutine(videoLayerManager.PauseAllLayers());
 
-                //can press spacebar to stop
-                //trafficLightController.MakeVisible(true);
-                //yield return StartCoroutine(trafficLightController.ShowRed());
 
                 UnityEngine.Debug.Log("stopping now");
                 float forceStopTimer = 0f;
@@ -1507,19 +1408,6 @@ if(!skipLog)
                 }
 
                 forceStopped = false;
-
-
-                //trafficLightController.MakeVisible(false);
-
-                //reset collisions for encoding objects
-                //for (int k = 0; k < spawnedObjects.Count; k++)
-                //{
-                //    if (spawnedObjects[k] != null)
-                //        //spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(true);
-                //}
-
-
-                //yield return new WaitForSeconds(1f);
                 ToggleFixation(true);
 
                 //return the video to the start
@@ -1553,11 +1441,6 @@ if(!skipLog)
         UnityEngine.Debug.Log("resetting track");
         UnityEngine.Debug.Log("spawned object count " + spawnedObjects.Count.ToString());
 
-        //for (int k = 0; k < spawnedObjects.Count; k++)
-        //{
-        //    //destroy the ItemColliderBox which is the parent
-        //    Destroy(spawnedObjects[k].transform.gameObject);
-        //}
         spawnedObjects.Clear();
         //reset everything before the next block begins
         spawnFrames.Clear();
@@ -1594,15 +1477,8 @@ if(!skipLog)
             yield return null;
         }
 
-    IEnumerator PrepTrials()
-    {
-        UnityEngine.Debug.Log("prepping trials");
-           yield return StartCoroutine(CreateRandomizedWeather());
-        UnityEngine.Debug.Log("finished prepping trials");
-        yield return null;
-    }
 
-    IEnumerator CreateRandomizedWeather()
+    IEnumerator CreateWeatherPairs()
     {
         _weatherPairs = new List<WeatherPair>();
         _weatherPairs = Generate_weatherPairs();
@@ -1614,22 +1490,7 @@ if(!skipLog)
 
 
         yield return new WaitForSeconds(1f);
-        UnityEngine.Debug.Log("weather pairs obtained " + _weatherPairs.Count.ToString());
 
-
-        weatherChangeIndicator = new List<int>();
-        List<int> randIndex = new List<int>();
-        randIndex = UsefulFunctions.ReturnShuffledIntegerList(_blockCount);
-
-        for(int i=0;i<_blockCount;i++)
-        {
-            if (randIndex[i] % 2 == 0)
-            {
-                weatherChangeIndicator.Add(0); //DW-SW-DW-SW
-            }
-            else
-                weatherChangeIndicator.Add(1); //SW-DW-SW-DW
-        }
 
         yield return null;
     }
@@ -1648,16 +1509,19 @@ if(!skipLog)
 
         int trialsPerSession = totalTrials / Configuration.totalSessions;
 
-        //split the list into one portion first
-        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession/Configuration.totalSessions); //this should equate to all trials for the session, if running BEHAVIORAL version
+
+        //we want each session to have randomly ordered but balanced list
+
+        //create the first portion of the list representing the first session
+        _retrievalTypeList  = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession); //this should equate to all trials for the session, if running BEHAVIORAL version
 
 
 #if CLINICAL || CLINICAL_TEST
-        //then fill up the remaining portions; each randomly ordered but balanced (equal odd and even numbers) across all sessions
+        //then fill up the remaining portions; each randomly ordered but balanced (meaning it has equal odd and even numbers) across all sessions
         for(int i=0;i<Configuration.totalSessions-1;i++)
         {
             List<int> tempList = new List<int>();
-            tempList = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession / Configuration.totalSessions);
+            tempList = UsefulFunctions.ReturnShuffledIntegerList(trialsPerSession);
             for(int j=0;j<tempList.Count;j++)
             {
                 _retrievalTypeList.Add(tempList[j]);
@@ -1696,7 +1560,7 @@ if(!skipLog)
         UnityEngine.Debug.Log("returned shuffled weather order");
 
 
-        //now instantiate a TrialCondition object -- split across different sessions
+        //now instantiate a TrialCondition object -- which will then be split across different sessions
 
         //this will currently ONLY work for two sessions
         _trialConditions = new TrialConditions(_retrievalTypeList, _weatherChangeTrials, _randomizedWeatherOrder);
@@ -1720,6 +1584,7 @@ if(!skipLog)
         yield return null;
     }
 
+    //generates pairs for weathers; for example Sunny-Rainy; Sunny-Night
     List<WeatherPair> Generate_weatherPairs()
     {
         List<WeatherPair> tempPair = new List<WeatherPair>();
@@ -1727,7 +1592,7 @@ if(!skipLog)
         for (int i=0;i<numWeathers; i++)
         {
             List<int> possibleWeatherCombinations = UsefulFunctions.ReturnListOfOrderedInts(numWeathers);
-            possibleWeatherCombinations.RemoveAt(i); //remove self
+            possibleWeatherCombinations.RemoveAt(i); //remove self as we are only concerned with having distinct weather pairs
             //store the current index's weather type enum into a variable
             Weather.WeatherType selfType = (Weather.WeatherType)i;
 
@@ -1735,37 +1600,25 @@ if(!skipLog)
             for (int j = 0; j < possibleWeatherCombinations.Count; j++)
             {
                 WeatherPair encodingPair = new WeatherPair(selfType, (Weather.WeatherType)possibleWeatherCombinations[j]);
-                //WeatherPair retrievalPair = new WeatherPair((Weather.WeatherType)possibleWeatherCombinations[j],selfType);
 
                 tempPair.Add(encodingPair);
                 UnityEngine.Debug.Log("E: " + encodingPair.encodingWeather.weatherMode.ToString() + " R: " + encodingPair.retrievalWeather.weatherMode.ToString());
                 
-              //  resultPair.Add(retrievalPair);
-              //  UnityEngine.Debug.Log("E: " + retrievalPair._encodingWeather.weatherMode.ToString() + " R: " + retrievalPair._retrievalWeather.weatherMode.ToString());
             }
         }
-        UnityEngine.Debug.Log("weather pair size originally " + tempPair.Count.ToString());
         int doubleList = tempPair.Count;
         for (int i = 0; i < doubleList; i++)
         {
             tempPair.Add(tempPair[i]);
         }
 
-        UnityEngine.Debug.Log("weather pair size after duplicating " + tempPair.Count.ToString());
-
         //shuffle the weather pair 
-
         List<int> randIndices = UsefulFunctions.ReturnShuffledIntegerList(tempPair.Count);
         int maxCount = tempPair.Count;
         List<WeatherPair> resultPair = new List<WeatherPair>();
         for (int i = 0; i < maxCount; i++)
         {
             resultPair.Add(tempPair[randIndices[i]]);
-        }
-        UnityEngine.Debug.Log("final weather pair");
-        for(int i=0;i<resultPair.Count;i++)
-        {
-            UnityEngine.Debug.Log("result pair " + i.ToString() + " encoding " + resultPair[i].encodingWeather.weatherMode.ToString() + " retrieval " + resultPair[i].retrievalWeather.weatherMode.ToString());
         }
 
         return resultPair;
@@ -1777,6 +1630,8 @@ if(!skipLog)
         stimuliBlockSequence = new List<GameObject>();
         for (int i = 0; i < trialsPerBlock; i++)
             {
+
+
             //we will avoid showing this immediately after the practice
             if(_currBlockNum>0 || i>0)
                 yield return StartCoroutine(DisplayNextTrialScreen());
@@ -1784,7 +1639,7 @@ if(!skipLog)
                  trialLogTrack.LogTrialLoop(_trialCount, true);
             yield return StartCoroutine(CheckForWeatherChange(TaskStage.Encoding, i));
                 //run encoding
-                yield return StartCoroutine("RunEncoding");
+                yield return StartCoroutine(RunEncoding());
 
 
                 //check to see if the weather should change between the encoding and retrieval
@@ -1825,54 +1680,36 @@ if(!skipLog)
 
     IEnumerator CheckForWeatherChange(TaskStage upcomingStage, int blockTrial)
     {
-        if(_weatherChangeTrials[blockTrial] % 2 == weatherChangeIndicator[_currBlockNum])
+        //this will be interleaved; so we will only have Different Weather for every even trial
+        if (_weatherChangeTrials[blockTrial] % 2 == 0) 
         {
+
             if(upcomingStage == TaskStage.Encoding)
             {
                 UnityEngine.Debug.Log("WEATHER PATTERN DW");
                 //we want to keep the weather the same as the previous trial's retrieval weather; so we check the _currentWeather and not change anything
-                UnityEngine.Debug.Log("DIFF WEATHER TRIAL:  keeping the weather same as previous trial: " + _currentWeather.weatherMode.ToString());
+                UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
-                //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather
+                //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
                 _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
 
-                UnityEngine.Debug.Log("CHECK WEATHER ENCODING DIFF " + _currentWeather.weatherMode.ToString());
                 ChangeLighting(_currentWeather);
             }
+
+            //weather will only be changed during the retrieval phase
             else
             {
                 UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
-                UnityEngine.Debug.Log("CHECK WEATHER RETRIEVAL DIFF " + _retrievalWeather.weatherMode.ToString());
                 ChangeLighting(_retrievalWeather);
             }
         }
+
+        //if it is an odd numbered trial, then the weather will remain same for both Encoding and Retrieval conditions
         else
         {
-            /*
-             int randWeatherIndex = _randomizedWeatherOrder[_trialCount/2];
-            switch(randWeatherIndex % 3)
-             {
-                 case 0:
-                     _currentWeather = new Weather(Weather.WeatherType.Sunny);
-                     break;
-                 case 1:
-                     _currentWeather = new Weather(Weather.WeatherType.Rainy);
-                     break;
-                 case 2:
-                     _currentWeather = new Weather(Weather.WeatherType.Night);
-                     break;
-             }
-            */
-            UnityEngine.Debug.Log("SAME WEATHER TRIAL:  keeping the weather same as previous trial: " + _currentWeather.weatherMode.ToString());
-            //UnityEngine.Debug.Log("trial with same weather: " + _currentWeather.weatherMode.ToString());
+            UnityEngine.Debug.Log("SAME WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
             ChangeLighting(_currentWeather);
-            if (upcomingStage == TaskStage.Encoding)
-            {
-                UnityEngine.Debug.Log("WEATHER PATTERN SW");
-                UnityEngine.Debug.Log("CHECK WEATHER ENCODING SAME " + _currentWeather.weatherMode.ToString());
-            }
-            else
-                UnityEngine.Debug.Log("CHECK WEATHER RETRIEVAL SAME " + _currentWeather.weatherMode.ToString());
+           
         }
         yield return null;
     }
@@ -1889,42 +1726,7 @@ if(!skipLog)
 
         //reset retrieval index; used to keep track of the order of retrieval items
         retrievalIndex = 0;
-        //hide encoding objects and text
-        //for (int j = 0; j < spawnedObjects.Count; j++)
-        //{
-        //    //spawnedObjects[j].gameObject.SetActive(false);
-        //    //spawnedObjects[j].gameObject.GetComponent<VisibilityToggler>().TurnVisible(false);
-
-        //}
-
-
-        //	currentStage = Experiment.TaskStage.Retrieval;
-
-        //pick a randomized starting retrieval position
-        //  List<Transform> validStartTransforms = GetValidStartTransforms(); //get valid waypoints that don't have an object already spawned there
-        //   int randWaypoint = UnityEngine.Random.Range(0, validStartTransforms.Count - 1);
-
-        //   Transform randStartTransform = validStartTransforms[randWaypoint];
-
-        //disable player collider box before transporting to new location
-
-        //player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = true;
-
-        //player.transform.position = randStartTransform.position;
-        //player.transform.rotation = randStartTransform.rotation;
-        //chequeredFlag.transform.position = randStartTransform.position;
-        //chequeredFlag.transform.rotation = randStartTransform.rotation;
-
-
-        //player.GetComponent<CarMover>().ResetTargetWaypoint(randStartTransform);
-
-        //trialLogTrack.LogRetrievalStartPosition(player.transform.position);
-
-        //player.GetComponent<CarMover>().playerRigidbody.GetComponent<Rigidbody>().isKinematic = false;
-
-        //player.GetComponent<CarMover>().Reset();
-        //player.GetComponent<WaypointProgressTracker>().Reset();
-
+     
         LapCounter.lapCount = 0; //reset lap count for retrieval 
 
         string targetNames = "";
@@ -1974,21 +1776,10 @@ if(!skipLog)
 
 
             finishedRetrieval = true;
-            //SetCarMovement(false);
             yield return StartCoroutine(videoLayerManager.PauseAllLayers());
 
             uiController.blackScreen.alpha = 1f;
-
             uiController.targetTextPanel.alpha = 0f;
-            /*
-            uiController.spatialRetrievalFeedbackPanel.alpha = 1f;
-            yield return StartCoroutine("PerformSpatialFeedback");
-            UnityEngine.Debug.Log("finished spatial feedback");
-            uiController.spatialRetrievalFeedbackPanel.alpha = 0f;
-            */
-
-            //trafficLightController.MakeVisible(false);
-            //yield return new WaitForSeconds(1f);
             uiController.blackScreen.alpha = 0f;
 
             //set the car movement in forward direction
@@ -2044,12 +1835,6 @@ if(!skipLog)
         
         UnityEngine.Debug.Log("starting verbal retrieval");
 
-        ///DEBUG ONLY
-        //UnityEngine.Debug.Log("next retrieval frame at " + nextSpawnFrame.ToString());
-
-        //yield return StartCoroutine(videoLayerManager.Debug_MoveToFrame(nextSpawnFrame-3));
-
-        ///
 
 
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
@@ -2096,15 +1881,6 @@ if(!skipLog)
         UnityEngine.Debug.Log("beginning spatial retrieval");
 
       
-        //disable collision of item collider box during spatial retrieval
-
-        //for (int k = 0; k < spawnedObjects.Count; k++)
-        //{
-        //    if (spawnedObjects[k] != null)
-        //        spawnedObjects[k].GetComponent<StimulusObject>().ToggleCollisions(false);
-        //}
-
-      
 
         //show instructions only during the practice
         if (_showSpatialInstructions)
@@ -2125,19 +1901,10 @@ if(!skipLog)
             _showSpatialInstructions = false;
         }
 
-        //chequeredFlag.SetActive(false);
-
-
-        //trafficLightController.MakeVisible(true);
-        //yield return StartCoroutine(trafficLightController.StartCountdownToGreen());
-        //SetCarMovement(false);
-
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
 
 
         uiController.driveControls.alpha = 1f;
-
-        //trafficLightController.MakeVisible(false);
 
         //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
 
@@ -2165,10 +1932,6 @@ if(!skipLog)
         for (int j = 0; j < _testLength; j++)
         {
             UnityEngine.Debug.Log("retrieval num " + j.ToString());
-            //targetNames = spawnedObjects[randIndex[j]].gameObject.name.Split('(')[0];
-            //uiController.zRetrievalText.color = Color.white;
-            //uiController.zRetrievalText.text = targetNames;
-            //yield return StartCoroutine(ShowItemCuedReactivation(spawnedObjects[randIndex[j]].gameObject));
 
             trialLogTrack.LogItemCuedReactivation(spatialTestList[j].gameObject, isLure, j);
             yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
@@ -2176,7 +1939,6 @@ if(!skipLog)
 
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
-            //  uiController.targetTextPanel.alpha = 1f;
             uiController.spacebarPlaceItem.alpha = 1f;
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
             while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
@@ -2188,7 +1950,6 @@ if(!skipLog)
             _retrievedAsNew = false; //reset this flag
             yield return StartCoroutine(videoLayerManager.PauseAllLayers());
             //stop car and calculate then proceed to next
-            //SetCarMovement(false);
 
             Transform currTrans = GetTransformForFrame(videoLayerManager.GetMainLayerCurrentFrameNumber());
             float dist = Vector3.Distance(spatialTestList[j].transform.position, currTrans.position);
@@ -2466,57 +2227,6 @@ if(!skipLog)
     }
 
 
- 
-    IEnumerator PerformSpatialFeedback()
-    {
-        List<GameObject> indicatorsList = new List<GameObject>();
-        overheadCam.SetActive(true);
-        feedbackQuad.SetActive(true);
-
-
-        for (int k = 0; k < spawnedObjects.Count; k++)
-        {
-            spawnedObjects[k].GetComponent<VisibilityToggler>().TurnVisible(true);
-            //spawnedObjects[k].GetComponent<FacePosition>().ShouldFacePlayer = false;
-            //spawnedObjects[k].GetComponent<FacePosition>().TargetPositionTransform = overheadCam.transform;
-            //spawnedObjects[k].GetComponent<FacePosition>().ShouldFaceOverheadCam = true;
-
-            int childCount = spawnedObjects[k].transform.childCount;
-            spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().ShouldFacePlayer = false;
-            spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().TargetPositionTransform = overheadCam.transform;
-            spawnedObjects[k].transform.GetChild(childCount - 1).gameObject.GetComponent<FacePosition>().ShouldFaceOverheadCam = true;
-
-            spawnedObjects[k].transform.GetChild(childCount - 1).localScale *= 10f;
-            GameObject prefabToSpawn = null;
-            if (_spatialFeedbackStatus[k])
-            {
-                prefabToSpawn = correctIndicator;
-            }
-            else
-            {
-                prefabToSpawn = wrongIndicator;
-            }
-            GameObject indicatorObj = Instantiate(prefabToSpawn, _spatialFeedbackPosition[k], Quaternion.identity) as GameObject;
-            indicatorsList.Add(indicatorObj);
-
-            yield return new WaitForSeconds(1f);
-
-        }
-
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-
-        for (int i = 0; i < indicatorsList.Count; i++)
-        {
-            Destroy(indicatorsList[i]);
-        }
-        indicatorsList.Clear();
-
-        overheadCam.SetActive(false);
-        feedbackQuad.SetActive(false);
-        yield return null;
-
-    }
-
     IEnumerator WaitForSelection(string selectionType)
     {
         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -2531,17 +2241,13 @@ if(!skipLog)
     }
     public Transform GetTransformForFrame(int frameNum)
     {
-        //UnityEngine.Debug.Log("for frame num  " + frameNum.ToString());
         Vector3 tempPos = Vector3.zero;
         Vector3 tempRot = Vector3.zero;
     
 
-        //UnityEngine.Debug.Log("player positions count  " + playerPositions.Count.ToString());
         if (frameNum < playerPositions.Count)
         {
-            //UnityEngine.Debug.Log("playerpositions pos " + playerPositions[frameNum].ToString());
             tempPos = playerPositions[frameNum];
-            //resultTrans.position = playerPositions[frameNum];
         }
 
         if(frameNum < playerRotations.Count)
@@ -2741,18 +2447,6 @@ if(!skipLog)
         return result;
     }
 
-    public void ShowPathDirection()
-    {
-        switch (player.GetComponent<WaypointProgressTracker>().currentDirection)
-        {
-            case WaypointProgressTracker.TrackDirection.Left:
-                break;
-            case WaypointProgressTracker.TrackDirection.Right:
-                break;
-
-        }
-
-    }
     public IEnumerator CheckMicAccess()
     {
         uiController.micAccessPanel.alpha = 1f;
@@ -2920,17 +2614,7 @@ if(!skipLog)
         yield return null;
     }
 
-    IEnumerator SpawnUniformly(int spawnCount)
-    {
-
-        List<int> intPicker = new List<int>();
-        for (int i = 0; i < 4; i++)
-        {
-
-        }
-
-        yield return null;
-    }
+   
 
     //GETS CALLED FROM DEFAULTITEM.CS WHEN CHEST OPENS ON COLLISION WITH PLAYER.
     public IEnumerator WaitForTreasurePause(GameObject specialObject)
@@ -3332,14 +3016,6 @@ if(!skipLog)
         //reset rotation to match the parent's rotation
         specialObject.transform.localRotation = Quaternion.identity;
 
-        //	string name = specialObject.GetComponent<SpawnableObject>().GetDisplayName();
-        //set special object text
-        //stimObject.GetComponent<StimulusObject>().SetSpecialObjectText(stimDisplayText);
-
-        //	Experiment.Instance.trialController.AddNameToList(specialObject, stimDisplayText);
-
-        //stimObject.GetComponent<StimulusObject>().PlayJuice(true);
-
         //tell the trial controller to wait for the animation
         yield return StartCoroutine(Experiment.Instance.WaitForTreasurePause(specialObject));
 
@@ -3348,46 +3024,6 @@ if(!skipLog)
     }
    
 
-    IEnumerator SpawnEncodingObjects()
-    {
-        UnityEngine.Debug.Log("number of spawn locations " + spawnFrames.Count.ToString());
-        for (int i = 0; i < spawnFrames.Count; i++)
-        {
-            //GameObject encodingObj = Instantiate(objController.encodingList[i], new Vector3(spawnLocations[i].x, spawnLocations[i].y + 1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            //GameObject colliderBox = Instantiate(objController.itemBoxColliderPrefab, new Vector3(spawnLocations[i].x, spawnLocations[i].y +1.5f, spawnLocations[i].z), Quaternion.identity) as GameObject;
-            //GameObject encodingObj = colliderBox.GetComponent<CarStopper>().stimulusObject;
-            //encodingObj.name = encodingObj.name + "_" + i.ToString();
-            //spawnedObjects.Add(encodingObj);
-
-
-            //trialLogTrack.LogEncodingItemSpawn(encodingObj.name.Split('(')[0], encodingObj.transform.position);
-
-            //encodingObj.GetComponent<FacePosition>().ShouldFacePlayer = true;
-            //encodingObj.GetComponent<FacePosition>().TargetPositionTransform = player.transform;
-          
-            //encodingObj.GetComponent<VisibilityToggler>().TurnVisible(false);
-
-
-            //adjust the stimulus object's position so it appears right above the indicator
-         //   encodingObj.transform.position = colliderBox.GetComponent<CarStopper>().positionIndicator.transform.position + new Vector3(0f, 1.5f, 0f);
-
-            //parent the collider box with the encoding object
-           // colliderBox.transform.parent = encodingObj.transform;
-
-            //colliderBox.transform.localPosition = Vector3.zero;
-           // colliderBox.transform.localRotation = Quaternion.identity;
-
-            //associate the stimulus object 
-            //encodingObj.GetComponent<StimulusObject>().LinkColliderObj(colliderBox);
-
-
-
-        }
-        //reset the dictionary
-        retrievalFrameObjectDict = new Dictionary<int, GameObject>(); 
-        yield return null;
-    }
-
 
 
   
@@ -3395,7 +3031,6 @@ if(!skipLog)
     public void SetCarMovement(bool shouldMove)
     {
 
-        player.GetComponent<CarMover>().playerRigidbody.isKinematic = !shouldMove;
         trialLogTrack.LogCarMovement(shouldMove);
         player.GetComponent<CarMover>().ToggleCarMovement(shouldMove);
     }

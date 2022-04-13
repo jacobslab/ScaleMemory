@@ -7,8 +7,6 @@ using UnityEngine.Events;
 
 public class VideoLayer : MonoBehaviour
 {
-    public VideoPlayer videoPlayer;
-    public VideoClip vidClip;
 
 
     private bool isPaused = true;
@@ -264,34 +262,6 @@ public class VideoLayer : MonoBehaviour
     }
     */
 
-    //public void Forward(float deltaTime)
-    //{
-    //    if (!videoPlayer.isPlaying) return;
-    //    //videoPlayer.time+=  Time.deltaTime * 2f;
-    //    videoPlayer.frame++;
-    //    //UnityEngine.Debug.Log("time " + videoPlayer.time.ToString());
-    //    UnityEngine.Debug.Log("frame num " + videoPlayer.frame.ToString());
-    //}
-
-    //public void Backward(float deltaTime)
-    //{
-    //    if (!videoPlayer.isPlaying) return;
-    //    videoPlayer.time = videoPlayer.time - Time.deltaTime * 1f;
-
-    //    UnityEngine.Debug.Log("time " + videoPlayer.time.ToString());
-    //}
-
-    public IEnumerator PrepareVideoTexture()
-    {
-        if (videoPlayer == null || bgLayer == null)
-            yield break;
-
-
-
-        yield return null;
-    }
-
-   
     //this usually corresponds to the layer being added to the "active stack"
     public IEnumerator BeginPlayback()
     {
@@ -310,11 +280,6 @@ public class VideoLayer : MonoBehaviour
         UnityEngine.Debug.Log("making " + gameObject.name + " visibility: " + isVisible.ToString());
 
     }
-
-    public double GetPlaybackTime()
-    {
-        return videoPlayer.time;
-    }    
 
     public IEnumerator TogglePause(bool shouldPause)
     {
@@ -347,13 +312,6 @@ public class VideoLayer : MonoBehaviour
 
         yield return null;
     }
-
-    public IEnumerator ScrollToPlaybackTime(double playbackTime)
-    {
-        videoPlayer.time = playbackTime;
-        yield return null;
-    }
-
     public void ChangePlaybackDirection(VideoLayerManager.Direction newDirection)
     {
         switch(newDirection)

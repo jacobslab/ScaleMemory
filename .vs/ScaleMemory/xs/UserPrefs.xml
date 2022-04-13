@@ -1,11 +1,15 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1674" Column="119" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="243" Column="1" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="805" Column="17" />
+      <File FileName="Assets/Scripts/CarMover.cs" />
+      <File FileName="Assets/Scripts/VideoLayerManager.cs" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" />
+      <File FileName="Assets/Editor/CreateAssetBundles.cs" Line="16" Column="70" />
+      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="12" Column="14" />
       <File FileName="Assets/Scripts/ElememDataPoint.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" Line="69" Column="17" />
       <File FileName="Assets/Scripts/EEG Communication/EventQueue.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/EEG Communication/EventLoop.cs" />
@@ -15,13 +19,21 @@
       <File FileName="Assets/Scripts/Development/TaskParam.cs" />
       <File FileName="Assets/Scripts/ElememTestRunner.cs" />
       <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
-      <File FileName="Assets/Scripts/UsefulFunctions.cs" />
+      <File FileName="Assets/Scripts/UsefulFunctions.cs" Line="266" Column="35" />
       <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
+      <File FileName="Assets/Scripts/LapCounter.cs" />
+      <File FileName="Assets/Scripts/ObjectManager.cs" />
+      <File FileName="Assets/Scripts/AudioRecorder.cs" />
+      <File FileName="Assets/Scripts/SavWav.cs" />
+      <File FileName="Assets/Scripts/ObjectController.cs" Line="124" Column="3" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="202" Column="78" />
+      <File FileName="Assets/Scripts/DefaultItem.cs" Line="212" Column="1" />
+      <File FileName="Assets/Scripts/TrialConditions.cs" Line="22" Column="34" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="06bcc571-db6e-46e8-bec0-8db3e0c00416" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="28d4d9fe-0e59-423f-be8e-514265e279ae" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

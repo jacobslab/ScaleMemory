@@ -190,21 +190,16 @@ public class VideoLayerManager : MonoBehaviour
     {
         GameObject retObject = null;
         int currFrame = Experiment.nextSpawnFrame;
-        //UnityEngine.Debug.Log("trying to find object for frame " + currFrame.ToString());
         bool isLure = Experiment.Instance.isLure;
         if(Experiment.Instance.retrievalFrameObjectDict.TryGetValue(currFrame, out retObject))
         {
-            //UnityEngine.Debug.Log("found object");
             if(retObject!=null)
             {
-                //UnityEngine.Debug.Log("and its not null");
 
                     yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
                
             }
         }
-
-        //UnityEngine.Debug.Log("finishing check");
 
         //reset the event invoked flag
         VideoLayer.isInvoked = false;
@@ -272,31 +267,8 @@ public class VideoLayerManager : MonoBehaviour
         backgroundLayer = rainyLayer; //set background to rain by default, for now
 
         yield return StartCoroutine(SetupItemLayer());
-
-        //yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
-        //yield return StartCoroutine(AddToActiveVideoLayer(itemLayer, false)); //item layer is not visible by default
         yield return null;
     }
-
-    IEnumerator PrepareForMatchProcedure()
-    {
-
-        yield return StartCoroutine(AddToActiveVideoLayer(backgroundLayer, false));
-        //yield return StartCoroutine(AddToActiveVideoLayer(itemLayer, false));
-        yield return null;
-    }
-
-    IEnumerator MatchProcedure()
-    {
-
-
-        float randPlaybackTime = Random.Range(0f, (float)backgroundLayer.vidClip.length);
-        //UnityEngine.Debug.Log("moving to playback time " + randPlaybackTime.ToString());
-        yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(randPlaybackTime));
-        //yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(randPlaybackTime));
-        yield return null;
-    }
-
 
 
 
@@ -355,30 +327,6 @@ public class VideoLayerManager : MonoBehaviour
 
 
 
-
-    IEnumerator SpawnItem()
-    {
-        //pause all other active layers; mostly the background
-        //yield return AddToActiveVideoLayer(itemLayer,true);
-
-        //itemLayer.ToggleLayerVisibility(true);
-        yield return StartCoroutine("TogglePauseLayerPlayback", true);
-        double playbackTime = backgroundLayer.GetPlaybackTime();
-        int frame = (int)backgroundLayer.videoPlayer.frame;
-        //yield return StartCoroutine(itemLayer.ScrollToFrame(frame));
-        yield return StartCoroutine(backgroundLayer.ScrollToFrame(frame));
-      //  yield return StartCoroutine(itemLayer.ScrollToPlaybackTime(playbackTime));
-       // yield return StartCoroutine(backgroundLayer.ScrollToPlaybackTime(playbackTime));
-        //UnityEngine.Debug.Log("moving to playback time " + playbackTime.ToString());
-        yield return new WaitForSeconds(1.5f); //presentation/animation time
-        //yield return StartCoroutine(RemoveVideoLayer(itemLayer));
-
-        yield return StartCoroutine("TogglePauseLayerPlayback", false);
-        yield return null;
-    }
-
-
-
     IEnumerator RemoveVideoLayer(VideoLayer layer)
     {
         layer.ToggleLayerVisibility(false);
@@ -392,18 +340,8 @@ public class VideoLayerManager : MonoBehaviour
     {
         layerList.Add(layer);
 
-        //UnityEngine.Debug.Log("adding to list " + layerList.Count.ToString());
-            yield return StartCoroutine(layer.PrepareVideoTexture());
-
-
         //check to see if layer should be visible for playback
         layer.ToggleLayerVisibility(isVisible);
-        
-        //yield return StartCoroutine(layer.BeginPlayback());
-
-        ////pause immediately after
-
-        //yield return StartCoroutine("TogglePauseLayerPlayback", true);
 
         yield return null;
     }
@@ -413,32 +351,17 @@ public class VideoLayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if(Input.GetKeyDown(KeyCode.M))
-        //{
-        //    StartCoroutine("MatchProcedure");
-        //}
-       
-        //    if (Input.GetKeyDown(KeyCode.R))
-        //{
-        //    StartCoroutine("TogglePauseLayerPlayback",true);
-        //}
-        //if (Input.GetKeyDown(KeyCode.X))
-        //{
-        //    StartCoroutine("TogglePauseLayerPlayback",false);
-        //}
 
         if (isManual)
         {
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-                //ChangePlaybackDirection(Direction.Forward);
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
-                //ChangePlaybackDirection(Direction.Backward);
             }
         }
     }

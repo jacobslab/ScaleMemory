@@ -17,11 +17,6 @@ public class Configuration : MonoBehaviour {
 
     public static string audioFileExtension { get { return Configuration.GetSetting("audioFileExtension"); } }
 
-    public static float distanceThreshold { get { return float.Parse(Configuration.GetSetting("distanceThreshold")); } } //minimum distance before an object is said to be "on the point"
-    public static float timeThreshold { get { return float.Parse(Configuration.GetSetting("timeThreshold")); } } //minimum time before or after an action can be said to be "on cue"
-
-    public static float timeBetweenLaps { get { return float.Parse(Configuration.GetSetting("timeBetweenLaps")); } }
-
      public static int spawnCount { get { return int.Parse(Configuration.GetSetting("spawnCount")); } }
 
     public static float itemPresentationTime { get { return float.Parse(Configuration.GetSetting("itemPresentationTime")); } }
@@ -30,7 +25,6 @@ public class Configuration : MonoBehaviour {
 
     public static int minBufferLures { get { return int.Parse(Configuration.GetSetting("minBufferLures")); } }
 
-    public static int minGapBetweenStimuli { get { return int.Parse(Configuration.GetSetting("minGapBetweenStimuli")); } } //measured in waypoints
 
     //presentation jitter time
     public static float minJitterTime { get { return float.Parse(Configuration.GetSetting("minJitterTime")); } }
