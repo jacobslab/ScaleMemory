@@ -167,59 +167,34 @@ public class ObjectController : MonoBehaviour
     public IEnumerator SelectPracticeItems()
     {
         practiceList = new List<Texture>();
-        List<int> allInts = new List<int>();
-        List<int> randInts = new List<int>();
-        for (int i = 0; i < Experiment.listLength*2; i++)
-        {
-            allInts.Add(i);
-        }
-        for (int j = 0; j < Experiment.listLength; j++)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, allInts.Count - 1);
-            randInts.Add(allInts[randomIndex]);
-            allInts.RemoveAt(randomIndex);
-        }
 
-        UnityEngine.Debug.Log("spawnable list count " + stimuliImageList.Count.ToString());
 
-        for (int i = 0; i < randInts.Count; i++)
-        {
-            if (randInts[i] >= stimuliImageList.Count)
-            {
-                practiceList.Add(stimuliImageList[stimuliImageList.Count - 1]);
-                stimuliImageList.RemoveAt(stimuliImageList.Count - 1);
-            }
-            else
-            {
-                practiceList.Add(stimuliImageList[randInts[i]]);
-                stimuliImageList.RemoveAt(randInts[i]);
-                //	UnityEngine.Debug.Log("added " + spawnableObjectList[randInts[i]].name + " to encoding list");
-            }
-        }
-        yield return null;
+		for (int i = 0; i < Experiment.listLength; i++)
+		{
+			if (i >= stimuliImageList.Count)
+			{
+				practiceList.Add(stimuliImageList[stimuliImageList.Count - 1]);
+				stimuliImageList.RemoveAt(stimuliImageList.Count - 1);
+				UnityEngine.Debug.Log("exceeded! picking from the last in the list now");
+			}
+			else
+			{
+				practiceList.Add(stimuliImageList[i]);
+				UnityEngine.Debug.Log("adding to encoding list " + stimuliImageList[i].ToString());
+				stimuliImageList.RemoveAt(i);
+			}
+		}
+		yield return null;
     }
 
 	public IEnumerator SelectEncodingItems()
 	{
+		
 		encodingList = new List<Texture>();
-		List<int> allInts = new List<int>();
-		List<int> randInts = new List<int>();
-		for (int i=0;i< stimuliImageList.Count;i++)
-		{
-			allInts.Add(i);
-		}
-		for(int j=0;j<Experiment.listLength;j++)
-		{
-			UnityEngine.Debug.Log("all ints count " + allInts.Count.ToString());
-			int randomIndex = UnityEngine.Random.Range(0, allInts.Count-1);
-			UnityEngine.Debug.Log("random index: " + randomIndex.ToString());
-			randInts.Add(allInts[randomIndex]);
-			allInts.RemoveAt(randomIndex);
-		}
 
-		for(int i=0;i<randInts.Count;i++)
+		for(int i=0;i < Experiment.listLength; i++)
 		{
-			if (randInts[i] >= stimuliImageList.Count)
+			if (i >= stimuliImageList.Count)
 			{
 				encodingList.Add(stimuliImageList[stimuliImageList.Count - 1]);
                 stimuliImageList.RemoveAt(stimuliImageList.Count-1);
@@ -227,9 +202,9 @@ public class ObjectController : MonoBehaviour
 			}
 			else
 			{
-				encodingList.Add(stimuliImageList[randInts[i]]);
-				UnityEngine.Debug.Log("adding to encoding list " + stimuliImageList[randInts[i]].ToString());
-				stimuliImageList.RemoveAt(randInts[i]);
+				encodingList.Add(stimuliImageList[i]);
+				UnityEngine.Debug.Log("adding to encoding list " + stimuliImageList[i].ToString());
+				stimuliImageList.RemoveAt(i);
 			}
 		}
 

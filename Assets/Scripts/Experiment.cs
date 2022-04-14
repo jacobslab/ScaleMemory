@@ -198,7 +198,7 @@ public static bool isElemem=false;
     public List<BlockTestPair> blockTestPairList;
 
 
-    private List<int> _stimuliIndices;
+    public List<int> currentstimuliIndices;
 
     List<int> weatherChangeIndicator;
 
@@ -757,7 +757,7 @@ if(!skipLog)
 
 
         //this is the main global variable we will store our current sessions stimuli indices into
-         _stimuliIndices = new List<int>();
+        currentstimuliIndices = new List<int>();
 
         ////how many stimuli per session
         int stimuliCountPerSession = shuffledStimuliIndices.Count / Configuration.totalSessions;
@@ -777,7 +777,7 @@ if(!skipLog)
 
                 //add stimuli indices associated with our current session into a private variable for later access
                 if (j == _sessionID)
-                    _stimuliIndices.Add(shuffledStimuliIndices[i]); 
+                    currentstimuliIndices.Add(shuffledStimuliIndices[i]); 
 
             }
             UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
@@ -787,10 +787,10 @@ if(!skipLog)
 
 
         //now let's convert _stimuliIndices into a temporary string arr so we can pass it as an argument to objController.CreateSessionImageList
-        string[] tempArr = new string[_stimuliIndices.Count];
-        for(int i=0;i<_stimuliIndices.Count;i++)
+        string[] tempArr = new string[currentstimuliIndices.Count];
+        for(int i=0;i< currentstimuliIndices.Count;i++)
         {
-            tempArr[i] = _stimuliIndices[i].ToString();
+            tempArr[i] = currentstimuliIndices[i].ToString();
         }
 
         //this will create a stimuliImageList variable inside objController which will be our active list of stimuli images during this session
@@ -957,7 +957,6 @@ if(!skipLog)
 
 #if !UNITY_WEBGL
              yield return StartCoroutine(GetSubjectInfo());
-        //    subjectName = "subj_" + GameClock.SystemTime_MillisecondsString;
 #endif
 
         SetSubjectName();
