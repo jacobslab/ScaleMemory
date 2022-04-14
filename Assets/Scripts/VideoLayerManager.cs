@@ -453,6 +453,8 @@ public class VideoLayerManager : MonoBehaviour
         yield return null;
     }
 
+
+    //moves us to the starting/first frame of the current weather
     public IEnumerator ReturnToStart()
     {
         for(int i=0;i<layerList.Count;i++)

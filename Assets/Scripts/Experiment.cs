@@ -1036,7 +1036,7 @@ if(!skipLog)
 #endif
 
             trialLogTrack.LogBlock(i, true);
-            yield return StartCoroutine(BeginTaskBlock());
+            yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
             trialLogTrack.LogBlock(i, false);
         }
 
@@ -1323,7 +1323,7 @@ if(!skipLog)
         for (int i = 0; i < Configuration.luresPerTrial; i++)
         {
             int associatedLureFrame = lureFrames[i];
-            Transform currentLureTransform = GetTransformForFrame(associatedLureFrame);
+            Transform currentLureTransform = GetTransformForFrame(associatedLureFrame); //this finds the associated world-space transform for the argument frame 
             currentLureTransform.position += currentLureTransform.forward * 2.5f;
             GameObject lureParent = Instantiate(objController.placeholder, currentLureTransform.position,Quaternion.identity) as GameObject;
 
@@ -1346,6 +1346,8 @@ if(!skipLog)
         yield return null;
     }
 
+
+    //aka the LEARNING phase
     IEnumerator RunEncoding()
     {
 
@@ -1365,19 +1367,19 @@ if(!skipLog)
         else
         {
             trialLogTrack.LogTaskStage(currentStage, true);
-            yield return StartCoroutine(objController.SelectEncodingItems());
+            yield return StartCoroutine(objController.SelectEncodingItems()); //selects all the stimuli items that will be shown for this particular trial
 
         
 
         }
-            yield return StartCoroutine(PickEncodingLocations());
+            yield return StartCoroutine(PickEncodingLocations()); //picks frames at which the selected stimuli items will be shown
 
-        yield return StartCoroutine(UpdateNextSpawnFrame());
+        yield return StartCoroutine(UpdateNextSpawnFrame()); //picks the next frame at which a stimuli item will be shown
             //yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
 
         if (!_skipEncoding)
         {
-            yield return StartCoroutine(videoLayerManager.ResumePlayback());
+            yield return StartCoroutine(videoLayerManager.ResumePlayback()); //resumes playback/movement
             while (LapCounter.lapCount < 1)
             {
 
@@ -1389,7 +1391,7 @@ if(!skipLog)
                 }
                 LapCounter.canStop = false;
 
-                yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+                yield return StartCoroutine(videoLayerManager.PauseAllLayers()); //pauses playback
 
 
                 UnityEngine.Debug.Log("stopping now");
@@ -1410,7 +1412,7 @@ if(!skipLog)
                 ToggleFixation(true);
 
                 //return the video to the start
-                yield return StartCoroutine(videoLayerManager.ReturnToStart());
+                yield return StartCoroutine(videoLayerManager.ReturnToStart()); //returns to the starting frame
 
                 float totalFixationTime = _fixedTime + UnityEngine.Random.Range(0.1f, 0.3f);
                 yield return new WaitForSeconds(totalFixationTime);
@@ -1652,6 +1654,7 @@ if(!skipLog)
 
                 yield return StartCoroutine("ResetTrack");
             trialLogTrack.LogTrialLoop(_trialCount, false);
+            //shows a black screen briefly for fixation
             ToggleFixation(false);
 
         }
@@ -1660,7 +1663,7 @@ if(!skipLog)
             uiController.targetTextPanel.alpha = 0f;
             SetCarMovement(true);
             trialLogTrack.LogTaskStage(currentStage, false);
-
+        //run the end of block tests
         yield return StartCoroutine(RunBlockTests());
         
         yield return null;
@@ -1755,7 +1758,7 @@ if(!skipLog)
             {
                 if (!_skipVerbalRetrieval)
                 {
-                    yield return StartCoroutine("RunVerbalRetrieval");
+                    yield return StartCoroutine(RunVerbalRetrieval());
 
                 }
                 finishedRetrieval = true;
@@ -1764,7 +1767,7 @@ if(!skipLog)
             {
                 if (!_skipSpatialRetrieval)
                 {
-                    yield return StartCoroutine("RunSpatialRetrieval");
+                    yield return StartCoroutine(RunSpatialRetrieval());
                     
 
                    
@@ -1820,9 +1823,9 @@ if(!skipLog)
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
         //pick random start position
         yield return StartCoroutine(videoLayerManager.MoveToRandomPoint());
-        //  yield return StartCoroutine(videoLayerManager.ReturnToStart());
+
         //sort retrieval frames based on new starting position
-        yield return StartCoroutine("Sort_retrievalFrames");
+        yield return StartCoroutine(Sort_retrievalFrames());
 
         uiController.blackScreen.alpha = 0f;
 
@@ -1864,7 +1867,8 @@ if(!skipLog)
         //sort retrieval frames based on new starting position
         //yield return StartCoroutine("Sort_retrievalFrames");
 
-        //randomize frame test order
+
+        //this randomizes the order in which Item-Cued/spatial retrieval questions are asked
         yield return StartCoroutine(Randomize_retrievalFrames());
 
 
@@ -1923,21 +1927,25 @@ if(!skipLog)
 
         Experiment.Instance.uiController.markerCirclePanel.alpha = 1f;
 
-        //shuffle the list
+        //shuffle the list, then order it
         var rand = new System.Random();
         var randomList = spatialTestList.OrderBy(x => rand.Next()).ToList();
         spatialTestList = randomList;
 
         for (int j = 0; j < _testLength; j++)
         {
-            UnityEngine.Debug.Log("retrieval num " + j.ToString());
 
             trialLogTrack.LogItemCuedReactivation(spatialTestList[j].gameObject, isLure, j);
-            yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
-            //SetCarMovement(true);
 
+            //ask the item cued question
+            yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
+
+            //resume playback
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
+
+            //set movement to manual
             player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
+
             uiController.spacebarPlaceItem.alpha = 1f;
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
             while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
@@ -2519,6 +2527,8 @@ if(!skipLog)
         yield return null;
     }
 
+
+    //this randomizes the order in which Item-Cued/spatial retrieval questions are asked
     IEnumerator Randomize_retrievalFrames()
     {
         List<int> temp = new List<int>();
@@ -2552,11 +2562,11 @@ if(!skipLog)
             }
             else
             {
-                nextSpawnFrame = -10000;   
+                nextSpawnFrame = -10000;   //arbitrary value
             }
         }
 
-        //this includes both stim items and lures
+        //this includes both stim items and lures, so we need to perform slightly different logic
         else
         {
             if (currentStage == TaskStage.VerbalRetrieval)
@@ -2565,7 +2575,6 @@ if(!skipLog)
                 {
                     nextSpawnFrame = _sorted_retrievalFrames[0];
                     isLure = lureBools[0];
-                    //UnityEngine.Debug.Log("next retrieval frame " + nextSpawnFrame.ToString());
                     lureBools.RemoveAt(0);
                     _sorted_retrievalFrames.RemoveAt(0);
                     if(!isLure)
@@ -2574,13 +2583,13 @@ if(!skipLog)
                 else
                 {
 
-                    nextSpawnFrame = -10000;
+                    nextSpawnFrame = -10000; //arbitrary value
                 }
             }
             else
             {
 
-                nextSpawnFrame = -10000;
+                nextSpawnFrame = -10000;//arbitrary value
             }
         }
 
@@ -2618,10 +2627,6 @@ if(!skipLog)
     //GETS CALLED FROM DEFAULTITEM.CS WHEN CHEST OPENS ON COLLISION WITH PLAYER.
     public IEnumerator WaitForTreasurePause(GameObject specialObject)
     {
-
-        //lock the avatar controls
-      //  player.controls.ShouldLockControls = true;
-       // player.GetComponent<Rigidbody>().velocity = Vector3.zero;
 
         yield return new WaitForSeconds(Configuration.itemPresentationTime);
 
@@ -2673,6 +2678,14 @@ if(!skipLog)
         }
     }
 
+
+    /*
+     * When select Encoding Locations (the locations at which stimuli items will be shown), these are the rules:
+     * Min distance between start and end point (startBuffer and endBuffer)
+     * Minimum gap between successive stimuli (minFramesBetweenStimuli)
+     * Minimum gap between lures and stimuli (minGapToLure)
+     * 2 lures per trial and 5 stimuli items per trial
+     */ 
     IEnumerator PickEncodingLocations()
     {
         List<int> intPicker = new List<int>();
@@ -2688,7 +2701,7 @@ if(!skipLog)
             intPicker.Add(i);
             waypointFrames.Add(i);
         }
-
+        //temp list
         List<int> tempStorage = new List<int>();
 
 
@@ -2705,17 +2718,13 @@ if(!skipLog)
 
 
                 chosenEncodingFrames.Add(randInt);
+                //setting minimum and max limits within which stimuli locations can be picked
                 int minLimit = Mathf.Clamp(randIndex - Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
                 int maxLimit = Mathf.Clamp(randIndex + Configuration.minFramesBetweenStimuli, 0, intPicker.Count - 1);
 
-                //UnityEngine.Debug.Log("between " + intPicker[minLimit].ToString() + "  and  " + intPicker[maxLimit].ToString());
-                //UnityEngine.Debug.Log("intpicker length " + intPicker.Count.ToString());
-                //UnityEngine.Debug.Log("min " + minLimit.ToString() + " max " + maxLimit.ToString());
                 int ind = minLimit;
                 for (int j = minLimit; j < maxLimit; j++)
                 {
-
-                    //UnityEngine.Debug.Log("comparing " + intPicker[ind].ToString() + " with " + randInt.ToString());
                     if (Mathf.Abs(intPicker[ind] - randInt) < Configuration.minFramesBetweenStimuli)
                     {
                         intPicker.RemoveAt(ind);
@@ -2736,15 +2745,20 @@ if(!skipLog)
                         if (randInt + j < _currentMaxFrames)
                             tempStorage.Add(randInt + j);
                     }
+
+                    //add the chosen encoding frame for stimuli into a list; spawnFrames will be our main list
                     spawnFrames.Add(chosenEncodingFrames[i]);
                 }
 
             }
 
+            //clearing for now
             intPicker.Clear();
             waypointFrames.Clear();
 
-            UnityEngine.Debug.Log("creating base lure frames");
+
+            //moving on to picking locations for lures
+
             //creating array of valid lure frames
             List<int> validLureFrames = new List<int>();
             for (int i = videoLayerManager.GetFrameRangeStart(); i < videoLayerManager.GetFrameRangeEnd(); i++)
@@ -2756,6 +2770,8 @@ if(!skipLog)
 
             //TODO: Make this more efficient
 
+
+            //we will now check to remove any frames at which stimuli will be spawned; we will REMOVE these frames from being considered valid for spawning lures
             //for each stimuli frame
             for (int i = 0; i < spawnFrames.Count; i++)
             {
@@ -2770,6 +2786,8 @@ if(!skipLog)
 
                     //remove frames from being considered for lures
                     UnityEngine.Debug.Log("about to find " + j.ToString());
+
+                    //this is just a predicate match to find a matching value in the list to our "j" frame
                    int res = validLureFrames.FindIndex(0,validLureFrames.Count-1,
             delegate (int x)
             {
@@ -2789,7 +2807,7 @@ if(!skipLog)
             
             //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
 
-
+            //cycle through this list TWO times; since we onl
             for (int i = 0; i < 2; i++)
             {
                 int randStartingLureFrame = UnityEngine.Random.Range(0, validLureFrames.Count - 1);
@@ -2802,14 +2820,12 @@ if(!skipLog)
                 for (int j = currFrame - Configuration.minGapToLure; j < (currFrame + Configuration.minGapToLure); j++)
                 {
                     int tempInt = j;
-                    UnityEngine.Debug.Log("current tempInt " + tempInt.ToString());
                     tempInt = Mathf.Clamp(tempInt, 0, validLureFrames.Count - 1); //to ensure validity
                     validLureFrames.Remove(tempInt);
                 }
                 //check immediately if i has exceeded updated bounds
                 if (i >= validLureFrames.Count)
                     i = 0; //if yes, then reset the index to 0
-                ////else continue
 
             }
 
@@ -2825,21 +2841,17 @@ if(!skipLog)
             }
 
             UnityEngine.Debug.Log("finished picking lure frames");
-            //UnityEngine.Debug.Log("first index of lure frames " + lureFrames[0]);
+
+
+            //NEXT section is concerned with sorting the encoding and lure frames
+            //now we sort the list in ascending order, so that the frames are in sequence and consistent with how we move during encoding (from first frame to last)
             List<int> sortedLureFrames = new List<int>();
             sortedLureFrames = DuplicateList(lureFrames);
-            //UnityEngine.Debug.Log("first index of duplicated lure frames " + sortedLureFrames[0]);
             sortedLureFrames = SortListInAscending(sortedLureFrames);
 
-            //UnityEngine.Debug.Log("first index of encoding frames " + chosenEncodingFrames[0]);
             List<int> sortedWaypointFrames = new List<int>();
             sortedWaypointFrames = DuplicateList(chosenEncodingFrames);
-
-
-            //UnityEngine.Debug.Log("first index of duplicated waypoint frames " + sortedWaypointFrames[0]);
-            //sortedWaypointFrames.Sort();
             sortedWaypointFrames = SortListInAscending(sortedWaypointFrames);
-            //UnityEngine.Debug.Log("first index of sorted duplicated lure frames " + sortedWaypointFrames[0]);
 
             _sortedSpawnFrames = new List<int>();
             _sorted_retrievalFrames = new List<int>();
@@ -2851,8 +2863,6 @@ if(!skipLog)
 
             for (int i = 0; i < listLength; i++)
             {
-
-                //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted spawn frame");
                 _sortedSpawnFrames.Add(sortedWaypointFrames[0]);
                 sortedWaypointFrames.RemoveAt(0);
 
@@ -2865,14 +2875,12 @@ if(!skipLog)
                 {
                     if (sortedLureFrames[0] < tempWaypointFrames[0])
                     {
-                        //UnityEngine.Debug.Log("added " + sortedLureFrames[0].ToString() + " to sorted lure frame");
                         _sorted_retrievalFrames.Add(sortedLureFrames[0]);
                         lureBools.Add(true);
                         sortedLureFrames.RemoveAt(0);
                     }
                     else
                     {
-                        //UnityEngine.Debug.Log("added " + sortedWaypointFrames[0].ToString() + " to sorted lure frame");
                         _sorted_retrievalFrames.Add(tempWaypointFrames[0]);
                         lureBools.Add(false);
                         tempWaypointFrames.RemoveAt(0);
@@ -2901,15 +2909,7 @@ if(!skipLog)
             UnityEngine.Debug.Log("Caught null exception " + e.StackTrace);
         }
 
-        UnityEngine.Debug.Log("finished picking");
-
-        UnityEngine.Debug.Log("total retrieval frames " + _sorted_retrievalFrames.Count.ToString());
-
-        for(int i=0;i<_sortedSpawnFrames.Count;i++)
-        {
-            UnityEngine.Debug.Log("spawn order " + i.ToString() + ": " + _sortedSpawnFrames[i].ToString());
-        }
-
+     
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
         yield return null;
     }

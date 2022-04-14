@@ -1,13 +1,17 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/VideoLayerManager.cs">
     <Files>
-      <File FileName="Assets/Scripts/Experiment.cs" Line="19" Column="23" />
-      <File FileName="Assets/Scripts/ObjectController.cs" Line="7" Column="14" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="2642" Column="1" />
+      <File FileName="Assets/Scripts/ObjectController.cs" Line="190" Column="21" />
+      <File FileName="Assets/Scripts/VideoLayerManager.cs" Line="443" Column="10" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="48" Column="98" />
+      <File FileName="Assets/Scripts/CarMover.cs" Line="69" Column="69" />
+      <File FileName="Assets/Scripts/VideoLayer.cs" Line="157" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="97cf6c32-1728-4f8b-b0d1-44b6e31f5804" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="ebbed612-2018-41b9-8647-00bee575ca7b" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
