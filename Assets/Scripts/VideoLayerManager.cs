@@ -193,14 +193,16 @@ public class VideoLayerManager : MonoBehaviour
         bool isLure = Experiment.Instance.isLure;
         if(Experiment.Instance.retrievalFrameObjectDict.TryGetValue(currFrame, out retObject))
         {
+            UnityEngine.Debug.Log("RetObject RetObject RetObject: " + retObject);
             if(retObject!=null)
             {
-
-                    yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
-               
+                UnityEngine.Debug.Log("Not a NULL. YESSSS");
+                yield return StartCoroutine(Experiment.Instance.ShowLocationCuedReactivation(retObject));
+                     
             }
         }
 
+        UnityEngine.Debug.Log("Not a NULL. YESSSS. Did we come out");
         //reset the event invoked flag
         VideoLayer.isInvoked = false;
         yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
@@ -209,9 +211,13 @@ public class VideoLayerManager : MonoBehaviour
 
     public IEnumerator BeginFramePlay()
     {
+        //UnityEngine.Debug.Log("efoi3jfo34fo34ro3fopmcmpo3popon4con3xo3");
         StartCoroutine(sunnyLayer.FramePlay());
+        //UnityEngine.Debug.Log("efoi3jfo34fo34ro3fopmcmpo3popon4con3xo3   12334");
         StartCoroutine(rainyLayer.FramePlay());
+        //UnityEngine.Debug.Log("efoi3jfo34fo34ro3fopmcmpo3popon4con3xo3   12334  1213213");
         StartCoroutine(nightLayer.FramePlay());
+        //UnityEngine.Debug.Log("efoi3jfo34fo34ro3fopmcmpo3popon4con3xo3   12334  1213213  123123");
         yield return null;
     }
 
@@ -318,7 +324,7 @@ public class VideoLayerManager : MonoBehaviour
                 backgroundLayer = sunnyLayer;
                 break;
 
-
+     
         }
 
         itemLayer.UpdateImage(targetWeather);

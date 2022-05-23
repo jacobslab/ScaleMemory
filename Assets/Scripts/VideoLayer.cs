@@ -152,6 +152,7 @@ public class VideoLayer : MonoBehaviour
         {
             if (gameObject.activeSelf)
             {
+                //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH Pause Point: jro3r: " + isPaused);
                 if (!isPaused)
                 {
                     if (playbackDirection == 1)
@@ -162,25 +163,38 @@ public class VideoLayer : MonoBehaviour
                     currentFrame = (int)(timeVar * frameRate);
                     // UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
 
+                    //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH cF: " + currentFrame + " nSF: " + Experiment.nextSpawnFrame);
                     if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
                     {
+                        //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH invoking spawn point event");
                         if (!isInvoked)
                         {
                             UnityEngine.Debug.Log("invoking spawn point event");
                             isInvoked = true;
                             if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                            {
+                                UnityEngine.Debug.Log("VideoLayer: SPAWN POINT");
                                 spawnPointReachedEvent.Invoke();
-                            else
+                            }
+                            else {
+                                UnityEngine.Debug.Log("VideoLayer: RETRIEVAL POINT");
                                 retrievalPointReachedEvent.Invoke();
+                            }
+                                
                         }
                     }
                 }
-                if (currentFrame >= frames.Length - 1)
+                //UnityEngine.Debug.Log("Current frame: " + currentFrame);
+                if (currentFrame >= frames.Length-1)
                 {
-                    UnityEngine.Debug.Log("exceeded video");
+                    UnityEngine.Debug.Log("exceeded video: " + LapCounter.lapCount);
+                    UnityEngine.Debug.Log(frames.Length);
                     timeVar = 0f;
                     OnVideoLoop();
                     currentFrame = 0;
+                    /*if (LapCounter.lapCount >= 5) {
+                        Experiment.Instance.setexpAct();
+                    }*/
                 }
                 if (currentFrame < 0)
                 {
@@ -286,6 +300,7 @@ public class VideoLayer : MonoBehaviour
         //UnityEngine.Debug.Log("should pause? " + shouldPause.ToString());
         if (shouldPause)
         {
+            
             //UnityEngine.Debug.Log(gameObject.name  + " paused");
             isPaused = true;
         }
@@ -294,7 +309,9 @@ public class VideoLayer : MonoBehaviour
         {
             //UnityEngine.Debug.Log(gameObject.name + " unpaused");
             isPaused = false;
+            
         }
+        UnityEngine.Debug.Log("TogglePause: isPaused: : " + isPaused);
         //videoPlayer.Play();
         yield return null;
     }

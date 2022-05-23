@@ -298,7 +298,7 @@ public static bool isElemem=false;
 
 
         //test length is stimuli items + lure items
-        _testLength = listLength + Configuration.luresPerTrial;
+        _testLength = Configuration.spawnCount + Configuration.luresPerTrial;
         
 
 
@@ -325,6 +325,7 @@ public static bool isElemem=false;
 
 
         listLength = Configuration.spawnCount;
+        _testLength = listLength + Configuration.luresPerTrial;
 
         /* MAIN EXPERIMENT COROUTINE CALLED HERE*/
         StartCoroutine("BeginExperiment");
@@ -668,6 +669,10 @@ if(!skipLog)
         return _expActive;
     }
 
+    public void setexpAct() {
+        _expActive = false;
+    }
+
     IEnumerator PeriodicallyWrite()
     {
         while (_expActive)
@@ -993,7 +998,9 @@ if(!skipLog)
         verbalRetrieval = false;
 
         yield return StartCoroutine(videoLayerManager.BeginFramePlay());
+        UnityEngine.Debug.Log("Hello this is Enddsnfiewdweqknqiw");
         //initialize the weather as Sunny, by default
+        UnityEngine.Debug.Log("Quitting Here!!");
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
 
         //create session started file
@@ -1029,6 +1036,8 @@ if(!skipLog)
         for (int i = 0; i < _blockCount; i++)
         {
             _currBlockNum = i;
+            UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
+
             //only show intermission instructions if it is a behavioral pilot
 #if BEHAVIORAL
             if (_currBlockNum == 3)
@@ -1044,9 +1053,13 @@ if(!skipLog)
         yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
         _expActive = false;
 
-#if !UNITY_WEBGL
+        /*#if !UNITY_WEBGL
+                Application.Quit();
+        #else
+                Application.Quit();
+        #endif*/
+        UnityEngine.Debug.Log("Quitting Here!!");
         Application.Quit();
-#endif
         yield return null;
     }
 
@@ -1917,7 +1930,9 @@ if(!skipLog)
         {
             spatialTestList.Add(spawnedObjects[k]);
         }
-        for(int l = 0;l<lureObjects.Count;l++)
+        UnityEngine.Debug.Log("spatial test list(before LURE) has " + spatialTestList.Count.ToString() + " items in it");
+
+        for (int l = 0;l<lureObjects.Count;l++)
         {
 
             spatialTestList.Add(lureObjects[l]);
@@ -1969,10 +1984,12 @@ if(!skipLog)
             {
                 _spatialFeedbackStatus.Add(false);
             }
+            UnityEngine.Debug.Log("Hey there My friend");
             _spatialFeedbackPosition.Add(player.transform.position);
             trialLogTrack.LogRetrievalAttempt(spatialTestList[j].gameObject);
 
             yield return new WaitForSeconds(0.2f);
+            UnityEngine.Debug.Log("Hey there My friend. I crossed it");
 
         }
         SetCarMovement(false);

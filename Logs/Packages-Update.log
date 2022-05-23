@@ -91,3 +91,11 @@ Update Mode: updateDependencies
 
 The following packages were updated:
   com.unity.ide.visualstudio from version 2.0.11 to 2.0.12
+
+=== Sun May 15 17:54:33 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.textmeshpro from version 2.1.6 to 3.0.6
