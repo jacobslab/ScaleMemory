@@ -734,7 +734,7 @@ if(!skipLog)
 
         yield return StartCoroutine(GoFullScreen());
 #endif
-#if CLINICAL || CLINICAL_TEST
+#if CLINICAL || CLINICAL_TEST || BEHAVIORAL
         //if this is the first session, create data for both sessions
         if (_sessionID == 0)
         {
@@ -1743,7 +1743,8 @@ if(!skipLog)
         retrievalIndex = 0;
      
         LapCounter.lapCount = 0; //reset lap count for retrieval 
-
+        UnityEngine.Debug.Log("Experiment: " + _retrievalTypeList.Count);
+        UnityEngine.Debug.Log("Experiment: " + " sesstrail: " + sessTrial);
         string targetNames = "";
 
         //check the randomly ordered list to see what the retrieval type should be
@@ -2071,9 +2072,42 @@ if(!skipLog)
 
 
         //perform each of those tests for the paired list in sequence
+        var rand = new System.Random();
+        int i1 = rand.Next(0, blockTestPairList.Count-1);
+        int i2 = -1;
+        int i3 = -1;
+        int t;
+
+        while (true)
+            {
+                t = rand.Next(0, blockTestPairList.Count - 1);
+                if ((t != i1))
+                {
+                    i2 = t;
+                    break;
+                }
+            }
+
+        while (true) {
+            t = rand.Next(0, blockTestPairList.Count-1);
+            if ((t != i1) && (t!= i2))
+            {
+                i3 = t;
+                break;
+            }
+        }
+        bool tempBool;
         for (int i = 0; i < blockTestPairList.Count; i++)
         {
-            yield return StartCoroutine(RunTemporalOrderTest(blockTestPairList[i]));
+            if ((i == i1) || (i == i2) || (i == i3))
+            {
+                tempBool = true;
+            }
+            else {
+                tempBool = false;
+            }
+            UnityEngine.Debug.Log("CountCountCount..........  " + blockTestPairList.Count+ "tempBool: " + tempBool);
+            yield return StartCoroutine(RunTemporalOrderTest(blockTestPairList[i], tempBool));
             yield return StartCoroutine(RunTemporalDistanceTest(blockTestPairList[i]));
         }
         for (int i = 0; i < _contextDifferentWeatherTestList.Count; i++)
@@ -2159,11 +2193,17 @@ if(!skipLog)
         yield return null;
     }
 
-    IEnumerator RunTemporalOrderTest(BlockTestPair testPair)
+    IEnumerator RunTemporalOrderTest(BlockTestPair testPair, bool shuffleT)
     {
         GameObject firstItem,secondItem;
 
-        if (UnityEngine.Random.value > 0.5f)
+        if (shuffleT) {
+            GameObject temp;
+            temp = testPair.firstItem;
+            testPair.firstItem = testPair.secondItem;
+            testPair.secondItem = temp;
+        }
+        /*if (UnityEngine.Random.value > 0.5f)
         {
             firstItem = testPair.firstItem;
             secondItem = testPair.secondItem;
@@ -2172,8 +2212,12 @@ if(!skipLog)
         {
             firstItem = testPair.secondItem;
             secondItem = testPair.firstItem;
-        }
-            uiController.temporalOrderItemA.text =firstItem.gameObject.name;
+
+
+        }*/
+        firstItem = testPair.firstItem;
+        secondItem = testPair.secondItem;
+        uiController.temporalOrderItemA.text =firstItem.gameObject.name;
             uiController.temporalOrderItemB.text = secondItem.gameObject.name;
         
 
