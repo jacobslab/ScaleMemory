@@ -9,10 +9,12 @@ using UnityStandardAssets.Utility;
 using UnityEngine.SceneManagement;
 using UnityEngine.Rendering.PostProcessing;
 using UnityStandardAssets.Vehicles.Car;
+using UnityEngine.UI;
 
 public class Experiment : MonoBehaviour {
 
     //EXPERIMENT IS A SINGLETON
+    public int beginScreenSelect;
     private static Experiment _instance;
     public ObjectManager objManager;
     public UIController uiController;
@@ -156,7 +158,7 @@ public class Experiment : MonoBehaviour {
     public static string BuildVersion = "0.9.95";
     public static string ExpName = "CityBlock";
 #if CLINICAL
-    public static bool isElemem = true;
+    public static bool isElemem = false;
 #elif CLINICAL_TEST
 public static bool isElemem=false;
 #else
@@ -275,14 +277,27 @@ public static bool isElemem=false;
 
     public static int nextSpawnFrame = -10000; //if no spawn, then it will be at -1000
 
+    public Image selectionImage;
 
     public TCPServer tcpServer;
+
+    public string LastST_END_YN;   //"NNNN" is default
+    public int LastBlockNo;  //(-1) is default
     public static Experiment Instance {
         get {
             return _instance;
         }
     }
 
+    public bool _directoryexists;
+    public bool recontinued;
+    public bool isdevmode;
+    public bool jitterAction;
+    public int onofftime;
+    public int[] array1 = new int[6];
+    int temporary_i = 0;
+    public int[] BlockStatus = new int[3];
+    public int num_incomplete;
 
     void Awake() {
         if (_instance != null) {
@@ -307,6 +322,15 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
+        num_incomplete = 0;
+        onofftime = 0;
+        jitterAction = false;
+        _directoryexists = false;
+        recontinued = false;
+        isdevmode = false;
+        LastST_END_YN = "NNNN";
+        LastBlockNo = -1;
+        beginScreenSelect = -1;
         //instantiating lists and variables for use later
         _spatialFeedbackStatus = new List<bool>();
         _spatialFeedbackPosition = new List<Vector3>();
@@ -319,6 +343,8 @@ public static bool isElemem=false;
         _retrievalFrames = new List<int>();
         blockTestPairList = new List<BlockTestPair>();
 
+        selectionImage.transform.GetComponent<Image>().enabled = false;
+
         _blockCount = totalTrials / (trialsPerBlock * Configuration.totalSessions);
         UnityEngine.Debug.Log("block count " + _blockCount.ToString());
         retrievalFrameObjectDict = new Dictionary<int, GameObject>();
@@ -326,6 +352,10 @@ public static bool isElemem=false;
 
         listLength = Configuration.spawnCount;
         _testLength = listLength + Configuration.luresPerTrial;
+
+        BlockStatus[0] = -1;
+        BlockStatus[1] = -1;
+        BlockStatus[2] = -1;
 
         /* MAIN EXPERIMENT COROUTINE CALLED HERE*/
         StartCoroutine("BeginExperiment");
@@ -464,11 +494,13 @@ public static bool isElemem=false;
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
     {
+        //int i = 0;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"..\"));
 #else
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 #endif
+        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/" + "session_1" + "/";
 
         _subjectDirectory = newPath + _subjectName + "/";
         sessionDirectory = _subjectDirectory + "session_0" + "/";
@@ -478,51 +510,145 @@ public static bool isElemem=false;
         UnityEngine.Debug.Log("new logging path is " + newPath);
         UnityEngine.Debug.Log("subject directory "+ _subjectDirectory);
 
-            if (!Directory.Exists(_subjectDirectory))
+        if (beginScreenSelect == 0)
+        {
+            while (Directory.Exists(sessionDirectory))
+            {
+                if (_sessionID < Configuration.totalSessions) {
+                    _sessionID++;
+
+                    sessionIDString = "_" + _sessionID.ToString();
+
+                    sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+                }
+
+            }
+            if (_sessionID > 0)
+            {
+                _sessionID = _sessionID - 1;
+                sessionIDString = "_" + _sessionID.ToString();
+
+                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+            }
+
+            UnityEngine.Debug.Log("subject directory sesssionID: " + _sessionID);
+
+            GetBlockWhereStoppedv2(_subjectDirectory);
+            if ((((LastBlockNo == 2) && (LastST_END_YN == "ENDED"))) && (num_incomplete == 0) &&
+                (_sessionID < Configuration.totalSessions-1))
+            {
+                _sessionID++;
+
+                sessionIDString = "_" + _sessionID.ToString();
+
+                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+
+            }
+            else
+            {
+                if (LastBlockNo >= 0)
+                {
+                    recontinued = true;
+                }
+
+            }
+        }
+        else if (beginScreenSelect == 1) {
+            while (Directory.Exists(_subjectDirectory))
+            {
+                temporary_i++;
+                /*_sessionID++;
+
+                sessionIDString = "_" + _sessionID.ToString();
+
+                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";*/
+                _subjectDirectory = newPath + _subjectName + "-" + temporary_i + "/";
+                sessionDirectory = _subjectDirectory + "session_0" + "/";
+            }
+            uiController.ShowSubjectText.text = "Your Subject name is: " + _subjectName + "-" + temporary_i;
+            _subjectName = _subjectName + "-" + temporary_i;
+        }
+
+        temporary_i = 0;
+
+        if (!Directory.Exists(_subjectDirectory))
             {
                 Directory.CreateDirectory(_subjectDirectory);
             }
-            while (File.Exists(sessionDirectory + sessionStartedFileName))
-            {
-            _sessionID++;
+
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("Remember Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
+        //TODO
+        /*while (File.Exists(sessionDirectory + sessionStartedFileName))
+        {
+
+
+
+
+            if (((LastBlockNo < 0) || ((LastBlockNo == 6) && (LastST_END_YN == "ENDED")))) {
+                _sessionID++;
 
                 sessionIDString = "_" + _sessionID.ToString();
 
                 sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
             }
 
+        }*/
+
 #if CLINICAL || CLINICAL_TEST
         //once the current session directory has been created make sure, future sessions directory have also been created
-        for(int i=1;i<Configuration.totalSessions;i++)
+        /*for(int i=1;i<Configuration.totalSessions;i++)
         {
             string dirPath = Path.Combine(sessionDirectory, _subjectDirectory, "session_" + i.ToString());
             if(!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
 
-        }
+        }*/
 #endif
 
-            //delete old files.
-            if (Directory.Exists(sessionDirectory))
+        //delete old files.
+        if (Directory.Exists(sessionDirectory))
             {
                 DirectoryInfo info = new DirectoryInfo(sessionDirectory);
                 FileInfo[] fileInfo = info.GetFiles();
                 for (int i = 0; i < fileInfo.Length; i++)
                 {
-                    File.Delete(fileInfo[i].ToString());
+                    if ((LastBlockNo < 0) || ((LastBlockNo == 2) && (LastST_END_YN == "ENDED"))) {
+                        //File.Delete(fileInfo[i].ToString());
+                    }
+                    
                 }
             }
             else
             { //if directory didn't exist, make it!
-                Directory.CreateDirectory(sessionDirectory);
+            UnityEngine.Debug.Log("Is this what is SessionDirectory bEhavaecnvkngoitg4g45:" + sessionDirectory);
+            Directory.CreateDirectory(sessionDirectory);
             }
 
             subjectLog.fileName = sessionDirectory + _subjectName + "Log" + ".txt";
             UnityEngine.Debug.Log("_subjectLogfile " + subjectLog.fileName);
-            //now you can initiate logging
-            yield return StartCoroutine(subjectLog.BeginLogging());
-        
-   
+        //now you can initiate logging
+
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("Remember Remember Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Remember Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
+
+        yield return StartCoroutine(subjectLog.BeginLogging());
+
+
+
+
 
         yield return null;
     }
@@ -638,9 +764,188 @@ if(!skipLog)
         _subjectName = uiController.subjectInputField.text;
         UnityEngine.Debug.Log("got subject name");
         _subjectInfoEntered = true;
+        //GetBlockWhereStopped();
+    }
+
+    public void SetDevelopment() {
+        isdevmode = true;
+    }
+
+    public void GetBlockWhereStopped() {
+        var p1 = System.IO.Directory.GetParent(System.IO.Directory.GetParent(Application.dataPath).ToString()).ToString();
+        UnityEngine.Debug.Log(p1);
+        var directories = Directory.GetDirectories(p1);
+
+
+        for (int i = 0; i < directories.Count(); i++)
+        {
+            var dir = new DirectoryInfo(directories[i]);
+
+            UnityEngine.Debug.Log(dir.Name);
+            UnityEngine.Debug.Log(uiController.subjectInputField.text);
+            if (uiController.subjectInputField.text == dir.Name)
+            {
+                UnityEngine.Debug.Log("Matched zzzzzzzzzzzzzz");
+                if (Directory.Exists(directories[i]))
+                {
+                    UnityEngine.Debug.Log("Matched Exists");
+                }
+                else {
+                    UnityEngine.Debug.Log("Matched DOESNT Exists");
+                }
+
+                
+                string fileName = dir.Name + "Log.txt";
+                string filePath = directories[i] + "/session_0/" + fileName;
+                UnityEngine.Debug.Log(fileName);
+                UnityEngine.Debug.Log(filePath);
+
+                if (File.Exists(filePath))
+                {
+                    UnityEngine.Debug.Log("Matched File Exists");
+                }
+                else {
+                    UnityEngine.Debug.Log("Matched File DOESNT Exists");
+                }
+
+                IEnumerable<string> allLines;
+                if (File.Exists(filePath))
+                {
+                    UnityEngine.Debug.Log("Entered!!!");
+                    using (StreamReader reader = new StreamReader(filePath))
+                    {
+                        UnityEngine.Debug.Log("Entered 222!!!");
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            string[] values = line.Split('\t');
+                            for (int j = 0; j < values.Count(); j++) {
+                                UnityEngine.Debug.Log(values[j]);
+                                if (values[2] == "BLOCK") {
+                                    LastST_END_YN = values[4];
+                                    LastBlockNo = Convert.ToInt32(values[3]);
+                                }
+                            }
+                            
+                            UnityEngine.Debug.Log(values.Count());
+                            //break;
+                            //Console.WriteLine(line);
+                        }
+                        UnityEngine.Debug.Log("Hellooooluyyah: " + LastST_END_YN);
+                    }
+                    //Read all content of the files and store it to the list split with new line 
+
+                }
+                else {
+                    UnityEngine.Debug.Log("Why Now");
+
+                }
+
+                break;
+            }
+
+        }
     }
 
 
+
+    public void GetBlockWhereStoppedv2(string subjectDirectory)
+    {
+
+            var dir = new DirectoryInfo(subjectDirectory);
+
+            //if(_sessionID )
+            UnityEngine.Debug.Log(dir.Name);
+            UnityEngine.Debug.Log(uiController.subjectInputField.text);
+            if (uiController.subjectInputField.text == dir.Name)
+            {
+                UnityEngine.Debug.Log("Matched zzzzzzzzzzzzzz");
+                if (Directory.Exists(subjectDirectory))
+                {
+                    UnityEngine.Debug.Log("Matched Exists");
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("Matched DOESNT Exists");
+                }
+
+
+                string fileName = dir.Name + "Log.txt";
+                string filePath = subjectDirectory + "/session_" + _sessionID.ToString() +"/" + fileName;
+                UnityEngine.Debug.Log(fileName);
+                UnityEngine.Debug.Log(filePath);
+
+            UnityEngine.Debug.Log("subjectbio directory sesssionID: " + _sessionID);
+            if (File.Exists(filePath))
+                {
+                    UnityEngine.Debug.Log("Matched File Exists");
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("Matched File DOESNT Exists");
+                }
+
+                IEnumerable<string> allLines;
+                if (File.Exists(filePath))
+                {
+                    UnityEngine.Debug.Log("Entered!!!");
+                    using (StreamReader reader = new StreamReader(filePath))
+                    {
+                        UnityEngine.Debug.Log("Entered 222!!!");
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            string[] values = line.Split('\t');
+                            /*for (int j = 0; j < values.Count(); j++)
+                            {*/
+                                //UnityEngine.Debug.Log(values[j]);
+                                if (values[2] == "BLOCK")
+                                {
+                                    if (values[4] == "STARTED")
+                                    {
+                                        BlockStatus[Convert.ToInt32(values[3])] = 0;
+                                    }
+                                    else if (values[4] == "ENDED") {
+                                        BlockStatus[Convert.ToInt32(values[3])] = 1;
+                                    }
+                                
+                                    if (LastBlockNo <= Convert.ToInt32(values[3])) {
+                                        LastST_END_YN = values[4];
+                                        LastBlockNo = Convert.ToInt32(values[3]);
+                                    }
+
+                                }
+                            //}
+
+                            UnityEngine.Debug.Log(values.Count());
+                            //break;
+                            //Console.WriteLine(line);
+                        }
+                    for (int j = 0; j < LastBlockNo; j++)
+                    {
+                        if (BlockStatus[j] < 1)
+                        {
+                            num_incomplete++;
+                        }
+
+                    }
+                    UnityEngine.Debug.Log("Hellooooluyyah: " + LastST_END_YN);
+                        UnityEngine.Debug.Log("Hellooooluyyah Last: " + LastBlockNo);
+                    UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_incomplete);
+                }
+                    //Read all content of the files and store it to the list split with new line 
+
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("Why Now");
+
+                }
+
+            }
+
+        
+    }
 
     public void SetSubjectName()
     {
@@ -746,7 +1051,12 @@ if(!skipLog)
         //if second day session, then parse text/JSON files and gather relevant data for this session
         else
         {
-            yield return StartCoroutine(GatherSessionData());
+            yield return StartCoroutine(CreateSessionData());
+
+            //create randomized trial conditions
+            yield return StartCoroutine(GenerateRandomizedTrialConditions());
+
+            //yield return StartCoroutine(GatherSessionData());
         }
 #endif
 
@@ -810,7 +1120,7 @@ if(!skipLog)
     IEnumerator GatherSessionData()
     {
         UnityEngine.Debug.Log("gathering session data for  " + _sessionID.ToString());
-        int prevSessID = _sessionID - 1;
+        int prevSessID = _sessionID;
         if(prevSessID >=0)
         {
 
@@ -877,6 +1187,30 @@ if(!skipLog)
         yield return null;
     }
 
+    IEnumerator BeginMenuCanvas()
+    {
+        //string selectionType = "BeginMenu";
+
+        //uiController.ToggleSelection(true);
+        
+        uiController.BeginMenu.alpha = 1f;
+        //uiController.ToggleSelection(true);
+        //_canSelect = true;
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
+        //_canSelect = false;
+        //uiController.ToggleSelection(false);
+        uiController.BeginMenu.alpha = 0f;
+        //uiController.ToggleSelection(false);
+        yield return null;
+    }
+
 
     //initiated by UI button on screen during the consent panel
     public void GiveConsent()
@@ -938,10 +1272,13 @@ if(!skipLog)
         _subjectInfoEntered = false;
         uiController.subjectInfoPanel.gameObject.SetActive(true);
         uiController.subjectInfoPanel.alpha = 1f;
-        while (!_subjectInfoEntered)
+        UnityEngine.Debug.Log("Before Enter");
+        while (!((_subjectInfoEntered) || (isdevmode)))
         {
+            //UnityEngine.Debug.Log("Before Enter Returning");
             yield return 0;
         }
+        UnityEngine.Debug.Log("Before Enter 222 Returning");
         uiController.subjectInfoPanel.alpha = 0f;
         uiController.subjectInfoPanel.gameObject.SetActive(false);
         yield return null;
@@ -959,15 +1296,107 @@ if(!skipLog)
     IEnumerator BeginExperiment()
     {
         //skip this if we're in the web version
+        //uiController.ToggleSelection(true);
+
+        
 
 #if !UNITY_WEBGL
-             yield return StartCoroutine(GetSubjectInfo());
+        yield return StartCoroutine(GetSubjectInfo());
 #endif
 
+        string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
+
+        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/" + "session_1" + "/";
+
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("welde welde welde Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("welde welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
+
+        //if (!isdevmode) {
+            if (Directory.Exists(newPath + _subjectName + "/")) {
+                _directoryexists = true;
+                uiController.selectionControls.alpha = 1f;
+                //uiController.;
+                //Image img = selectionImage.transform.GetComponent<Image>();
+                //img.enabled = true;
+                //Destroy(img);
+                selectionImage.transform.GetComponent<Image>().enabled = true;
+                /*Component[] components = selectionImage.GetComponents(typeof(Component));
+                foreach (Component component in components)
+                {
+                    Debug.Log(component.ToString());
+                    Debug.Log(selectionImage.transform.GetComponent<Image>().enabled);
+
+                }*/
+                //_canSelect = true;
+                yield return StartCoroutine(BeginMenuCanvas());
+                //_canSelect = false;
+                selectionImage.transform.GetComponent<Image>().enabled = false;
+                //selectionImage.transform.GetComponent<Image>().enabled = false;
+                uiController.selectionControls.alpha = 0f;
+                uiController.ToggleSelection(false);
+            }
+
+        //}
+
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("welde welde Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
+
+        if (beginScreenSelect == 0)
+        {
+            trialLogTrack.LogQuestionContinual(false);
+            UnityEngine.Debug.Log("I m here ");
+
+        }
+        else
+        {
+            trialLogTrack.LogQuestionContinual(true);
+            UnityEngine.Debug.Log("I m here 2");
+        }
+
         SetSubjectName();
-  
-        	UnityEngine.Debug.Log("set subject name: " + _subjectName);
+
+        UnityEngine.Debug.Log("set subject name: " + _subjectName);
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("welde Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("welde Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
         trialLogTrack.LogBegin();
+
+        
+        if (beginScreenSelect == 1) {
+            uiController.ShowSubject.alpha = 1f;
+            uiController.selectionControls.alpha = 1f;
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+            uiController.selectionControls.alpha = 0f;
+            uiController.ShowSubject.alpha = 0f;
+        }
+
+
+
+        //newPath2
+        if (Directory.Exists(newPath2))
+        {
+            UnityEngine.Debug.Log("Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
+        }
+        else {
+            UnityEngine.Debug.Log("Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
+        }
 
         //load the layers and all the relevant data from AssetBundles
 
@@ -1008,14 +1437,22 @@ if(!skipLog)
 
         yield return StartCoroutine(InitialSetup());
         //only perform practice if it is the first session
-        if(_sessionID==0)
-            yield return StartCoroutine(BeginPractice()); //runs both weather familarization and practice
+        if (_sessionID == 0)
+        {
+            if ((recontinued == false) && (LastBlockNo < 0) && (isdevmode == false))
+            {
+                yield return StartCoroutine(BeginPractice()); //runs both weather familarization and practice
+            }
+        }
         else
         {
-            //show second day intro
-            yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
-            yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
-            yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+            if ((recontinued == false) && (LastBlockNo < 0) && (isdevmode == false))
+            {
+                //show second day intro
+                yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
+                yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
+                yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+            }
         }
 
         UnityEngine.Debug.Log("about to prep trials");
@@ -1023,7 +1460,14 @@ if(!skipLog)
 
         UnityEngine.Debug.Log("finished prepping trials");
         uiController.postPracticePanel.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
         uiController.postPracticePanel.alpha = 0f;
 
         if (_sessionID == 0)
@@ -1033,7 +1477,31 @@ if(!skipLog)
 
         UnityEngine.Debug.Log("starting trial count " + _trialCount.ToString());
         //repeat blocks twice
-        for (int i = 0; i < _blockCount; i++)
+
+        int j;
+
+        UnityEngine.Debug.Log("We have a last block Count  " + LastBlockNo);
+        UnityEngine.Debug.Log("We have a last block END/START:   " + LastST_END_YN);
+        if ((recontinued == true) && (LastBlockNo >= 0) && (isdevmode == false))
+        {
+            if ((LastBlockNo == 2) && (LastST_END_YN=="STARTED"))
+            {
+                j = 2;
+            }
+            else
+            {
+                j = LastBlockNo + 1;
+            }
+        }
+        else {
+            j = 0;
+        }
+
+        UnityEngine.Debug.Log("We have a _blockCount: " + _blockCount);
+        UnityEngine.Debug.Log("We have a TotalSessions: " + Configuration.totalSessions);
+        
+
+        for (int i = j ; i < _blockCount; i++)
         {
             _currBlockNum = i;
             UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
@@ -1047,6 +1515,34 @@ if(!skipLog)
             trialLogTrack.LogBlock(i, true);
             yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
             trialLogTrack.LogBlock(i, false);
+        }
+
+        UnityEngine.Debug.Log("Done with everything......: " + num_incomplete);
+        if (LastBlockNo == 2)
+        {
+            if (num_incomplete != 0) {
+                for (int i = 0; i <= 1; i++) {
+                    if (BlockStatus[i] < 1) {
+                        trialLogTrack.LogBlockRedo(i, true);
+                        yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
+                        trialLogTrack.LogBlockRedo(i, false);
+                    }
+                }
+            }
+        }
+        else {
+            if (num_incomplete != 0)
+            {
+                for (int i = 0; i <= LastBlockNo; i++)
+                {
+                    if (BlockStatus[i] < 1)
+                    {
+                        trialLogTrack.LogBlockRedo(i, true);
+                        yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
+                        trialLogTrack.LogBlockRedo(i, false);
+                    }
+                }
+            }
         }
 
         uiController.endSessionPanel.alpha = 1f;
@@ -1686,7 +2182,14 @@ if(!skipLog)
     IEnumerator DisplayNextTrialScreen()
     {
         uiController.nextTrialPanel.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
         uiController.nextTrialPanel.alpha = 0f;
         yield return null;
     }
@@ -1695,6 +2198,7 @@ if(!skipLog)
 
     IEnumerator CheckForWeatherChange(TaskStage upcomingStage, int blockTrial)
     {
+        //UnityEngine.Debug.Log("WEATHER PATTERN DW qwewqqe");
         //this will be interleaved; so we will only have Different Weather for every even trial
         if (_weatherChangeTrials[blockTrial] % 2 == 0) 
         {
@@ -2012,7 +2516,14 @@ if(!skipLog)
 
         uiController.trackScreeningPanel.alpha = 1f;
         uiController.spacebarContinue.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
         uiController.spacebarContinue.alpha = 0f;
         uiController.trackScreeningPanel.alpha = 0f;
 
@@ -2063,7 +2574,14 @@ if(!skipLog)
         UnityEngine.Debug.Log("stim block sequence length" + stimuliBlockSequence.Count.ToString());
         //show instructions
         uiController.followUpTestPanel.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
         uiController.followUpTestPanel.alpha = 0f;
 
         
@@ -2297,8 +2815,23 @@ if(!skipLog)
 
     IEnumerator WaitForSelection(string selectionType)
     {
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else {
+            yield return StartCoroutine(WaitForJitterAction());
+        }
         trialLogTrack.LogUserChoiceSelection(uiController.GetSelectionIndex(), selectionType);
+        yield return null;
+    }
+
+    public IEnumerator WaitForJitterAction()
+    {
+        while (!jitterAction)
+        {
+            yield return 0;
+        }
         yield return null;
     }
 
@@ -3155,7 +3688,14 @@ if(!skipLog)
                     string objName = _retrievalObjList[i].gameObject.name.Split('(')[0];
                     uiController.retrievalItemName.text = objName;
 
-                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                    if (!isdevmode)
+                    {
+                        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                    }
+                    else
+                    {
+                        yield return StartCoroutine(WaitForJitterAction());
+                    }
 
                     uiController.targetTextPanel.alpha = 1f;
                     uiController.retrievalItemName.text = objName;
@@ -3257,6 +3797,26 @@ if(!skipLog)
     // Update is called once per frame
     void Update()
     {
+
+        
+
+        if (onofftime == 5 || onofftime == 6)
+        {
+            jitterAction = true;
+        }
+        else {
+            jitterAction = false;
+        }
+
+        if (onofftime == 10)
+        {
+            onofftime = 0;
+        }
+        else {
+            onofftime += 1;
+        }
+        
+
         Transform resultTrans = null;
         if (playerPosDict.Count > 0 && playerPosDict.TryGetValue(169, out resultTrans))
         {
@@ -3268,6 +3828,38 @@ if(!skipLog)
         {
             QuitTask();
         }
+
+        if (selectionImage.transform.GetComponent<Image>().enabled)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                beginScreenSelect--;
+                if (beginScreenSelect < 0)
+                    beginScreenSelect = beginScreenSelect + 2;
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                beginScreenSelect++;
+
+                if (beginScreenSelect > 1)
+                    beginScreenSelect = beginScreenSelect - 2;
+            }
+
+            switch (beginScreenSelect)
+            {
+                case 0:
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-514f, -350f, 0f);
+                    break;
+                case 1:
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-18f, -350f, 0f);
+                    break;
+                case 2:
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(495f, -350f, 0f);
+                    break;
+            }
+        }
+            
+                
     }
 
 

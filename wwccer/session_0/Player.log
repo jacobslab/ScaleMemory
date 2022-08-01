@@ -1,0 +1,114 @@
+Mono path[0] = '/Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/Resources/Data/Managed'
+Mono config path = '/Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/MonoBleedingEdge/etc'
+Initialize engine version: 2020.3.26f1 (7298b473bc1a)
+[Subsystems] Discovering subsystems at path /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/Resources/Data/UnitySubsystems
+GfxDevice: creating device client; threaded=1
+2022-07-20 18:29:05.773 CityBlock[28602:795874] (null) preferred device: Apple M1 (high power)
+2022-07-20 18:29:05.773 CityBlock[28602:795874] Metal devices available: 1
+2022-07-20 18:29:05.773 CityBlock[28602:795874] 0: Apple M1 (high power)
+2022-07-20 18:29:05.773 CityBlock[28602:795874] Using device Apple M1 (high power)
+Initializing Metal device caps: Apple M1
+Begin MonoManager ReloadAssembly
+- Completed reload, in  0.070 seconds
+Metal RecreateSurface[0x104d92100]: surface size 2880x1800
+The referenced script on this Behaviour (Game Object 'split_traffic_light') is missing!
+UnloadTime: 2.446167 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+looking for setting spawnCount
+data path /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents
+one level up /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app
+another level up /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory
+config path /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Configs
+loaded experiment text {
+    "trialsPerSession": 5,
+    "deliveriesPerTrial":16,
+    "familiarizationMaxTime":60,
+    "audioFileExtension":".wav",
+    "distanceThreshold":5,
+    "timeThreshold":2,
+    "timeBetweenLaps":4,
+    "spawnCount":5,
+    "itemPresentationTime":1.6,
+    "heartbeatIntervalMS":1000,
+    "minBufferLures":50,
+    "minGapBetweenStimuli":3,
+    "minJitterTime":0.25,
+    "maxJitterTime":0.8,
+    "totalSessions":2,
+    "minFrameSpeed":0.9,
+    "maxFrameSpeed":1.2,
+    "minRetrievalFrameSpeed":1,
+    "maxRetrievalFrameSpeed":1.4,
+    "startBuffer":90,
+    "endBuffer":90,
+    "minFramesBetweenStimuli":150,
+    "minGapToLure":50,
+    "luresPerTrial":2,
+    "itemReactivationTime":2,
+    "locationReactivationTime":2,
+    "stimMode":"closed"
+}
+length of exp config 27
+found value for spawnCount : 5
+looking for setting luresPerTrial
+length of exp config 27
+found value for luresPerTrial : 2
+RECORDING DEVICES1
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+block count 3
+looking for setting spawnCount
+length of exp config 27
+found value for spawnCount : 5
+looking for setting luresPerTrial
+length of exp config 27
+found value for luresPerTrial : 2
+Before Enter
+FileNotFoundException: Could not find file "/Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/cam_transform.txt"
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.Boolean anonymous, System.IO.FileOptions options) [0x0019e] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.IO.FileOptions options, System.String msgPath, System.Boolean bFromProxy, System.Boolean useLongPath, System.Boolean checkHost) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.FileStream..ctor(string,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,int,System.IO.FileOptions,string,bool,bool,bool)
+  at System.IO.StreamReader..ctor (System.String path, System.Text.Encoding encoding, System.Boolean detectEncodingFromByteOrderMarks, System.Int32 bufferSize, System.Boolean checkHost) [0x00067] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path, System.Text.Encoding encoding, System.Boolean detectEncodingFromByteOrderMarks, System.Int32 bufferSize) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path, System.Boolean detectEncodingFromByteOrderMarks) [0x0000d] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.StreamReader..ctor(string)
+  at Experiment+<ReadCamTransform>d__148.MoveNext () [0x00035] in <6bc6010e5a774c54a44fc9e747c26722>:0 
+  at UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) [0x00026] in <2ad090c3e79347c49a6c2962832595fd>:0 
+UnityEngine.MonoBehaviour:StartCoroutineManaged(String, Object)
+UnityEngine.MonoBehaviour:StartCoroutine(String, Object)
+UnityEngine.MonoBehaviour:StartCoroutine(String)
+Experiment:Start()
+
+LOGGED SESSION START
+got subject name
+Before Enter 222 Returning
+welde welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+I m here 2
+enteredsubj name wwccer
+new logging path is /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/
+subject directory /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/wwccer/
+Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 
+Is this what is SessionDirectory bEhavaecnvkngoitg4g45:/Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/wwccer/session_0/
+_subjectLogfile /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/wwccer/session_0/wwccerLog.txt
+Remember Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 
+beginning logging
+filename is /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/wwccer/session_0/wwccerLog.txt
+running logwriter coroutine writing at /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/wwccer/session_0/wwccerLog.txt
+set subject name: wwccer
+welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+LOGGING BEGINS
+Session1 Existing:gkej3n4rio34ro3iro34: 000 
+URI /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/AssetBundles/stimuli
+Unable to open archive file: /Users/sai.vaddi/Documents/Unity/SCM0620_v2/ScaleMemory/Behavioural_CrashImp.app/Contents/AssetBundles/stimuli
+Failed to read data for the AssetBundle 'stimuli'.
+Failed to load AssetBundle!
+writing: 1658356156312	155	0	B	Logging Begins
+Failed to load AssetBundle!
+writing: 1658356156315	155	LoadingScreenPanel	CANVAS_GROUP_ALPHA	1
+NullReferenceException: Object reference not set to an instance of an object
+  at AssetBundleLoader+<LoadStimuliImages>d__24.MoveNext () [0x0016c] in <6bc6010e5a774c54a44fc9e747c26722>:0 
+  at UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) [0x00026] in <2ad090c3e79347c49a6c2962832595fd>:0 
+

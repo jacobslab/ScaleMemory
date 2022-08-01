@@ -47,6 +47,8 @@ public class UsefulFunctions
 		yield return null;
 	}
 
+
+
 	//set layer of gameobject and all its children using the layer ID (int)
 	public static void SetLayerRecursively(GameObject obj, int newLayer)
 	{
