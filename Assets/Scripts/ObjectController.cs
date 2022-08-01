@@ -85,23 +85,25 @@ public class ObjectController : MonoBehaviour
 			prefabs = Resources.LoadAll("Prefabs/Objects");
 		}
 #else
-		for(int i=0;i<permanentImageList.Count;i++)
+		UnityEngine.Debug.Log("Permanent Image List Permanent Image List: " + permanentImageList.Count);
+		for (int i=0;i<permanentImageList.Count;i++)
         {
 			stimuliImageList.Add(permanentImageList[i]);
 
 		}
-        //#else
-        //		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
+		UnityEngine.Debug.Log("Stimuli Image List Stimuli Image List: " + stimuliImageList.Count);
+		//#else
+		//		prefabs = Resources.LoadAll("Prefabs/Images",typeof(Texture));
 #endif
 
-//#if !UNITY_WEBGL
-  //      for (int i = 0; i < prefabs.Length; i++)
+		//#if !UNITY_WEBGL
+		//      for (int i = 0; i < prefabs.Length; i++)
 		//{
 		//	stimuliImageList.Add((Texture)prefabs[i]);
 		//}
-//#endif
+		//#endif
 
-        UnityEngine.Debug.Log("finished filling");
+		UnityEngine.Debug.Log("finished filling");
 	}
 
 	public List<Texture> SelectImagesForLures()
@@ -192,6 +194,7 @@ public class ObjectController : MonoBehaviour
 		
 		encodingList = new List<Texture>();
 
+		UnityEngine.Debug.Log("RunBlock: SelectEncoding: Stimuli Image List: " + stimuliImageList.Count);
 		for(int i=0;i < Experiment.listLength; i++)
 		{
 			if (i >= stimuliImageList.Count)

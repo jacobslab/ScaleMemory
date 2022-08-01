@@ -199,6 +199,7 @@ public class AssetBundleLoader : MonoBehaviour
             yield return null;
         }
         Object[] images = myLoadedAssetBundle.LoadAllAssets(typeof(Texture));
+        UnityEngine.Debug.Log("Total Images:nc3n3o4iTotal Images: " + images.Length);
         yield return StartCoroutine(Experiment.Instance.objController.FillPermanentImageList(images));
 
         yield return null;

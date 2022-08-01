@@ -11,7 +11,14 @@ public class InstructionsManager : MonoBehaviour
     {
         uiController.encodingPanel.alpha = 1f;
         uiController.spacebarContinue.alpha = 1f;
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!exp.isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
         uiController.spacebarContinue.alpha = 0f;
         uiController.encodingPanel.alpha = 0f;
         yield return null;
@@ -113,7 +120,14 @@ public class InstructionsManager : MonoBehaviour
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preEncodingInstructions.enabled = true;
                 uiController.spacebarContinue.alpha = 1f;
-                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                if (!exp.isdevmode)
+                {
+                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                }
+                else
+                {
+                    yield return StartCoroutine(exp.WaitForJitterAction());
+                }
                 uiController.spacebarContinue.alpha = 0f;
                 uiController.preEncodingInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
@@ -122,7 +136,14 @@ public class InstructionsManager : MonoBehaviour
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.secondPracticeLoopInstructions.enabled = true;
                 uiController.spacebarContinue.alpha = 1f;
-                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                if (!exp.isdevmode)
+                {
+                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                }
+                else
+                {
+                    yield return StartCoroutine(exp.WaitForJitterAction());
+                }
                 uiController.spacebarContinue.alpha = 0f;
                 uiController.secondPracticeLoopInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
@@ -131,7 +152,14 @@ public class InstructionsManager : MonoBehaviour
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preWeatherCondition.enabled = true;
                 uiController.spacebarContinue.alpha = 1f;
-                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                if (!exp.isdevmode)
+                {
+                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                }
+                else
+                {
+                    yield return StartCoroutine(exp.WaitForJitterAction());
+                }
                 uiController.spacebarContinue.alpha = 0f;
                 uiController.preWeatherCondition.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
@@ -145,7 +173,14 @@ public class InstructionsManager : MonoBehaviour
     {
         uiController.intermissionInstructionPanel.alpha = 1f;
         exp.trialLogTrack.LogIntermission(true);
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!exp.isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
         uiController.intermissionInstructionPanel.alpha = 0f;
         exp.trialLogTrack.LogIntermission(false);
         yield return null;
@@ -156,7 +191,14 @@ public class InstructionsManager : MonoBehaviour
     {
         uiController.secondSessionIntroPanel.alpha = 1f;
         exp.trialLogTrack.LogInstructions(true);
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!exp.isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
         uiController.secondSessionIntroPanel.alpha = 0f;
         exp.trialLogTrack.LogInstructions(false);
     }
@@ -164,7 +206,14 @@ public class InstructionsManager : MonoBehaviour
     {
         uiController.secondEncodingInstructionPanel.alpha = 1f;
         exp.trialLogTrack.LogInstructions(true);
-        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        if (!exp.isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
         uiController.secondEncodingInstructionPanel.alpha = 0f;
         exp.trialLogTrack.LogInstructions(false);
         yield return null;

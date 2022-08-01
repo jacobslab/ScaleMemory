@@ -8,6 +8,8 @@ using System.Collections.Generic;
 public class UsefulFunctions
 {
 
+	Experiment exp { get { return Experiment.Instance; } }
+
 	//given the size of an array or a list, will return a list of indices in a random order
 	public static List<int> GetRandomIndexOrder(int count)
 	{
@@ -29,7 +31,7 @@ public class UsefulFunctions
 	}
 
 	public static IEnumerator WaitForExitButton()
-    {
+	{
 		while (!Input.GetButtonDown("Exit"))
 		{
 			yield return 0;
@@ -46,6 +48,10 @@ public class UsefulFunctions
 		}
 		yield return null;
 	}
+
+
+
+
 
 	//set layer of gameobject and all its children using the layer ID (int)
 	public static void SetLayerRecursively(GameObject obj, int newLayer)
@@ -108,6 +114,7 @@ public class UsefulFunctions
 	{
 		List<int> tempList = new List<int>();
 		List<int> resultList = new List<int>();
+		UnityEngine.Debug.Log("ListLength: Return: " + listLength);
 		for (int i = 0; i < listLength; i++)
 		{
 			tempList.Add(i);

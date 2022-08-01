@@ -69,6 +69,20 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "BLOCK" + separator + blockNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED"));
 	}
 
+	public void LogBlockRedo(int blockNum, bool hasBegun)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "BLOCK" + separator + blockNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED") + separator + "REDO");
+	}
+
+	public void LogQuestionContinual(bool hasBegun)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "NEW INSTANCE" + separator + "CONTINUAL_Q?" + separator + ((hasBegun) ? "YES" : "NO"));
+		if (hasBegun == true) {
+			subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "NEW INSTANCE" + separator + "CREATING A NEW DIRECTORY" + separator + ((hasBegun) ? "YES" : "NO"));
+
+		}
+	}
+
 	public void LogTrialLoop(int loopNum, bool hasBegun)
     {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRIAL_LOOP" + separator + loopNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED"));

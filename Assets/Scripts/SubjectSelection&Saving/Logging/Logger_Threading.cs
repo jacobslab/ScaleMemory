@@ -198,7 +198,7 @@ IEnumerator LogWriter()
 			while (myLoggerQueue.logQueue.Count > 0) {
 				string msg = myLoggerQueue.GetFromLogQueue ();
 
-				//UnityEngine.Debug.Log ("writing: " + msg);
+				UnityEngine.Debug.Log ("writing: " + msg);
 				logfile.WriteLine (msg);
 				yield return 0;
 			}

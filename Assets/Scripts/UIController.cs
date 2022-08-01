@@ -5,10 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 public class UIController : MonoBehaviour
 {
-
+    
     Experiment exp { get { return Experiment.Instance; } }
     private float prevLapTime = 0f;
 
+    public CanvasGroup BeginMenu;
     //retrieval
     public CanvasGroup retrievalTextPanel;
     public CanvasGroup targetTextPanel;
@@ -31,6 +32,9 @@ public class UIController : MonoBehaviour
     //subject info entry panel
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
+
+    public CanvasGroup blockInfoPanel;
+    public InputField blockInputField;
 
     //next trial screen
     public CanvasGroup nextTrialPanel;
@@ -161,9 +165,12 @@ public class UIController : MonoBehaviour
     //end session
     public CanvasGroup endSessionPanel;
 
+    public CanvasGroup ShowSubject;
+    public Text ShowSubjectText;
+
 
     // info text
-//    public TextMeshPro infoText;
+    //    public TextMeshPro infoText;
 
     public enum OptionSelection
     {
@@ -199,7 +206,7 @@ public class UIController : MonoBehaviour
     private int maxSpatialPages = 4;
 
     public bool showInstructions = false;
-
+    
     
 
     // Use this for initialization
@@ -212,7 +219,7 @@ public class UIController : MonoBehaviour
 
         blackScreen.alpha = 0f;
 
-
+        blockInputField.gameObject.SetActive(false);
         activeSelectionPositions = new List<Vector3>();
      //   retrievalTextPanel.alpha = 0f;
 
@@ -367,6 +374,11 @@ public class UIController : MonoBehaviour
                 activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
             }
             maxOptions = itemCuedSelectionPositions.Count;
+                UnityEngine.Debug.Log(maxOptions);
+            if (exp.isdevmode)
+            {
+                    currSelection = maxOptions - 1;
+            }
             break;
 
             case "Location":
@@ -375,7 +387,12 @@ public class UIController : MonoBehaviour
                 activeSelectionPositions.Add(locationCuedSelectionPositions[i]);
             }
             maxOptions = locationCuedSelectionPositions.Count;
-            break;
+                UnityEngine.Debug.Log(maxOptions);
+                if (exp.isdevmode)
+                {
+                    currSelection = maxOptions - 1;
+                }
+                break;
             case "TemporalOrder":
                 for (int i = 0; i < locationCuedSelectionPositions.Count; i++)
                 {
@@ -384,7 +401,11 @@ public class UIController : MonoBehaviour
                     activeSelectionPositions.Add(currPos);
                 }
                 maxOptions = locationCuedSelectionPositions.Count;
-
+                UnityEngine.Debug.Log(maxOptions);
+                if (exp.isdevmode)
+                {
+                    currSelection = maxOptions - 1;
+                }
                 break;
             case "TemporalDistance":
                 for (int i = 0; i < temporalDistancePositions.Count; i++)
@@ -392,6 +413,11 @@ public class UIController : MonoBehaviour
                     activeSelectionPositions.Add(temporalDistancePositions[i]);
                 }
                 maxOptions = temporalDistancePositions.Count;
+                UnityEngine.Debug.Log(maxOptions);
+                if (exp.isdevmode)
+                {
+                    currSelection = maxOptions - 1;
+                }
                 break;
             case "ContextRecollection":
                 for (int i = 0; i < itemCuedSelectionPositions.Count; i++)
@@ -399,9 +425,15 @@ public class UIController : MonoBehaviour
                     activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
                 }
                 maxOptions = itemCuedSelectionPositions.Count;
+                UnityEngine.Debug.Log(maxOptions);
+                if (exp.isdevmode)
+                {
+                    currSelection = maxOptions - 1;
+                }
                 break;
 
-        }   
+        }
+
 
         UnityEngine.Debug.Log("setting selection options with max options at " + maxOptions.ToString());
         currSelection = 0;
@@ -437,6 +469,7 @@ public class UIController : MonoBehaviour
         {
             currSelection++;
         }
+
 
         //wrap it around
         if (currSelection >= maxOptions)
@@ -500,6 +533,10 @@ public class UIController : MonoBehaviour
     {
         UnityEngine.Debug.Log("reset selection");
         currSelection = 0;
+        if (exp.isdevmode)
+        {
+            currSelection = maxOptions - 1;
+        }
         selectionImage.GetComponent<RectTransform>().anchoredPosition = activeSelectionPositions[currSelection] - new Vector3(0f, 50f, 0f);
     }
 
