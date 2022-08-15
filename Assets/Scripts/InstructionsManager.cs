@@ -35,27 +35,30 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowVerbalRetrievalInstructions(int pageID)
     {
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
-        switch (pageID)
+        if (exp.beginScreenSelect == -1)
         {
-            //page one
-            case 0:
-                uiController.verbalInstructionA.enabled = true;
-                uiController.verbalInstructionB.enabled = false;
-                uiController.verbalRetrievalPanel.alpha = 1f;
-                break;
-            //    yield return StartCoroutine(WaitForActionButton());
+            switch (pageID)
+            {
+                //page one
+                case 0:
+                    uiController.verbalInstructionA.enabled = true;
+                    uiController.verbalInstructionB.enabled = false;
+                    uiController.verbalRetrievalPanel.alpha = 1f;
+                    break;
+                //    yield return StartCoroutine(WaitForActionButton());
 
-            //page two
-            case 1:
-                uiController.verbalInstructionA.enabled = false;
-                uiController.verbalInstructionB.enabled = true;
-                break;
-            // yield return StartCoroutine(WaitForActionButton());
-            case 2:
-                uiController.verbalRetrievalPanel.alpha = 0f;
-                break;
+                //page two
+                case 1:
+                    uiController.verbalInstructionA.enabled = false;
+                    uiController.verbalInstructionB.enabled = true;
+                    break;
+                // yield return StartCoroutine(WaitForActionButton());
+                case 2:
+                    uiController.verbalRetrievalPanel.alpha = 0f;
+                    break;
 
-                //    
+                    //    
+            }
         }
 
         yield return null;
@@ -71,43 +74,45 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowRetrievalInstructions(int pageID)
     {
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
-        switch (pageID)
+        if (exp.beginScreenSelect == -1)
         {
-            case 0:
-                uiController.practiceInstructionPanel.alpha = 1f;
-                uiController.preSpatialRetrieval.enabled = true;
-                break;
-            //  yield return StartCoroutine(WaitForActionButton());
-            case 1:
-                uiController.preSpatialRetrieval.enabled = false;
-                uiController.practiceInstructionPanel.alpha = 0f;
-                uiController.preSpatialRetrieval.enabled = false;
-                uiController.practiceInstructionPanel.alpha = 0f;
+            switch (pageID)
+            {
+                case 0:
+                    uiController.practiceInstructionPanel.alpha = 1f;
+                    uiController.preSpatialRetrieval.enabled = true;
+                    break;
+                //  yield return StartCoroutine(WaitForActionButton());
+                case 1:
+                    uiController.preSpatialRetrieval.enabled = false;
+                    uiController.practiceInstructionPanel.alpha = 0f;
+                    uiController.preSpatialRetrieval.enabled = false;
+                    uiController.practiceInstructionPanel.alpha = 0f;
 
-                string itemName = exp.objController.ReturnStimuliDisplayText();
-                uiController.itemReactivationText.text = itemName;
-                uiController.itemReactivationPanel.alpha = 1f;
-                break;
-            // yield return new WaitForSeconds(2f);
-            case 2:
-                uiController.spatialInstructionA.enabled = true;
-                uiController.spatialInstructionB.enabled = false;
-                uiController.retrievalPanel.alpha = 1f;
-                break;
-            //yield return StartCoroutine(WaitForActionButton());
-            case 3:
-                uiController.itemReactivationPanel.alpha = 0f;
-                uiController.spatialInstructionA.enabled = false;
-                uiController.spatialInstructionB.enabled = true;
-                break;
-            // yield return StartCoroutine(WaitForActionButton());
-            case 4:
-                uiController.itemReactivationPanel.alpha = 0f;
-                uiController.retrievalPanel.alpha = 0f;
-                break;
+                    string itemName = exp.objController.ReturnStimuliDisplayText();
+                    uiController.itemReactivationText.text = itemName;
+                    uiController.itemReactivationPanel.alpha = 1f;
+                    break;
+                // yield return new WaitForSeconds(2f);
+                case 2:
+                    uiController.spatialInstructionA.enabled = true;
+                    uiController.spatialInstructionB.enabled = false;
+                    uiController.retrievalPanel.alpha = 1f;
+                    break;
+                //yield return StartCoroutine(WaitForActionButton());
+                case 3:
+                    uiController.itemReactivationPanel.alpha = 0f;
+                    uiController.spatialInstructionA.enabled = false;
+                    uiController.spatialInstructionB.enabled = true;
+                    break;
+                // yield return StartCoroutine(WaitForActionButton());
+                case 4:
+                    uiController.itemReactivationPanel.alpha = 0f;
+                    uiController.retrievalPanel.alpha = 0f;
+                    break;
 
+            }
         }
-
 
         yield return null;
     }

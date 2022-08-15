@@ -47,7 +47,9 @@ public class VideoLayer : MonoBehaviour
 
     private int currentFrame = 0;
 
-  
+    public bool boolLoggingCorner;
+    public TrialLogTrack trialLogTrack;
+
     private void Awake()
     {
     }
@@ -73,6 +75,7 @@ public class VideoLayer : MonoBehaviour
 #endif
         */
         //UnityEngine.Debug.Log("loaded " + frames.Length.ToStri ng() + " frames for " + gameObject.name);
+        boolLoggingCorner = false;
         if (spawnPointReachedEvent == null)
             spawnPointReachedEvent = new UnityEvent();
 
@@ -109,6 +112,7 @@ public class VideoLayer : MonoBehaviour
                 speed = Random.Range(Configuration.minRetrievalFrameSpeed, Configuration.maxRetrievalFrameSpeed);
             else
                 speed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
+            Debug.Log("RandomizeFramSpeed: Speed Multiple?? " + speed);
             yield return new WaitForSeconds(5f + Random.Range(1f, 8f));
             yield return 0;
         }
@@ -155,13 +159,17 @@ public class VideoLayer : MonoBehaviour
                 //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH Pause Point: jro3r: " + isPaused);
                 if (!isPaused)
                 {
+                    //speed = 1.05f;
                     if (playbackDirection == 1)
                         timeVar += Time.deltaTime * speed;
                     else
                         timeVar -= Time.deltaTime * speed;
 
                     currentFrame = (int)(timeVar * frameRate);
-                    // UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                    /*UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
+                    UnityEngine.Debug.Log(gameObject.name + " current frame speed: " + speed);
+                    UnityEngine.Debug.Log(gameObject.name + " current frame framerate: " + frameRate);*/
+                    //UnityEngine.Debug.Log(gameObject.name + " current frame TimeDeltaTime: " + Time.deltaTime);
 
                     //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH cF: " + currentFrame + " nSF: " + Experiment.nextSpawnFrame);
                     if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
@@ -185,6 +193,23 @@ public class VideoLayer : MonoBehaviour
                     }
                 }
                 //UnityEngine.Debug.Log("Current frame: " + currentFrame);
+                if ((
+                     (currentFrame > 300 && currentFrame < 310) ||
+                     (currentFrame > 520 && currentFrame < 530) ||
+                     (currentFrame > 770 && currentFrame < 780) ||
+                     (currentFrame > 1100 && currentFrame < 1110)
+                    ))
+                {
+                    if (boolLoggingCorner == false) {
+                        boolLoggingCorner = true;
+                        Experiment.Instance.expLogCorner(currentFrame);
+                            //trialLogTrack.LogCorner(currentFrame);
+                    }
+                }
+                else {
+                    boolLoggingCorner = false;
+                }
+
                 if (currentFrame >= frames.Length-1)
                 {
                     UnityEngine.Debug.Log("exceeded video: " + LapCounter.lapCount);

@@ -37,6 +37,13 @@ public class TrialLogTrack : LogTrack {
 		Debug.Log ("LOGGING BEGINS");
 		subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "0" + separator + "B" + separator + "Logging Begins");
 	}
+	public void LogCorner(int frame)
+	{
+		Debug.Log("LOGGING CORNER");
+		Transform presentationTrans = Experiment.Instance.GetTransformForFrame(frame);
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "LOGGING_CORNER" + separator + "AssetBundleFrame" + separator + frame.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
+	}
 	void LogEnd()
 	{
 		Debug.Log ("LOGGING ENDS");
@@ -146,7 +153,7 @@ public class TrialLogTrack : LogTrack {
     {
 
 		Transform presentationTrans = Experiment.Instance.GetTransformForFrame(frameNum);
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + encodingOrder.ToString() +  separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + encodingOrder.ToString() +  separator + frameNum.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
 	}
 
 	public void LogItemPresentation(string objName,bool isActive)

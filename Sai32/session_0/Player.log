@@ -1,0 +1,1971 @@
+Mono path[0] = '/Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/Resources/Data/Managed'
+Mono config path = '/Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/MonoBleedingEdge/etc'
+Initialize engine version: 2020.3.26f1 (7298b473bc1a)
+[Subsystems] Discovering subsystems at path /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/Resources/Data/UnitySubsystems
+GfxDevice: creating device client; threaded=1
+2022-08-05 11:34:50.315 CityBlock[21515:606337] (null) preferred device: Apple M1 (high power)
+2022-08-05 11:34:50.315 CityBlock[21515:606337] Metal devices available: 1
+2022-08-05 11:34:50.315 CityBlock[21515:606337] 0: Apple M1 (high power)
+2022-08-05 11:34:50.315 CityBlock[21515:606337] Using device Apple M1 (high power)
+Initializing Metal device caps: Apple M1
+Begin MonoManager ReloadAssembly
+- Completed reload, in  0.044 seconds
+Metal RecreateSurface[0x107400540]: surface size 2880x1800
+The referenced script on this Behaviour (Game Object 'split_traffic_light') is missing!
+UnloadTime: 0.525250 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+looking for setting spawnCount
+data path /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents
+one level up /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app
+another level up /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory
+config path /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Configs
+loaded experiment text {
+    "trialsPerSession": 5,
+    "deliveriesPerTrial":16,
+    "familiarizationMaxTime":60,
+    "audioFileExtension":".wav",
+    "distanceThreshold":5,
+    "timeThreshold":2,
+    "timeBetweenLaps":4,
+    "spawnCount":5,
+    "itemPresentationTime":1.6,
+    "heartbeatIntervalMS":1000,
+    "minBufferLures":50,
+    "minGapBetweenStimuli":3,
+    "minJitterTime":0.25,
+    "maxJitterTime":0.8,
+    "totalSessions":2,
+    "minFrameSpeed":0.9,
+    "maxFrameSpeed":1.2,
+    "minRetrievalFrameSpeed":1,
+    "maxRetrievalFrameSpeed":1.4,
+    "startBuffer":90,
+    "endBuffer":90,
+    "minFramesBetweenStimuli":150,
+    "minGapToLure":50,
+    "luresPerTrial":2,
+    "itemReactivationTime":2,
+    "locationReactivationTime":2,
+    "stimMode":"closed"
+}
+length of exp config 27
+found value for spawnCount : 5
+looking for setting luresPerTrial
+length of exp config 27
+found value for luresPerTrial : 2
+RECORDING DEVICES1
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+block count 3
+looking for setting spawnCount
+length of exp config 27
+found value for spawnCount : 5
+looking for setting luresPerTrial
+length of exp config 27
+found value for luresPerTrial : 2
+Before Enter
+FileNotFoundException: Could not find file "/Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/cam_transform.txt"
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.Boolean anonymous, System.IO.FileOptions options) [0x0019e] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.IO.FileOptions options, System.String msgPath, System.Boolean bFromProxy, System.Boolean useLongPath, System.Boolean checkHost) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.FileStream..ctor(string,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,int,System.IO.FileOptions,string,bool,bool,bool)
+  at System.IO.StreamReader..ctor (System.String path, System.Text.Encoding encoding, System.Boolean detectEncodingFromByteOrderMarks, System.Int32 bufferSize, System.Boolean checkHost) [0x00067] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path, System.Text.Encoding encoding, System.Boolean detectEncodingFromByteOrderMarks, System.Int32 bufferSize) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path, System.Boolean detectEncodingFromByteOrderMarks) [0x0000d] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamReader..ctor (System.String path) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.StreamReader..ctor(string)
+  at Experiment+<ReadCamTransform>d__156.MoveNext () [0x00035] in <3fc36c129c54436bbe86c1f9e55fcc62>:0 
+  at UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) [0x00026] in <2ad090c3e79347c49a6c2962832595fd>:0 
+UnityEngine.MonoBehaviour:StartCoroutineManaged(String, Object)
+UnityEngine.MonoBehaviour:StartCoroutine(String, Object)
+UnityEngine.MonoBehaviour:StartCoroutine(String)
+Experiment:Start()
+
+LOGGED SESSION START
+got subject name
+Before Enter 222 Returning
+welde welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+I m here 
+got Block name
+enteredsubj name Sai32
+new logging path is /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/
+subject directory /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/
+subject directory sesssionID: 0
+subject directory num_complete: 0
+Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 
+Is this what is SessionDirectory bEhavaecnvkngoitg4g45:/Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/
+_subjectLogfile /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/Sai32Log.txt
+Remember Remember Session1 Existing:gkej3n4rio34ro3iro34: 000 
+beginning logging
+filename is /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/Sai32Log.txt
+running logwriter coroutine writing at /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/Sai32Log.txt
+set subject name: Sai32
+welde Session1 Existing:gkej3n4rio34ro3iro34: 000 
+LOGGING BEGINS
+Session1 Existing:gkej3n4rio34ro3iro34: 000 
+URI /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/AssetBundles/stimuli
+Total Images:nc3n3o4iTotal Images: 535
+image objects length 535
+filling
+Permanent Image List Permanent Image List: 535
+Stimuli Image List Stimuli Image List: 535
+finished filling
+writing: 1659713773717	4854	0	B	Logging Begins
+writing: 1659713774566	4854	LoadingScreenPanel	CANVAS_GROUP_ALPHA	1
+about to load sunny
+URI /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/AssetBundles/sunny
+finished loading for weather sunny
+about to load rain
+URI /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/AssetBundles/rain
+finished loading for weather rain
+about to load night
+URI /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/AssetBundles/night
+finished loading for weather night
+making SUNNY visibility: False
+making RAINY visibility: False
+making NIGHT visibility: False
+URI /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/CityBlock_v21.app/Contents/AssetBundles/item
+loaded image card sunny_card-001
+loaded image card rain_card-001
+loaded image card night_card-001
+writing: 1659713778427	4876	LoadingScreenPanel	CANVAS_GROUP_ALPHA	0
+writing: 1659713778443	4877	ELEMEM_CONNECTION_SUCCESSFUL
+Hello this is Enddsnfiewdweqknqiw
+Quitting Here!!
+showing consent screen
+writing: 1659713778460	4878	CONSENT_SCREEN	STARTED
+writing: 1659713778461	4878	ConsentInstructions	CANVAS_GROUP_ALPHA	1
+given consent
+writing: 1659713780977	5029	CONSENT_SCREEN	ENDED
+CreateSessionData: PermanentImageList: 535
+CreateSessionData: Here we are with session_id: 0: /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/
+ListLength: Return: 535
+about to start writing stim list 535
+writing list 501
+328
+223
+217
+185
+28
+272
+321
+253
+219
+215
+441
+300
+532
+348
+376
+262
+152
+193
+148
+68
+414
+450
+477
+220
+273
+365
+127
+301
+37
+54
+198
+329
+453
+371
+57
+64
+491
+126
+6
+43
+531
+165
+109
+279
+472
+379
+505
+3
+78
+147
+167
+298
+360
+248
+209
+135
+413
+515
+359
+12
+98
+492
+269
+9
+232
+122
+415
+187
+100
+151
+343
+521
+266
+333
+105
+397
+63
+464
+325
+132
+162
+118
+286
+446
+104
+399
+454
+50
+353
+274
+11
+67
+506
+212
+460
+478
+184
+468
+138
+201
+326
+482
+423
+251
+479
+91
+280
+16
+315
+475
+456
+511
+172
+211
+47
+131
+525
+197
+408
+444
+139
+336
+130
+244
+394
+264
+146
+319
+20
+119
+205
+18
+451
+303
+0
+48
+276
+24
+522
+246
+2
+435
+534
+439
+86
+62
+14
+342
+226
+19
+302
+317
+73
+421
+406
+53
+498
+372
+129
+390
+95
+225
+364
+516
+238
+296
+255
+34
+496
+452
+368
+437
+66
+483
+181
+322
+331
+332
+467
+355
+396
+304
+311
+466
+420
+10
+513
+487
+101
+160
+436
+407
+418
+422
+523
+25
+289
+267
+258
+108
+111
+374
+210
+15
+260
+327
+128
+4
+509
+183
+177
+145
+249
+398
+143
+442
+173
+202
+410
+84
+7
+83
+354
+158
+213
+351
+281
+56
+473
+234
+419
+80
+338
+268
+30
+231
+445
+432
+168
+527
+474
+307
+344
+200
+434
+51
+485
+222
+345
+155
+297
+533
+75
+81
+507
+349
+324
+337
+164
+140
+236
+520
+229
+72
+1
+153
+431
+93
+367
+519
+107
+31
+141
+21
+76
+61
+65
+59
+463
+55
+378
+79
+470
+400
+290
+291
+318
+178
+161
+271
+488
+517
+154
+206
+179
+503
+340
+102
+149
+449
+335
+125
+99
+40
+320
+392
+524
+137
+170
+208
+190
+530
+235
+465
+186
+409
+510
+288
+438
+35
+180
+526
+230
+282
+136
+402
+85
+97
+114
+385
+370
+401
+270
+144
+448
+259
+171
+27
+310
+116
+257
+191
+363
+58
+261
+38
+430
+42
+283
+120
+388
+383
+357
+133
+416
+174
+90
+455
+176
+386
+518
+462
+471
+115
+77
+49
+299
+204
+46
+391
+113
+150
+440
+481
+166
+92
+252
+313
+237
+312
+528
+428
+404
+427
+250
+74
+189
+341
+369
+411
+499
+425
+461
+405
+389
+458
+395
+233
+39
+52
+106
+502
+476
+142
+504
+352
+347
+254
+207
+182
+323
+306
+316
+275
+124
+134
+346
+459
+362
+277
+71
+417
+381
+486
+265
+339
+196
+308
+87
+242
+480
+305
+192
+69
+433
+366
+26
+60
+426
+227
+294
+393
+218
+89
+110
+508
+88
+214
+156
+33
+45
+112
+117
+96
+175
+295
+82
+216
+243
+382
+103
+188
+29
+495
+70
+424
+285
+350
+8
+412
+163
+287
+497
+429
+375
+240
+493
+17
+44
+358
+489
+263
+334
+377
+159
+94
+5
+221
+157
+241
+361
+36
+380
+512
+224
+494
+484
+447
+384
+330
+23
+529
+373
+13
+199
+41
+32
+239
+203
+247
+403
+123
+457
+195
+256
+121
+490
+194
+514
+469
+284
+292
+500
+387
+443
+169
+245
+228
+293
+356
+309
+22
+314
+278
+shuffled indices535
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+about to start writing stim list 267
+writing list 501
+328
+223
+217
+185
+28
+272
+321
+253
+219
+215
+441
+300
+532
+348
+376
+262
+152
+193
+148
+68
+414
+450
+477
+220
+273
+365
+127
+301
+37
+54
+198
+329
+453
+371
+57
+64
+491
+126
+6
+43
+531
+165
+109
+279
+472
+379
+505
+3
+78
+147
+167
+298
+360
+248
+209
+135
+413
+515
+359
+12
+98
+492
+269
+9
+232
+122
+415
+187
+100
+151
+343
+521
+266
+333
+105
+397
+63
+464
+325
+132
+162
+118
+286
+446
+104
+399
+454
+50
+353
+274
+11
+67
+506
+212
+460
+478
+184
+468
+138
+201
+326
+482
+423
+251
+479
+91
+280
+16
+315
+475
+456
+511
+172
+211
+47
+131
+525
+197
+408
+444
+139
+336
+130
+244
+394
+264
+146
+319
+20
+119
+205
+18
+451
+303
+0
+48
+276
+24
+522
+246
+2
+435
+534
+439
+86
+62
+14
+342
+226
+19
+302
+317
+73
+421
+406
+53
+498
+372
+129
+390
+95
+225
+364
+516
+238
+296
+255
+34
+496
+452
+368
+437
+66
+483
+181
+322
+331
+332
+467
+355
+396
+304
+311
+466
+420
+10
+513
+487
+101
+160
+436
+407
+418
+422
+523
+25
+289
+267
+258
+108
+111
+374
+210
+15
+260
+327
+128
+4
+509
+183
+177
+145
+249
+398
+143
+442
+173
+202
+410
+84
+7
+83
+354
+158
+213
+351
+281
+56
+473
+234
+419
+80
+338
+268
+30
+231
+445
+432
+168
+527
+474
+307
+344
+200
+434
+51
+485
+222
+345
+155
+297
+533
+75
+81
+507
+349
+324
+337
+164
+140
+236
+520
+229
+72
+1
+153
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+writing for session 
+about to start writing stim list 267
+writing list 431
+93
+367
+519
+107
+31
+141
+21
+76
+61
+65
+59
+463
+55
+378
+79
+470
+400
+290
+291
+318
+178
+161
+271
+488
+517
+154
+206
+179
+503
+340
+102
+149
+449
+335
+125
+99
+40
+320
+392
+524
+137
+170
+208
+190
+530
+235
+465
+186
+409
+510
+288
+438
+35
+180
+526
+230
+282
+136
+402
+85
+97
+114
+385
+370
+401
+270
+144
+448
+259
+171
+27
+310
+116
+257
+191
+363
+58
+261
+38
+430
+42
+283
+120
+388
+383
+357
+133
+416
+174
+90
+455
+176
+386
+518
+462
+471
+115
+77
+49
+299
+204
+46
+391
+113
+150
+440
+481
+166
+92
+252
+313
+237
+312
+528
+428
+404
+427
+250
+74
+189
+341
+369
+411
+499
+425
+461
+405
+389
+458
+395
+233
+39
+52
+106
+502
+476
+142
+504
+352
+347
+254
+207
+182
+323
+306
+316
+275
+124
+134
+346
+459
+362
+277
+71
+417
+381
+486
+265
+339
+196
+308
+87
+242
+480
+305
+192
+69
+433
+366
+26
+60
+426
+227
+294
+393
+218
+89
+110
+508
+88
+214
+156
+33
+45
+112
+117
+96
+175
+295
+82
+216
+243
+382
+103
+188
+29
+495
+70
+424
+285
+350
+8
+412
+163
+287
+497
+429
+375
+240
+493
+17
+44
+358
+489
+263
+334
+377
+159
+94
+5
+221
+157
+241
+361
+36
+380
+512
+224
+494
+484
+447
+384
+330
+23
+529
+373
+13
+199
+41
+32
+239
+203
+247
+403
+123
+457
+195
+256
+121
+490
+194
+514
+469
+284
+292
+500
+387
+443
+169
+245
+228
+293
+356
+309
+22
+314
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+added total 267 to stim list
+writing: 1659713780977	5029	ConsentInstructions	CANVAS_GROUP_ALPHA	0
+ListLength: Return: 80
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+ListLength: Return: 80
+looking for setting totalSessions
+length of exp config 27
+found value for totalSessions : 2
+returned shuffled retrieval type list of count 160
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE VERBAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+CHECK RETRIEVAL TYPE SPATIAL
+returned shuffled weather change list
+ListLength: Return: 40
+returned shuffled weather order
+length of list before split 160
+list is even
+list is even
+list is even
+length of list after split 80
+writing at the path /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_0/session0_trialConditions.txt
+writing at the path /Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_1/session1_trialConditions.txt
+DirectoryNotFoundException: Could not find a part of the path "/Users/sai.vaddi/Documents/Unity/SCM0208/ScaleMemory/Sai32/session_1/session1_trialConditions.txt".
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.Boolean anonymous, System.IO.FileOptions options) [0x00164] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.IO.FileOptions options, System.String msgPath, System.Boolean bFromProxy, System.Boolean useLongPath, System.Boolean checkHost) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.FileStream..ctor(string,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,int,System.IO.FileOptions,string,bool,bool,bool)
+  at System.IO.StreamWriter.CreateFile (System.String path, System.Boolean append, System.Boolean checkHost) [0x0001c] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamWriter..ctor (System.String path, System.Boolean append, System.Text.Encoding encoding, System.Int32 bufferSize, System.Boolean checkHost) [0x00055] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamWriter..ctor (System.String path, System.Boolean append, System.Text.Encoding encoding, System.Int32 bufferSize) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.StreamWriter..ctor (System.String path, System.Boolean append, System.Text.Encoding encoding) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.StreamWriter..ctor(string,bool,System.Text.Encoding)
+  at System.IO.File.WriteAllText (System.String path, System.String contents, System.Text.Encoding encoding) [0x00000] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at System.IO.File.WriteAllText (System.String path, System.String contents) [0x00007] in <695d1cc93cca45069c528c15c9fdd749>:0 
+  at Experiment+<GenerateRandomizedTrialConditions>d__201.MoveNext () [0x00308] in <3fc36c129c54436bbe86c1f9e55fcc62>:0 
+  at UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) [0x00026] in <2ad090c3e79347c49a6c2962832595fd>:0 
+UnityEngine.MonoBehaviour:StartCoroutineManaged2(IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+<InitialSetup>d__177:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+
+about to prep trials
+E: Sunny R: Rainy
+E: Sunny R: Night
+E: Rainy R: Sunny
+E: Rainy R: Night
+E: Night R: Sunny
+E: Night R: Rainy
+ListLength: Return: 12
+finished prepping trials
+writing: 1659713782094	5096	PostPracticePanel	CANVAS_GROUP_ALPHA	1

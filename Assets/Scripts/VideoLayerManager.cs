@@ -164,6 +164,8 @@ public class VideoLayerManager : MonoBehaviour
         }
 
 
+        UnityEngine.Debug.Log("NEXT FRAME SPAWN: " + Experiment.nextSpawnFrame);
+
         Experiment.Instance.retrievalFrameObjectDict.Add(Experiment.nextSpawnFrame, stimObject);
 
         float waitTime = Configuration.itemPresentationTime + Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);

@@ -37,7 +37,10 @@ public class UIController : MonoBehaviour
     public InputField blockInputField;
 
     //next trial screen
+    public CanvasGroup experimentStartPanel;
     public CanvasGroup nextTrialPanel;
+    public CanvasGroup nextTrialPanel2;
+    
 
     //track screening
     public CanvasGroup trackScreeningPanel;
@@ -167,8 +170,9 @@ public class UIController : MonoBehaviour
 
     public CanvasGroup ShowSubject;
     public Text ShowSubjectText;
-
-
+    public Text UsedBlockDisplayText;
+    public Text WrongBlockDisplayText;
+    public Text NumericalBlockDisplayText;
     // info text
     //    public TextMeshPro infoText;
 

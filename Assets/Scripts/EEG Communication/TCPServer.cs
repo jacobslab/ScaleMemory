@@ -95,7 +95,7 @@ public class TCPServer : MonoBehaviour
 	}
 
 
-	void RunServer()
+	public void RunServer()
 	{
 		UnityEngine.Debug.Log("creating threaded server");
 		myServer = new ThreadedServer();

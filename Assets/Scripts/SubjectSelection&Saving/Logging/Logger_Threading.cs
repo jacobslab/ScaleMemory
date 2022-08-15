@@ -115,6 +115,7 @@ public class LoggerWriter : ThreadedJob
 }
 
 public class Logger_Threading : MonoBehaviour{
+	Experiment exp { get { return Experiment.Instance; } }
 	public static string LogTextSeparator = "\t";
 
 	public LoggerQueue myLoggerQueue;
@@ -126,17 +127,18 @@ public class Logger_Threading : MonoBehaviour{
 	public StreamWriter logfile;
 
 	public string fileName;
+	public string prev_fileName;
 
 	void Start ()
 	{
-			//myLoggerQueue = new LoggerQueue ();
+		//myLoggerQueue = new LoggerQueue ();
 
-			//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
-			//		
-			//			myLoggerWriter.Start ();
+		//			myLoggerWriter = new LoggerWriter (fileName, myLoggerQueue);
+		//		
+		//			myLoggerWriter.Start ();
 
-			//	myLoggerWriter.log ("DATE: " + DateTime.Now.ToString ("M/d/yyyy")); //might not be needed
-		
+		//	myLoggerWriter.log ("DATE: " + DateTime.Now.ToString ("M/d/yyyy")); //might not be needed
+		prev_fileName = "";
 	}
 
 	public Logger_Threading(string file){
@@ -189,6 +191,13 @@ public class Logger_Threading : MonoBehaviour{
 #else
 IEnumerator LogWriter()
 	{
+		
+		if (prev_fileName != fileName) {
+			exp.num_complete = 0;
+			//close();
+			prev_fileName = fileName;
+			logfile = null;
+		}
 		isRunning = true;
 		UnityEngine.Debug.Log("filename is " + fileName);
 		logfile = new StreamWriter ( fileName, true,Encoding.ASCII, 0x10000);
@@ -263,6 +272,7 @@ IEnumerator LogWriter()
 		{
 			logfile.Flush();
 			logfile.Close();
+			logfile = null;
 		}
 		isRunning=false;
 		//		myLoggerWriter.End ();

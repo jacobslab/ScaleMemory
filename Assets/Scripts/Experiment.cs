@@ -111,7 +111,7 @@ public class Experiment : MonoBehaviour {
 
     public TaskStage currentStage = TaskStage.ItemScreening;
 
-    private int _currBlockNum = 0;
+    public int _currBlockNum = 0;
 
     public List<GameObject> spawnedObjects;
     //public List<Vector3> spawnLocations;
@@ -267,10 +267,11 @@ public static bool isElemem=false;
     public WebGLMicrophone audioRec;
     public AudioRecorder audioRecorder;
     private int _retCount = 0;
-    private int _trialCount = 0;
+    public int _trialCount = 0;
 
 
     public static bool isPractice = false;
+    public static bool practice_bloc = false;
 
     private string _camTransformPath;
 
@@ -305,6 +306,7 @@ public static bool isElemem=false;
     public int psessionid;
     public bool beginmenu;
     public int LastTrailCount;
+    public float TempCurrentTime;
 
     void Awake() {
         if (_instance != null) {
@@ -317,7 +319,7 @@ public static bool isElemem=false;
         trackFamiliarizationQuad.SetActive(false);
         _carSpeed = 0f;
 
-
+        practice_bloc = false;
 
         //test length is stimuli items + lure items
         _testLength = Configuration.spawnCount + Configuration.luresPerTrial;
@@ -384,7 +386,7 @@ public static bool isElemem=false;
         BlockStatus[17] = -1;
         BlockStatus[18] = -1;
         BlockStatus[19] = -1;
-
+        TempCurrentTime = 0f;
         /*for (int i = 0; i < 20; i++) {
             BlockStatus[i] = -1;
         }*/
@@ -580,9 +582,11 @@ public static bool isElemem=false;
             if ((Directory.Exists(sessionDirectory)))
                 GetBlockWhereStoppedv2(_subjectDirectory);
 
+            psessionid = _sessionID;
+            UnityEngine.Debug.Log("subject directory num_complete: " + num_complete);
             /*if ((((LastBlockNo == 2) && (LastST_END_YN == "ENDED"))) && (num_incomplete == 0) &&
                 (_sessionID < Configuration.totalSessions - 1))*/
-            if ((num_complete == 3) &&
+            if ((num_complete >= 3) &&
                 (_sessionID < Configuration.totalSessions - 1))
             {
                 psessionid = _sessionID;
@@ -600,7 +604,30 @@ public static bool isElemem=false;
                 {
                     recontinued = true;
                 }
+                else {
+                    recontinued = false;
+                }
 
+            }
+        }
+
+        if ((psessionid == 1) && (_sessionID == 1) && (LastBlockNo < 0))
+        {
+            Debug.Log("We are in a situation where sessionID 0 is completed and session1 doesnt contain any BLOCK information");
+            _sessionID = 0;
+            GetBlockWhereStoppedv2(_subjectDirectory);
+            _sessionID = 1;
+            num_complete = 0;
+            recontinued = true;
+            for (int i = 0; i <= LastBlockNo; i++)
+            {
+                BlockStatus[i] = 1;
+            }
+        }
+        else if ((_sessionID == 1) && (LastBlockNo >= 0)) {
+            for (int i = 0; i <= LastBlockNo; i++)
+            {
+                BlockStatus[i] = 1;
             }
         }
         //}
@@ -824,11 +851,31 @@ if(!skipLog)
         _parseblockName = uiController.blockInputField.text;
         bool isNumeric = int.TryParse(_parseblockName, out _intblockName);
 
-        if (isNumeric) {
-            if (_intblockName < 20) {
+        if (isNumeric)
+        {
+            uiController.NumericalBlockDisplayText.enabled = false;
+            if ((_intblockName < 15) && (BlockStatus[_intblockName] < 0))
+            {
                 UnityEngine.Debug.Log("got Block name");
                 _blockInfoEntered = true;
+                uiController.UsedBlockDisplayText.enabled = false;
+                uiController.WrongBlockDisplayText.enabled = false;
             }
+            else if (_intblockName >= 15)
+            {
+                uiController.UsedBlockDisplayText.enabled = false;
+                uiController.WrongBlockDisplayText.enabled = true;
+            }
+            else if (BlockStatus[_intblockName] >= 0)
+            {
+                uiController.UsedBlockDisplayText.enabled = true;
+                uiController.WrongBlockDisplayText.enabled = false;
+            }
+        }
+        else {
+            uiController.NumericalBlockDisplayText.enabled = true;
+            uiController.UsedBlockDisplayText.enabled = false;
+            uiController.WrongBlockDisplayText.enabled = false;
         }
         
         
@@ -924,8 +971,10 @@ if(!skipLog)
 
             var dir = new DirectoryInfo(subjectDirectory);
 
-            //if(_sessionID )
-            UnityEngine.Debug.Log(dir.Name);
+        subjectLog.close();
+        //if(_sessionID )
+        UnityEngine.Debug.Log(dir.Name);
+
             UnityEngine.Debug.Log(uiController.subjectInputField.text);
             if (uiController.subjectInputField.text == dir.Name)
             {
@@ -959,6 +1008,8 @@ if(!skipLog)
                 if (File.Exists(filePath))
                 {
                     UnityEngine.Debug.Log("Entered!!!");
+                try
+                {
                     using (StreamReader reader = new StreamReader(filePath))
                     {
                         UnityEngine.Debug.Log("Entered 222!!!");
@@ -966,61 +1017,67 @@ if(!skipLog)
                         while ((line = reader.ReadLine()) != null)
                         {
                             string[] values = line.Split('\t');
-                        /*for (int j = 0; j < values.Count(); j++)
-                        {*/
-                        //UnityEngine.Debug.Log(values[j]);
-                        if (values.Length >= 5)
-                        {
-                            if (values[2] == "BLOCK")
+                            /*for (int j = 0; j < values.Count(); j++)
+                            {*/
+                            //UnityEngine.Debug.Log(values[j]);
+                            if (values.Length >= 5)
                             {
-                                if (values[4] == "STARTED")
+                                if (values[2] == "BLOCK")
                                 {
-                                    BlockStatus[Convert.ToInt32(values[3])] = 0;
-                                }
-                                else if (values[4] == "ENDED")
-                                {
-                                    BlockStatus[Convert.ToInt32(values[3])] = 1;
-                                }
+                                    if (values[4] == "STARTED")
+                                    {
+                                        BlockStatus[Convert.ToInt32(values[3])] = 0;
+                                    }
+                                    else if (values[4] == "ENDED")
+                                    {
+                                        BlockStatus[Convert.ToInt32(values[3])] = 1;
+                                    }
 
-                                if (LastBlockNo <= Convert.ToInt32(values[3]))
-                                {
-                                    LastST_END_YN = values[4];
-                                    LastBlockNo = Convert.ToInt32(values[3]);
-                                }
+                                    if (LastBlockNo <= Convert.ToInt32(values[3]))
+                                    {
+                                        LastST_END_YN = values[4];
+                                        LastBlockNo = Convert.ToInt32(values[3]);
+                                    }
 
-                            }
-                            else if (values[2] == "TRIAL_LOOP") {
-                                if (LastTrailCount <= Convert.ToInt32(values[3])) {
-                                    LastTrailCount = Convert.ToInt32(values[3]);
+                                }
+                                else if (values[2] == "TRIAL_LOOP")
+                                {
+                                    if (LastTrailCount <= Convert.ToInt32(values[3]))
+                                    {
+                                        LastTrailCount = Convert.ToInt32(values[3]);
+                                    }
                                 }
                             }
-                        }
                             //}
 
                             UnityEngine.Debug.Log(values.Count());
                             //break;
                             //Console.WriteLine(line);
                         }
-                    for (int j = 0; j < LastBlockNo; j++)
-                    {
-                        if (BlockStatus[j] < 1)
+                        for (int j = 0; j < LastBlockNo; j++)
                         {
-                            num_incomplete++;
-                        }
+                            if (BlockStatus[j] < 1)
+                            {
+                                num_incomplete++;
+                            }
 
-                    }
-                    for (int j = 0; j <= LastBlockNo; j++)
-                    {
-                        if (BlockStatus[j] == 1)
+                        }
+                        for (int j = 0; j <= LastBlockNo; j++)
                         {
-                            num_complete++;
-                        }
+                            if (BlockStatus[j] == 1)
+                            {
+                                num_complete++;
+                            }
 
-                    }
-                    UnityEngine.Debug.Log("Hellooooluyyah: " + LastST_END_YN);
+                        }
+                        UnityEngine.Debug.Log("Hellooooluyyah: " + LastST_END_YN);
                         UnityEngine.Debug.Log("Hellooooluyyah Last: " + LastBlockNo);
-                    UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_incomplete);
-                    UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_complete);
+                        UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_incomplete);
+                        UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_complete);
+                    }
+                }
+                catch {
+                    UnityEngine.Debug.Log("File is in process and cannot be opened");
                 }
                     //Read all content of the files and store it to the list split with new line 
 
@@ -1033,7 +1090,9 @@ if(!skipLog)
 
             }
 
-        
+
+
+
     }
 
     public void SetSubjectName()
@@ -1117,7 +1176,7 @@ if(!skipLog)
     IEnumerator InitialSetup()
     {
         //show consent and wait till they agree to it
-        yield return StartCoroutine(ShowConsentScreen());
+        //yield return StartCoroutine(ShowConsentScreen());
 
 #if !UNITY_EDITOR && UNITY_WEBGL
         uiController.prolificInfoPanel.alpha = 1f;
@@ -1262,6 +1321,13 @@ if(!skipLog)
         }
         UnityEngine.Debug.Log("shuffled indices" + shuffledStimuliIndices.Count.ToString());
 
+        List<Texture> temppermanentImageList = new List<Texture>();
+        for (int i = 0; i < objController.permanentImageList.Count; i++) {
+            temppermanentImageList.Add(objController.permanentImageList[shuffledStimuliIndices[i]]);
+
+        }
+
+        objController.permanentImageList = temppermanentImageList;
 
         //this is the main global variable we will store our current sessions stimuli indices into
         currentstimuliIndices = new List<int>();
@@ -1556,6 +1622,8 @@ if(!skipLog)
 
         while (true)
         {
+            isPractice = false;
+            practice_bloc = false;
             //if (!isdevmode) {
             //if (Directory.Exists(newPath + _subjectName + "/")) {
             _directoryexists = true;
@@ -1583,7 +1651,14 @@ if(!skipLog)
             //}
 
             //}
-            if (beginScreenSelect == 2)
+            if ((beginScreenSelect == 2) || (beginScreenSelect == 2)) {
+                if (isElemem == false)
+                {
+                    isElemem = true;
+                    tcpServer.RunServer();
+                }
+            }
+            if (beginScreenSelect == 3)
             {
                 uiController.endSessionPanel.alpha = 1f;
                 yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
@@ -1601,7 +1676,7 @@ if(!skipLog)
                 UnityEngine.Debug.Log("welde welde Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
             }
 
-            if (beginScreenSelect == 0)
+            if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 trialLogTrack.LogQuestionContinual(false);
                 UnityEngine.Debug.Log("I m here ");
@@ -1613,7 +1688,7 @@ if(!skipLog)
                 UnityEngine.Debug.Log("I m here 2");
             }
 
-            if (beginScreenSelect == 0)
+            if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 uiController.subjectInputField.gameObject.SetActive(false);
                 uiController.blockInputField.gameObject.SetActive(true);
@@ -1697,7 +1772,7 @@ if(!skipLog)
             CreateSessionStartedFile();
 
             yield return StartCoroutine(InitialSetup());
-            if (!((beginScreenSelect == 0) || (beginScreenSelect == 1)))
+            if (!((beginScreenSelect == 0) || (beginScreenSelect == 1) || (beginScreenSelect == 2)))
             {
                 //only perform practice if it is the first session
                 if (_sessionID == 0)
@@ -1714,9 +1789,11 @@ if(!skipLog)
                         ((beginScreenSelect == -1) && (isdevmode == false)) || (isdevmode == true))
                     {
                         //show second day intro
-                        yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
-                        yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
-                        yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+
+                        //yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
+                        //yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
+                        //yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+                        yield return StartCoroutine(BeginPractice());
                     }
                 }
             }
@@ -1725,19 +1802,21 @@ if(!skipLog)
             yield return StartCoroutine(CreateWeatherPairs()); //will create WeatherPair instances that will be referred to later
 
             UnityEngine.Debug.Log("finished prepping trials");
-            uiController.postPracticePanel.alpha = 1f;
-            if (!isdevmode)
-            {
-                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-            }
-            else
-            {
-                yield return StartCoroutine(WaitForJitterAction());
-            }
-            uiController.postPracticePanel.alpha = 0f;
+
             _trialCount = LastTrailCount;
             if ((beginScreenSelect == 1) || (isdevmode == true))
             {
+                /*uiController.postPracticePanel.alpha = 1f;
+                if (!isdevmode)
+                {
+                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                }
+                else
+                {
+                    yield return StartCoroutine(WaitForJitterAction());
+                }
+                uiController.postPracticePanel.alpha = 0f;*/
+                yield return StartCoroutine(DisplayExperimentBeginScreen());
                 _trialCount = LastTrailCount;
                 /*if (_sessionID == 0)
                     _trialCount = LastTrailCount;
@@ -1764,7 +1843,7 @@ if(!skipLog)
                     }*/
 
                     j = LastBlockNo + 1;
-                    if ((psessionid == 0) && (num_complete == 3)) {
+                    if ((psessionid == 0) && (num_complete >= 3)) {
                         num_complete = 0;
 
                     }
@@ -1780,8 +1859,10 @@ if(!skipLog)
                 UnityEngine.Debug.Log("We have a TotalSessions: " + Configuration.totalSessions);
                 UnityEngine.Debug.Log("We have a num_complete: " + num_complete);
 
+                
                 if (!((beginScreenSelect == -1) && (isdevmode == false)))
                 {
+                    int comp = 0;
                     for (int i = j; i < (j + 3 - num_complete); i++)
                     {
                         _currBlockNum = i;
@@ -1794,45 +1875,18 @@ if(!skipLog)
 #endif
 
                         trialLogTrack.LogBlock(i, true);
+                        BlockStatus[i] = 0;
                         yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
                         trialLogTrack.LogBlock(i, false);
+                        BlockStatus[i] = 1;
+                        comp++;
                     }
-
+                    num_complete = num_complete + comp;
+                    LastBlockNo = _currBlockNum;
                     UnityEngine.Debug.Log("Done with everything......: " + num_incomplete);
-                    /*if (LastBlockNo == 2)
-                    {
-                        if (num_complete < 3)
-                        {
-                            for (int i = 0; i <= 1; i++)
-                            {
-                                if (BlockStatus[i] < 1)
-                                {
-                                    trialLogTrack.LogBlockRedo(i, true);
-                                    yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
-                                    trialLogTrack.LogBlockRedo(i, false);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (num_complete < 3)
-                        {
-                            for (int i = 0; i <= LastBlockNo; i++)
-                            {
-                                if (BlockStatus[i] < 1)
-                                {
-                                    trialLogTrack.LogBlockRedo(i, true);
-                                    yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
-                                    trialLogTrack.LogBlockRedo(i, false);
-                                }
-                            }
-                        }
-                    }*/
+            
 
-                    /*if (num_complete < 3) {
-
-                    }*/
+            
                 }
                 else if (isdevmode == true) {
                     for (int i = 0; i < _blockCount; i++)
@@ -1847,25 +1901,46 @@ if(!skipLog)
 #endif
 
                         trialLogTrack.LogBlock(i, true);
+                        BlockStatus[i] = 0;
                         yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
                         trialLogTrack.LogBlock(i, false);
+                        BlockStatus[i] = 1;
                     }
                 }
             }
-            else if (beginScreenSelect == 0)
+            else if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
-                _currBlockNum = _intblockName;
-                UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
+                if (num_complete < 3)
+                {
+                    /*uiController.postPracticePanel.alpha = 1f;
+                    if (!isdevmode)
+                    {
+                        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                    }
+                    else
+                    {
+                        yield return StartCoroutine(WaitForJitterAction());
+                    }
+                    uiController.postPracticePanel.alpha = 0f;*/
+                    yield return StartCoroutine(DisplayExperimentBeginScreen());
 
-                //only show intermission instructions if it is a behavioral pilot
+                    _currBlockNum = _intblockName;
+                    UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
+
+                    //only show intermission instructions if it is a behavioral pilot
 #if BEHAVIORAL
             if (_currBlockNum == 3)
                 yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
 #endif
 
-                trialLogTrack.LogBlock(_intblockName, true);
-                yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
-                trialLogTrack.LogBlock(_intblockName, false);
+                    trialLogTrack.LogBlock(_intblockName, true);
+                    BlockStatus[_intblockName] = 0;
+                    yield return StartCoroutine(BeginTaskBlock()); //logic of an entire block of trials
+                    trialLogTrack.LogBlock(_intblockName, false);
+                    BlockStatus[_intblockName] = 1;
+                    num_complete = num_complete + 1;
+                    LastBlockNo = _currBlockNum;
+                }
             }
 
             if (beginScreenSelect == 1)
@@ -1878,6 +1953,12 @@ if(!skipLog)
             }
 
             isdevmode = false;
+            LastTrailCount = _trialCount;
+            _expActive = false;
+            isdevmode = false;
+            isElemem = false;
+            
+
         }
             uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
@@ -2353,8 +2434,8 @@ if(!skipLog)
         _weatherChangeTrials = new List<int>();
         _randomizedWeatherOrder = new List<int>();
 
-        int trialsPerSession = totalTrials / Configuration.totalSessions;
-
+        //int trialsPerSession = totalTrials / Configuration.totalSessions;
+        int trialsPerSession = 80;
 
         //we want each session to have randomly ordered but balanced list
 
@@ -2486,7 +2567,7 @@ if(!skipLog)
 
 
             //we will avoid showing this immediately after the practice
-            if(_currBlockNum>0 || i>0)
+            if(i>0)
                 yield return StartCoroutine(DisplayNextTrialScreen());
                 _trialCount++;
                  trialLogTrack.LogTrialLoop(_trialCount, true);
@@ -2524,20 +2605,50 @@ if(!skipLog)
 
     IEnumerator DisplayNextTrialScreen()
     {
-        uiController.nextTrialPanel.alpha = 1f;
+        
         if (!isdevmode)
         {
-            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+            if (beginScreenSelect == 0)
+            {
+                uiController.nextTrialPanel.alpha = 1f;
+                yield return StartCoroutine(WaitForJitter(5));
+                uiController.nextTrialPanel.alpha = 0f;
+            }
+            else
+            {
+                uiController.nextTrialPanel2.alpha = 1f;
+                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                uiController.nextTrialPanel2.alpha = 0f;
+            }
         }
         else
         {
+            uiController.nextTrialPanel.alpha = 1f;
             yield return StartCoroutine(WaitForJitterAction());
+            uiController.nextTrialPanel.alpha = 0f;
         }
-        uiController.nextTrialPanel.alpha = 0f;
+        
         yield return null;
     }
 
+    IEnumerator DisplayExperimentBeginScreen()
+    {
 
+        if (!isdevmode)
+        {
+                uiController.experimentStartPanel.alpha = 1f;
+                yield return StartCoroutine(WaitForJitter(5));
+                uiController.experimentStartPanel.alpha = 0f;
+        }
+        else
+        {
+            uiController.experimentStartPanel.alpha = 1f;
+            yield return StartCoroutine(WaitForJitterAction());
+            uiController.experimentStartPanel.alpha = 0f;
+        }
+
+        yield return null;
+    }
 
     IEnumerator CheckForWeatherChange(TaskStage upcomingStage, int blockTrial)
     {
@@ -2596,7 +2707,8 @@ if(!skipLog)
         UnityEngine.Debug.Log("Experiment: " + " sesstrail: " + sessTrial);
         string targetNames = "";
 
-        //check the randomly ordered list to see what the retrieval type should be
+        //check the randomly ordered list to see what the retrieval type should be'
+        
         if (_retrievalTypeList[sessTrial] % 2 == 0)
         {
             verbalRetrieval = false;
@@ -2604,8 +2716,16 @@ if(!skipLog)
         }
         else
         {
-            verbalRetrieval = true;
-            currentStage = TaskStage.VerbalRetrieval;
+            if (beginScreenSelect != 0)
+            {
+                verbalRetrieval = true;
+                currentStage = TaskStage.VerbalRetrieval;
+            }
+            else
+            {
+                verbalRetrieval = false;
+                currentStage = TaskStage.SpatialRetrieval;
+            }
         }
 
        trialLogTrack.LogTaskStage(currentStage, true);
@@ -3012,21 +3132,52 @@ if(!skipLog)
                 listIndex++; //increment the counter
             }
         }
-        //add 2 pairs encountered in the same loop
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); //loop 4
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4])); //loop 1
 
+        System.Random rnd = new System.Random();
+        int TestVersion = rnd.Next(1, 4);
 
+        if (TestVersion == 1)
+        {
+            //add 2 pairs encountered in the same loop
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[19], stimuliBlockSequence[22])); //loop 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5])); //loop 1
 
-        //add 2 pairs encountered in the different loop, same weather
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[8], stimuliBlockSequence[11])); // loop 2 and 3
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[9], stimuliBlockSequence[12]));
+            //add 2 pairs encountered in the different loop, same weather
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13])); // loop 2 and 3
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
 
-        //add 2 pairs encountered in different loops, different weather; see the design document for more information
-        blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[3], stimuliBlockSequence[6])); //loop 1 and 2
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17]));  // loop 3 and 4
+            //add 2 pairs encountered in different loops, different weather; see the design document for more information
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7])); //loop 1 and 2
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));  // loop 3 and 4
+        }
+        else if (TestVersion == 2) {
+            //add 2 pairs encountered in the same loop
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10])); //loop 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4])); //loop 1
 
-    
+            //add 2 pairs encountered in the different loop, same weather
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8])); // loop 2 and 3
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
+
+            //add 2 pairs encountered in different loops, different weather; see the design document for more information
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); //loop 1 and 2
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));  // loop 3 and 4
+        }
+        else if (TestVersion == 3)
+        {
+            //add 2 pairs encountered in the same loop
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[20], stimuliBlockSequence[23])); //loop 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17])); //loop 1
+
+            //add 2 pairs encountered in the different loop, same weather
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7])); // loop 2 and 3
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
+
+            //add 2 pairs encountered in different loops, different weather; see the design document for more information
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13])); //loop 1 and 2
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));  // loop 3 and 4
+        }
+
 
         yield return null;
     }
@@ -3170,6 +3321,18 @@ if(!skipLog)
         trialLogTrack.LogUserChoiceSelection(uiController.GetSelectionIndex(), selectionType);
         yield return null;
     }
+
+    public IEnumerator WaitForJitter(int time)
+    {
+
+        TempCurrentTime = 0f;
+        while (TempCurrentTime < time)
+        {
+            yield return 0;
+        }
+        yield return null;
+    }
+
 
     public IEnumerator WaitForJitterAction()
     {
@@ -3648,12 +3811,20 @@ if(!skipLog)
         try
         {
             //we pick locations for encoding objects AND lure
+            int start = 0;
+            int end = 50;
+            int buffer = 170;
             for (int i = 0; i < listLength; i++)
             {
 
                 int randIndex = UnityEngine.Random.Range(0, intPicker.Count); // we won't be picking too close to beginning/end
                 UnityEngine.Debug.Log("picked 1: " + randIndex);
                 UnityEngine.Debug.Log("picked 2: " + intPicker.Count);
+                start = start + buffer;
+                end = end + buffer;
+                if (end > intPicker.Count) {
+                    end = intPicker.Count;
+                }
                 int randInt = intPicker[randIndex];
                 int nearestIndex = 0;
                 UnityEngine.Debug.Log("picked " + intPicker[randIndex].ToString());
@@ -4141,6 +4312,10 @@ if(!skipLog)
         yield return null;
     }
 
+    public void expLogCorner(int CornerFrame) {
+        trialLogTrack.LogCorner(CornerFrame);
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -4163,7 +4338,9 @@ if(!skipLog)
         else {
             onofftime += 1;
         }
-        
+
+
+        TempCurrentTime += Time.deltaTime;
 
         Transform resultTrans = null;
         if (playerPosDict.Count > 0 && playerPosDict.TryGetValue(169, out resultTrans))
@@ -4183,29 +4360,32 @@ if(!skipLog)
             {
                 beginScreenSelect--;
                 if (beginScreenSelect < -1)
-                    beginScreenSelect = beginScreenSelect + 4;
+                    beginScreenSelect = beginScreenSelect + 5;
             }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 beginScreenSelect++;
 
-                if (beginScreenSelect > 2)
-                    beginScreenSelect = beginScreenSelect - 4;
+                if (beginScreenSelect > 3)
+                    beginScreenSelect = beginScreenSelect - 5;
             }
 
             switch (beginScreenSelect)
             {
                 case -1:
-                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-600f, -350f, 0f);
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-680f, -350f, 0f);
                     break;
                 case 0:
-                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-200f, -350f, 0f);
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(-298f, -350f, 0f);
                     break;
                 case 1:
-                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(200f, -350f, 0f);
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(44f, -350f, 0f);
                     break;
                 case 2:
-                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(600f, -350f, 0f);
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(423f, -350f, 0f);
+                    break;
+                case 3:
+                    selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(750f, -350f, 0f);
                     break;
             }
         }

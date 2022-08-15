@@ -27,6 +27,9 @@ public class ObjectController : MonoBehaviour
 
 	public Texture currentStimuliImage;
 
+	public int ObjectSpawn_currentBloc;
+	public int RandIndex;
+	public bool practice_bloc;
 	Experiment exp { get { return Experiment.Instance; } }
 	// Start is called before the first frame update
 	void Awake()
@@ -35,7 +38,9 @@ public class ObjectController : MonoBehaviour
 
 		sessionImageList= new List<Texture>();
 		stimuliImageList = new List<Texture>();
-
+		ObjectSpawn_currentBloc = -100;
+		RandIndex = -100;
+		practice_bloc = false;
 	}
 
 
@@ -113,7 +118,10 @@ public class ObjectController : MonoBehaviour
         {
 			Texture selectedImg = ChooseRandomImage();
 			if (selectedImg != null)
-				lureImages.Add(ChooseRandomImage());
+			{
+				//lureImages.Add(ChooseRandomImage());
+				lureImages.Add(selectedImg);
+			}
 			else
 				UnityEngine.Debug.Log("WARNING: Returned a null texture");
         }
@@ -124,6 +132,8 @@ public class ObjectController : MonoBehaviour
 	//selects a random image from the BOSS database list and removes it so it isn't repeated again
 	Texture ChooseRandomImage()
 	{
+		Debug.Log("ChoseRandomImage: " + stimuliImageList.Count);
+		Debug.Log("ChoseRandomImage22: " + permanentImageList.Count);
 		if (stimuliImageList.Count == 0)
 		{
 			Debug.Log("No MORE images pick! Recreating image list.");
@@ -135,10 +145,38 @@ public class ObjectController : MonoBehaviour
 			}
 		}
 
-
-		int randomImageIndex = Random.Range(0, stimuliImageList.Count);
-		Texture chosenImage = stimuliImageList[randomImageIndex];
-        stimuliImageList.RemoveAt(randomImageIndex);
+		Debug.Log("ChoseRandomImage 2222: " + exp._currBlockNum);
+		Debug.Log("ChoseRandomImage 22222222: " + ObjectSpawn_currentBloc);
+		//int randomImageIndex = Random.Range(0, stimuliImageList.Count);
+		if (!Experiment.isPractice)
+		{
+			if (exp._currBlockNum != ObjectSpawn_currentBloc)
+			{
+				ObjectSpawn_currentBloc = exp._currBlockNum;
+				RandIndex = permanentImageList.Count - 1 - (9 * 4 * (exp._currBlockNum + 1));
+			}
+			else
+			{
+				RandIndex = RandIndex + 1;
+			}
+        }
+        else
+        {
+			if (Experiment.practice_bloc == false)
+			{
+				Experiment.practice_bloc = true;
+				RandIndex = 0;
+			}
+			else
+			{
+				RandIndex = RandIndex + 1;
+			}
+		}
+		Texture chosenImage = permanentImageList[RandIndex];
+		Debug.Log("ChoseRandomImage 222222222222: " + RandIndex);
+		//int randomImageIndex = stimuliImageList.Count-1-5*4*exp._currBlockNum+4*exp._trialCount;
+		//Texture chosenImage = stimuliImageList[randomImageIndex];
+		//stimuliImageList.RemoveAt(randomImageIndex);
 
 		return chosenImage;
 	}

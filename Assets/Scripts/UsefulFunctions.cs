@@ -9,7 +9,7 @@ public class UsefulFunctions
 {
 
 	Experiment exp { get { return Experiment.Instance; } }
-
+	
 	//given the size of an array or a list, will return a list of indices in a random order
 	public static List<int> GetRandomIndexOrder(int count)
 	{
