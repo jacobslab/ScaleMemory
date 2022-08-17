@@ -2637,8 +2637,9 @@ if(!skipLog)
         if (!isdevmode)
         {
                 uiController.experimentStartPanel.alpha = 1f;
-                yield return StartCoroutine(WaitForJitter(5));
-                uiController.experimentStartPanel.alpha = 0f;
+            //yield return StartCoroutine(WaitForJitter(5));
+            yield return StartCoroutine(UsefulFunctions.WaitForHeartBeatButton());
+            uiController.experimentStartPanel.alpha = 0f;
         }
         else
         {
@@ -4353,16 +4354,16 @@ if(!skipLog)
         {
             QuitTask();
         }
-
+        //Input.GetButtonDown("")
         if (selectionImage.transform.GetComponent<Image>().enabled)
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 beginScreenSelect--;
                 if (beginScreenSelect < -1)
                     beginScreenSelect = beginScreenSelect + 5;
             }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 beginScreenSelect++;
 
@@ -4390,7 +4391,7 @@ if(!skipLog)
             }
         }
 
-        if ((isdevmode == false) || (beginmenu == true))
+        if ((isdevmode == false) && (beginmenu == true))
         {
             if (Input.GetButtonDown("Development"))
                 SetDevelopment();

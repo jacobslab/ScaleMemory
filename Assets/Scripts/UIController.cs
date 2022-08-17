@@ -298,7 +298,7 @@ public class UIController : MonoBehaviour
                 UnityEngine.Debug.Log("on the default case");
                 break;
         }
-        showInstructions = true;
+        //showInstructions = true;
         if(!isSpatial)
             pageControls.alpha = 1f;
         //then force update it so it shows up with the first page

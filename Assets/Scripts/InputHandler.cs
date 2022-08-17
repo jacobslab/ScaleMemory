@@ -22,12 +22,12 @@ public class InputHandler : MonoBehaviour
 
         if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
         {
-            if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.Alpha6))
             {
                 StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
 
             }
-            else if (Input.GetKey(KeyCode.DownArrow))
+            else if (Input.GetKey(KeyCode.Alpha7))
             {
                 StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
 
@@ -37,11 +37,11 @@ public class InputHandler : MonoBehaviour
         if (exp.uiController.showInstructions)
         {
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 exp.uiController.PerformUIPageChange(UIController.OptionSelection.Left);
             }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
 
@@ -50,11 +50,11 @@ public class InputHandler : MonoBehaviour
 
         if (exp.CanSelectUI())
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                exp.uiController.PerformSelection(UIController.OptionSelection.Left);
             }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 exp.uiController.PerformSelection(UIController.OptionSelection.Right);
 

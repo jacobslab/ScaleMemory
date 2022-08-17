@@ -49,6 +49,15 @@ public class UsefulFunctions
 		yield return null;
 	}
 
+	public static IEnumerator WaitForHeartBeatButton()
+	{
+		while (!Input.GetButtonDown("HB"))
+		{
+			yield return 0;
+		}
+		yield return null;
+	}
+
 
 
 
