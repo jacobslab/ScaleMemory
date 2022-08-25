@@ -53,11 +53,11 @@ namespace iView
         public float maxDistanceForRaycasts = 100f;
 
         //KeyCodes to Start a Calibration
-        public KeyCode startOnePointCalibration = KeyCode.Alpha1;
+        public KeyCode startOnePointCalibration = KeyCode.Alpha2;
 
-        public KeyCode startFivePointCalibration = KeyCode.Alpha2;
+        public KeyCode startFivePointCalibration = KeyCode.Alpha3;
 
-        public KeyCode startValidation = KeyCode.Alpha3;
+        public KeyCode startValidation = KeyCode.Alpha1;
 
         public bool isDoingCalibration = true;
 
@@ -129,7 +129,6 @@ namespace iView
         /// </summary>
         void Update()
         {
-
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
 
@@ -368,6 +367,7 @@ namespace iView
 
         private void ManagePlayerInput()
         {
+            
             if (Input.GetKeyDown(startOnePointCalibration))
             {
                 StartCalibration(1);

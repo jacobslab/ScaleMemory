@@ -11,7 +11,8 @@ using UnityEngine.Networking;
 
 public class Configuration : MonoBehaviour {
 
-  
+
+    public static Experiment exp { get { return Experiment.Instance; } }
     public static float familiarizationMaxTime { get { return float.Parse(Configuration.GetSetting("familiarizationMaxTime")); } }
 
 
@@ -54,6 +55,11 @@ public class Configuration : MonoBehaviour {
     public static float itemReactivationTime { get { return float.Parse(Configuration.GetSetting("itemReactivationTime")); } }
     public static float locationReactivationTime { get { return float.Parse(Configuration.GetSetting("locationReactivationTime")); } }
 
+
+    public static float pauseBtwnEndQuestions { get { return float.Parse(Configuration.GetSetting("pauseBtwnEndQuestions")); } }
+    public static float pauseBtwnEachSpatialQuestion { get { return float.Parse(Configuration.GetSetting("pauseBtwnEachSpatialQuestion")); } }
+    public static float fastSpeed { get { return float.Parse(Configuration.GetSetting("fastSpeed")); } }
+    public static float slowSpeed { get { return float.Parse(Configuration.GetSetting("slowSpeed")); } }
 
     //following two are based on the nomenclature of elemem config files, but non-elemem versions should also follow this naming convention
     public static string ipAddress { get { return Configuration.GetSetting("elememServerIP"); } }
@@ -154,11 +160,18 @@ public class Configuration : MonoBehaviour {
             Directory.GetParent(Directory.GetParent(Application.dataPath).FullName).FullName,
                 "Configs");
             UnityEngine.Debug.Log("config path " + configPath);
+            string text = "";
+            if (exp.beginScreenSelect != 0)
+            {
 #if BEHAVIORAL
             string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_behavioral.json"));
 #else
-            string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
+                text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
 #endif
+            }
+            else {
+                text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_mri.json"));
+            }
             experimentConfig = FlexibleConfig.LoadFromText(text);
             UnityEngine.Debug.Log("loaded experiment text " + text);
             experimentConfig = FlexibleConfig.LoadFromText(text);

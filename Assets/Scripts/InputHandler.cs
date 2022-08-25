@@ -20,44 +20,72 @@ public class InputHandler : MonoBehaviour
          * INPUT HANDLER
         */
 
-        if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
+        if (exp.beginScreenSelect != 0)
         {
-            if (Input.GetKey(KeyCode.Alpha6))
+            if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
             {
-                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
+                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+
+                }
+                else if (Input.GetKey(KeyCode.DownArrow))
+                {
+                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+
+                }
 
             }
-            else if (Input.GetKey(KeyCode.Alpha7))
-            {
-                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
-
-            }
-
         }
         if (exp.uiController.showInstructions)
         {
-
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (exp.beginScreenSelect == 0)
             {
-                exp.uiController.PerformUIPageChange(UIController.OptionSelection.Left);
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    exp.uiController.PerformUIPageChange(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
+
+                }
             }
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
+            else {
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    exp.uiController.PerformUIPageChange(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
 
+                }
             }
         }
 
         if (exp.CanSelectUI())
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (exp.beginScreenSelect == 0)
             {
-               exp.uiController.PerformSelection(UIController.OptionSelection.Left);
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    exp.uiController.PerformSelection(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    exp.uiController.PerformSelection(UIController.OptionSelection.Right);
+                }
             }
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                exp.uiController.PerformSelection(UIController.OptionSelection.Right);
-
+            else {
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    exp.uiController.PerformSelection(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    exp.uiController.PerformSelection(UIController.OptionSelection.Right);
+                }
             }
 
         }

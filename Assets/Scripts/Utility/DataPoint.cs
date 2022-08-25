@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
 using UnityEngine;
+using System.Dynamic;
 
 //these datapoints represent behavioral events
 //data about the event is currently stored in a dictionary
@@ -46,11 +47,13 @@ public class DataPoint
     {
         double unixTimestamp = ConvertToMillisecondsSinceEpoch(time);
         string JSONString = "{\"type\":\"" + type + "\",\"data\":{";
+        //string valueJSONString = "";
         foreach (string key in dataDict.Keys)
         {
             dynamic value = dataDict[key];
 
-            string valueJSONString = ValueToString(value);
+            //string valueJSONString = ValueToString(value);
+            string valueJSONString = "2";
             JSONString = JSONString + "\"" + key + "\":" + valueJSONString + ",";
         }
         if (dataDict.Count > 0) JSONString = JSONString.Substring(0, JSONString.Length - 1);
@@ -59,7 +62,7 @@ public class DataPoint
         return JSONString;
     }
 
-    public string ValueToString(dynamic value)
+    /*public string ValueToString(dynamic value)
     {
         if (value.GetType().IsArray || value is IList)
         {
@@ -70,7 +73,7 @@ public class DataPoint
             }
             return json + "]";
         }
-        else if (IsNumeric(value))
+        if (IsNumeric(value))
         {
             return value.ToString();
         }
@@ -94,7 +97,7 @@ public class DataPoint
         {
             throw new Exception("Data logging type not supported");
         }
-    }
+    }*/
 
     public static double ConvertToMillisecondsSinceEpoch(System.DateTime convertMe)
     {

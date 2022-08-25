@@ -8,7 +8,7 @@ using UnityEngine.Events;
 public class VideoLayer : MonoBehaviour
 {
 
-
+    public Experiment exp { get { return Experiment.Instance; } }
     private bool isPaused = true;
     private float directionMultiplier = 1f;
 
@@ -32,6 +32,7 @@ public class VideoLayer : MonoBehaviour
 
     private float timeVar = 0f;
 
+    public static float Fixspeed = 1f;
     public static float speed = 1f;
 
     public Texture2D[] frames;
@@ -106,12 +107,27 @@ public class VideoLayer : MonoBehaviour
 
     IEnumerator RandomizeFrameSpeed()
     {
+        int MChange = -1;
         while (Application.isPlaying)
         {
-            if(Experiment.Instance.currentStage  == Experiment.TaskStage.SpatialRetrieval || Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
-                speed = Random.Range(Configuration.minRetrievalFrameSpeed, Configuration.maxRetrievalFrameSpeed);
+            if (Experiment.Instance.currentStage == Experiment.TaskStage.SpatialRetrieval || Experiment.Instance.currentStage == Experiment.TaskStage.VerbalRetrieval)
+            {
+                Fixspeed = Random.Range(Configuration.minRetrievalFrameSpeed, Configuration.maxRetrievalFrameSpeed);
+                if (MChange != 0) {
+                    MChange = 0;
+                    speed = Fixspeed;
+                } 
+            }
             else
-                speed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
+            {
+                Fixspeed = Random.Range(Configuration.minFrameSpeed, Configuration.maxFrameSpeed);
+                if (MChange != 1)
+                {
+                    MChange = 1;
+                    speed = Fixspeed;
+                }
+            }
+
             Debug.Log("RandomizeFramSpeed: Speed Multiple?? " + speed);
             yield return new WaitForSeconds(5f + Random.Range(1f, 8f));
             yield return 0;
@@ -152,13 +168,56 @@ public class VideoLayer : MonoBehaviour
 
     public IEnumerator FramePlay()
     {
+        speed = Fixspeed;
         while (Experiment.Instance.IsExpActive())
         {
             if (gameObject.activeSelf)
             {
-                //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH Pause Point: jro3r: " + isPaused);
+
                 if (!isPaused)
                 {
+
+                    if (exp.beginScreenSelect == 0)
+                    {
+                        if (Input.GetKeyDown(KeyCode.Alpha4))
+                        {
+                            if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
+                            {
+                                speed = Fixspeed;
+                            }
+                            else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
+                                     (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)) {
+                                speed = Configuration.fastSpeed;
+                            }
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.Alpha5))
+                        {
+                            if (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)
+                            {
+                                speed = Fixspeed;
+                            }
+                            else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
+                                     (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f))
+                            {
+                                speed = Configuration.slowSpeed;
+                            }
+                        }
+                        if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
+                        {
+                            if (Input.GetKey(KeyCode.Alpha2))
+                            {
+                                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+
+                            }
+                            else if (Input.GetKey(KeyCode.Alpha3))
+                            {
+                                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+
+                            }
+
+                        }
+                    }
                     //speed = 1.05f;
                     if (playbackDirection == 1)
                         timeVar += Time.deltaTime * speed;
@@ -166,15 +225,10 @@ public class VideoLayer : MonoBehaviour
                         timeVar -= Time.deltaTime * speed;
 
                     currentFrame = (int)(timeVar * frameRate);
-                    /*UnityEngine.Debug.Log(gameObject.name + " current frame: " + currentFrame.ToString());
-                    UnityEngine.Debug.Log(gameObject.name + " current frame speed: " + speed);
-                    UnityEngine.Debug.Log(gameObject.name + " current frame framerate: " + frameRate);*/
-                    //UnityEngine.Debug.Log(gameObject.name + " current frame TimeDeltaTime: " + Time.deltaTime);
 
-                    //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH cF: " + currentFrame + " nSF: " + Experiment.nextSpawnFrame);
                     if (Mathf.Abs(currentFrame - Experiment.nextSpawnFrame) < 12)
                     {
-                        //UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH invoking spawn point event");
+
                         if (!isInvoked)
                         {
                             UnityEngine.Debug.Log("invoking spawn point event");
@@ -184,13 +238,17 @@ public class VideoLayer : MonoBehaviour
                                 UnityEngine.Debug.Log("VideoLayer: SPAWN POINT");
                                 spawnPointReachedEvent.Invoke();
                             }
-                            else {
+                            else
+                            {
                                 UnityEngine.Debug.Log("VideoLayer: RETRIEVAL POINT");
                                 retrievalPointReachedEvent.Invoke();
                             }
-                                
+
                         }
                     }
+                }
+                else {
+                    //speed = Fixspeed;
                 }
                 //UnityEngine.Debug.Log("Current frame: " + currentFrame);
                 if ((
@@ -203,7 +261,6 @@ public class VideoLayer : MonoBehaviour
                     if (boolLoggingCorner == false) {
                         boolLoggingCorner = true;
                         Experiment.Instance.expLogCorner(currentFrame);
-                            //trialLogTrack.LogCorner(currentFrame);
                     }
                 }
                 else {

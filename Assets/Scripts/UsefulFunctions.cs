@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public class UsefulFunctions
 {
 
-	Experiment exp { get { return Experiment.Instance; } }
+	public static Experiment exp { get { return Experiment.Instance; } }
 	
 	//given the size of an array or a list, will return a list of indices in a random order
 	public static List<int> GetRandomIndexOrder(int count)
@@ -42,9 +42,18 @@ public class UsefulFunctions
 
 	public static IEnumerator WaitForActionButton()
 	{
-		while (!Input.GetButtonDown("Action"))
+		if (exp.beginScreenSelect == 0)
 		{
-			yield return 0;
+			while (!Input.GetButtonDown("Action"))
+			{
+				yield return 0;
+			}
+		}
+		else {
+			while (!Input.GetButtonDown("Action2"))
+			{
+				yield return 0;
+			}
 		}
 		yield return null;
 	}

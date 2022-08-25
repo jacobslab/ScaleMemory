@@ -49,7 +49,8 @@ public class ElememDataPoint
         {
             dynamic value = dataDict[key];
 
-            string valueJSONString = ValueToString(value);
+            //string valueJSONString = ValueToString(value);
+            string valueJSONString = "2";
             JSONString = JSONString + "\"" + key + "\":" + valueJSONString + ",";
         }
         if (dataDict.Count > 0) JSONString = JSONString.Substring(0, JSONString.Length - 1);
@@ -58,7 +59,7 @@ public class ElememDataPoint
         return JSONString;
     }
 
-    public string ValueToString(dynamic value)
+    /*public string ValueToString(dynamic value)
     {
         if (value.GetType().IsArray || value is IList)
         {
@@ -97,7 +98,7 @@ public class ElememDataPoint
         {
             throw new Exception("Data logging type not supported: (" + value.GetType() + ") " + value);
         }
-    }
+    }*/
 
     public static double ConvertToMillisecondsSinceEpoch(System.DateTime convertMe)
     {

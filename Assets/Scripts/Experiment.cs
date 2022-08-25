@@ -15,6 +15,7 @@ public class Experiment : MonoBehaviour {
 
     //EXPERIMENT IS A SINGLETON
     public int beginScreenSelect;
+    public int beginPracticeSelect;
     private static Experiment _instance;
     public ObjectManager objManager;
     public UIController uiController;
@@ -282,6 +283,7 @@ public static bool isElemem=false;
     public static int nextSpawnFrame = -10000; //if no spawn, then it will be at -1000
 
     public Image selectionImage;
+    public Image selectionImageMenu2;
 
     public TCPServer tcpServer;
 
@@ -307,6 +309,8 @@ public static bool isElemem=false;
     public bool beginmenu;
     public int LastTrailCount;
     public float TempCurrentTime;
+    float DistractorTime;
+    bool StartDistractor;
 
     void Awake() {
         if (_instance != null) {
@@ -331,7 +335,8 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
-        num_incomplete = 0;
+        StartDistractor = false;
+        DistractorTime = 0f;
         num_complete = 0;
         psessionid = -1;
         beginmenu = false;
@@ -343,7 +348,8 @@ public static bool isElemem=false;
         isdevmode = false;
         LastST_END_YN = "NNNN";
         LastBlockNo = -1;
-        beginScreenSelect = -2;
+        beginScreenSelect = -1;
+        beginPracticeSelect = 0;
         //instantiating lists and variables for use later
         _spatialFeedbackStatus = new List<bool>();
         _spatialFeedbackPosition = new List<Vector3>();
@@ -357,6 +363,7 @@ public static bool isElemem=false;
         blockTestPairList = new List<BlockTestPair>();
 
         selectionImage.transform.GetComponent<Image>().enabled = false;
+        selectionImageMenu2.transform.GetComponent<Image>().enabled = false;
 
         _blockCount = totalTrials / (trialsPerBlock * Configuration.totalSessions);
         UnityEngine.Debug.Log("block count " + _blockCount.ToString());
@@ -550,6 +557,7 @@ public static bool isElemem=false;
         _sessionID = 0;
         string sessionIDString = "_0";
 
+        UnityEngine.Debug.Log("Default logging path is " + defaultLoggingPath);
         UnityEngine.Debug.Log("new logging path is " + newPath);
         UnityEngine.Debug.Log("subject directory "+ _subjectDirectory);
 
@@ -854,14 +862,14 @@ if(!skipLog)
         if (isNumeric)
         {
             uiController.NumericalBlockDisplayText.enabled = false;
-            if ((_intblockName < 15) && (BlockStatus[_intblockName] < 0))
+            if ((_intblockName < 6) && (BlockStatus[_intblockName] < 0))
             {
                 UnityEngine.Debug.Log("got Block name");
                 _blockInfoEntered = true;
                 uiController.UsedBlockDisplayText.enabled = false;
                 uiController.WrongBlockDisplayText.enabled = false;
             }
-            else if (_intblockName >= 15)
+            else if (_intblockName >= 6)
             {
                 uiController.UsedBlockDisplayText.enabled = false;
                 uiController.WrongBlockDisplayText.enabled = true;
@@ -1187,7 +1195,7 @@ if(!skipLog)
 
         yield return StartCoroutine(GoFullScreen());
 #endif
-#if CLINICAL || CLINICAL_TEST || BEHAVIORAL
+//#if CLINICAL || CLINICAL_TEST || BEHAVIORAL
         //if this is the first session, create data for both sessions
         if (_sessionID == 0)
         {
@@ -1206,7 +1214,7 @@ if(!skipLog)
 
             //yield return StartCoroutine(GatherSessionData());
         }
-#endif
+//#endif
 
         yield return null;
     }
@@ -1320,6 +1328,92 @@ if(!skipLog)
             }
         }
         UnityEngine.Debug.Log("shuffled indices" + shuffledStimuliIndices.Count.ToString());
+
+        if ((beginScreenSelect == 0) ||
+            ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            string fileName3 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            string fileName2 = _subjectDirectory + "session0/" + "sess_0_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            string fileName4 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            /*if (!(File.Exists(fileName2)))
+            {*/
+            string images235path = defaultLoggingPath + "/Resources_IGNORE/Images235.txt";
+                System.IO.File.Copy(images235path, fileName3, true);
+            //}
+            if (!(File.Exists(fileName4)))
+            {
+                if ((File.Exists(fileName2)))
+                {
+                    System.IO.File.Copy(fileName2, fileName4, true);
+                    List<int> tempshuffledStimuliIndices = new List<int>();
+                    using (StreamReader reader = new StreamReader(fileName4))
+                    {
+                        //UnityEngine.Debug.Log("Entered 222!!!");
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            //string[] values = line.Split('\t');
+                            /*for (int j = 0; j < values.Count(); j++)
+                            {*/
+                            //UnityEngine.Debug.Log(values[j]);
+                            tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
+
+
+                        }
+                    }
+                    shuffledStimuliIndices = tempshuffledStimuliIndices;
+                }
+                else
+                {
+                    List<int> prevtempshuffledStimuliIndices = new List<int>();
+                    using (StreamReader reader = new StreamReader(fileName3))
+                    {
+                        //UnityEngine.Debug.Log("Entered 222!!!");
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            //string[] values = line.Split('\t');
+                            /*for (int j = 0; j < values.Count(); j++)
+                            {*/
+                            //UnityEngine.Debug.Log(values[j]);
+                            prevtempshuffledStimuliIndices.Add(Convert.ToInt32(line));
+
+
+                        }
+                    }
+                    var rnd = new System.Random();
+                    var randomized = prevtempshuffledStimuliIndices.OrderBy(item => rnd.Next()).ToList();
+                    foreach (var value in randomized)
+                    {
+                        UnityEngine.Debug.Log("Value: " + value);
+                    }
+                    shuffledStimuliIndices = randomized;
+                    UsefulFunctions.WriteIntoTextFile(fileName4, shuffledStimuliIndices); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
+                }
+            }
+            else
+            {
+                List<int> prev2tempshuffledStimuliIndices = new List<int>();
+                using (StreamReader reader = new StreamReader(fileName4))
+                {
+                    //UnityEngine.Debug.Log("Entered 222!!!");
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        //string[] values = line.Split('\t');
+                        /*for (int j = 0; j < values.Count(); j++)
+                        {*/
+                        //UnityEngine.Debug.Log(values[j]);
+                        prev2tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
+
+
+                    }
+                }
+                shuffledStimuliIndices = prev2tempshuffledStimuliIndices;
+            }
+
+        }
+        UnityEngine.Debug.Log("ShuffleStimuliIndices Length: " + shuffledStimuliIndices.Count());
 
         List<Texture> temppermanentImageList = new List<Texture>();
         for (int i = 0; i < objController.permanentImageList.Count; i++) {
@@ -1476,7 +1570,7 @@ if(!skipLog)
         }
         else
         {*/
-            yield return StartCoroutine(WaitForActionButtonMenuCanvas());
+            yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
         //}
         //_canSelect = false;
         //uiController.ToggleSelection(false);
@@ -1496,6 +1590,17 @@ if(!skipLog)
         }
 
         
+        yield return null;
+    }
+
+    public IEnumerator WaitForAction2ButtonMenuCanvas()
+    {
+        while (!((Input.GetButtonDown("Action2")) || (isdevmode)))
+        {
+            yield return 0;
+        }
+
+
         yield return null;
     }
 
@@ -1628,7 +1733,7 @@ if(!skipLog)
             //if (Directory.Exists(newPath + _subjectName + "/")) {
             _directoryexists = true;
             beginmenu = true;
-            uiController.selectionControls.alpha = 1f;
+            //uiController.selectionControls.alpha = 1f;
             //uiController.;
             //Image img = selectionImage.transform.GetComponent<Image>();
             //img.enabled = true;
@@ -1651,6 +1756,13 @@ if(!skipLog)
             //}
 
             //}
+            if (beginScreenSelect == -1) {
+                selectionImageMenu2.transform.GetComponent<Image>().enabled = true;
+                uiController.BeginMenu3.alpha = 1f;
+                yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
+                uiController.BeginMenu3.alpha = 0f;
+                selectionImageMenu2.transform.GetComponent<Image>().enabled = false;
+            }
             if ((beginScreenSelect == 2) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
                 {
@@ -2029,7 +2141,7 @@ if(!skipLog)
         uiController.SetFamiliarizationInstructions(_currentWeather.weatherMode);
         currentStage = TaskStage.TrackScreening;
         trialLogTrack.LogTaskStage(currentStage, true);
-        Experiment.Instance.uiController.driveControls.alpha = 1f;
+        //Experiment.Instance.uiController.driveControls.alpha = 1f;
           
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
@@ -2110,17 +2222,32 @@ if(!skipLog)
         ////run encoding
           yield return StartCoroutine(RunEncoding());
 
+        if (beginPracticeSelect == 0)
+        {
+            verbalRetrieval = false;
+            currentStage = TaskStage.SpatialRetrieval;
+            trialLogTrack.LogTaskStage(currentStage, true);
 
-        verbalRetrieval = true;
-        currentStage = TaskStage.VerbalRetrieval;
-        trialLogTrack.LogTaskStage(currentStage, true);
+
+            ////run retrieval
+            _currentWeather = new Weather(Weather.WeatherType.Sunny);
+            ChangeLighting(_currentWeather);
+            yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+            yield return StartCoroutine(RunSpatialRetrieval());
+        }
+        else if (beginPracticeSelect == 1)
+        {
+            verbalRetrieval = true;
+            currentStage = TaskStage.VerbalRetrieval;
+            trialLogTrack.LogTaskStage(currentStage, true);
 
 
-        ////run retrieval
-        _currentWeather = new Weather(Weather.WeatherType.Sunny);
-        ChangeLighting(_currentWeather);
-        yield return StartCoroutine(videoLayerManager.PauseAllLayers());
-        yield return StartCoroutine(RunVerbalRetrieval());
+            ////run retrieval
+            _currentWeather = new Weather(Weather.WeatherType.Sunny);
+            ChangeLighting(_currentWeather);
+            yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+            yield return StartCoroutine(RunVerbalRetrieval());
+        }
 
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -2163,13 +2290,26 @@ if(!skipLog)
             switch (retrievalType)
             {
                 case 0:
-                    verbalRetrieval = true;
-                    currentStage = TaskStage.VerbalRetrieval;
-                    trialLogTrack.LogTaskStage(currentStage, true);
+                    if (beginPracticeSelect == 0)
+                    {
+                        verbalRetrieval = false;
+                        currentStage = TaskStage.SpatialRetrieval;
+                        trialLogTrack.LogTaskStage(currentStage, true);
 
 
-                    //run retrieval
-                    yield return StartCoroutine(RunVerbalRetrieval());
+                        //run retrieval
+                        yield return StartCoroutine(RunSpatialRetrieval());
+                    }
+                    else if (beginPracticeSelect == 1)
+                    {
+                        verbalRetrieval = true;
+                        currentStage = TaskStage.VerbalRetrieval;
+                        trialLogTrack.LogTaskStage(currentStage, true);
+
+
+                        //run retrieval
+                        yield return StartCoroutine(RunVerbalRetrieval());
+                    }
                     break;
                 case 1:
                     verbalRetrieval = false;
@@ -2298,7 +2438,7 @@ if(!skipLog)
         
 
         }
-            yield return StartCoroutine(PickEncodingLocations()); //picks frames at which the selected stimuli items will be shown
+        yield return StartCoroutine(PickEncodingLocations()); //picks frames at which the selected stimuli items will be shown
 
         yield return StartCoroutine(UpdateNextSpawnFrame()); //picks the next frame at which a stimuli item will be shown
             //yield return StartCoroutine(SpawnEncodingObjects()); //this will spawn all encoding objects on the track
@@ -2598,7 +2738,11 @@ if(!skipLog)
             trialLogTrack.LogTaskStage(currentStage, false);
         //run the end of block tests
         yield return StartCoroutine(RunBlockTests());
-        
+        StartDistractor = true;
+        UnityEngine.Debug.Log("eferfrefwefdwefewfeHWGREGERFCVERGFWERGFEW");
+        yield return StartCoroutine(RunDistractorTask());
+        StartDistractor = false;
+
         yield return null;
     }
 
@@ -2891,7 +3035,7 @@ if(!skipLog)
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
 
 
-        uiController.driveControls.alpha = 1f;
+        //uiController.driveControls.alpha = 1f;
 
         //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
 
@@ -2926,19 +3070,30 @@ if(!skipLog)
             //ask the item cued question
             yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
 
-            //resume playback
-            yield return StartCoroutine(videoLayerManager.ResumePlayback());
+            if (_retrievedAsNew == false)
+            {
+                //resume playback
+                yield return StartCoroutine(videoLayerManager.ResumePlayback());
 
-            //set movement to manual
-            player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
+                //set movement to manual
+                player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
+            }
 
             uiController.spacebarPlaceItem.alpha = 1f;
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
-            while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
+            if (beginScreenSelect == 0)
             {
-                yield return 0;
+                while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
+                {
+                    yield return 0;
+                }
             }
-
+            else {
+                while (!Input.GetButtonDown("Action2") && !_retrievedAsNew)
+                {
+                    yield return 0;
+                }
+            }
             uiController.spacebarPlaceItem.alpha = 0f;
             _retrievedAsNew = false; //reset this flag
             yield return StartCoroutine(videoLayerManager.PauseAllLayers());
@@ -2958,8 +3113,8 @@ if(!skipLog)
             UnityEngine.Debug.Log("Hey there My friend");
             _spatialFeedbackPosition.Add(player.transform.position);
             trialLogTrack.LogRetrievalAttempt(spatialTestList[j].gameObject);
-
-            yield return new WaitForSeconds(0.2f);
+            //Configuration.GetSetting("pauseBtwnEndQuestions")
+            yield return new WaitForSeconds(Configuration.pauseBtwnEachSpatialQuestion);
             UnityEngine.Debug.Log("Hey there My friend. I crossed it");
 
         }
@@ -3092,12 +3247,15 @@ if(!skipLog)
             }
             UnityEngine.Debug.Log("CountCountCount..........  " + blockTestPairList.Count+ "tempBool: " + tempBool);
             yield return StartCoroutine(RunTemporalOrderTest(blockTestPairList[i], tempBool));
+            yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
             yield return StartCoroutine(RunTemporalDistanceTest(blockTestPairList[i]));
+            yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
         }
         for (int i = 0; i < _contextDifferentWeatherTestList.Count; i++)
         {
             //this will be run on a randomized set of items that weren't included in the tests above
             yield return StartCoroutine(RunContextRecollectionTest(_contextDifferentWeatherTestList[i]));
+            yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
         }
 
         
@@ -3115,6 +3273,45 @@ if(!skipLog)
       //  yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
     }
+
+
+    IEnumerator RunDistractorTask()
+    {
+        int count = 1;
+        float countms_window = 0f;
+        uiController.DistractorTask.alpha = 1f;
+        uiController.DistractorText.text = "";
+        DistractorTime = 0f;
+
+        while (DistractorTime < 16f)
+        {
+            UnityEngine.Debug.Log("Distractor Time: " + DistractorTime);
+
+            if ((DistractorTime >= count * 2) && (count < 8))
+            {
+                System.Random rnd = new System.Random();
+                uiController.DistractorText.text = System.Convert.ToString(rnd.Next(10, 100));
+                countms_window = Time.time;
+                while (!(Input.GetKeyDown(KeyCode.LeftArrow)) &&
+                       !(Input.GetKeyDown(KeyCode.RightArrow)) &&
+                       !(Input.GetKeyDown(KeyCode.Alpha2)) &&
+                       !(Input.GetKeyDown(KeyCode.Alpha3)) &&
+                       !((Time.time - countms_window) > 0.5f)
+                    )
+                {
+                    yield return 0;
+                }
+                count = count + 1;
+            }
+            
+            uiController.DistractorText.text = "";
+            yield return 0;
+
+        }
+        uiController.DistractorTask.alpha = 0f;
+        yield return null;
+    }
+
 
     //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateBlockTestPairs()
@@ -3245,7 +3442,7 @@ if(!skipLog)
         uiController.temporalOrderTestPanel.alpha = 1f;
 
         uiController.ToggleSelection(true);
-        uiController.selectionControls.alpha = 1f;
+        //uiController.selectionControls.alpha = 1f;
         //wait for the options to be selected
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
@@ -3273,7 +3470,7 @@ if(!skipLog)
 
         //wait for the selection of options
         uiController.ToggleSelection(true);
-        uiController.selectionControls.alpha = 1f;
+        //uiController.selectionControls.alpha = 1f;
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         _canSelect = false;
@@ -3299,7 +3496,7 @@ if(!skipLog)
         uiController.ToggleSelection(true);
         _canSelect = true;
 
-        uiController.selectionControls.alpha = 1f;
+        //uiController.selectionControls.alpha = 1f;
         yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.selectionControls.alpha = 0f;
         _canSelect = false;
@@ -3392,7 +3589,7 @@ if(!skipLog)
         yield return new WaitForSeconds(Configuration.itemReactivationTime);
         uiController.itemReactivationDetails.alpha = 1f;
         uiController.ToggleSelection(true);
-        uiController.selectionControls.alpha = 1f;
+        //uiController.selectionControls.alpha = 1f;
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
 
@@ -3415,7 +3612,7 @@ if(!skipLog)
         yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
         }
         uiController.spacebarPlaceItem.alpha = 0f;
-        uiController.driveControls.alpha = 1f; //reset this when the driving resumes
+        //uiController.driveControls.alpha = 1f; //reset this when the driving resumes
         yield return null;
     }
 
@@ -3435,7 +3632,7 @@ if(!skipLog)
         yield return new WaitForSeconds(Configuration.locationReactivationTime);
 
         uiController.ToggleSelection(true);
-        uiController.selectionControls.alpha = 1f;
+        //uiController.selectionControls.alpha = 1f;
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.locationReactivationPanel.alpha = 0f;
@@ -4322,7 +4519,10 @@ if(!skipLog)
     void Update()
     {
 
-        
+        if(StartDistractor == false)
+            DistractorTime = 0f;
+        else
+            DistractorTime += Time.deltaTime;
 
         if (onofftime == 5 || onofftime == 6)
         {
@@ -4357,13 +4557,13 @@ if(!skipLog)
         //Input.GetButtonDown("")
         if (selectionImage.transform.GetComponent<Image>().enabled)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 beginScreenSelect--;
                 if (beginScreenSelect < -1)
                     beginScreenSelect = beginScreenSelect + 5;
             }
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 beginScreenSelect++;
 
@@ -4387,6 +4587,32 @@ if(!skipLog)
                     break;
                 case 3:
                     selectionImage.GetComponent<RectTransform>().anchoredPosition = new Vector3(750f, -350f, 0f);
+                    break;
+            }
+        }
+
+        if (selectionImageMenu2.transform.GetComponent<Image>().enabled)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                beginPracticeSelect--;
+                if (beginPracticeSelect < 0)
+                    beginPracticeSelect = beginPracticeSelect + 2;
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                beginPracticeSelect++;
+
+                if (beginPracticeSelect > 1)
+                    beginPracticeSelect = beginPracticeSelect - 2;
+            }
+            switch (beginPracticeSelect)
+            {
+                case 0:
+                    selectionImageMenu2.GetComponent<RectTransform>().anchoredPosition = new Vector3(-400f, -350f, 0f);
+                    break;
+                case 1:
+                    selectionImageMenu2.GetComponent<RectTransform>().anchoredPosition = new Vector3(344f, -350f, 0f);
                     break;
             }
         }

@@ -8,6 +8,7 @@ public class VideoScript : MonoBehaviour
     string url;
     VideoPlayer current_clip;
     private VideoPlayer thisVideo;
+    public Experiment exp { get { return Experiment.Instance; } }
 
     // Use this for initialization
     void Start()
@@ -34,16 +35,30 @@ public class VideoScript : MonoBehaviour
 
     private void Update()
     {
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (exp.beginScreenSelect == 0)
         {
-            url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/base.mov";
-            PlayVideo(url);
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/base.mov";
+                PlayVideo(url);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/sunny_resolve.mp4";
+                PlayVideo(url);
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/sunny_resolve.mp4";
-            PlayVideo(url);
+        else {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/base.mov";
+                PlayVideo(url);
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/sunny_resolve.mp4";
+                PlayVideo(url);
+            }
         }
     }
 }

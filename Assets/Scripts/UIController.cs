@@ -10,6 +10,7 @@ public class UIController : MonoBehaviour
     private float prevLapTime = 0f;
 
     public CanvasGroup BeginMenu;
+    public CanvasGroup BeginMenu3;
     //retrieval
     public CanvasGroup retrievalTextPanel;
     public CanvasGroup targetTextPanel;
@@ -173,6 +174,8 @@ public class UIController : MonoBehaviour
     public Text UsedBlockDisplayText;
     public Text WrongBlockDisplayText;
     public Text NumericalBlockDisplayText;
+    public CanvasGroup DistractorTask;
+    public Text DistractorText;
     // info text
     //    public TextMeshPro infoText;
 
@@ -298,7 +301,10 @@ public class UIController : MonoBehaviour
                 UnityEngine.Debug.Log("on the default case");
                 break;
         }
-        //showInstructions = true;
+        if (exp.beginScreenSelect == -1) {
+            showInstructions = true;
+        }
+        
         if(!isSpatial)
             pageControls.alpha = 1f;
         //then force update it so it shows up with the first page
