@@ -177,9 +177,10 @@ public class VideoLayer : MonoBehaviour
                 if (!isPaused)
                 {
 
-                    if (exp.beginScreenSelect == 0)
+                    if ((exp.beginScreenSelect == 0) ||
+                        ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
-                        if (Input.GetKeyDown(KeyCode.Alpha4))
+                        if (Input.GetKeyDown(KeyCode.Alpha8))
                         {
                             if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
                             {
@@ -191,7 +192,7 @@ public class VideoLayer : MonoBehaviour
                             }
                         }
 
-                        if (Input.GetKeyDown(KeyCode.Alpha5))
+                        if (Input.GetKeyDown(KeyCode.Alpha9))
                         {
                             if (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)
                             {
@@ -205,12 +206,12 @@ public class VideoLayer : MonoBehaviour
                         }
                         if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
                         {
-                            if (Input.GetKey(KeyCode.Alpha2))
+                            if (Input.GetKey(KeyCode.Alpha6))
                             {
                                 StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
 
                             }
-                            else if (Input.GetKey(KeyCode.Alpha3))
+                            else if (Input.GetKey(KeyCode.Alpha7))
                             {
                                 StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
 

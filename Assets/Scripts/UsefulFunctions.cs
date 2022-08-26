@@ -42,7 +42,8 @@ public class UsefulFunctions
 
 	public static IEnumerator WaitForActionButton()
 	{
-		if (exp.beginScreenSelect == 0)
+		if ((exp.beginScreenSelect == 0) ||
+			((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
 		{
 			while (!Input.GetButtonDown("Action"))
 			{

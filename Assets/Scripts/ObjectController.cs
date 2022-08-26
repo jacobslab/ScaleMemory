@@ -7,6 +7,7 @@ using UnityEngine;
 public class ObjectController : MonoBehaviour
 {
 	public List<Texture> permanentImageList;
+	public List<Texture> globalPermanentImageList;
 	private List<Texture> sessionImageList;
 
 	private List<Texture> stimuliImageList;
@@ -52,6 +53,7 @@ public class ObjectController : MonoBehaviour
 			permanentImageList.Add((Texture)imageObjects[i]);
 		}
 
+		globalPermanentImageList = permanentImageList;
 		CreateSpecialImageList(); //fill the stim image list immediately after
 
 		yield return null;
@@ -153,7 +155,7 @@ public class ObjectController : MonoBehaviour
 			if (exp._currBlockNum != ObjectSpawn_currentBloc)
 			{
 				ObjectSpawn_currentBloc = exp._currBlockNum;
-				RandIndex = permanentImageList.Count - 1 - (9 * 4 * (exp._currBlockNum + 1));
+				RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum + 1));
 			}
 			else
 			{

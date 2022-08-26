@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public class Experiment : MonoBehaviour {
 
     //EXPERIMENT IS A SINGLETON
+    public List<int> shuffledStimuliIndices;
     public int beginScreenSelect;
     public int beginPracticeSelect;
     private static Experiment _instance;
@@ -861,6 +862,8 @@ if(!skipLog)
 
         if (isNumeric)
         {
+            UnityEngine.Debug.Log("What goes with 0: " + BlockStatus[0]);
+            UnityEngine.Debug.Log("What goes with intBlock: " + BlockStatus[_intblockName]);
             uiController.NumericalBlockDisplayText.enabled = false;
             if ((_intblockName < 6) && (BlockStatus[_intblockName] < 0))
             {
@@ -1080,6 +1083,7 @@ if(!skipLog)
                         }
                         UnityEngine.Debug.Log("Hellooooluyyah: " + LastST_END_YN);
                         UnityEngine.Debug.Log("Hellooooluyyah Last: " + LastBlockNo);
+                        UnityEngine.Debug.Log("What goes with BlockStatus: " + BlockStatus[0]);
                         UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_incomplete);
                         UnityEngine.Debug.Log("Hellooooluyyah Incomplete: " + num_complete);
                     }
@@ -1222,8 +1226,9 @@ if(!skipLog)
 
     IEnumerator CreateSessionData()
     {
+        objController.permanentImageList = objController.globalPermanentImageList;
         //shuffle stimuli images into a list
-        List<int> shuffledStimuliIndices;
+        
         UnityEngine.Debug.Log("CreateSessionData: PermanentImageList: " + objController.permanentImageList.Count);
         if (_sessionID == 0)
         {
@@ -1416,12 +1421,17 @@ if(!skipLog)
         UnityEngine.Debug.Log("ShuffleStimuliIndices Length: " + shuffledStimuliIndices.Count());
 
         List<Texture> temppermanentImageList = new List<Texture>();
-        for (int i = 0; i < objController.permanentImageList.Count; i++) {
+        for (int i = 0; i < shuffledStimuliIndices.Count; i++) {
             temppermanentImageList.Add(objController.permanentImageList[shuffledStimuliIndices[i]]);
 
         }
 
         objController.permanentImageList = temppermanentImageList;
+
+        for (int i = 0; i < objController.permanentImageList.Count; i++)
+        {
+            UnityEngine.Debug.Log("Total Permanent Images:nc3n3o4i345Total Images: " + objController.permanentImageList[i].name);
+        }
 
         //this is the main global variable we will store our current sessions stimuli indices into
         currentstimuliIndices = new List<int>();
@@ -1799,7 +1809,7 @@ if(!skipLog)
                 trialLogTrack.LogQuestionContinual(true);
                 UnityEngine.Debug.Log("I m here 2");
             }
-
+            SetSubjectName();
             if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 uiController.subjectInputField.gameObject.SetActive(false);
@@ -1808,7 +1818,7 @@ if(!skipLog)
                 uiController.blockInputField.gameObject.SetActive(false);
             }
 
-            SetSubjectName();
+            
 
             UnityEngine.Debug.Log("set subject name: " + _subjectName);
             if (Directory.Exists(newPath2))
@@ -3294,8 +3304,8 @@ if(!skipLog)
                 countms_window = Time.time;
                 while (!(Input.GetKeyDown(KeyCode.LeftArrow)) &&
                        !(Input.GetKeyDown(KeyCode.RightArrow)) &&
-                       !(Input.GetKeyDown(KeyCode.Alpha2)) &&
-                       !(Input.GetKeyDown(KeyCode.Alpha3)) &&
+                       !(Input.GetKeyDown(KeyCode.Alpha6)) &&
+                       !(Input.GetKeyDown(KeyCode.Alpha7)) &&
                        !((Time.time - countms_window) > 0.5f)
                     )
                 {
@@ -4282,7 +4292,7 @@ if(!skipLog)
         string objectName = objController.ReturnStimuliDisplayText();
        // uiController.presentationItemText.enabled = true;
      //   uiController.presentationItemText.text = objectName;
-        trialLogTrack.LogItemPresentation(objectName, true);
+        trialLogTrack.LogItemPresentation(objectName, shuffledStimuliIndices[Experiment.Instance.objController.RandIndex], true);
 
         //wait for the calculated presentation time
         // yield return new WaitForSeconds(totalPresentationTime);
@@ -4292,7 +4302,7 @@ if(!skipLog)
             stimulusObject.GetComponent<VisibilityToggler>().TurnVisible(false);
 
         uiController.presentationItemText.enabled = false;
-        trialLogTrack.LogItemPresentation(objectName, false);
+        trialLogTrack.LogItemPresentation(objectName, Experiment.Instance.objController.RandIndex, false);
 
 
         //add the gameobject to the sequence

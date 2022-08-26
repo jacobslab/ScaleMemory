@@ -35,14 +35,15 @@ public class VideoScript : MonoBehaviour
 
     private void Update()
     {
-        if (exp.beginScreenSelect == 0)
+        if ((exp.beginScreenSelect == 0) ||
+            ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
         {
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            if (Input.GetKeyDown(KeyCode.Alpha6))
             {
                 url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/base.mov";
                 PlayVideo(url);
             }
-            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            else if (Input.GetKeyDown(KeyCode.Alpha7))
             {
                 url = "https://spaceheist.s3.us-east-2.amazonaws.com/WebGLTest/sunny_resolve.mp4";
                 PlayVideo(url);

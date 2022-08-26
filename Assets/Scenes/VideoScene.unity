@@ -15849,7 +15849,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Please enter an unused Block(<15) that you want to run
+  m_Text: Please enter an unused Block(<6) that you want to run
 --- !u!222 &1478778349
 CanvasRenderer:
   m_ObjectHideFlags: 0

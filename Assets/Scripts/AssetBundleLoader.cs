@@ -200,6 +200,10 @@ public class AssetBundleLoader : MonoBehaviour
         }
         Object[] images = myLoadedAssetBundle.LoadAllAssets(typeof(Texture));
         UnityEngine.Debug.Log("Total Images:nc3n3o4iTotal Images: " + images.Length);
+        for (int i = 0; i < images.Length; i++) {
+            UnityEngine.Debug.Log("Total Images:nc3n3o4iTotal Images: " + images[i].name);
+        }
+        
         yield return StartCoroutine(Experiment.Instance.objController.FillPermanentImageList(images));
 
         yield return null;

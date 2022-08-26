@@ -44,7 +44,7 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1808" Column="13" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1801" Column="14" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
@@ -95,7 +95,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="8a4cab0a-c0b2-4539-800e-e069b5969233" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="8123eddf-3e2b-4207-ae3d-f373ed8e6365" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

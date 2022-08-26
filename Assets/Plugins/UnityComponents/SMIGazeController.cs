@@ -53,11 +53,11 @@ namespace iView
         public float maxDistanceForRaycasts = 100f;
 
         //KeyCodes to Start a Calibration
-        public KeyCode startOnePointCalibration = KeyCode.Alpha2;
+        public KeyCode startOnePointCalibration = KeyCode.Alpha6;
 
-        public KeyCode startFivePointCalibration = KeyCode.Alpha3;
+        public KeyCode startFivePointCalibration = KeyCode.Alpha7;
 
-        public KeyCode startValidation = KeyCode.Alpha1;
+        public KeyCode startValidation = KeyCode.Alpha4;
 
         public bool isDoingCalibration = true;
 

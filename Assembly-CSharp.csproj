@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,9 +52,6 @@
     <UnityBuildTarget>StandaloneOSX:2</UnityBuildTarget>
     <UnityVersion>2020.3.26f1</UnityVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/Scripts/InstructionsManager.cs" />
     <Compile Include="Assets/Scripts/SubjectSelection&amp;Saving/Logging/UIPanelLogTrack.cs" />
@@ -200,6 +197,7 @@
     <None Include="Assets/Resources_IGNORE/misc_info/cam_transform.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF Overlay.shader" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets/Resources/Images235.txt" />
     <None Include="Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile.shader" />
     <None Include="Assets/TextMesh Pro/Resources/Shaders/TMP_Sprite.shader" />

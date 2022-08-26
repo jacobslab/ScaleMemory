@@ -154,7 +154,7 @@ public class VideoLayerManager : MonoBehaviour
 
         UnityEngine.Debug.Log("FRAME SPAWN " + GetMainLayerCurrentFrameNumber().ToString());
         Experiment.Instance.trialLogTrack.LogItemEncodingEvent(stimDisplayText, GetMainLayerCurrentFrameNumber(),Experiment.Instance.encodingIndex);
-        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, true);
+        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, Experiment.Instance.shuffledStimuliIndices[Experiment.Instance.objController.RandIndex], true);
 
         Experiment.Instance.stimuliBlockSequence.Add(stimObject); //add to the stim block sequence for end of the block tests
 
@@ -176,7 +176,11 @@ public class VideoLayerManager : MonoBehaviour
         yield return StartCoroutine(TogglePauseLayerPlayback(false));
 
 
-        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, false);
+        Experiment.Instance.trialLogTrack.LogItemPresentation(stimDisplayText, Experiment.Instance.shuffledStimuliIndices[Experiment.Instance.objController.RandIndex], false);
+        UnityEngine.Debug.Log("SpawnProcedure: ShuffledStimuliLength: " + Experiment.Instance.shuffledStimuliIndices.Count);
+        for (int i = 0; i < Experiment.Instance.shuffledStimuliIndices.Count; i++) {
+            UnityEngine.Debug.Log("SpawnProcedure: integers: " + Experiment.Instance.shuffledStimuliIndices[i]);
+        }
 
         yield return StartCoroutine(Experiment.Instance.UpdateNextSpawnFrame());
 

@@ -20,7 +20,7 @@ public class InputHandler : MonoBehaviour
          * INPUT HANDLER
         */
 
-        if (exp.beginScreenSelect != 0)
+        if ((exp.beginScreenSelect != 0) && !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
         {
             if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
             {
@@ -39,13 +39,14 @@ public class InputHandler : MonoBehaviour
         }
         if (exp.uiController.showInstructions)
         {
-            if (exp.beginScreenSelect == 0)
+            if ((exp.beginScreenSelect == 0) ||
+                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
             {
-                if (Input.GetKeyDown(KeyCode.Alpha2))
+                if (Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     exp.uiController.PerformUIPageChange(UIController.OptionSelection.Left);
                 }
-                if (Input.GetKeyDown(KeyCode.Alpha3))
+                if (Input.GetKeyDown(KeyCode.Alpha7))
                 {
                     exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
 
@@ -66,13 +67,14 @@ public class InputHandler : MonoBehaviour
 
         if (exp.CanSelectUI())
         {
-            if (exp.beginScreenSelect == 0)
+            if ((exp.beginScreenSelect == 0) ||
+                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
             {
-                if (Input.GetKeyDown(KeyCode.Alpha2))
+                if (Input.GetKeyDown(KeyCode.Alpha6))
                 {
                     exp.uiController.PerformSelection(UIController.OptionSelection.Left);
                 }
-                if (Input.GetKeyDown(KeyCode.Alpha3))
+                if (Input.GetKeyDown(KeyCode.Alpha7))
                 {
                     exp.uiController.PerformSelection(UIController.OptionSelection.Right);
                 }

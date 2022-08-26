@@ -161,7 +161,7 @@ public class Configuration : MonoBehaviour {
                 "Configs");
             UnityEngine.Debug.Log("config path " + configPath);
             string text = "";
-            if (exp.beginScreenSelect != 0)
+            if ((exp.beginScreenSelect != 0) && !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
             {
 #if BEHAVIORAL
             string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_behavioral.json"));

@@ -156,9 +156,9 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + encodingOrder.ToString() +  separator + frameNum.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
 	}
 
-	public void LogItemPresentation(string objName,bool isActive)
+	public void LogItemPresentation(string objName, int objKey, bool isActive)
     {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_PRESENTATION" + separator + objName + separator + ((isActive)? "BEGAN" : "ENDED"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_PRESENTATION" + separator + objName + separator + objKey.ToString() + separator +((isActive)? "BEGAN" : "ENDED"));
 
 	}
 
