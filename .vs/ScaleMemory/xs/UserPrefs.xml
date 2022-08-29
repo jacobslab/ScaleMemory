@@ -1,90 +1,19 @@
-﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
+﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
-      <File FileName="Assets/Scripts/CarStopper.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
-      <File FileName="Assets/Scripts/VideoLayerManager.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
-      <File FileName="Assets/Scripts/CarMover.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
-      <File FileName="Assets/Scripts/InstructionsManager.cs" />
-      <File FileName="Assets/Scripts/SpawnPointTester.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ProgressBarLogTrack.cs" />
-      <File FileName="Assets/Scripts/SavWav.cs" />
-      <File FileName="Assets/Scripts/InputHandler.cs" />
-      <File FileName="Assets/Scripts/SocketControl.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/Logger_Threading.cs" />
-      <File FileName="Assets/Scripts/ItemLayer.cs" />
-      <File FileName="Assets/Editor/CreateAssetBundles.cs" />
-      <File FileName="Assets/Scripts/TrialConditions.cs" />
-      <File FileName="Assets/Scripts/LapCounter.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TextLogTrack.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/AudioLogTrack.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogTrack.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
-      <File FileName="Assets/Scripts/ElememDataPoint.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ObjectLogTrack.cs" />
-      <File FileName="Assets/Scripts/DefaultItem.cs" />
-      <File FileName="Assets/Scripts/ObjectSpawner.cs" />
-      <File FileName="Assets/Scripts/BarrierManager.cs" />
-      <File FileName="Assets/Scripts/ObjectManager.cs" />
-      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" />
-      <File FileName="Assets/Standard Assets/Utility/CurveControlledBob.cs" />
-      <File FileName="Assets/Standard Assets/Utility/DynamicShadowSettings.cs" />
-      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarUserControl.cs" />
-      <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAIControl.cs" />
-      <File FileName="Assets/Scenes/VideoScene.unity" />
-      <File FileName="Assets/Scripts/ElememTestRunner.cs" />
-      <File FileName="Assets/Scripts/DistanceCalculator.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/EventQueue.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/EventLoop.cs" />
-      <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
-      <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1801" Column="14" />
-      <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
-      <File FileName="Assets/Scripts/VideoScript.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" />
-      <File FileName="Assets/Scripts/UsefulFunctions.cs" />
-      <File FileName="Assets/Scripts/AudioRecorder.cs" />
-      <File FileName="Assets/Scripts/ObjectController.cs" />
-      <File FileName="Assets/Scripts/FlexibleConfig.cs" />
-      <File FileName="Assets/UGUIKit Flat/Content/Scripts/bl_ToggleSwitcher.cs" />
-      <File FileName="Assets/Scripts/Utility/DataPoint.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="18" Column="39" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="464" Column="6" />
+      <File FileName="Assets/Scripts/ObjectController.cs" Line="106" Column="16" />
+      <File FileName="Assets/Scripts/VideoLayerManager.cs" Line="104" Column="16" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="ScaleMemory" expanded="True">
-            <Node name="Assets" expanded="True" selected="True">
-              <Node name="Editor" expanded="True" />
-              <Node name="Plugins" expanded="True">
-                <Node name="UnityComponents" expanded="True" />
-              </Node>
-              <Node name="Prefabs" expanded="True">
-                <Node name="RamulatorInterface" expanded="True" />
-              </Node>
-              <Node name="Scripts" expanded="True">
-                <Node name="EEG Communication" expanded="True" />
-                <Node name="SubjectSelection&amp;Saving" expanded="True">
-                  <Node name="Logging" expanded="True" />
-                </Node>
-                <Node name="Utility" expanded="True" />
-              </Node>
-              <Node name="Standard Assets" expanded="True">
-                <Node name="Utility" expanded="True" />
-                <Node name="Vehicles" expanded="True">
-                  <Node name="Car" expanded="True">
-                    <Node name="Scripts" expanded="True" />
-                  </Node>
-                </Node>
-              </Node>
-              <Node name="UGUIKit Flat" expanded="True">
-                <Node name="Content" expanded="True">
-                  <Node name="Scripts" expanded="True" />
+            <Node name="Assembly-CSharp" expanded="True">
+              <Node name="Assets" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Experiment.cs" selected="True" />
                 </Node>
               </Node>
             </Node>
@@ -95,7 +24,6 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="8123eddf-3e2b-4207-ae3d-f373ed8e6365" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
