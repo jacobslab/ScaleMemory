@@ -10,7 +10,11 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowEncodingInstructions()
     {
         uiController.encodingPanel.alpha = 1f;
-        uiController.spacebarContinue.alpha = 1f;
+        if ((exp.beginScreenSelect != 0) &&
+            !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+        }
         if (!exp.isdevmode)
         {
             yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -124,7 +128,11 @@ public class InstructionsManager : MonoBehaviour
             case "PreEncoding":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preEncodingInstructions.enabled = true;
-                uiController.spacebarContinue.alpha = 1f;
+                if ((exp.beginScreenSelect != 0) &&
+                 !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                {
+                    uiController.spacebarContinue.alpha = 1f;
+                }
                 if (!exp.isdevmode)
                 {
                     yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -133,6 +141,7 @@ public class InstructionsManager : MonoBehaviour
                 {
                     yield return StartCoroutine(exp.WaitForJitterAction());
                 }
+
                 uiController.spacebarContinue.alpha = 0f;
                 uiController.preEncodingInstructions.enabled = false;
                 uiController.practiceInstructionPanel.alpha = 0f;
@@ -140,7 +149,11 @@ public class InstructionsManager : MonoBehaviour
             case "SecondPracticeLoop":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.secondPracticeLoopInstructions.enabled = true;
-                uiController.spacebarContinue.alpha = 1f;
+                if ((exp.beginScreenSelect != 0) &&
+                    !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                {
+                    uiController.spacebarContinue.alpha = 1f;
+                }
                 if (!exp.isdevmode)
                 {
                     yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -156,7 +169,11 @@ public class InstructionsManager : MonoBehaviour
             case "PreWeather":
                 uiController.practiceInstructionPanel.alpha = 1f;
                 uiController.preWeatherCondition.enabled = true;
-                uiController.spacebarContinue.alpha = 1f;
+                if ((exp.beginScreenSelect != 0) &&
+                    !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                {
+                    uiController.spacebarContinue.alpha = 1f;
+                }
                 if (!exp.isdevmode)
                 {
                     yield return StartCoroutine(UsefulFunctions.WaitForActionButton());

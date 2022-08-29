@@ -3911,6 +3911,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   permanentImageList: []
+  globalPermanentImageList: []
   encodingList: []
   practiceList: []
   objSpawner: {fileID: 365386426}
@@ -14530,6 +14531,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dadbfb25aec446c08910a9ac987bded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CountBlock: 0
+  TestVersionListGlobal: 
+  TestVersion: 0
+  shuffledStimuliIndices: 
   beginScreenSelect: 0
   beginPracticeSelect: 0
   objManager: {fileID: 0}

@@ -180,32 +180,34 @@ public class VideoLayer : MonoBehaviour
                     if ((exp.beginScreenSelect == 0) ||
                         ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
-                        if (Input.GetKeyDown(KeyCode.Alpha8))
-                        {
-                            if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
-                            {
-                                speed = Fixspeed;
-                            }
-                            else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
-                                     (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)) {
-                                speed = Configuration.fastSpeed;
-                            }
-                        }
-
-                        if (Input.GetKeyDown(KeyCode.Alpha9))
-                        {
-                            if (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)
-                            {
-                                speed = Fixspeed;
-                            }
-                            else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
-                                     (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f))
-                            {
-                                speed = Configuration.slowSpeed;
-                            }
-                        }
                         if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
                         {
+                            if (Input.GetKeyDown(KeyCode.Alpha8))
+                            {
+                                if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
+                                {
+                                    speed = Fixspeed;
+                                }
+                                else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
+                                     (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f))
+                                {
+                                    speed = Configuration.fastSpeed;
+                                }
+                            }
+
+                            if (Input.GetKeyDown(KeyCode.Alpha9))
+                            {
+                                if (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)
+                                {
+                                    speed = Fixspeed;
+                                }
+                                else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
+                                         (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f))
+                                {
+                                    speed = Configuration.slowSpeed;
+                                }
+                            }
+
                             if (Input.GetKey(KeyCode.Alpha6))
                             {
                                 StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
@@ -217,6 +219,9 @@ public class VideoLayer : MonoBehaviour
 
                             }
 
+                        }
+                        else {
+                            speed = Fixspeed;
                         }
                     }
                     //speed = 1.05f;

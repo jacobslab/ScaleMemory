@@ -14,6 +14,9 @@ using UnityEngine.UI;
 public class Experiment : MonoBehaviour {
 
     //EXPERIMENT IS A SINGLETON
+    public int CountBlock;
+    public List<int> TestVersionListGlobal;
+    public int TestVersion;
     public List<int> shuffledStimuliIndices;
     public int beginScreenSelect;
     public int beginPracticeSelect;
@@ -336,6 +339,9 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
+        CountBlock = 0;
+        TestVersionListGlobal = new List<int>();
+        TestVersion = -1;
         StartDistractor = false;
         DistractorTime = 0f;
         num_complete = 0;
@@ -537,6 +543,7 @@ public static bool isElemem=false;
     //TODO: move to logger_threading perhaps? *shrug*
     IEnumerator InitLogging()
     {
+        num_complete = 0;
         //int i = 0;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"..\"));
@@ -1737,6 +1744,10 @@ if(!skipLog)
 
         while (true)
         {
+            if (beginScreenSelect != 0)
+            {
+                CountBlock = 0;
+            }
             isPractice = false;
             practice_bloc = false;
             //if (!isdevmode) {
@@ -2711,6 +2722,23 @@ if(!skipLog)
     IEnumerator BeginTaskBlock()
     {
         //reset the block lists
+        if (CountBlock % 3 == 0)
+        {
+            CountBlock = 0;
+            List<int> TestVersionList = new List<int>();
+            TestVersionList.Add(1);
+            TestVersionList.Add(2);
+            TestVersionList.Add(3);
+            var rnd = new System.Random();
+            TestVersionListGlobal = TestVersionList.OrderBy(Item => rnd.Next()).ToList();
+
+        }
+        for (int i = 0; i < TestVersionListGlobal.Count; i++) { 
+        UnityEngine.Debug.Log("BeginTaskBlock: TestVersionGlobal: " + TestVersionListGlobal[i]);
+    }
+        TestVersion = TestVersionListGlobal[CountBlock % 3];
+        CountBlock += 1;
+
         stimuliBlockSequence = new List<GameObject>();
         for (int i = 0; i < trialsPerBlock; i++)
             {
@@ -2809,39 +2837,112 @@ if(!skipLog)
     {
         //UnityEngine.Debug.Log("WEATHER PATTERN DW qwewqqe");
         //this will be interleaved; so we will only have Different Weather for every even trial
-        if (_weatherChangeTrials[blockTrial] % 2 == 0) 
+        UnityEngine.Debug.Log("CheckForWeatherChange: TestVersionGlobal: " + TestVersion + "  :" + _weatherChangeTrials[blockTrial]);
+        if (TestVersion == 3)
         {
-
-            if(upcomingStage == TaskStage.Encoding)
+            if ((_weatherChangeTrials[blockTrial] % 4 == 1) || (_weatherChangeTrials[blockTrial] % 4 == 2))
             {
-                UnityEngine.Debug.Log("WEATHER PATTERN DW");
-                //we want to keep the weather the same as the previous trial's retrieval weather; so we check the _currentWeather and not change anything
-                UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
-                //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
-                _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+                if (upcomingStage == TaskStage.Encoding)
+                {
+                    UnityEngine.Debug.Log("WEATHER PATTERN DW");
+                    //we want to keep the weather the same as the previous trial's retrieval weather; so we check the _currentWeather and not change anything
+                    UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
-                UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+                    //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
 
-                ChangeLighting(_currentWeather);
+                    UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+
+                    ChangeLighting(_currentWeather);
+                }
+
+                //weather will only be changed during the retrieval phase
+                else
+                {
+                    UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
+                    ChangeLighting(_retrievalWeather);
+                }
             }
 
-            //weather will only be changed during the retrieval phase
+            //if it is an odd numbered trial, then the weather will remain same for both Encoding and Retrieval conditions
             else
             {
-                UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
-                ChangeLighting(_retrievalWeather);
+                UnityEngine.Debug.Log("SAME WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
+                ChangeLighting(_currentWeather);
+
             }
         }
-
-        //if it is an odd numbered trial, then the weather will remain same for both Encoding and Retrieval conditions
-        else
+        else if (TestVersion == 1)
         {
-            UnityEngine.Debug.Log("SAME WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
-            ChangeLighting(_currentWeather);
-           
+            if ((_weatherChangeTrials[blockTrial] % 4 == 0) || (_weatherChangeTrials[blockTrial] % 4 == 2))
+            {
+
+                if (upcomingStage == TaskStage.Encoding)
+                {
+                    UnityEngine.Debug.Log("WEATHER PATTERN DW");
+                    //we want to keep the weather the same as the previous trial's retrieval weather; so we check the _currentWeather and not change anything
+                    UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
+
+                    //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+
+                    UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+
+                    ChangeLighting(_currentWeather);
+                }
+
+                //weather will only be changed during the retrieval phase
+                else
+                {
+                    UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
+                    ChangeLighting(_retrievalWeather);
+                }
+            }
+
+            //if it is an odd numbered trial, then the weather will remain same for both Encoding and Retrieval conditions
+            else
+            {
+                UnityEngine.Debug.Log("SAME WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
+                ChangeLighting(_currentWeather);
+
+            }
         }
-        yield return null;
+        else if (TestVersion == 2) {
+            if ((_weatherChangeTrials[blockTrial] % 4 == 2) || (_weatherChangeTrials[blockTrial] % 4 == 3))
+            {
+
+                if (upcomingStage == TaskStage.Encoding)
+                {
+                    UnityEngine.Debug.Log("WEATHER PATTERN DW");
+                    //we want to keep the weather the same as the previous trial's retrieval weather; so we check the _currentWeather and not change anything
+                    UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
+
+                    //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+
+                    UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+
+                    ChangeLighting(_currentWeather);
+                }
+
+                //weather will only be changed during the retrieval phase
+                else
+                {
+                    UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
+                    ChangeLighting(_retrievalWeather);
+                }
+            }
+
+            //if it is an odd numbered trial, then the weather will remain same for both Encoding and Retrieval conditions
+            else
+            {
+                UnityEngine.Debug.Log("SAME WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
+                ChangeLighting(_currentWeather);
+
+            }
+        }
+            yield return null;
     }
 
     IEnumerator RunRetrieval(int sessTrial)
@@ -3088,8 +3189,11 @@ if(!skipLog)
                 //set movement to manual
                 player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
             }
-
-            uiController.spacebarPlaceItem.alpha = 1f;
+            if ((beginScreenSelect != 0) &&
+                !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+            {
+                uiController.spacebarPlaceItem.alpha = 1f;
+            }
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
             if (beginScreenSelect == 0)
             {
@@ -3146,7 +3250,11 @@ if(!skipLog)
         trialLogTrack.LogTaskStage(currentStage, true);
 
         uiController.trackScreeningPanel.alpha = 1f;
-        uiController.spacebarContinue.alpha = 1f;
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+        }
         if (!isdevmode)
         {
             yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -3204,7 +3312,7 @@ if(!skipLog)
         UnityEngine.Debug.Log("running end of block tests");
         UnityEngine.Debug.Log("stim block sequence length" + stimuliBlockSequence.Count.ToString());
         //show instructions
-        uiController.followUpTestPanel.alpha = 1f;
+        /*uiController.followUpTestPanel.alpha = 1f;
         if (!isdevmode)
         {
             yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
@@ -3213,9 +3321,12 @@ if(!skipLog)
         {
             yield return StartCoroutine(WaitForJitterAction());
         }
-        uiController.followUpTestPanel.alpha = 0f;
+        uiController.followUpTestPanel.alpha = 0f;*/
 
-        
+        uiController.fixationPanel.alpha = 1f;
+        yield return StartCoroutine(WaitForJitter(5));
+        uiController.fixationPanel.alpha = 0f;
+
         yield return StartCoroutine(GenerateBlockTestPairs());
         yield return StartCoroutine(GenerateContextRecollectionList()); //generate list from the remaining indices in the stimuliBlockSequence
 
@@ -3261,10 +3372,14 @@ if(!skipLog)
             yield return StartCoroutine(RunTemporalDistanceTest(blockTestPairList[i]));
             yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
         }
-        for (int i = 0; i < _contextDifferentWeatherTestList.Count; i++)
+
+        List<GameObject> result = new List<GameObject>();
+        result = _contextDifferentWeatherTestList.Concat(_contextSameWeatherTestList).ToList();
+
+        for (int i = 0; i < result.Count; i++)
         {
             //this will be run on a randomized set of items that weren't included in the tests above
-            yield return StartCoroutine(RunContextRecollectionTest(_contextDifferentWeatherTestList[i]));
+            yield return StartCoroutine(RunContextRecollectionTest(result[i]));
             yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
         }
 
@@ -3341,8 +3456,8 @@ if(!skipLog)
             }
         }
 
-        System.Random rnd = new System.Random();
-        int TestVersion = rnd.Next(1, 4);
+        //System.Random rnd = new System.Random();
+        //int TestVersion = rnd.Next(1, 4);
 
         if (TestVersion == 1)
         {
@@ -3394,8 +3509,64 @@ if(!skipLog)
     //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateContextRecollectionList()
     {
+        if (TestVersion == 1)
+        {
             //different weather
-            _contextDifferentWeatherTestList = new List<GameObject>(); //1,3,11,14
+            _contextDifferentWeatherTestList = new List<GameObject>(); //1 2 4 13 16 17
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[0]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[1]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[3]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[12]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[15]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[16]);
+            //same weather
+            _contextSameWeatherTestList = new List<GameObject>(); // 7 9 10 19 22 24
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[6]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[8]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[9]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[21]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[23]);
+        }
+        else if (TestVersion == 2)
+        {
+            _contextDifferentWeatherTestList = new List<GameObject>(); //13 14 16 19 22 23 24
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[12]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[13]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[15]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[18]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[21]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[22]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[23]);
+            //same weather
+            _contextSameWeatherTestList = new List<GameObject>(); // 1 3 4 7 10
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[0]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[2]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[3]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[6]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[9]);
+        }
+        else if (TestVersion == 3)
+        {
+            _contextDifferentWeatherTestList = new List<GameObject>(); //7 10 12 13 16
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[6]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[9]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[11]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[12]);
+            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[15]);
+            //same weather
+            _contextSameWeatherTestList = new List<GameObject>(); // 1 2 3 4 19 22 23
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[0]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[1]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[2]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[3]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[21]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[21]);
+        }
+
+        //different weather
+        /*_contextDifferentWeatherTestList = new List<GameObject>(); //1,3,11,14
             _contextDifferentWeatherTestList.Add(stimuliBlockSequence[0]);
             _contextDifferentWeatherTestList.Add(stimuliBlockSequence[2]);
             _contextDifferentWeatherTestList.Add(stimuliBlockSequence[10]);
@@ -3409,7 +3580,7 @@ if(!skipLog)
             _contextSameWeatherTestList.Add(stimuliBlockSequence[7]);
             _contextSameWeatherTestList.Add(stimuliBlockSequence[15]);
             _contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
-       
+       */
 
 
         yield return null;
