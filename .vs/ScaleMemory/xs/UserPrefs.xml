@@ -1,5 +1,5 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/AudioRecorder.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
       <File FileName="Assets/Scripts/CarStopper.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
@@ -44,12 +44,12 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1801" Column="14" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="3158" Column="1" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/UsefulFunctions.cs" />
-      <File FileName="Assets/Scripts/AudioRecorder.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/AudioRecorder.cs" />
       <File FileName="Assets/Scripts/ObjectController.cs" />
       <File FileName="Assets/Scripts/FlexibleConfig.cs" />
       <File FileName="Assets/UGUIKit Flat/Content/Scripts/bl_ToggleSwitcher.cs" />
@@ -69,10 +69,7 @@
               </Node>
               <Node name="Scripts" expanded="True">
                 <Node name="EEG Communication" expanded="True" />
-                <Node name="SubjectSelection&amp;Saving" expanded="True">
-                  <Node name="Logging" expanded="True" />
-                </Node>
-                <Node name="Utility" expanded="True" />
+                <Node name="SubjectSelection&amp;Saving" expanded="True" />
                 <Node name="CarStopper.cs" selected="True" />
               </Node>
               <Node name="Standard Assets" expanded="True">
@@ -96,7 +93,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="8123eddf-3e2b-4207-ae3d-f373ed8e6365" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="cac5bb71-d7af-4b84-b4fe-35e8e82ce892" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

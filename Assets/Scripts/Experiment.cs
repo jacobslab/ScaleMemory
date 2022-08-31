@@ -1298,8 +1298,6 @@ if(!skipLog)
                             {*/
                             //UnityEngine.Debug.Log(values[j]);
                             shuffledStimuliIndices.Add(Convert.ToInt32(line));
-
-
                         }
                     }
                     if (!(File.Exists(fileName2)))
@@ -1307,7 +1305,6 @@ if(!skipLog)
                         //File.Create(fileName3);
                         UsefulFunctions.WriteIntoTextFile(fileName2, shuffledStimuliIndices); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
                     }
-
                 }
         }
         else {
@@ -1329,8 +1326,6 @@ if(!skipLog)
                     {*/
                     //UnityEngine.Debug.Log(values[j]);
                     shuffledStimuliIndices.Add(Convert.ToInt32(line));
-
-
                 }
             }
             if (!(File.Exists(fileName3)))
@@ -1369,8 +1364,6 @@ if(!skipLog)
                             {*/
                             //UnityEngine.Debug.Log(values[j]);
                             tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
-
-
                         }
                     }
                     shuffledStimuliIndices = tempshuffledStimuliIndices;
@@ -1417,8 +1410,6 @@ if(!skipLog)
                         {*/
                         //UnityEngine.Debug.Log(values[j]);
                         prev2tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
-
-
                     }
                 }
                 shuffledStimuliIndices = prev2tempshuffledStimuliIndices;
@@ -1430,7 +1421,6 @@ if(!skipLog)
         List<Texture> temppermanentImageList = new List<Texture>();
         for (int i = 0; i < shuffledStimuliIndices.Count; i++) {
             temppermanentImageList.Add(objController.permanentImageList[shuffledStimuliIndices[i]]);
-
         }
 
         objController.permanentImageList = temppermanentImageList;
@@ -1462,14 +1452,10 @@ if(!skipLog)
                 //add stimuli indices associated with our current session into a private variable for later access
                 if (j == _sessionID)
                     currentstimuliIndices.Add(shuffledStimuliIndices[i]); 
-
             }
-
-                UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
-            
+                UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file            
             stim++;
         }
-
 
         //now let's convert _stimuliIndices into a temporary string arr so we can pass it as an argument to objController.CreateSessionImageList
         string[] tempArr = new string[currentstimuliIndices.Count];
@@ -2277,9 +2263,7 @@ if(!skipLog)
         ToggleFixation(true);
         yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(ResetTrack());
-        ToggleFixation(false);
-
-        
+        ToggleFixation(false); 
 
         //do two more practice laps with randomized retrieval conditions
 
@@ -2298,7 +2282,6 @@ if(!skipLog)
                     _currentWeather = new Weather(Weather.WeatherType.Night);
                     ChangeLighting(_currentWeather);
                     break;
-
             }
 
             yield return StartCoroutine(DisplayNextTrialScreen());
@@ -2616,8 +2599,6 @@ if(!skipLog)
             }
         }
 #endif
-
-
         while(_retrievalTypeList.Count < trialsPerSession)
         {
             yield return 0;
@@ -2647,12 +2628,10 @@ if(!skipLog)
         }
         UnityEngine.Debug.Log("returned shuffled weather order");
 
-
         //now instantiate a TrialCondition object -- which will then be split across different sessions
 
         //this will currently ONLY work for two sessions
         _trialConditions = new TrialConditions(_retrievalTypeList, _weatherChangeTrials, _randomizedWeatherOrder);
-
 
         //for clinical versions, we'll have to further split the trial conditions into two for the two sessions
 #if CLINICAL || CLINICAL_TEST
@@ -2695,10 +2674,8 @@ if(!skipLog)
             for (int j = 0; j < possibleWeatherCombinations.Count; j++)
             {
                 WeatherPair encodingPair = new WeatherPair(selfType, (Weather.WeatherType)possibleWeatherCombinations[j]);
-
                 tempPair.Add(encodingPair);
-                UnityEngine.Debug.Log("E: " + encodingPair.encodingWeather.weatherMode.ToString() + " R: " + encodingPair.retrievalWeather.weatherMode.ToString());
-                
+                UnityEngine.Debug.Log("E: " + encodingPair.encodingWeather.weatherMode.ToString() + " R: " + encodingPair.retrievalWeather.weatherMode.ToString());              
             }
         }
         int doubleList = tempPair.Count;
@@ -3160,7 +3137,6 @@ if(!skipLog)
 
         for (int l = 0;l<lureObjects.Count;l++)
         {
-
             spatialTestList.Add(lureObjects[l]);
         }
 
@@ -3175,7 +3151,6 @@ if(!skipLog)
 
         for (int j = 0; j < _testLength; j++)
         {
-
             trialLogTrack.LogItemCuedReactivation(spatialTestList[j].gameObject, isLure, j);
 
             //ask the item cued question
@@ -3376,10 +3351,13 @@ if(!skipLog)
         List<GameObject> result = new List<GameObject>();
         result = _contextDifferentWeatherTestList.Concat(_contextSameWeatherTestList).ToList();
 
-        for (int i = 0; i < result.Count; i++)
+        var rnd = new System.Random();
+        var shuffledResult = (result.OrderBy(item => rnd.Next())).ToList();
+
+        for (int i = 0; i < shuffledResult.Count; i++)
         {
             //this will be run on a randomized set of items that weren't included in the tests above
-            yield return StartCoroutine(RunContextRecollectionTest(result[i]));
+            yield return StartCoroutine(RunContextRecollectionTest(shuffledResult[i]));
             yield return new WaitForSeconds(Configuration.pauseBtwnEndQuestions);
         }
 
@@ -3461,50 +3439,35 @@ if(!skipLog)
 
         if (TestVersion == 1)
         {
-            //add 2 pairs encountered in the same loop
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[19], stimuliBlockSequence[22])); //loop 4
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5])); //loop 1
-
-            //add 2 pairs encountered in the different loop, same weather
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13])); // loop 2 and 3
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[19], stimuliBlockSequence[22])); 
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
-
-            //add 2 pairs encountered in different loops, different weather; see the design document for more information
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7])); //loop 1 and 2
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));  // loop 3 and 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13]));
         }
         else if (TestVersion == 2) {
-            //add 2 pairs encountered in the same loop
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10])); //loop 4
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4])); //loop 1
-
-            //add 2 pairs encountered in the different loop, same weather
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8])); // loop 2 and 3
+            //add 2 pairs encountered in the same loop; 2 pairs encountered in the different loop, same weather; 2 pairs encountered in different loops, different weather; see the design document for more information
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
-
-            //add 2 pairs encountered in different loops, different weather; see the design document for more information
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); //loop 1 and 2
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));  // loop 3 and 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); 
         }
         else if (TestVersion == 3)
         {
-            //add 2 pairs encountered in the same loop
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[20], stimuliBlockSequence[23])); //loop 4
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17])); //loop 1
-
-            //add 2 pairs encountered in the different loop, same weather
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7])); // loop 2 and 3
+            //add 2 pairs encountered in the same loop; 2 pairs encountered in the different loop, same weather; 2 pairs encountered in different loops, different weather; see the design document for more information
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
-
-            //add 2 pairs encountered in different loops, different weather; see the design document for more information
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13])); //loop 1 and 2
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));  // loop 3 and 4
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[20], stimuliBlockSequence[23]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13]));
         }
-
 
         yield return null;
     }
-
 
     //TODO: make this rule-based and not hard-coded
     IEnumerator GenerateContextRecollectionList()
@@ -3562,26 +3525,8 @@ if(!skipLog)
             _contextSameWeatherTestList.Add(stimuliBlockSequence[3]);
             _contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
             _contextSameWeatherTestList.Add(stimuliBlockSequence[21]);
-            _contextSameWeatherTestList.Add(stimuliBlockSequence[21]);
+            _contextSameWeatherTestList.Add(stimuliBlockSequence[22]);
         }
-
-        //different weather
-        /*_contextDifferentWeatherTestList = new List<GameObject>(); //1,3,11,14
-            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[0]);
-            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[2]);
-            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[10]);
-            _contextDifferentWeatherTestList.Add(stimuliBlockSequence[13]);
-
-
-
-            //same weather
-            _contextSameWeatherTestList = new List<GameObject>(); //6,8,16,19
-            _contextSameWeatherTestList.Add(stimuliBlockSequence[5]);
-            _contextSameWeatherTestList.Add(stimuliBlockSequence[7]);
-            _contextSameWeatherTestList.Add(stimuliBlockSequence[15]);
-            _contextSameWeatherTestList.Add(stimuliBlockSequence[18]);
-       */
-
 
         yield return null;
     }
@@ -3605,8 +3550,6 @@ if(!skipLog)
         {
             firstItem = testPair.secondItem;
             secondItem = testPair.firstItem;
-
-
         }*/
         firstItem = testPair.firstItem;
         secondItem = testPair.secondItem;
@@ -3638,7 +3581,6 @@ if(!skipLog)
 
     IEnumerator RunTemporalDistanceTest(BlockTestPair testPair)
     {
-
         uiController.temporalDistanceItemA.text = testPair.firstItem.gameObject.name;
         uiController.temporalDistanceItemB.text = testPair.secondItem.gameObject.name;
 
@@ -3647,7 +3589,6 @@ if(!skipLog)
 
         yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
         uiController.temporalDistanceTestPanel.alpha = 1f;
-
 
         //wait for the selection of options
         uiController.ToggleSelection(true);

@@ -7,7 +7,7 @@
     "timeThreshold":2,
     "timeBetweenLaps":4,
     "spawnCount":6,
-    "itemPresentationTime":1.6,
+    "itemPresentationTime":2,
     "heartbeatIntervalMS":1000,
     "minBufferLures":50,
     "minGapBetweenStimuli":3,
@@ -28,6 +28,6 @@
     "stimMode":"closed",
     "pauseBtwnEndQuestions":0.5,
     "pauseBtwnEachSpatialQuestion":1,
-    "fastSpeed":1.4,
+    "fastSpeed":1.6,
     "slowSpeed":0.6
 }
