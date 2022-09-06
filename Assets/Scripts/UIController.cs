@@ -305,8 +305,8 @@ public class UIController : MonoBehaviour
             showInstructions = true;
         }
         
-        if(!isSpatial)
-            pageControls.alpha = 1f;
+        /*if(!isSpatial)
+            pageControls.alpha = 1f;*/
         //then force update it so it shows up with the first page
         yield return StartCoroutine(UpdateUIPage());
 

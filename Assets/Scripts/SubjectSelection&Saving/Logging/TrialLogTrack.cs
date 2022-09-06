@@ -1,7 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using System.Runtime.InteropServices;
+using System.IO;
+using System;
 //using UnityEditor.Experimental.GraphView;
 
 public class TrialLogTrack : LogTrack {
@@ -95,6 +98,36 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TRIAL_LOOP" + separator + loopNum.ToString() + separator + ((hasBegun) ? "STARTED" : "ENDED"));
 	}
 
+	public void LogTestVersionList(List<int> list, int index)
+	{
+		var res = string.Join(",", list);
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TestVersionGlobal" + separator + res.ToString() + separator + index.ToString());
+	}
+
+	public void LogTestVersion(int testversion)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TestVersion" + separator + testversion.ToString());
+	}
+
+	public void LogDefaultFixSpeed(float nnew)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SpeedUpdate: LogDefaultFixSpeed" + separator + nnew.ToString());
+		//Debug.Log("Hello");
+	}
+
+	public void LogSpeedUp(float prev, float nnew)
+	{
+
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SpeedUpdate: IncreasingSpeed--From" + separator + prev.ToString() + separator + "to" + separator + nnew.ToString());
+		//Debug.Log("Hello");
+	}
+
+	public void LogSpeedDown(float prev, float nnew)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SpeedUpdate: DecreasingSpeed--From" + separator + prev.ToString() + separator + "to" + separator + nnew.ToString());
+		//Debug.Log("Hello");
+	}
+
 	public void LogProlificWorkerInfo(string prolific_pid, string study_id, string session_id)
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "PROLIFIC_PID" + separator + prolific_pid + separator + "STUDY_ID" + separator + study_id + separator + "SESSION_ID" + separator + session_id);
@@ -126,13 +159,13 @@ public class TrialLogTrack : LogTrack {
 	public void LogLocationCuedReactivation(GameObject stimObject, bool isLure, int retIndex)
 	{
 		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "LOCATION_CUED_REACTIVATION" + separator + stimObject.name + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "LOCATION_CUED_REACTIVATION" + separator + stimObject.name + separator + (Experiment.Instance.StimuliDict[stimObject.name]).ToString() + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
 
 	}
 	public void LogItemCuedReactivation(GameObject stimObject, bool isLure, int retIndex)
 	{
 		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_CUED_REACTIVATION" + separator + stimObject.name + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_CUED_REACTIVATION" + separator + stimObject.name + separator + (Experiment.Instance.StimuliDict[stimObject.name]).ToString() + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString() + separator + isLure.ToString() + separator + retIndex.ToString());
 
 	}
 
@@ -153,13 +186,17 @@ public class TrialLogTrack : LogTrack {
     {
 
 		Transform presentationTrans = Experiment.Instance.GetTransformForFrame(frameNum);
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + encodingOrder.ToString() +  separator + frameNum.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + (Experiment.Instance.StimuliDict[objName]).ToString() + separator + encodingOrder.ToString() +  separator + frameNum.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
 	}
 
 	public void LogItemPresentation(string objName, int objKey, bool isActive)
     {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_PRESENTATION" + separator + objName + separator + objKey.ToString() + separator +((isActive)? "BEGAN" : "ENDED"));
 
+	}
+
+	public void LogRandIndex(int rndIndex) {
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "picking_randindex" + separator + rndIndex.ToString());
 	}
 
 
@@ -171,7 +208,7 @@ public class TrialLogTrack : LogTrack {
 	public void LogVerbalRetrievalAttempt(GameObject objQueried, string fileName)
 	{
 		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "VERBAL_RETRIEVAL" + separator + objQueried.name + separator + fileName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "VERBAL_RETRIEVAL" + separator + objQueried.name + separator + (Experiment.Instance.StimuliDict[objQueried.name]).ToString() + separator + fileName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
 
 	}
 	public void LogElememConnectionSuccess()
@@ -181,7 +218,7 @@ public class TrialLogTrack : LogTrack {
 	
 	public void LogItemDisplay(string objName,bool isShown)
 	{
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_SCREENING" + separator + objName + separator + ((isShown)? "ON" : "OFF"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ITEM_SCREENING" + separator + objName + separator + (Experiment.Instance.StimuliDict[objName]).ToString() + separator + ((isShown)? "ON" : "OFF"));
 	}
 	public void LogStartNSPTime(long initial_nsp_time, long initial_neural_time)
     {
@@ -218,21 +255,21 @@ public class TrialLogTrack : LogTrack {
 		Transform currTrans = exp.GetTransformForFrame(exp.videoLayerManager.GetMainLayerCurrentFrameNumber());
 		string targetObjName = targetObj.gameObject.name.Split('(')[0];
 		float dist = Vector3.Distance(targetObj.transform.position, currTrans.position);
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RETRIEVAL_ATTEMPT" + separator + targetObjName + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RETRIEVAL_ATTEMPT_DISTANCE_ERROR" + separator + targetObjName + separator + dist.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RETRIEVAL_ATTEMPT" + separator + targetObjName + separator + (Experiment.Instance.StimuliDict[targetObjName]).ToString() + separator + currTrans.position.x.ToString() + separator + currTrans.position.y.ToString() + separator + currTrans.position.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "RETRIEVAL_ATTEMPT_DISTANCE_ERROR" + separator + targetObjName + separator + (Experiment.Instance.StimuliDict[targetObjName]).ToString() + separator + dist.ToString());
 
 
 	}
 
 	public void LogTemporalOrderTest(GameObject firstItem, GameObject secondItem,bool hasStarted)
     {
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_ORDER_TEST" + separator + firstItem.gameObject.name +separator  + secondItem.gameObject.name +  separator + ((hasStarted) ? "STARTED" : "ENDED"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_ORDER_TEST" + separator + firstItem.gameObject.name +separator  + (Experiment.Instance.StimuliDict[firstItem.gameObject.name]).ToString() + separator + secondItem.gameObject.name +  separator + (Experiment.Instance.StimuliDict[secondItem.gameObject.name]).ToString() + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 
 	}
 
 	public void LogTemporalDistanceTest(BlockTestPair testPair, bool hasStarted)
 	{
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_DISTANCE_TEST" + separator + testPair.firstItem.gameObject.name + separator + testPair.secondItem.gameObject.name + separator + ((hasStarted) ? "STARTED" : "ENDED"));
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "TEMPORAL_DISTANCE_TEST" + separator + testPair.firstItem.gameObject.name + separator + (Experiment.Instance.StimuliDict[testPair.firstItem.gameObject.name]).ToString() + separator + testPair.secondItem.gameObject.name + separator + (Experiment.Instance.StimuliDict[testPair.secondItem.gameObject.name]).ToString() + separator + ((hasStarted) ? "STARTED" : "ENDED"));
 
 	}
 
@@ -286,7 +323,7 @@ public class TrialLogTrack : LogTrack {
 
 	public void LogEncodingItemSpawn(string objName, Vector3 pos)
 	{
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + pos.x.ToString() + separator + pos.y.ToString() + separator + pos.z.ToString());
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "ENCODING_ITEM" + separator + objName + separator + (Experiment.Instance.StimuliDict[objName]).ToString() + separator + pos.x.ToString() + separator + pos.y.ToString() + separator + pos.z.ToString());
 	}
 
 	public void LogSlowZoneLocation (Vector3 location)
@@ -352,6 +389,12 @@ public class TrialLogTrack : LogTrack {
 		else
 		*/
 			subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "0" + separator + "TRIAL" + separator + trialNumber + separator + "NONSTIM");
+	}
+
+	public void LogPressedKey(KeyCode vCode)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "Pressed KeyCode: " + separator + vCode.ToString());
+
 	}
 
 

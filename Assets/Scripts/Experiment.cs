@@ -17,6 +17,9 @@ public class Experiment : MonoBehaviour {
     public int CountBlock;
     public List<int> TestVersionListGlobal;
     public int TestVersion;
+    public List<int> LoadTestVersionListGlobal;
+    public bool isTestVersionPresent;
+    public int LoadTestVersionIndex;
     public List<int> shuffledStimuliIndices;
     public int beginScreenSelect;
     public int beginPracticeSelect;
@@ -315,6 +318,9 @@ public static bool isElemem=false;
     public float TempCurrentTime;
     float DistractorTime;
     bool StartDistractor;
+    public Dictionary<string,int> StimuliDict;
+    public List<int> RemovedIndices;
+    public int LastRandIndex;
 
     void Awake() {
         if (_instance != null) {
@@ -339,9 +345,14 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
+        LastRandIndex = -200;
+        StimuliDict = new Dictionary<string, int>();
         CountBlock = 0;
         TestVersionListGlobal = new List<int>();
+        LoadTestVersionListGlobal = new List<int>();
+        LoadTestVersionIndex = -1;
         TestVersion = -1;
+        isTestVersionPresent = false;
         StartDistractor = false;
         DistractorTime = 0f;
         num_complete = 0;
@@ -544,6 +555,7 @@ public static bool isElemem=false;
     IEnumerator InitLogging()
     {
         num_complete = 0;
+        isTestVersionPresent = false;
         //int i = 0;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"..\"));
@@ -646,6 +658,8 @@ public static bool isElemem=false;
                 BlockStatus[i] = 1;
             }
         }
+
+        UnityEngine.Debug.Log("LastRandIndex: " + LastRandIndex);
         //}
         //else 
         /*else if (beginScreenSelect == 1) {
@@ -1065,6 +1079,29 @@ if(!skipLog)
                                         LastTrailCount = Convert.ToInt32(values[3]);
                                     }
                                 }
+                                else if (values[2] == "TestVersionGlobal")
+                                {
+                                    var A = (values[3].Split(',')).ToList();
+                                    LoadTestVersionListGlobal = new List<int>();
+                                    for (int i = 0; i < A.Count(); i++)
+                                    {
+                                        LoadTestVersionListGlobal.Add(Convert.ToInt32(A[i]));
+
+                                        UnityEngine.Debug.Log("Values Split: " + A[i]);
+                                    }
+                                    LoadTestVersionIndex = Convert.ToInt32(values[4]);
+                                    isTestVersionPresent = true;
+
+                                }
+
+                            }
+                            else if (values.Length >= 3)
+                            {
+                                if (values[2] == "picking_randindex")
+                                {
+                                    LastRandIndex = Convert.ToInt32(values[3]);
+                                }
+
                             }
                             //}
 
@@ -1237,6 +1274,31 @@ if(!skipLog)
         //shuffle stimuli images into a list
         
         UnityEngine.Debug.Log("CreateSessionData: PermanentImageList: " + objController.permanentImageList.Count);
+        StimuliDict = new Dictionary<string, int>();
+        for (int i = 0; i < objController.permanentImageList.Count; i++) {
+            StimuliDict.Add(objController.permanentImageList[i].name, i);
+        }
+
+
+        string fileName_remove = defaultLoggingPath + "/Resources_IGNORE/RemovedStimuli.txt";
+
+        int[] array = new int[objController.permanentImageList.Count];
+        Array.Clear(array,0, objController.permanentImageList.Count);
+
+        RemovedIndices = new List<int>();
+        RemovedIndices = array.ToList();
+        using (StreamReader reader = new StreamReader(fileName_remove))
+        {
+            //UnityEngine.Debug.Log("Entered 222!!!");
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+
+                RemovedIndices[Convert.ToInt32(line)] = 1;
+
+            }
+        }
+
         if (_sessionID == 0)
         {
                 UnityEngine.Debug.Log("CreateSessionData: Here we are with session_id: 0: " + sessionDirectory);
@@ -1258,8 +1320,16 @@ if(!skipLog)
                 {
                     if (!File.Exists(fileName2))
                     {
-                        shuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
-                                                                                                                                    //File.Create(fileName2);
+                        List<int> pshuffledStimuliIndices = UsefulFunctions.ReturnShuffledIntegerList(objController.permanentImageList.Count); //get total stimuli images
+                                                                                                                                               //File.Create(fileName2);
+                        shuffledStimuliIndices = new List<int>();
+                        for (int i = 0; i < pshuffledStimuliIndices.Count; i++)
+                        {
+                            if (RemovedIndices[pshuffledStimuliIndices[i]] == 0)
+                            {
+                                shuffledStimuliIndices.Add(pshuffledStimuliIndices[i]);
+                            }
+                        }
                         UsefulFunctions.WriteIntoTextFile(fileName2, shuffledStimuliIndices); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
                     }
                     else {
@@ -1340,7 +1410,7 @@ if(!skipLog)
             ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
             string fileName3 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235.txt"; // path of the file where we will store all the stimuli indices of that particular session
-            string fileName2 = _subjectDirectory + "session0/" + "sess_0_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            string fileName2 = _subjectDirectory + "session_0/" + "sess_0_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
             string fileName4 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
             /*if (!(File.Exists(fileName2)))
             {*/
@@ -1351,25 +1421,25 @@ if(!skipLog)
             {
                 if ((File.Exists(fileName2)))
                 {
+                    UnityEngine.Debug.Log("beginScreenSelect: file4 is not, file2 is");
                     System.IO.File.Copy(fileName2, fileName4, true);
                     List<int> tempshuffledStimuliIndices = new List<int>();
-                    using (StreamReader reader = new StreamReader(fileName4))
+                    using (StreamReader reader = new StreamReader(fileName2))
                     {
                         //UnityEngine.Debug.Log("Entered 222!!!");
                         string line;
                         while ((line = reader.ReadLine()) != null)
                         {
-                            //string[] values = line.Split('\t');
-                            /*for (int j = 0; j < values.Count(); j++)
-                            {*/
-                            //UnityEngine.Debug.Log(values[j]);
                             tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
                         }
                     }
                     shuffledStimuliIndices = tempshuffledStimuliIndices;
+                    //UsefulFunctions.WriteIntoTextFile(fileName4, shuffledStimuliIndices); //write the entire list into the sess_<sessionnumber>_stimuli.txt file
+
                 }
                 else
                 {
+                    UnityEngine.Debug.Log("beginScreenSelect: file4 is not, file2 is not");
                     List<int> prevtempshuffledStimuliIndices = new List<int>();
                     using (StreamReader reader = new StreamReader(fileName3))
                     {
@@ -1377,12 +1447,10 @@ if(!skipLog)
                         string line;
                         while ((line = reader.ReadLine()) != null)
                         {
-                            //string[] values = line.Split('\t');
-                            /*for (int j = 0; j < values.Count(); j++)
-                            {*/
-                            //UnityEngine.Debug.Log(values[j]);
-                            prevtempshuffledStimuliIndices.Add(Convert.ToInt32(line));
-
+                            if (RemovedIndices[Convert.ToInt32(line)] == 0)
+                            {
+                                prevtempshuffledStimuliIndices.Add(Convert.ToInt32(line));
+                            }
 
                         }
                     }
@@ -1405,10 +1473,6 @@ if(!skipLog)
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        //string[] values = line.Split('\t');
-                        /*for (int j = 0; j < values.Count(); j++)
-                        {*/
-                        //UnityEngine.Debug.Log(values[j]);
                         prev2tempshuffledStimuliIndices.Add(Convert.ToInt32(line));
                     }
                 }
@@ -1420,10 +1484,15 @@ if(!skipLog)
 
         List<Texture> temppermanentImageList = new List<Texture>();
         for (int i = 0; i < shuffledStimuliIndices.Count; i++) {
-            temppermanentImageList.Add(objController.permanentImageList[shuffledStimuliIndices[i]]);
+            if (RemovedIndices[shuffledStimuliIndices[i]] == 0)
+            {
+                temppermanentImageList.Add(objController.permanentImageList[shuffledStimuliIndices[i]]);
+            }
         }
 
         objController.permanentImageList = temppermanentImageList;
+
+        UnityEngine.Debug.Log("Total Permanent Images: Total Images after loading: " + objController.permanentImageList.Count);
 
         for (int i = 0; i < objController.permanentImageList.Count; i++)
         {
@@ -1754,6 +1823,7 @@ if(!skipLog)
 
             }*/
             //_canSelect = true;
+            SetSubjectName();
             yield return StartCoroutine(BeginMenuCanvas());
             //_canSelect = false;
             selectionImage.transform.GetComponent<Image>().enabled = false;
@@ -1806,7 +1876,7 @@ if(!skipLog)
                 trialLogTrack.LogQuestionContinual(true);
                 UnityEngine.Debug.Log("I m here 2");
             }
-            SetSubjectName();
+            //SetSubjectName();
             if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 uiController.subjectInputField.gameObject.SetActive(false);
@@ -2699,21 +2769,51 @@ if(!skipLog)
     IEnumerator BeginTaskBlock()
     {
         //reset the block lists
-        if (CountBlock % 3 == 0)
+        if (isTestVersionPresent == false)
         {
-            CountBlock = 0;
-            List<int> TestVersionList = new List<int>();
-            TestVersionList.Add(1);
-            TestVersionList.Add(2);
-            TestVersionList.Add(3);
-            var rnd = new System.Random();
-            TestVersionListGlobal = TestVersionList.OrderBy(Item => rnd.Next()).ToList();
+            if (CountBlock % 3 == 0)
+            {
+                CountBlock = 0;
+                List<int> TestVersionList = new List<int>();
+                TestVersionList.Add(1);
+                TestVersionList.Add(2);
+                TestVersionList.Add(3);
+                var rnd = new System.Random();
+                TestVersionListGlobal = TestVersionList.OrderBy(Item => rnd.Next()).ToList();
+
+            }
+            for (int i = 0; i < TestVersionListGlobal.Count; i++)
+            {
+                UnityEngine.Debug.Log("BeginTaskBlock: TestVersionGlobal: " + TestVersionListGlobal[i]);
+            }
+            
+        }
+        else
+        {
+            if (LoadTestVersionIndex < 2)
+            {
+                TestVersionListGlobal = LoadTestVersionListGlobal;
+                LoadTestVersionIndex = LoadTestVersionIndex + 1;
+                CountBlock = LoadTestVersionIndex;
+            }
+            else {
+                CountBlock = 0;
+                List<int> TestVersionList = new List<int>();
+                TestVersionList.Add(1);
+                TestVersionList.Add(2);
+                TestVersionList.Add(3);
+                var rnd = new System.Random();
+                TestVersionListGlobal = TestVersionList.OrderBy(Item => rnd.Next()).ToList();
+                LoadTestVersionListGlobal = TestVersionListGlobal;
+                LoadTestVersionIndex = CountBlock;
+
+            }
 
         }
-        for (int i = 0; i < TestVersionListGlobal.Count; i++) { 
-        UnityEngine.Debug.Log("BeginTaskBlock: TestVersionGlobal: " + TestVersionListGlobal[i]);
-    }
         TestVersion = TestVersionListGlobal[CountBlock % 3];
+        trialLogTrack.LogTestVersionList(TestVersionListGlobal, (CountBlock%3));
+        trialLogTrack.LogTestVersion(TestVersion);
+
         CountBlock += 1;
 
         stimuliBlockSequence = new List<GameObject>();
@@ -2758,6 +2858,8 @@ if(!skipLog)
         yield return StartCoroutine(RunDistractorTask());
         StartDistractor = false;
 
+        trialLogTrack.LogBlock(_intblockName, false);
+
         yield return null;
     }
 
@@ -2795,10 +2897,20 @@ if(!skipLog)
 
         if (!isdevmode)
         {
+            if ((beginScreenSelect == 0) || (beginScreenSelect == 2) ||
+                ((beginScreenSelect == -1)) && (beginPracticeSelect == 0))
+            {
                 uiController.experimentStartPanel.alpha = 1f;
-            //yield return StartCoroutine(WaitForJitter(5));
-            yield return StartCoroutine(UsefulFunctions.WaitForHeartBeatButton());
-            uiController.experimentStartPanel.alpha = 0f;
+                //yield return StartCoroutine(WaitForJitter(5));
+                yield return StartCoroutine(UsefulFunctions.WaitForHeartBeatButton());
+                uiController.experimentStartPanel.alpha = 0f;
+            }
+            else {
+                uiController.experimentStartPanel.alpha = 1f;
+                //yield return StartCoroutine(WaitForJitter(5));
+                yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
+                uiController.experimentStartPanel.alpha = 0f;
+            }
         }
         else
         {
@@ -3106,7 +3218,7 @@ if(!skipLog)
         {
             trialLogTrack.LogInstructions(true);
             UnityEngine.Debug.Log("setting instructions");
-            uiController.pageControls.alpha = 1f;
+            //uiController.pageControls.alpha = 1f;
             yield return StartCoroutine(uiController.SetActiveInstructionPage("Spatial"));
 
             //wait until the instructions sequence is complete
@@ -4745,7 +4857,16 @@ if(!skipLog)
                 SetDevelopment();
         }
 
+        foreach (KeyCode vKey in System.Enum.GetValues(typeof(KeyCode)))
+        {
+            if (Input.GetKeyDown(vKey))
+            {
+                
+                Debug.Log("Pressed: " + vKey);
+                trialLogTrack.LogPressedKey(vKey);
 
+            }
+        }
     }
 
 

@@ -25,7 +25,7 @@
     "luresPerTrial":3,
     "itemReactivationTime":2,
     "locationReactivationTime":2,
-    "stimMode":"closed",
+    "stimMode":"none",
     "pauseBtwnEndQuestions":0.5,
     "pauseBtwnEachSpatialQuestion":1,
     "fastSpeed":1.6,

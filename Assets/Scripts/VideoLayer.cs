@@ -116,6 +116,7 @@ public class VideoLayer : MonoBehaviour
                 if (MChange != 0) {
                     MChange = 0;
                     speed = Fixspeed;
+                    Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
                 } 
             }
             else
@@ -125,6 +126,7 @@ public class VideoLayer : MonoBehaviour
                 {
                     MChange = 1;
                     speed = Fixspeed;
+                    Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
                 }
             }
 
@@ -169,6 +171,8 @@ public class VideoLayer : MonoBehaviour
     public IEnumerator FramePlay()
     {
         speed = Fixspeed;
+        Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
+
         while (Experiment.Instance.IsExpActive())
         {
             if (gameObject.activeSelf)
@@ -176,54 +180,85 @@ public class VideoLayer : MonoBehaviour
 
                 if (!isPaused)
                 {
+                    KeyCode findkey_inc = KeyCode.RightArrow;
+                    KeyCode findkey_dec = KeyCode.LeftArrow;
+                    KeyCode findkey_for = KeyCode.UpArrow;
+                    KeyCode findkey_back = KeyCode.DownArrow;
 
                     if ((exp.beginScreenSelect == 0) ||
                         ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
-                        if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
-                        {
-                            if (Input.GetKeyDown(KeyCode.Alpha8))
+                        findkey_inc = KeyCode.Alpha8;
+                        findkey_dec = KeyCode.Alpha9;
+                        findkey_for = KeyCode.Alpha6;
+                        findkey_back = KeyCode.Alpha7;
+                    }
+                    if ((exp.currentStage == Experiment.TaskStage.SpatialRetrieval) ||
+                            (exp.currentStage == Experiment.TaskStage.VerbalRetrieval))
+                    {
+                            if (Input.GetKeyDown(findkey_inc))
                             {
                                 if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
                                 {
+                                    float A = speed;
                                     speed = Fixspeed;
+                                    Experiment.Instance.trialLogTrack.LogSpeedUp(A,speed);
                                 }
                                 else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
                                      (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f))
                                 {
+                                    float A = speed;
                                     speed = Configuration.fastSpeed;
+                                    Experiment.Instance.trialLogTrack.LogSpeedUp(A, speed);
                                 }
                             }
 
-                            if (Input.GetKeyDown(KeyCode.Alpha9))
+                            if (Input.GetKeyDown(findkey_dec))
                             {
                                 if (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f)
                                 {
+                                    float A = speed;
                                     speed = Fixspeed;
+                                    Experiment.Instance.trialLogTrack.LogSpeedDown(A, speed);
                                 }
                                 else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
                                          (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f))
                                 {
+                                    float A = speed;
                                     speed = Configuration.slowSpeed;
+                                    Experiment.Instance.trialLogTrack.LogSpeedDown(A, speed);
                                 }
                             }
 
-                            if (Input.GetKey(KeyCode.Alpha6))
+                        if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
+                        {
+                            if ((exp.beginScreenSelect == 0) ||
+                                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                             {
-                                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+                                if (Input.GetKey(findkey_for))
+                                {
+                                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
 
+                                }
+                                else if (Input.GetKey(findkey_back))
+                                {
+                                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+
+                                }
                             }
-                            else if (Input.GetKey(KeyCode.Alpha7))
-                            {
-                                StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
-
-                            }
-
                         }
-                        else {
+
+                     }
+                     else
+                     {
+                            float A = speed;
                             speed = Fixspeed;
-                        }
-                    }
+                            if (System.Math.Abs(A - speed) > 0.04f)
+                            {
+                                Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
+                            }
+                     }
+                    //}
                     //speed = 1.05f;
                     if (playbackDirection == 1)
                         timeVar += Time.deltaTime * speed;

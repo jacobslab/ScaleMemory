@@ -150,30 +150,42 @@ public class ObjectController : MonoBehaviour
 		Debug.Log("ChoseRandomImage 2222: " + exp._currBlockNum);
 		Debug.Log("ChoseRandomImage 22222222: " + ObjectSpawn_currentBloc);
 		//int randomImageIndex = Random.Range(0, stimuliImageList.Count);
-		if (!Experiment.isPractice)
-		{
-			if (exp._currBlockNum != ObjectSpawn_currentBloc)
+
+			if (!Experiment.isPractice)
 			{
-				ObjectSpawn_currentBloc = exp._currBlockNum;
-				RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum + 1));
+				if (exp._currBlockNum != ObjectSpawn_currentBloc)
+				{
+					ObjectSpawn_currentBloc = exp._currBlockNum;
+				//RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum + 1));
+					if (exp.LastRandIndex >= 0)
+					{
+						RandIndex = exp.LastRandIndex - 1;
+					}
+					else {
+						RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum)) - 1;
+					}
+
+				}
+				else
+				{
+					RandIndex = RandIndex - 1;
+				}
 			}
 			else
 			{
-				RandIndex = RandIndex + 1;
+				if (Experiment.practice_bloc == false)
+				{
+					Experiment.practice_bloc = true;
+					RandIndex = 0;
+				}
+				else
+				{
+					RandIndex = RandIndex + 1;
+				}
 			}
-        }
-        else
-        {
-			if (Experiment.practice_bloc == false)
-			{
-				Experiment.practice_bloc = true;
-				RandIndex = 0;
-			}
-			else
-			{
-				RandIndex = RandIndex + 1;
-			}
-		}
+		exp.LastRandIndex = RandIndex;
+		exp.trialLogTrack.LogRandIndex(RandIndex);
+
 		Texture chosenImage = permanentImageList[RandIndex];
 		Debug.Log("ChoseRandomImage 222222222222: " + RandIndex);
 		//int randomImageIndex = stimuliImageList.Count-1-5*4*exp._currBlockNum+4*exp._trialCount;
