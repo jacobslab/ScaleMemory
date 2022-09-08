@@ -44,7 +44,7 @@ public class ElememTestRunner : MonoBehaviour
     public IEnumerator RunTest()
     {
 
-        yield return StartCoroutine(interfaceManager.BeginNewSession());
+        yield return StartCoroutine(interfaceManager.BeginNewSession(false, Configuration.ipAddress, Configuration.portNumber, Configuration.stimMode));
         DisplayStatusText("Completed Elemem connection, invoking HEARTBEAT at a fixed interval. \n Press ESC to exit application");
 
 

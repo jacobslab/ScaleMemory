@@ -68,11 +68,14 @@ public class Configuration : MonoBehaviour {
     public enum StimMode
     {
         closed,
-        open
+        open,
+        none
     };
 
-    public static StimMode stimMode { get { return (StimMode) Enum.Parse(typeof(StimMode),Configuration.GetSetting("stimMode")); } }
+    //public static StimMode stimMode { get { return (StimMode) Enum.Parse(typeof(StimMode),Configuration.GetSetting("stimMode")); } }
 
+
+    public static string stimMode { get { return (string) Configuration.GetSetting("stimMode"); } }
 
     public static int ReturnWeatherTypes()
     {

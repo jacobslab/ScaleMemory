@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -49,8 +50,7 @@ public class ElememDataPoint
         {
             dynamic value = dataDict[key];
 
-            //string valueJSONString = ValueToString(value);
-            string valueJSONString = "2";
+            string valueJSONString = ValueToString(value);
             JSONString = JSONString + "\"" + key + "\":" + valueJSONString + ",";
         }
         if (dataDict.Count > 0) JSONString = JSONString.Substring(0, JSONString.Length - 1);
@@ -59,16 +59,20 @@ public class ElememDataPoint
         return JSONString;
     }
 
-    /*public string ValueToString(dynamic value)
+    public string ValueToString(dynamic value)
     {
-        if (value.GetType().IsArray || value is IList)
+        if (value == null)
         {
-            string json = "[";
+            return "{}";
+        }
+        else if (value.GetType().IsArray || value is IList)
+        {
+            var stringValues = new List<string>();
             foreach (object val in (IEnumerable)value)
             {
-                json = json + ValueToString(val);
+                stringValues.Add(ValueToString(val));
             }
-            return json + "]";
+            return "[" + String.Join(",", stringValues) + "]";
         }
         else if (IsNumeric(value))
         {
@@ -98,7 +102,7 @@ public class ElememDataPoint
         {
             throw new Exception("Data logging type not supported: (" + value.GetType() + ") " + value);
         }
-    }*/
+    }
 
     public static double ConvertToMillisecondsSinceEpoch(System.DateTime convertMe)
     {

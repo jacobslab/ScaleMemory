@@ -1,36 +1,28 @@
 using System;
-using System.Linq;
-using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using Newtonsoft.Json.Linq;
+
+#if !UNITY_WEBGL // Elemem
+using System.Linq;
+using System.Diagnostics;
+using System.Net.Sockets;
 using System.Collections.Concurrent;
 using System.Threading;
-using UnityEngine;
-using System.Net.Sockets;
-using Newtonsoft.Json.Linq;
-using NetMQ;
-using NetMQ.Sockets;
+#endif // !UNITY_WEBGL
 
-// TODO: class containing constructors for elemem messages
-
-/*
 public abstract class IHostPC : EventLoop
 {
     public abstract JObject WaitForMessage(string type, int timeout);
-    public abstract void Connect();
+    public abstract JObject WaitForMessages(string[] types, int timeout);
+    public abstract void Connect(string ip, int port, string stimMode, string[] stimtags = null);
     public abstract void HandleMessage(string message, DateTime time);
     public abstract void SendMessage(string type, Dictionary<string, object> data);
+    public abstract void SendMessageInternal(string type, Dictionary<string, object> data);
 }
 
-*/
-// there is already an IHostPC in NiclsInterface
- public abstract class IHostPC : EventLoop {
-     public abstract JObject WaitForMessage(string type, int timeout);
-     public abstract JObject WaitForMessages(string[] types, int timeout);
-    public abstract void Connect();
-    public abstract void HandleMessage(string message, DateTime time);
-     public abstract void SendMessage(string type, Dictionary<string, object> data);
- }
+#if !UNITY_WEBGL // Elemem
 
 public class ElememListener
 {
@@ -116,6 +108,7 @@ public class ElememListener
         messageBuffer += System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
         List<string> received = new List<string>();
 
+        UnityEngine.Debug.Log("ParseBuffer\n" + messageBuffer.ToString());
         while (messageBuffer.IndexOf("\n") != -1)
         {
             string message = messageBuffer.Substring(0, messageBuffer.IndexOf("\n") + 1);
@@ -144,21 +137,20 @@ public class ElememInterfaceHelper : IHostPC
 
     private ScriptedEventReporter scriptedEventReporter;
 
-    public readonly object classifierResultLock = new object();
-    public volatile int classifierResult = 0;
+    private bool interfaceDisabled = true;
 
-    public Experiment exp { get {return Experiment.Instance;}}
+    public ElememInterfaceHelper(ScriptedEventReporter _scriptedEventReporter, bool _interfaceDisabled, string ip, int port, string stimMode, string[] stimTags = null)
+    {
+        //im = _im;
 
+        interfaceDisabled = _interfaceDisabled;
+        if (interfaceDisabled) return;
 
-    public ElememInterfaceHelper(ScriptedEventReporter _scriptedEventReporter)
-    { 
         scriptedEventReporter = _scriptedEventReporter;
         listener = new ElememListener(this);
-
         Start();
-       // StartLoop();
-        Connect();
-       
+        //StartLoop();
+        Connect(ip, port, stimMode, stimTags);
         //Do(new EventBase(Connect));
     }
 
@@ -168,7 +160,7 @@ public class ElememInterfaceHelper : IHostPC
     }
 
 
-    public NetworkStream GetWriteStream()
+    private NetworkStream GetWriteStream()
     {
         // TODO implement locking here
         if (elememServer == null)
@@ -179,6 +171,7 @@ public class ElememInterfaceHelper : IHostPC
         return elememServer.GetStream();
     }
 
+    // Should only be used by ElememListener
     public NetworkStream GetReadStream()
     {
         // TODO implement locking here
@@ -190,12 +183,14 @@ public class ElememInterfaceHelper : IHostPC
         return elememServer.GetStream();
     }
 
-    public override void Connect()
+    public override void Connect(string ip, int port, string stimMode, string[] stimTags = null)
     {
+        if (interfaceDisabled) return;
+
         elememServer = new TcpClient();
 
         //try {
-        IAsyncResult result = elememServer.BeginConnect(Configuration.ipAddress, Configuration.portNumber, null, null);
+        IAsyncResult result = elememServer.BeginConnect(ip, port, null, null);
         result.AsyncWaitHandle.WaitOne(messageTimeout);
         elememServer.EndConnect(result);
         //}
@@ -206,46 +201,38 @@ public class ElememInterfaceHelper : IHostPC
 
         //im.Do(new EventBase<string>(im.SetHostPCStatus, "INITIALIZING")); 
 
-        exp.uiController.SetElememInfo("Connecting..");
         UnityEngine.Debug.Log("CONNECTING");
-        SendMessage("CONNECTED"); // Awake
+        SendMessageInternal("CONNECTED"); // Awake
         WaitForMessage("CONNECTED_OK", messageTimeout);
 
-        // LC: removed ExperimentSettings 
         Dictionary<string, object> configDict = new Dictionary<string, object>();
-#if ELEMEM_TEST
-        configDict.Add("stim_mode", "closed");
-        configDict.Add("experiment", "CityBlock"); 
-        configDict.Add("subject", "test_subj");
-        configDict.Add("session", "0");
-#else
-        configDict.Add("stim_mode", Configuration.stimMode.ToString());
-        configDict.Add("experiment", Experiment.ExpName); 
+        configDict.Add("stim_mode", stimMode);
+        configDict.Add("experiment", Experiment.ExpName);
         configDict.Add("subject", Experiment.Instance.ReturnSubjectName());
         configDict.Add("session", Experiment.Instance.ReturnSessionID());
-
-#endif
-        UnityEngine.Debug.Log("CONFIGURING");
-        exp.uiController.SetElememInfo("Configuring..");
-        SendMessage("CONFIGURE", configDict);
+        if (stimTags != null)
+            configDict.Add("stimtags", stimTags);
+        SendMessageInternal("CONFIGURE", configDict);
         var ElememConfig = WaitForMessage("CONFIGURE_OK", messageTimeout);
-
-#if !ELEMEM_TEST
         var ElememerverConfigPath = System.IO.Path.Combine(Experiment.Instance.sessionDirectory, "elememServer_config.json");
         System.IO.File.AppendAllText(ElememerverConfigPath, ElememConfig.ToString());
-#endif
 
-
-        exp.uiController.SetElememInfo("Performing latency check.."); 
-        UnityEngine.Debug.Log("DOING LATENCY CHECK");
+        // excepts if there's an issue with latency, else returns
         DoLatencyCheck();
 
+        //Do(new EventBase(RepeatedlyUpdateClassifierResult));
+        //DoRepeating(new RepeatingEvent(ClassifierResult, -1, 0, 1000));
 
-        exp.uiController.SetElememInfo("Ready..");
-        UnityEngine.Debug.Log("READY");
-        SendMessage("READY");
+        // start heartbeats
+        //int interval = (int)im.GetSetting("heartbeatInterval");
+        //DoRepeating(new EventBase(Heartbeat), -1, 0, interval);
+
+        SendMessageInternal("READY");
         WaitForMessage("START", messageTimeout);
+        //im.Do(new EventBase<string>(im.SetHostPCStatus, "READY"));
 
+        // This is after WaitForMessage until the TODO for making the WaitForMessage use the event loop
+        //DoRepeating(new RepeatingEvent(new EventBase(Heartbeat), -1, 0, 1000));
         DoRepeating(new EventBase(Heartbeat), -1, 0, 1000);
     }
 
@@ -262,7 +249,6 @@ public class ElememInterfaceHelper : IHostPC
             sw.Stop();
 
             delay[i] = sw.ElapsedTicks * (1000f / Stopwatch.Frequency);
-         
 
             Thread.Sleep(50 - (int)delay[i]);
         }
@@ -277,16 +263,20 @@ public class ElememInterfaceHelper : IHostPC
         dict.Add("accuracy", acc);
 
         //im.Do(new EventBase<string, Dictionary<string, object>>(im.ReportEvent, "latency check", dict));
-        //scriptedEventReporter.ReportScriptedEvent("latency check", dict);
+        //scriptedEventReporter.ReportScriptedEvent("latency check", dict, true);
     }
 
     public override JObject WaitForMessage(string type, int timeout)
     {
+        if (interfaceDisabled) return new JObject();
+
         return WaitForMessages(new[] { type }, timeout);
     }
 
+    // TODO: JPB: Make this a helper so that it calls a Do() instead (threading issue if you wait on another event)
     public override JObject WaitForMessages(string[] types, int timeout)
     {
+        if (interfaceDisabled) return new JObject();
 
         Stopwatch sw = new Stopwatch();
         sw.Start();
@@ -321,11 +311,14 @@ public class ElememInterfaceHelper : IHostPC
         sw.Stop();
         listener.StopListening();
         listener.RemoveMessageQueue();
+        UnityEngine.Debug.Log("Wait for message timed out\n" + String.Join(",", types));
         throw new TimeoutException("Timed out waiting for response");
     }
 
     public override void HandleMessage(string message, DateTime time)
     {
+        if (interfaceDisabled) return;
+
         JObject json = JObject.Parse(message);
         json.Add("task pc time", time);
 
@@ -346,16 +339,24 @@ public class ElememInterfaceHelper : IHostPC
             return;
         }
 
-     
+        // // start listener if not running
+        // if(!listener.IsListening()) {
+        //     listener.Listen();
+        // }
     }
 
-    public override void SendMessage(string type, Dictionary<string, object> data = null)
+
+    public override void SendMessageInternal(string type, Dictionary<string, object> data = null)
     {
+        if (interfaceDisabled) return;
+
         if (data == null)
             data = new Dictionary<string, object>();
+
         ElememDataPoint point = new ElememDataPoint(type, System.DateTime.UtcNow, data);
         string message = point.ToJSON();
 
+        UnityEngine.Debug.Log("Sent Message");
         UnityEngine.Debug.Log(message);
 
         Byte[] bytes = System.Text.Encoding.UTF8.GetBytes(message + "\n");
@@ -365,31 +366,19 @@ public class ElememInterfaceHelper : IHostPC
         ReportMessage(message, true);
     }
 
+    public override void SendMessage(string type, Dictionary<string, object> data = null)
+    {
+        if (interfaceDisabled) return;
+        Do(new EventBase<string, Dictionary<string, object>>(SendMessageInternal, type, data));
+    }
+
     private void Heartbeat()
     {
         var data = new Dictionary<string, object>();
         data.Add("count", heartbeatCount);
         heartbeatCount++;
-        SendMessage("HEARTBEAT", data);
+        SendMessageInternal("HEARTBEAT", data);
         WaitForMessage("HEARTBEAT_OK", heartbeatTimeout);
-    }
-
-    public void RepeatedlyUpdateClassifierResult()
-    {
-        while (true)
-        {
-            var classifierInfo = WaitForMessages(new[] { "CLASSIFIER_RESULT", "EEG_EPOCH_END" }, 20000);
-            switch (classifierInfo["type"].Value<string>())
-            {
-                case "CLASSIFIER_RESULT":
-                    lock (classifierResultLock)
-                        classifierResult = classifierInfo["data"]["result"].ToObject<int>();
-                    break;
-                case "EEG_EPOCH_END":
-                    // Do nothing, just log the info
-                    break;
-            }
-        }
     }
 
     private void ReportMessage(string message, bool sent)
@@ -403,7 +392,32 @@ public class ElememInterfaceHelper : IHostPC
         //                        messageDataDict, System.DateTime.UtcNow));
 
     }
+
+    // LC: Repeating Stimulation for U01 Courier
+    public void DoRepeatingStim(int iterations, int delay, int interval)
+    {
+        //DoRepeating(new RepeatingEvent(new EventBase<string, Dictionary<string, object>>(SendMessageInternal, "STIM", null), iterations, delay, interval));
+        DoRepeating(new EventBase<string, Dictionary<string, object>>(SendMessageInternal, "STIM", null), iterations, delay, interval);
+    }
 }
+
+#else
+
+public class ElememInterfaceHelper : IHostPC
+{
+    public ElememInterfaceHelper(ScriptedEventReporter _scriptedEventReporter, bool _interfaceDisabled, string ip, int port, string stimMode, string[] stimTags = null) {}
+
+    public override JObject WaitForMessage(string type, int timeout) { return new JObject(); }
+    public override JObject WaitForMessages(string[] types, int timeout) { return new JObject(); }
+    public override void Connect(string ip, int port, string stimMode, string[] stimtags = null) { }
+    public override void HandleMessage(string message, DateTime time) { }
+    public override void SendMessage(string type, Dictionary<string, object> data) { }
+    public override void SendMessageInternal(string type, Dictionary<string, object> data) { }
+
+    public void DoRepeatingStim(int iterations, int delay, int interval) { }
+}
+
+#endif // !UNITY_WEBGL
 
 public class ElememInterface : MonoBehaviour
 {
@@ -414,52 +428,183 @@ public class ElememInterface : MonoBehaviour
     //This will be used to log messages
     public ScriptedEventReporter scriptedEventReporter;
 
-    private ElememInterfaceHelper ElememInterfaceHelper = null;
+    public ElememInterfaceHelper elememInterfaceHelper = null;
 
-    private bool interfaceDisabled = false;
+    private int switchCount = 0;
+    public List<string> stimTags = null;
 
-
-    public IEnumerator BeginNewSession()
+    // CONNECTED, CONFIGURE, READY, and HEARTBEAT
+    public IEnumerator BeginNewSession(bool disableInterface, string ip, int port, string stimMode, string[] uniqueStimTags = null)
     {
-       bool interfaceDisabled = false;
-        if (interfaceDisabled)
-            yield break;
-
         yield return new WaitForSeconds(1);
-        ElememInterfaceHelper = new ElememInterfaceHelper(scriptedEventReporter);
-        UnityEngine.Debug.Log("Started Elemem Interface");
-
-        yield return null;
+        elememInterfaceHelper = new ElememInterfaceHelper(scriptedEventReporter, disableInterface, ip, port, stimMode, uniqueStimTags);
+        if (!disableInterface)
+            UnityEngine.Debug.Log("Started Elemem Interface");
     }
 
-    public void SendMessage(string type, Dictionary<string, object> data = null)
-    {
-        if (interfaceDisabled) return;
-        //ElememInterfaceHelper.SendMessage(type, data);
-    }
-
+    // MATH
     public void SendMathMessage(string problem, string response, int responseTimeMs, bool correct)
     {
-        if (interfaceDisabled) return;
-        Dictionary<string, object> mathData = new Dictionary<string, object>();
-        mathData.Add("problem", problem);
-        mathData.Add("response", response);
-        mathData.Add("response_time_ms", responseTimeMs.ToString());
-        mathData.Add("correct", correct.ToString());
-        //ElememInterfaceHelper.SendMessage("MATH", mathData);
+        var data = new Dictionary<string, object>();
+        data.Add("problem", problem);
+        data.Add("response", response);
+        data.Add("response_time_ms", responseTimeMs.ToString());
+        data.Add("correct", correct.ToString());
+        SendMessage("MATH", data);
     }
 
-    public void SendEncoding(int enable)
+    // STIMSELECT
+    public void SendStimSelectMessage(string tag)
     {
-        if (interfaceDisabled) return;
-        var enableDict = new Dictionary<string, object> { { "enable", enable } };
-        //ElememInterfaceHelper.SendMessage("ENCODING", enableDict);
+        var data = new Dictionary<string, object>();
+        data.Add("stimtag", tag);
+        SendMessage("STIMSELECT", data);
     }
 
-    public void SendReadOnlyState(int enable)
+    // STIM
+    public void SendStimMessage()
     {
-        if (interfaceDisabled) return;
-        var enableDict = new Dictionary<string, object> { { "enable", enable } };
-        //ElememInterfaceHelper.SendMessage("READ_ONLY_STATE", enableDict);
+        SendMessage("STIM");
     }
+
+    // CLSTIM, CLSHAM, CLNORMALIZE
+    public void SendCLMessage(string type, uint classifyMs)
+    {
+        // TODO: JPB: Turn CLMessage "type" from string to enum
+        var data = new Dictionary<string, object>();
+        data.Add("classifyms", classifyMs);
+        SendMessage(type, data);
+    }
+
+    // CCLSTARTSTIM
+    public void SendCCLStartMessage(int durationS)
+    {
+        var data = new Dictionary<string, object>() {
+            { "duration", durationS}
+        };
+        SendMessage("CCLSTARTSTIM", data);
+    }
+
+    // CCLPAUSESTIM, CCLRESUMESTIM, CCLSTOPSTIM
+    public void SendCCLMessage(ElememCCLMsg type)
+    {
+        var data = new Dictionary<string, object>();
+        SendMessage(Enum.GetName(typeof(ElememCCLMsg), type), data);
+    }
+
+    // SESSION
+    public void SendSessionMessage(int session)
+    {
+        var data = new Dictionary<string, object>();
+        data.Add("session", session);
+        SendMessage("SESSION", data);
+    }
+
+    // NO INPUT:  REST, ORIENT, COUNTDOWN, TRIALEND, DISTRACT, INSTRUCT, WAITING, SYNC, VOCALIZATION
+    // INPUT:     ISI (float duration), RECALL (float duration)
+    // RAMULATOR: ENCODING, RETRIEVAL
+    //public void SendStateMessage(string state, Dictionary<string, object> extraData = null)
+    //{
+    //    // TODO: JPB: Turn SendStateMessage "state" from string to enum
+    //    SendMessage(state, extraData);
+    //}
+
+    // NO INPUT:  REST, ORIENT, COUNTDOWN, TRIALEND, DISTRACT, INSTRUCT, WAITING, SYNC, VOCALIZATION
+    // INPUT:     ISI (float duration), RECALL (float duration)
+    // RAMULATOR: ENCODING, RETRIEVAL
+    public void SendStateMessage(ElememStateMsg state, Dictionary<string, object> extraData = null)
+    {
+        SendMessage(Enum.GetName(typeof(ElememStateMsg), state), extraData);
+    }
+
+    // TRIAL
+    public void SendTrialMessage(int trial, bool stim)
+    {
+        var data = new Dictionary<string, object>();
+        data.Add("trial", trial);
+        data.Add("stim", stim);
+        SendMessage("TRIAL", data);
+    }
+
+    // WORD
+    public void SendWordMessage(string word, int serialPos, bool stim, Dictionary<string, object> extraData = null)
+    {
+        var data = new Dictionary<string, object>();
+        data.Add("word", word);
+        data.Add("serialPos", serialPos);
+        data.Add("stim", stim);
+        if (extraData != null)
+            foreach (string key in extraData.Keys)
+                if (!data.ContainsKey(key))
+                    data.Add(key, extraData[key]);
+        SendMessage("WORD", data);
+    }
+
+    // EXIT
+    public void SendExitMessage()
+    {
+        SendMessage("EXIT");
+    }
+
+    public void SendLogMessage(string type, Dictionary<string, object> data = null)
+    {
+        SendMessage(type, data);
+    }
+
+    protected void SendMessage(string type, Dictionary<string, object> data = null)
+    {
+        if (elememInterfaceHelper != null)
+            elememInterfaceHelper.SendMessage(type, data);
+    }
+
+
+
+    // LC: Repeating Stimulation for U01 Courier
+    public void DoRepeatingStim(int iterations, int delay, int interval)
+    {
+        if (elememInterfaceHelper != null)
+            elememInterfaceHelper.DoRepeatingStim(iterations, delay, interval);
+    }
+
+    // LC: Alternating the stimulation frequency for U01 Courier
+    //     Note that this happens 1.5 seconds prior to DoRepeatingStim() call
+    public void DoRepeatingSwitch(int iterations, int delay, int interval)
+    {
+        if (elememInterfaceHelper != null)
+        {
+            elememInterfaceHelper.DoRepeating(new EventBase(SwitchStimFreq), iterations, delay, interval);
+            //elememInterfaceHelper.DoRepeating(new RepeatingEvent(new EventBase(SwitchStimFreq), iterations, delay, interval));
+        }
+    }
+
+    protected void SwitchStimFreq()
+    {
+        string currStimTag = stimTags[switchCount];
+        var data = new Dictionary<string, object>();
+        data.Add("stimtag", currStimTag);
+        elememInterfaceHelper.SendMessageInternal("STIMSELECT", data);
+        switchCount++;
+
+        UnityEngine.Debug.Log("SWTICH STIM FREQUENCY TO " + currStimTag);
+
+        if (stimTags.Count == switchCount)
+            switchCount = 0;
+    }
+}
+
+public enum ElememCCLMsg
+{
+    PAUSESTIM,
+    RESUMESTIM,
+    STOPSTIM,
+}
+
+public enum ElememStateMsg
+{
+    // No extra data
+    REST, ORIENT, COUNTDOWN, TRIALEND, DISTRACT, INSTRUCT, WAITING, SYNC, VOCALIZATION,
+    // No extra data, ramulator copy over (likely unused)
+    ENCODING, RETRIEVAL,
+    // extra data: (float duration)
+    ISI, RECALL,
 }

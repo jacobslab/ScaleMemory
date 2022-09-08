@@ -863,7 +863,7 @@ if(!skipLog)
     {
 #if !UNITY_WEBGL
         // ramulatorInterface.StartThread();
-        yield return StartCoroutine(elememInterface.BeginNewSession());
+        yield return StartCoroutine(elememInterface.BeginNewSession(false, Configuration.ipAddress, Configuration.portNumber, Configuration.stimMode));
 #endif
         yield return null;
     }
