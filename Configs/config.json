@@ -1,8 +1,0 @@
-{
-    "niclServerIP": "127.0.0.1",
-    "niclServerPort": 8889,
-    //"elememServerIP": "192.168.0.114",
-    "elememServerIP": "127.0.0.1",
-    "elememServerPort": 8889,
-    
-}

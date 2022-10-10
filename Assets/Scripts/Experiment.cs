@@ -23,6 +23,7 @@ public class Experiment : MonoBehaviour {
     public List<int> shuffledStimuliIndices;
     public int beginScreenSelect;
     public int beginPracticeSelect;
+    public bool skipPause;
     private static Experiment _instance;
     public ObjectManager objManager;
     public UIController uiController;
@@ -321,6 +322,11 @@ public static bool isElemem=false;
     public Dictionary<string,int> StimuliDict;
     public List<int> RemovedIndices;
     public int LastRandIndex;
+    public bool logMeta;
+    bool checkForActionClicked = false;
+    bool IsActionClicked = false;
+
+
 
     void Awake() {
         if (_instance != null) {
@@ -345,6 +351,9 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
+        checkForActionClicked = false;
+        IsActionClicked = false;
+        logMeta = true;
         LastRandIndex = -200;
         StimuliDict = new Dictionary<string, int>();
         CountBlock = 0;
@@ -358,6 +367,7 @@ public static bool isElemem=false;
         num_complete = 0;
         psessionid = -1;
         beginmenu = false;
+        skipPause = false;
         LastTrailCount = -1;
         onofftime = 0;
         jitterAction = false;
@@ -754,8 +764,11 @@ public static bool isElemem=false;
         }
 
         yield return StartCoroutine(subjectLog.BeginLogging());
-
-
+        if (logMeta)
+        {
+            trialLogTrack.LogMetaData();
+            logMeta = false;
+        }
 
 
 
@@ -880,7 +893,7 @@ if(!skipLog)
     {
         _parseblockName = uiController.blockInputField.text;
         bool isNumeric = int.TryParse(_parseblockName, out _intblockName);
-
+        _blockInfoEntered = false;
         if (isNumeric)
         {
             UnityEngine.Debug.Log("What goes with 0: " + BlockStatus[0]);
@@ -1000,8 +1013,8 @@ if(!skipLog)
 
     public void GetBlockWhereStoppedv2(string subjectDirectory)
     {
-
-            var dir = new DirectoryInfo(subjectDirectory);
+        LastRandIndex = -200;
+        var dir = new DirectoryInfo(subjectDirectory);
 
         subjectLog.close();
         //if(_sessionID )
@@ -1099,7 +1112,9 @@ if(!skipLog)
                             {
                                 if (values[2] == "picking_randindex")
                                 {
+                                    UnityEngine.Debug.Log("Earlier picking Randindex: " + LastRandIndex);
                                     LastRandIndex = Convert.ToInt32(values[3]);
+                                    UnityEngine.Debug.Log("Now picking Randindex: " + LastRandIndex);
                                 }
 
                             }
@@ -1642,7 +1657,7 @@ if(!skipLog)
         }
         else
         {*/
-            yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
+            yield return StartCoroutine(WaitForSpaceButton());
         //}
         //_canSelect = false;
         //uiController.ToggleSelection(false);
@@ -1667,12 +1682,32 @@ if(!skipLog)
 
     public IEnumerator WaitForAction2ButtonMenuCanvas()
     {
+        if ((beginScreenSelect == 0) ||
+    ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            while (!((Input.GetButtonDown("Action")) || (isdevmode)))
+            {
+                yield return 0;
+            }
+        }
+        else
+        {
+            while (!((Input.GetButtonDown("Action2")) || (isdevmode)))
+            {
+                yield return 0;
+            }
+        }
+
+
+        yield return null;
+    }
+
+    public IEnumerator WaitForSpaceButton()
+    {
         while (!((Input.GetButtonDown("Action2")) || (isdevmode)))
         {
             yield return 0;
         }
-
-
         yield return null;
     }
 
@@ -1735,6 +1770,8 @@ if(!skipLog)
     {
         _subjectInfoEntered = false;
         uiController.subjectInfoPanel.gameObject.SetActive(true);
+        //uiController.subjectButton.GetComponent<Button>().enabled = true;
+        //uiController.subjectButton.interactable = true;
         uiController.subjectInfoPanel.alpha = 1f;
         UnityEngine.Debug.Log("Before Enter");
         while (!((_subjectInfoEntered) || (isdevmode)))
@@ -1745,6 +1782,9 @@ if(!skipLog)
         UnityEngine.Debug.Log("Before Enter 222 Returning");
         uiController.subjectInfoPanel.alpha = 0f;
         uiController.subjectInfoPanel.gameObject.SetActive(false);
+        uiController.subjectButton.GetComponent<Button>().interactable = false;
+        //uiController.subjectButton.GetComponent<Button>().enabled = false;
+        
         yield return null;
     }
 
@@ -1778,8 +1818,8 @@ if(!skipLog)
         //skip this if we're in the web version
         //uiController.ToggleSelection(true);
 
-        
 
+        skipPause = true;
 #if !UNITY_WEBGL
         yield return StartCoroutine(GetSubjectInfo());
 #endif
@@ -1799,6 +1839,7 @@ if(!skipLog)
 
         while (true)
         {
+            skipPause = true;
             if (beginScreenSelect != 0)
             {
                 CountBlock = 0;
@@ -1836,11 +1877,11 @@ if(!skipLog)
             if (beginScreenSelect == -1) {
                 selectionImageMenu2.transform.GetComponent<Image>().enabled = true;
                 uiController.BeginMenu3.alpha = 1f;
-                yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
+                yield return StartCoroutine(WaitForSpaceButton());
                 uiController.BeginMenu3.alpha = 0f;
                 selectionImageMenu2.transform.GetComponent<Image>().enabled = false;
             }
-            if ((beginScreenSelect == 2) || (beginScreenSelect == 2)) {
+            if ((beginScreenSelect == 1) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
                 {
                     isElemem = true;
@@ -1880,9 +1921,14 @@ if(!skipLog)
             if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 uiController.subjectInputField.gameObject.SetActive(false);
+                uiController.subjectButton.gameObject.SetActive(false);
                 uiController.blockInputField.gameObject.SetActive(true);
+                //uiController.blockButton.GetComponent<Button>().enabled = true;
+                uiController.blockButton.GetComponent<Button>().interactable = true;
                 yield return StartCoroutine(GetBlockInfo());
                 uiController.blockInputField.gameObject.SetActive(false);
+                uiController.blockButton.GetComponent<Button>().interactable = false;
+                //uiController.blockButton.GetComponent<Button>().enabled = false;
             }
 
             
@@ -1950,7 +1996,7 @@ if(!skipLog)
 
             _expActive = true;
             verbalRetrieval = false;
-
+            skipPause = false;
             yield return StartCoroutine(videoLayerManager.BeginFramePlay());
             UnityEngine.Debug.Log("Hello this is Enddsnfiewdweqknqiw");
             //initialize the weather as Sunny, by default
@@ -2326,6 +2372,7 @@ if(!skipLog)
             yield return StartCoroutine(RunVerbalRetrieval());
         }
 
+        UnityEngine.Debug.Log("I passed this");
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
         yield return StartCoroutine(player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
         trialLogTrack.LogTaskStage(currentStage, false);
@@ -2338,6 +2385,15 @@ if(!skipLog)
         //do two more practice laps with randomized retrieval conditions
 
         List<int> randRetrievalOrder = UsefulFunctions.ReturnShuffledIntegerList(2);
+
+        UnityEngine.Debug.Log("I passed this 222");
+        uiController.setLoop2Instructions(true);
+        yield return StartCoroutine(uiController.UpdateUILoop2Pages());
+        while (uiController.Loop2Instructions)
+        {
+            UnityEngine.Debug.Log("I m in a loop");
+            yield return 0;
+        }
 
         for (int i = 0; i < 2; i++)
         {
@@ -2403,9 +2459,12 @@ if(!skipLog)
             yield return StartCoroutine(ResetTrack());
             ToggleFixation(false);
         }
-
+        TestVersion = 1;
         yield return StartCoroutine(RunBlockTests());
-
+        StartDistractor = true;
+        UnityEngine.Debug.Log("eferfrefwefdwefewfeHWGREGERFCVERGFWERGFEW");
+        yield return StartCoroutine(RunDistractorTask());
+        StartDistractor = false;
         isPractice = false;
 
         yield return null;
@@ -3281,20 +3340,56 @@ if(!skipLog)
             {
                 uiController.spacebarPlaceItem.alpha = 1f;
             }
+
+            
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
-            if (beginScreenSelect == 0)
+            while (IsActionClicked == false && !_retrievedAsNew)
             {
-                while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
+                checkForActionClicked = false;
+                if ((beginScreenSelect == 0) || ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
                 {
-                    yield return 0;
+                    while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
+                    {
+                        yield return 0;
+                    }
                 }
-            }
-            else {
-                while (!Input.GetButtonDown("Action2") && !_retrievedAsNew)
+                else
                 {
-                    yield return 0;
+                    while (!Input.GetButtonDown("Action2") && !_retrievedAsNew)
+                    {
+                        yield return 0;
+                    }
                 }
+                yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+                checkForActionClicked = true;
+
+                if ((beginScreenSelect == 0) || ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+                {
+                    while (!(Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Alpha7) || (IsActionClicked))
+                        && !_retrievedAsNew)
+                    {
+                        UnityEngine.Debug.Log("IsActionClicked: " + IsActionClicked);
+                        yield return 0;
+                    }
+                }
+                else
+                {
+                    while (!(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || (IsActionClicked))
+                        && !_retrievedAsNew)
+                    {
+                        UnityEngine.Debug.Log("IsActionClicked: " + IsActionClicked);
+                        yield return 0;
+                    }
+                }
+                
+                if (IsActionClicked == false && _retrievedAsNew == false)
+                {
+                    yield return StartCoroutine(videoLayerManager.ResumePlayback());
+                }
+                
+
             }
+            checkForActionClicked = false;
             uiController.spacebarPlaceItem.alpha = 0f;
             _retrievedAsNew = false; //reset this flag
             yield return StartCoroutine(videoLayerManager.PauseAllLayers());
@@ -3331,12 +3426,20 @@ if(!skipLog)
 
     IEnumerator RunWeatherFamiliarization()
     {
+        //Running only for Practice
         UnityEngine.Debug.Log("running weather familiarization");
 
         currentStage = TaskStage.WeatherFamiliarization;
         trialLogTrack.LogTaskStage(currentStage, true);
 
-        uiController.trackScreeningPanel.alpha = 1f;
+        /*if (beginPracticeSelect == 1)
+        {
+            uiController.trackScreeningPanel.alpha = 1f;
+        }
+        else if (beginPracticeSelect == 0) {
+            uiController.MRItrackScreeningPanel.alpha = 1f;
+        }
+
         if ((beginScreenSelect != 0) &&
             !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
@@ -3351,7 +3454,14 @@ if(!skipLog)
             yield return StartCoroutine(WaitForJitterAction());
         }
         uiController.spacebarContinue.alpha = 0f;
-        uiController.trackScreeningPanel.alpha = 0f;
+        if (beginPracticeSelect == 1)
+        {
+            uiController.trackScreeningPanel.alpha = 0f;
+        }
+        else if (beginPracticeSelect == 0)
+        {
+            uiController.MRItrackScreeningPanel.alpha = 0f;
+        }*/
 
 
         for (int i=0;i<3;i++)
@@ -3497,7 +3607,7 @@ if(!skipLog)
         uiController.DistractorTask.alpha = 1f;
         uiController.DistractorText.text = "";
         DistractorTime = 0f;
-
+        trialLogTrack.LogDistractorTask(true);
         while (DistractorTime < 16f)
         {
             UnityEngine.Debug.Log("Distractor Time: " + DistractorTime);
@@ -3506,6 +3616,7 @@ if(!skipLog)
             {
                 System.Random rnd = new System.Random();
                 uiController.DistractorText.text = System.Convert.ToString(rnd.Next(10, 100));
+                trialLogTrack.LogDistractorTaskText();
                 countms_window = Time.time;
                 while (!(Input.GetKeyDown(KeyCode.LeftArrow)) &&
                        !(Input.GetKeyDown(KeyCode.RightArrow)) &&
@@ -3524,6 +3635,7 @@ if(!skipLog)
 
         }
         uiController.DistractorTask.alpha = 0f;
+        trialLogTrack.LogDistractorTask(false);
         yield return null;
     }
 
@@ -3551,31 +3663,31 @@ if(!skipLog)
 
         if (TestVersion == 1)
         {
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[19], stimuliBlockSequence[22])); 
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[2], stimuliBlockSequence[5]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[19], stimuliBlockSequence[22]));
         }
         else if (TestVersion == 2) {
             //add 2 pairs encountered in the same loop; 2 pairs encountered in the different loop, same weather; 2 pairs encountered in different loops, different weather; see the design document for more information
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[1], stimuliBlockSequence[4]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[7], stimuliBlockSequence[10]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19])); 
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[11], stimuliBlockSequence[14]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[17], stimuliBlockSequence[20]));
         }
         else if (TestVersion == 3)
         {
             //add 2 pairs encountered in the same loop; 2 pairs encountered in the different loop, same weather; 2 pairs encountered in different loops, different weather; see the design document for more information
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[4], stimuliBlockSequence[7]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[5], stimuliBlockSequence[8]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13]));
+            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[14], stimuliBlockSequence[17]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[16], stimuliBlockSequence[19]));
             blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[20], stimuliBlockSequence[23]));
-            blockTestPairList.Add(new BlockTestPair(stimuliBlockSequence[10], stimuliBlockSequence[13]));
         }
 
         yield return null;
@@ -4641,6 +4753,7 @@ if(!skipLog)
 
                     if (!isdevmode)
                     {
+                        UnityEngine.Debug.Log("IS this the right one?");
                         yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
                     }
                     else
@@ -4866,6 +4979,21 @@ if(!skipLog)
                 trialLogTrack.LogPressedKey(vKey);
 
             }
+        }
+
+        if (checkForActionClicked)
+        {
+            if ((beginScreenSelect == 0) || ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+            {
+                IsActionClicked = Input.GetButtonDown("Action");
+            }
+            else
+            {
+                IsActionClicked = Input.GetButtonDown("Action2");
+            }
+        }
+        else {
+            IsActionClicked = false;
         }
     }
 

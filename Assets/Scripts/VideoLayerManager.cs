@@ -9,7 +9,7 @@ using System.Linq;
 public class VideoLayerManager : MonoBehaviour
 {
     List<VideoLayer> layerList;
-
+    public Experiment exp { get { return Experiment.Instance; } }
 
     //EXPERIMENT IS A SINGLETON
     private static VideoLayerManager _instance;
@@ -28,6 +28,7 @@ public class VideoLayerManager : MonoBehaviour
     public VideoLayer nightLayer;
 
     private VideoLayer backgroundLayer;
+    private int activeLayer; /*1 corresponding to sunny; 2 for rainy; 3 for night*/
     public ItemLayer itemLayer;
 
     public float globalFrameUpdateSpeed = 1f;
@@ -58,7 +59,9 @@ public class VideoLayerManager : MonoBehaviour
         }
         _instance = this;
 
-        backgroundLayer = rainyLayer;
+        //backgroundLayer = rainyLayer;
+        backgroundLayer = null;
+        activeLayer = 0;
 
         newTextures = new List<Texture2D>();
         layerList = new List<VideoLayer>();
@@ -277,6 +280,7 @@ public class VideoLayerManager : MonoBehaviour
         yield return StartCoroutine(AddToActiveVideoLayer(rainyLayer, false));
         yield return StartCoroutine(AddToActiveVideoLayer(nightLayer, false));
         backgroundLayer = rainyLayer; //set background to rain by default, for now
+        activeLayer = 2;
 
         yield return StartCoroutine(SetupItemLayer());
         yield return null;
@@ -305,6 +309,7 @@ public class VideoLayerManager : MonoBehaviour
                 Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Sunny);
                 sunnyLayer.TogglePause(false);
                 backgroundLayer = sunnyLayer;
+                activeLayer = 1;
                 break;
             case Weather.WeatherType.Rainy:
                 //rainyLayer.ToggleLayerVisibility(true);
@@ -312,6 +317,7 @@ public class VideoLayerManager : MonoBehaviour
                 Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Rainy);
                 rainyLayer.TogglePause(false);
                 backgroundLayer = rainyLayer;
+                activeLayer = 2; 
                 break;
             case Weather.WeatherType.Night:
                 //nightLayer.ToggleLayerVisibility(true);
@@ -320,6 +326,7 @@ public class VideoLayerManager : MonoBehaviour
                 nightLayer.gameObject.SetActive(true);
                 nightLayer.TogglePause(false);
                 backgroundLayer = nightLayer;
+                activeLayer = 3;
                 break;
 
             default:
@@ -328,6 +335,7 @@ public class VideoLayerManager : MonoBehaviour
                 Experiment.Instance.trialLogTrack.LogWeather(Weather.WeatherType.Sunny);
                 sunnyLayer.TogglePause(false);
                 backgroundLayer = sunnyLayer;
+                activeLayer = 1;
                 break;
 
      
@@ -364,7 +372,7 @@ public class VideoLayerManager : MonoBehaviour
     void Update()
     {
 
-        if (isManual)
+        if (isManual && !(exp.CanSelectUI()))
         {
             if (Input.GetKeyDown(KeyCode.Alpha6))
             {
@@ -376,6 +384,15 @@ public class VideoLayerManager : MonoBehaviour
                 StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
             }
         }
+
+        if (backgroundLayer != null)
+        {
+            if (backgroundLayer.isPaused == false)
+            {
+                Experiment.Instance.trialLogTrack.LogPosition(activeLayer, GetMainLayerCurrentFrameNumber());
+            }
+        }
+
     }
 
 

@@ -65,6 +65,35 @@ public class InputHandler : MonoBehaviour
             }
         }
 
+        if (exp.uiController.Loop2Instructions)
+        {
+            if ((exp.beginScreenSelect == 0) ||
+                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha6))
+                {
+                    exp.uiController.PerformUILoopSetChange(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha7))
+                {
+                    exp.uiController.PerformUILoopSetChange(UIController.OptionSelection.Right);
+
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    exp.uiController.PerformUILoopSetChange(UIController.OptionSelection.Left);
+                }
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    exp.uiController.PerformUILoopSetChange(UIController.OptionSelection.Right);
+
+                }
+            }
+        }
+
         if (exp.CanSelectUI())
         {
             if ((exp.beginScreenSelect == 0) ||
@@ -92,7 +121,7 @@ public class InputHandler : MonoBehaviour
 
         }
         //handle pause
-        if (Input.GetButtonDown("Pause"))
+        if ((Input.GetButtonDown("Pause")) && (exp.skipPause == false))
             StartCoroutine(TogglePause());
 
     }

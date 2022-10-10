@@ -1,17 +1,7 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/ElememTestRunner.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/InstructionsManager.cs">
     <Files>
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/CarStopper.cs" />
-      <File FileName="Assets/Scripts/VideoLayerManager.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
-      <File FileName="Assets/Scripts/CarMover.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
-      <File FileName="Assets/Scripts/InstructionsManager.cs" />
-      <File FileName="Assets/Scripts/SpawnPointTester.cs" />
-      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ProgressBarLogTrack.cs" />
-      <File FileName="Assets/Scripts/SavWav.cs" />
-      <File FileName="Assets/Scripts/InputHandler.cs" />
+      <File FileName="Assets/Scripts/InputHandler.cs" Line="40" Column="46" />
       <File FileName="Assets/Scripts/SocketControl.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/Logger_Threading.cs" />
       <File FileName="Assets/Scripts/ItemLayer.cs" />
@@ -22,7 +12,7 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/AudioLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="439" Column="44" />
+      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" />
       <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
       <File FileName="Assets/Scripts/ElememDataPoint.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ObjectLogTrack.cs" />
@@ -36,18 +26,18 @@
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarUserControl.cs" />
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarAIControl.cs" />
       <File FileName="Assets/Scenes/VideoScene.unity" />
-      <File FileName="Assets/Scripts/ElememTestRunner.cs" Line="47" Column="138" />
+      <File FileName="Assets/Scripts/ElememTestRunner.cs" />
       <File FileName="Assets/Scripts/DistanceCalculator.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/EventQueue.cs" Line="38" Column="25" />
-      <File FileName="Assets/Scripts/EEG Communication/EventLoop.cs" Line="93" Column="18" />
-      <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" Line="41" Column="24" />
+      <File FileName="Assets/Scripts/EEG Communication/EventQueue.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/EventLoop.cs" />
+      <File FileName="Assets/Prefabs/RamulatorInterface/RamulatorInterface.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="866" Column="53" />
+      <File FileName="Assets/Scripts/Experiment.cs" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="298" Column="72" />
       <File FileName="Assets/Scripts/UsefulFunctions.cs" />
       <File FileName="Assets/Scripts/AudioRecorder.cs" />
       <File FileName="Assets/Scripts/ObjectController.cs" />
@@ -55,7 +45,9 @@
       <File FileName="Assets/UGUIKit Flat/Content/Scripts/bl_ToggleSwitcher.cs" />
       <File FileName="Assets/Scripts/Utility/DataPoint.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/CanvasGroupLogTrack.cs" />
-      <File FileName="Assets/Prefabs/RamulatorInterface/usage_notes.txt" Line="1" Column="161" />
+      <File FileName="Assets/Prefabs/RamulatorInterface/usage_notes.txt" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
+      <File FileName="Assets/Scripts/InstructionsManager.cs" Line="93" Column="24" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -74,7 +66,7 @@
                 <Node name="SubjectSelection&amp;Saving" expanded="True">
                   <Node name="Logging" expanded="True" />
                 </Node>
-                <Node name="ElememTestRunner.cs" selected="True" />
+                <Node name="InstructionsManager.cs" selected="True" />
               </Node>
               <Node name="Standard Assets" expanded="True">
                 <Node name="Utility" expanded="True" />
@@ -97,7 +89,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="488126a6-ba00-4074-9706-2aeb049aef24" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="319b39ce-5ab4-41c6-ae40-a8582a43cd86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

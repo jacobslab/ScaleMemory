@@ -9,7 +9,17 @@ public class InstructionsManager : MonoBehaviour
     Experiment exp { get { return Experiment.Instance; } }
     public IEnumerator ShowEncodingInstructions()
     {
-        uiController.encodingPanel.alpha = 1f;
+        //Running only for Practice
+
+        if (exp.beginPracticeSelect == 1)
+        {
+            uiController.encodingPanel.alpha = 1f;
+        }
+        else if (exp.beginPracticeSelect == 0)
+        {
+            uiController.encodingPanel.alpha = 1f;
+        }
+
         if ((exp.beginScreenSelect != 0) &&
             !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
         {
@@ -24,7 +34,14 @@ public class InstructionsManager : MonoBehaviour
             yield return StartCoroutine(exp.WaitForJitterAction());
         }
         uiController.spacebarContinue.alpha = 0f;
-        uiController.encodingPanel.alpha = 0f;
+        if (exp.beginPracticeSelect == 1)
+        {
+            uiController.encodingPanel.alpha = 0f;
+        }
+        else if (exp.beginPracticeSelect == 0)
+        {
+            uiController.encodingPanel.alpha = 0f;
+        }
         yield return null;
     }
 
@@ -34,8 +51,13 @@ public class InstructionsManager : MonoBehaviour
         yield return null;
     }
 
+    public IEnumerator UpdateLoop2PageInstructions()
+    {
+        yield return StartCoroutine(ShowLoop2PageInstructionsAcc(uiController.GetCurrentUILoop2Page()));
+        yield return null;
+    }
 
-   
+
     public IEnumerator ShowVerbalRetrievalInstructions(int pageID)
     {
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
@@ -62,6 +84,82 @@ public class InstructionsManager : MonoBehaviour
                     break;
 
                     //    
+            }
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowLoop2PageInstructionsAcc(int pageID)
+    {
+        UnityEngine.Debug.Log("setting Loop2page instruction to page : " + pageID.ToString());
+        if (exp.beginScreenSelect == -1)
+        {
+            switch (pageID)
+            {
+                //page one
+                case 0:
+                    uiController.Loop2Image1.alpha = 1f;
+                    uiController.Loop2Image2.alpha = 0f;
+                    break;
+                case 1:
+                    uiController.Loop2Image1.alpha = 0f;
+                    uiController.Loop2Image2.alpha = 1f;
+                    uiController.Loop2Image3.alpha = 0f;
+                    break;
+                case 2:
+                    uiController.Loop2Image2.alpha = 0f;
+                    uiController.Loop2Image3.alpha = 1f;
+                    uiController.Loop2Image4.alpha = 0f;
+                    break;
+                case 3:
+                    uiController.Loop2Image3.alpha = 0f;
+                    uiController.Loop2Image4.alpha = 1f;
+                    uiController.Loop2Image5.alpha = 0f;
+                    break;
+                case 4:
+                    uiController.Loop2Image4.alpha = 0f;
+                    uiController.Loop2Image5.alpha = 1f;
+                    uiController.Loop2Image6.alpha = 0f;
+                    break;
+                case 5:
+                    uiController.Loop2Image5.alpha = 0f;
+                    uiController.Loop2Image6.alpha = 1f;
+                    uiController.Loop2Image7.alpha = 0f;
+                    break;
+                case 6:
+                    uiController.Loop2Image6.alpha = 0f;
+                    uiController.Loop2Image7.alpha = 1f;
+                    uiController.Loop2Image8.alpha = 0f;
+                    break;
+                case 7:
+                    uiController.Loop2Image7.alpha = 0f;
+                    uiController.Loop2Image8.alpha = 1f;
+                    uiController.Loop2Image9.alpha = 0f;
+                    break;
+                case 8:
+                    uiController.Loop2Image8.alpha = 0f;
+                    uiController.Loop2Image9.alpha = 1f;
+                    uiController.Loop2Image10.alpha = 0f;
+                    break;
+                case 9:
+                    uiController.Loop2Image9.alpha = 0f;
+                    uiController.Loop2Image10.alpha = 1f;
+                    uiController.Loop2Image11.alpha = 0f;
+                    break;
+                case 10:
+                    uiController.Loop2Image10.alpha = 0f;
+                    uiController.Loop2Image11.alpha = 1f;
+                    uiController.Loop2Image12.alpha = 0f;
+                    break;
+                case 11:
+                    uiController.Loop2Image11.alpha = 0f;
+                    uiController.Loop2Image12.alpha = 1f;
+                    break;
+                case 12:
+                    uiController.Loop2Image11.alpha = 0f;
+                    uiController.Loop2Image12.alpha = 0f;
+                    break;
             }
         }
 

@@ -33,9 +33,11 @@ public class UIController : MonoBehaviour
     //subject info entry panel
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
+    public Button subjectButton;
 
     public CanvasGroup blockInfoPanel;
     public InputField blockInputField;
+    public Button blockButton;
 
     //next trial screen
     public CanvasGroup experimentStartPanel;
@@ -45,6 +47,7 @@ public class UIController : MonoBehaviour
 
     //track screening
     public CanvasGroup trackScreeningPanel;
+    public CanvasGroup MRItrackScreeningPanel;
     public CanvasGroup familiarizationOverheadInstructions;
     public Text familiarizationOverheadInstructionText;
 
@@ -58,6 +61,7 @@ public class UIController : MonoBehaviour
 
     //encoding panel
     public CanvasGroup encodingPanel;
+    public CanvasGroup MRIencodingPanel;
 
     //post practice panel
     public CanvasGroup postPracticePanel;
@@ -174,6 +178,20 @@ public class UIController : MonoBehaviour
     public Text UsedBlockDisplayText;
     public Text WrongBlockDisplayText;
     public Text NumericalBlockDisplayText;
+
+    public CanvasGroup Loop2Image1;
+    public CanvasGroup Loop2Image2;
+    public CanvasGroup Loop2Image3;
+    public CanvasGroup Loop2Image4;
+    public CanvasGroup Loop2Image5;
+    public CanvasGroup Loop2Image6;
+    public CanvasGroup Loop2Image7;
+    public CanvasGroup Loop2Image8;
+    public CanvasGroup Loop2Image9;
+    public CanvasGroup Loop2Image10;
+    public CanvasGroup Loop2Image11;
+    public CanvasGroup Loop2Image12;
+
     public CanvasGroup DistractorTask;
     public Text DistractorText;
     // info text
@@ -204,7 +222,9 @@ public class UIController : MonoBehaviour
     public static event OnUIPageChange uiPageChange;
 
     private int currUIPageID = 0;
+    private int currUILoop2ID = 0;
     private int maxPage = 0;
+    private int maxLoop2Pages = 12;
 
     private string currInstPage = "";
 
@@ -213,12 +233,19 @@ public class UIController : MonoBehaviour
     private int maxSpatialPages = 4;
 
     public bool showInstructions = false;
-    
-    
+    public bool Loop2Instructions = false;
+
+
 
     // Use this for initialization
     void Start()
     {
+        maxLoop2Pages = 12;
+        currUILoop2ID = 0;
+        //subjectButton.GetComponent<Button>().interactable = false;
+        //subjectButton.GetComponent<Button>().enabled = false;
+        blockButton.GetComponent<Button>().interactable = false;
+        //blockButton.GetComponent<Button>().enabled = false;
         targetTextPanel.alpha = 0f;
         ToggleSelection(false);
         presentationItemText.enabled = false;
@@ -265,6 +292,13 @@ public class UIController : MonoBehaviour
         //uiPageChange();
     }
 
+    public IEnumerator UpdateUILoop2Pages()
+    {
+        UnityEngine.Debug.Log("updating UI Loop2 page to " + currUILoop2ID.ToString());
+        yield return StartCoroutine(exp.instructionsManager.UpdateLoop2PageInstructions());
+        //uiPageChange();
+    }
+
 
     public void UpdateLoadingProgress(float loadPercent)
     {
@@ -276,7 +310,11 @@ public class UIController : MonoBehaviour
         connectionText.text = newText;
     }
 
-  
+    public void setLoop2Instructions(bool set)
+    {
+        currUILoop2ID = 0;
+        Loop2Instructions = set;
+    }
 
     public IEnumerator SetActiveInstructionPage(string instructionPage)
     {
@@ -302,6 +340,7 @@ public class UIController : MonoBehaviour
                 break;
         }
         if (exp.beginScreenSelect == -1) {
+            UnityEngine.Debug.Log("Show instructions is true");
             showInstructions = true;
         }
         
@@ -352,15 +391,26 @@ public class UIController : MonoBehaviour
         showInstructions = false;
     }
 
+    public void FinishLoop2InstructionSequence()
+    {
+        currUILoop2ID = 0;
+        setLoop2Instructions(false);
+    }
+
     public int GetCurrentUIPage()
     {
         return currUIPageID;
     }
 
+    public int GetCurrentUILoop2Page()
+    {
+        return currUILoop2ID;
+    }
+
     public IEnumerator SetItemRetrievalInstructions(string objName)
     {
         itemRetrievalInstructionPanel.alpha = 1f;
-        itemRetrievalInstructionText.text = itemRetrievalInstructionBase + objName;
+        /*itemRetrievalInstructionText.text = itemRetrievalInstructionBase + objName;*/
         yield return null;
     }
 
@@ -531,6 +581,39 @@ public class UIController : MonoBehaviour
             StartCoroutine(UpdateUIPage());
         }
 
+    }
+
+    public void PerformUILoopSetChange(OptionSelection newOption)
+    {
+        if (newOption == OptionSelection.Left)
+        {
+            UnityEngine.Debug.Log("moving left");
+            currUILoop2ID--;
+        }
+        else
+        {
+            UnityEngine.Debug.Log("moving right");
+            currUILoop2ID++;
+        }
+        //if exceeded beyond max page, then finish the sequence
+        if (currUILoop2ID >= maxLoop2Pages)
+        {
+            StartCoroutine(UpdateUILoop2Pages());
+            FinishLoop2InstructionSequence();
+
+        }
+        else if (currUILoop2ID < 0)
+        {
+            StartCoroutine(UpdateUILoop2Pages());
+            currUILoop2ID = 0;
+        }
+        else
+        {
+            UnityEngine.Debug.Log("updating UILoop2ß page to  " + currUILoop2ID.ToString());
+
+            //after changing the page, call the delegate associated with it so we can actually update the relevant instruction page
+            StartCoroutine(UpdateUILoop2Pages());
+        }
     }
 
     public void ShowPauseScreen(bool isPaused)

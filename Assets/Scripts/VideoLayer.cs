@@ -9,7 +9,7 @@ public class VideoLayer : MonoBehaviour
 {
 
     public Experiment exp { get { return Experiment.Instance; } }
-    private bool isPaused = true;
+    public bool isPaused = true;
     private float directionMultiplier = 1f;
 
     private int updateVal = 0;
