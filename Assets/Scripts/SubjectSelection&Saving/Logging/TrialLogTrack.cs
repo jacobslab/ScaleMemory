@@ -437,7 +437,7 @@ public class TrialLogTrack : LogTrack {
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "Experiment" + separator + "Started");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Version" + separator + "CityBlock");
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Build" + separator + "V25_9");
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Build" + separator + "V25_11");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Language" + separator + "English");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Platform" + separator + "Unity");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "OS Platform" + separator + "MAC");

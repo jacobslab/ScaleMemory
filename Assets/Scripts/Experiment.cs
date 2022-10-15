@@ -82,6 +82,7 @@ public class Experiment : MonoBehaviour {
     private Weather _currentWeather;
     private Weather _encodingWeather;
     private Weather _retrievalWeather;
+    private Weather _prevWeather = null;
 
     public List<GameObject> stimuliBlockSequence; //sequence of encoding stimuli for the current block; utilized in tests at the end of each block
     private List<GameObject> _contextDifferentWeatherTestList;
@@ -1850,7 +1851,8 @@ if(!skipLog)
             //if (Directory.Exists(newPath + _subjectName + "/")) {
             _directoryexists = true;
             beginmenu = true;
-            //uiController.selectionControls.alpha = 1f;
+            uiController.selectionControls.alpha = 1f;
+            uiController.spacebarContinue.alpha = 1f;
             //uiController.;
             //Image img = selectionImage.transform.GetComponent<Image>();
             //img.enabled = true;
@@ -1869,17 +1871,22 @@ if(!skipLog)
             //_canSelect = false;
             selectionImage.transform.GetComponent<Image>().enabled = false;
             //selectionImage.transform.GetComponent<Image>().enabled = false;
+            uiController.spacebarContinue.alpha = 0f;
             uiController.selectionControls.alpha = 0f;
             uiController.ToggleSelection(false);
             //}
 
             //}
             if (beginScreenSelect == -1) {
+                uiController.selectionControls.alpha = 1f;
+                uiController.spacebarContinue.alpha = 1f;
                 selectionImageMenu2.transform.GetComponent<Image>().enabled = true;
                 uiController.BeginMenu3.alpha = 1f;
                 yield return StartCoroutine(WaitForSpaceButton());
                 uiController.BeginMenu3.alpha = 0f;
                 selectionImageMenu2.transform.GetComponent<Image>().enabled = false;
+                uiController.selectionControls.alpha = 0f;
+                uiController.spacebarContinue.alpha = 0f;
             }
             if ((beginScreenSelect == 1) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
@@ -2264,9 +2271,13 @@ if(!skipLog)
         uiController.SetFamiliarizationInstructions(_currentWeather.weatherMode);
         currentStage = TaskStage.TrackScreening;
         trialLogTrack.LogTaskStage(currentStage, true);
-        //Experiment.Instance.uiController.driveControls.alpha = 1f;
-          
-        yield return StartCoroutine(videoLayerManager.ResumePlayback());
+
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            //Experiment.Instance.uiController.driveControls.alpha = 1f;
+        }
+            yield return StartCoroutine(videoLayerManager.ResumePlayback());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
 
         float timerVal = 0f;
@@ -2297,6 +2308,7 @@ if(!skipLog)
 
         trialLogTrack.LogInstructions(true);
         yield return StartCoroutine(instructionsManager.ShowEncodingInstructions());
+        yield return StartCoroutine(instructionsManager.ShowEncodingInstructions1());
         trialLogTrack.LogInstructions(false);
 
 
@@ -2491,24 +2503,37 @@ if(!skipLog)
     }
 
 
-    Weather FindPaired_retrievalWeather(Weather pairWeather)
+    Weather FindPaired_retrievalWeather(Weather pairWeather, Weather prevWeather)
     {
         UnityEngine.Debug.Log("WHAT DIFF DOES IT MAKE: ewwe:  " + pairWeather);
 
         Weather _retrievalWeather = new Weather(Weather.WeatherType.Sunny); // create a default weather first
         int matchingWeatherIndex = 0;
         //cycle through all the weather pairs until a matching weather to our argument is found
-        for (int i=0;i<_weatherPairs.Count;i++)
+        for (int i = 0; i < _weatherPairs.Count; i++)
         {
-            if(pairWeather.weatherMode == _weatherPairs[i].encodingWeather.weatherMode)
+            if (pairWeather.weatherMode == _weatherPairs[i].encodingWeather.weatherMode)
             {
-                UnityEngine.Debug.Log("matching weather pair found ");
-                UnityEngine.Debug.Log("CHECK WEATHER PAIR FOUND E: " + _weatherPairs[i].encodingWeather.weatherMode.ToString() + " R: " + _weatherPairs[i].retrievalWeather.weatherMode.ToString());
-                _retrievalWeather = _weatherPairs[i].retrievalWeather;
-                matchingWeatherIndex = i;
-                i = _weatherPairs.Count; // once pair is found, we break out of the loop
+                if (prevWeather == null)
+                {
+                    UnityEngine.Debug.Log("matching weather pair found ");
+                    UnityEngine.Debug.Log("CHECK WEATHER PAIR FOUND E: " + _weatherPairs[i].encodingWeather.weatherMode.ToString() + " R: " + _weatherPairs[i].retrievalWeather.weatherMode.ToString());
+                    _retrievalWeather = _weatherPairs[i].retrievalWeather;
+                    matchingWeatherIndex = i;
+                    i = _weatherPairs.Count; // once pair is found, we break out of the loop
 
-                _weatherPairs.RemoveAt(matchingWeatherIndex);
+                    _weatherPairs.RemoveAt(matchingWeatherIndex);
+                }
+                else if (prevWeather.weatherMode != _weatherPairs[i].retrievalWeather.weatherMode)
+                {
+                    UnityEngine.Debug.Log("matching weather pair found ");
+                    UnityEngine.Debug.Log("CHECK WEATHER PAIR FOUND E: " + _weatherPairs[i].encodingWeather.weatherMode.ToString() + " R: " + _weatherPairs[i].retrievalWeather.weatherMode.ToString());
+                    _retrievalWeather = _weatherPairs[i].retrievalWeather;
+                    matchingWeatherIndex = i;
+                    i = _weatherPairs.Count; // once pair is found, we break out of the loop
+
+                    _weatherPairs.RemoveAt(matchingWeatherIndex);
+                }
             }
         }
 
@@ -2828,6 +2853,28 @@ if(!skipLog)
     IEnumerator BeginTaskBlock()
     {
         //reset the block lists
+        yield return StartCoroutine(CreateWeatherPairs());
+        _prevWeather = null;
+        List<int> initialWeather = new List<int>();
+        initialWeather.Add(1);
+        initialWeather.Add(2);
+        initialWeather.Add(3);
+        var rnd2 = new System.Random();
+        List<int> Reshuffled = initialWeather.OrderBy(Item => rnd2.Next()).ToList();
+        switch(Reshuffled[0])
+        {
+            case 1:
+                _currentWeather = new Weather(Weather.WeatherType.Sunny);
+                break;
+            case 2:
+                _currentWeather = new Weather(Weather.WeatherType.Rainy);
+                break;
+            case 3:
+                _currentWeather = new Weather(Weather.WeatherType.Night);
+                break;
+        }
+
+        
         if (isTestVersionPresent == false)
         {
             if (CountBlock % 3 == 0)
@@ -2937,7 +2984,9 @@ if(!skipLog)
             else
             {
                 uiController.nextTrialPanel2.alpha = 1f;
+                uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+                uiController.spacebarContinue.alpha = 0f;
                 uiController.nextTrialPanel2.alpha = 0f;
             }
         }
@@ -2956,7 +3005,7 @@ if(!skipLog)
 
         if (!isdevmode)
         {
-            if ((beginScreenSelect == 0) || (beginScreenSelect == 2) ||
+            if ((beginScreenSelect == 0) ||
                 ((beginScreenSelect == -1)) && (beginPracticeSelect == 0))
             {
                 uiController.experimentStartPanel.alpha = 1f;
@@ -2967,7 +3016,9 @@ if(!skipLog)
             else {
                 uiController.experimentStartPanel.alpha = 1f;
                 //yield return StartCoroutine(WaitForJitter(5));
+                uiController.spacebarContinue.alpha = 1f;
                 yield return StartCoroutine(WaitForAction2ButtonMenuCanvas());
+                uiController.spacebarContinue.alpha = 0f;
                 uiController.experimentStartPanel.alpha = 0f;
             }
         }
@@ -2998,9 +3049,9 @@ if(!skipLog)
                     UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
                     //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
-                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather, _prevWeather);
 
-                    UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+                    UnityEngine.Debug.Log("DOES IT COME HERE??: " + _retrievalWeather.weatherMode);
 
                     ChangeLighting(_currentWeather);
                 }
@@ -3008,6 +3059,7 @@ if(!skipLog)
                 //weather will only be changed during the retrieval phase
                 else
                 {
+                    _prevWeather = _currentWeather;
                     UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
                     ChangeLighting(_retrievalWeather);
                 }
@@ -3033,9 +3085,9 @@ if(!skipLog)
                     UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
                     //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
-                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather, _prevWeather);
 
-                    UnityEngine.Debug.Log("DOES IT COME HERE??: ");
+                    UnityEngine.Debug.Log("DOES IT COME HERE??: " + _retrievalWeather.weatherMode);
 
                     ChangeLighting(_currentWeather);
                 }
@@ -3043,6 +3095,7 @@ if(!skipLog)
                 //weather will only be changed during the retrieval phase
                 else
                 {
+                    _prevWeather = _currentWeather;
                     UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
                     ChangeLighting(_retrievalWeather);
                 }
@@ -3067,7 +3120,7 @@ if(!skipLog)
                     UnityEngine.Debug.Log("DIFF WEATHER TRIAL: " + _currentWeather.weatherMode.ToString());
 
                     //we try to a pair with matching encoding weather and retrieve its corresponding retrieval weather, this will be changed the next time this coroutine is called during the retrieval phase
-                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather);
+                    _retrievalWeather = FindPaired_retrievalWeather(_currentWeather, _prevWeather);
 
                     UnityEngine.Debug.Log("DOES IT COME HERE??: ");
 
@@ -3077,6 +3130,7 @@ if(!skipLog)
                 //weather will only be changed during the retrieval phase
                 else
                 {
+                    _prevWeather = _currentWeather;
                     UnityEngine.Debug.Log("changing weather for retrieval to " + _retrievalWeather.ToString());
                     ChangeLighting(_retrievalWeather);
                 }
@@ -3182,7 +3236,7 @@ if(!skipLog)
 
     IEnumerator RunVerbalRetrieval()
     {
-
+        yield return StartCoroutine(instructionsManager.BeforeLoopTest());
         UnityEngine.Debug.Log("showing instructions for verbal retrieval");
         if (_showVerbalInstructions)
         {
@@ -3233,7 +3287,8 @@ if(!skipLog)
         {
             yield return 0;
         }
-
+        Experiment.Instance.uiController.selectionControls.alpha = 0f;
+        Experiment.Instance.uiController.selectControlsText.text = "Left/Right";
 
         _retCount = 0;
         yield return new WaitForSeconds(1f);
@@ -3242,7 +3297,8 @@ if(!skipLog)
 
     IEnumerator RunSpatialRetrieval()
     {
-        uiController.fixationPanel.alpha = 1f;
+        yield return StartCoroutine(instructionsManager.BeforeLoopTest());
+        //uiController.fixationPanel.alpha = 1f;
         //SetCarMovement(false);
         player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(true);
         yield return StartCoroutine(GenerateLureSpots()); //create lures
@@ -3263,7 +3319,7 @@ if(!skipLog)
         yield return StartCoroutine(UpdateNextSpawnFrame());
 
 
-        uiController.fixationPanel.alpha = 0f;
+        //uiController.fixationPanel.alpha = 0f;
 
         //_carSpeed = 0f;
         _spatialFeedbackStatus.Clear();
@@ -3293,12 +3349,14 @@ if(!skipLog)
 
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
 
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.driveControls.alpha = 1f;
+        }
+            //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
 
-        //uiController.driveControls.alpha = 1f;
-
-        //mix spawned objects and lures into a combined list that will be used to test for this retrieval condition
-
-        List<GameObject> spatialTestList = new List<GameObject>();
+            List<GameObject> spatialTestList = new List<GameObject>();
 
         for(int k=0;k<spawnedObjects.Count;k++)
         {
@@ -3345,7 +3403,13 @@ if(!skipLog)
             //wait for the player to press ActionButton to choose their location OR skip it if the player retrieved the object as "New"
             while (IsActionClicked == false && !_retrievedAsNew)
             {
+                if ((beginScreenSelect != 0) &&
+                    !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+                {
+                    uiController.selectionControls.alpha = 1f;
+                }
                 checkForActionClicked = false;
+                uiController.spacebarText.text = "STOP";
                 if ((beginScreenSelect == 0) || ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
                 {
                     while (!Input.GetButtonDown("Action") && !_retrievedAsNew)
@@ -3355,10 +3419,13 @@ if(!skipLog)
                 }
                 else
                 {
+                    uiController.spacebarText.text = "STOP";
                     while (!Input.GetButtonDown("Action2") && !_retrievedAsNew)
                     {
                         yield return 0;
                     }
+                    uiController.selectionControls.alpha = 0;
+                    uiController.spacebarText.text = "SUBMIT";
                 }
                 yield return StartCoroutine(videoLayerManager.PauseAllLayers());
                 checkForActionClicked = true;
@@ -3380,6 +3447,7 @@ if(!skipLog)
                         UnityEngine.Debug.Log("IsActionClicked: " + IsActionClicked);
                         yield return 0;
                     }
+                    uiController.spacebarText.text = "STOP";
                 }
                 
                 if (IsActionClicked == false && _retrievedAsNew == false)
@@ -3389,6 +3457,8 @@ if(!skipLog)
                 
 
             }
+            uiController.selectionControls.alpha = 0;
+            uiController.selectControlsText.text = "Left/Right";
             checkForActionClicked = false;
             uiController.spacebarPlaceItem.alpha = 0f;
             _retrievedAsNew = false; //reset this flag
@@ -3417,6 +3487,9 @@ if(!skipLog)
         SetCarMovement(false);
 
         uiController.driveControls.alpha = 0f;
+        uiController.selectionControls.alpha = 0;
+        uiController.selectControlsText.text = "Left/Right";
+        
         Experiment.Instance.uiController.markerCirclePanel.alpha = 0f;
         player.GetComponent<CarMover>().ToggleSpatialRetrievalIndicator(false);
         uiController.itemRetrievalInstructionPanel.alpha = 0f;
@@ -3501,6 +3574,7 @@ if(!skipLog)
     {
         //pause all movement
         yield return StartCoroutine(videoLayerManager.PauseAllLayers());
+        
         uiController.blackScreen.alpha = 1f;
 
         trialLogTrack.LogTaskStage(TaskStage.BlockTests, true);
@@ -3790,12 +3864,19 @@ if(!skipLog)
         uiController.temporalOrderTestPanel.alpha = 1f;
 
         uiController.ToggleSelection(true);
-        //uiController.selectionControls.alpha = 1f;
-        //wait for the options to be selected
-        _canSelect = true;
+
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+            uiController.selectionControls.alpha = 1f;
+        }
+            //wait for the options to be selected
+            _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         _canSelect = false;
         uiController.ToggleSelection(false);
+        uiController.spacebarContinue.alpha = 0f;
         uiController.selectionControls.alpha = 0f;
         uiController.temporalOrderTestPanel.alpha = 0f;
         trialLogTrack.LogTemporalOrderTest(firstItem,secondItem, false);
@@ -3816,11 +3897,18 @@ if(!skipLog)
 
         //wait for the selection of options
         uiController.ToggleSelection(true);
-        //uiController.selectionControls.alpha = 1f;
+
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+            uiController.selectionControls.alpha = 1f;
+        }
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         _canSelect = false;
         uiController.ToggleSelection(false);
+        uiController.spacebarContinue.alpha = 0f;
         uiController.selectionControls.alpha = 0f;
 
         uiController.temporalDistanceTestPanel.alpha = 0f;
@@ -3842,8 +3930,12 @@ if(!skipLog)
         uiController.ToggleSelection(true);
         _canSelect = true;
 
-        //uiController.selectionControls.alpha = 1f;
-        yield return StartCoroutine(WaitForSelection(selectionType));
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.selectionControls.alpha = 1f;
+        }
+            yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.selectionControls.alpha = 0f;
         _canSelect = false;
         uiController.ToggleSelection(false);
@@ -3927,6 +4019,8 @@ if(!skipLog)
         uiController.itemReactivationPanel.alpha = 1f;
 
         uiController.spacebarPlaceItem.alpha = 0f;
+
+
         uiController.itemReactivationText.text = stimObject.GetComponent<StimulusObject>().GetObjectName();
 
         string selectionType = "Item";
@@ -3936,9 +4030,17 @@ if(!skipLog)
         uiController.itemReactivationDetails.alpha = 1f;
         uiController.ToggleSelection(true);
         //uiController.selectionControls.alpha = 1f;
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+            uiController.selectionControls.alpha = 1f;
+        }
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
 
+        uiController.spacebarContinue.alpha = 0f;
+        uiController.selectionControls.alpha = 0f;
         uiController.itemReactivationDetails.alpha = 0f;
         uiController.itemReactivationPanel.alpha = 0f;
         _canSelect = false;
@@ -3955,10 +4057,17 @@ if(!skipLog)
         }
         else
         {
-        yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
+            if ((beginScreenSelect != 0) &&
+                !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+            {
+                uiController.driveControls.alpha = 1f; //reset this when the driving resumes
+                uiController.selectControlsText.text = "Slower/Faster";
+                uiController.selectionControls.alpha = 1f;
+            }
+            yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
         }
         uiController.spacebarPlaceItem.alpha = 0f;
-        //uiController.driveControls.alpha = 1f; //reset this when the driving resumes
+
         yield return null;
     }
 
@@ -3979,9 +4088,17 @@ if(!skipLog)
 
         uiController.ToggleSelection(true);
         //uiController.selectionControls.alpha = 1f;
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+            Experiment.Instance.uiController.selectControlsText.text = "Left/Right";
+            uiController.selectionControls.alpha = 1f;
+        }
         _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         uiController.locationReactivationPanel.alpha = 0f;
+        uiController.spacebarContinue.alpha = 0f;
         uiController.ToggleSelection(false);
         uiController.selectionControls.alpha = 0f;
         _canSelect = false;
@@ -4006,6 +4123,12 @@ if(!skipLog)
         _retCount++;
         //UnityEngine.Debug.Log("finished verbal recall");
         SetCarMovement(true);
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            Experiment.Instance.uiController.selectControlsText.text = "Slower/Faster";
+            Experiment.Instance.uiController.selectionControls.alpha = 1f;
+        }
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
     }

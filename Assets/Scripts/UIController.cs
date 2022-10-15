@@ -61,7 +61,10 @@ public class UIController : MonoBehaviour
 
     //encoding panel
     public CanvasGroup encodingPanel;
-    public CanvasGroup MRIencodingPanel;
+    public CanvasGroup encodingPanel1;
+
+    public CanvasGroup ECOGencodingPanel;
+    public CanvasGroup ECOGencodingPanel1;
 
     //post practice panel
     public CanvasGroup postPracticePanel;
@@ -90,9 +93,12 @@ public class UIController : MonoBehaviour
     //controls instruction images
     public CanvasGroup spacebarContinue;
     public CanvasGroup spacebarPlaceItem;
+    public Text spacebarText;
     public CanvasGroup pageControls;
     public CanvasGroup driveControls;
     public CanvasGroup selectionControls;
+    public Text selectControlsText;
+    public Image selectControlsImage;
 
     //reactivation panel
     public CanvasGroup locationReactivationPanel;
@@ -196,6 +202,7 @@ public class UIController : MonoBehaviour
     public Text DistractorText;
     // info text
     //    public TextMeshPro infoText;
+    public CanvasGroup BeforeLoopTest;
 
     public enum OptionSelection
     {

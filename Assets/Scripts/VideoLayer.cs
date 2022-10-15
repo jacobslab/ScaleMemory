@@ -282,6 +282,7 @@ public class VideoLayer : MonoBehaviour
                             else
                             {
                                 UnityEngine.Debug.Log("VideoLayer: RETRIEVAL POINT");
+                                Experiment.Instance.uiController.selectionControls.alpha = 0f;
                                 retrievalPointReachedEvent.Invoke();
                             }
 

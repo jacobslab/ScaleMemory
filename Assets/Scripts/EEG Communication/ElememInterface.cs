@@ -250,7 +250,7 @@ public class ElememInterfaceHelper : IHostPC
 
             delay[i] = sw.ElapsedTicks * (1000f / Stopwatch.Frequency);
 
-            Thread.Sleep(50 - (int)delay[i]);
+            Thread.Sleep(100 - (int)delay[i]);
         }
 
         float max = delay.Max();

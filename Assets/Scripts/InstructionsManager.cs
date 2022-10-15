@@ -13,7 +13,7 @@ public class InstructionsManager : MonoBehaviour
 
         if (exp.beginPracticeSelect == 1)
         {
-            uiController.encodingPanel.alpha = 1f;
+            uiController.ECOGencodingPanel.alpha = 1f;
         }
         else if (exp.beginPracticeSelect == 0)
         {
@@ -36,12 +36,77 @@ public class InstructionsManager : MonoBehaviour
         uiController.spacebarContinue.alpha = 0f;
         if (exp.beginPracticeSelect == 1)
         {
-            uiController.encodingPanel.alpha = 0f;
+            uiController.ECOGencodingPanel.alpha = 0f;
         }
         else if (exp.beginPracticeSelect == 0)
         {
             uiController.encodingPanel.alpha = 0f;
         }
+        yield return null;
+    }
+
+    public IEnumerator ShowEncodingInstructions1()
+    {
+        //Running only for Practice
+
+        if (exp.beginPracticeSelect == 1)
+        {
+            uiController.ECOGencodingPanel1.alpha = 1f;
+        }
+        else if (exp.beginPracticeSelect == 0)
+        {
+            uiController.encodingPanel1.alpha = 1f;
+        }
+
+        if ((exp.beginScreenSelect != 0) &&
+            !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+        }
+        if (!exp.isdevmode)
+        {
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
+        uiController.spacebarContinue.alpha = 0f;
+        if (exp.beginPracticeSelect == 1)
+        {
+            uiController.ECOGencodingPanel1.alpha = 0f;
+        }
+        else if (exp.beginPracticeSelect == 0)
+        {
+            uiController.encodingPanel1.alpha = 0f;
+        }
+        yield return null;
+    }
+
+    public IEnumerator BeforeLoopTest()
+    {
+        
+        uiController.BeforeLoopTest.alpha = 1f;
+
+        if ((exp.beginScreenSelect != 0) &&
+            !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+        {
+            uiController.spacebarContinue.alpha = 1f;
+        }
+        if (!exp.isdevmode)
+        {
+            if(exp.beginScreenSelect == 0)
+                yield return StartCoroutine(exp.WaitForJitter(4));
+            else
+                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+        }
+        else
+        {
+            yield return StartCoroutine(exp.WaitForJitterAction());
+        }
+        uiController.spacebarContinue.alpha = 0f;
+        uiController.BeforeLoopTest.alpha = 0f;
+
         yield return null;
     }
 
@@ -63,6 +128,13 @@ public class InstructionsManager : MonoBehaviour
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
         if (exp.beginScreenSelect == -1)
         {
+            if ((exp.beginScreenSelect != 0) &&
+                !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+            {
+                uiController.spacebarContinue.alpha = 0f;
+                uiController.selectionControls.alpha = 1f;
+                uiController.selectControlsText.text = "Previous/Next Page";
+            }
             switch (pageID)
             {
                 //page one
@@ -80,6 +152,9 @@ public class InstructionsManager : MonoBehaviour
                     break;
                 // yield return StartCoroutine(WaitForActionButton());
                 case 2:
+                    uiController.spacebarContinue.alpha = 0f;
+                    uiController.selectionControls.alpha = 0f;
+                    uiController.selectControlsText.text = "Left/Right";
                     uiController.verbalRetrievalPanel.alpha = 0f;
                     break;
 
@@ -95,6 +170,18 @@ public class InstructionsManager : MonoBehaviour
         UnityEngine.Debug.Log("setting Loop2page instruction to page : " + pageID.ToString());
         if (exp.beginScreenSelect == -1)
         {
+            if ((exp.beginScreenSelect != 0) &&
+                !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+            {
+                uiController.spacebarContinue.alpha = 0f;
+                uiController.selectionControls.alpha = 1f;
+                uiController.selectControlsText.text = "Previous/Next Page";
+            }
+            else {
+                uiController.selectionControls.alpha = 1f;
+                uiController.selectControlsText.enabled = false;
+                uiController.selectControlsImage.enabled = false;
+            }
             switch (pageID)
             {
                 //page one
@@ -157,6 +244,11 @@ public class InstructionsManager : MonoBehaviour
                     uiController.Loop2Image12.alpha = 1f;
                     break;
                 case 12:
+                    uiController.spacebarContinue.alpha = 0f;
+                    uiController.selectionControls.alpha = 0f;
+                    uiController.selectControlsText.enabled = true;
+                    uiController.selectControlsImage.enabled = true;
+                    uiController.selectControlsText.text = "Left/Right";
                     uiController.Loop2Image11.alpha = 0f;
                     uiController.Loop2Image12.alpha = 0f;
                     break;
@@ -181,11 +273,24 @@ public class InstructionsManager : MonoBehaviour
             switch (pageID)
             {
                 case 0:
+                    if ((exp.beginScreenSelect != 0) &&
+                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                    {
+                        uiController.spacebarContinue.alpha = 0f;
+                        uiController.selectionControls.alpha = 1f;
+                        uiController.selectControlsText.text = "Previous/Next Page";
+                    }
                     uiController.practiceInstructionPanel.alpha = 1f;
                     uiController.preSpatialRetrieval.enabled = true;
                     break;
                 //  yield return StartCoroutine(WaitForActionButton());
                 case 1:
+                    if ((exp.beginScreenSelect != 0) &&
+                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                    {
+                        uiController.spacebarContinue.alpha = 0f;
+                        uiController.selectionControls.alpha = 1f;
+                    }
                     uiController.preSpatialRetrieval.enabled = false;
                     uiController.practiceInstructionPanel.alpha = 0f;
                     uiController.preSpatialRetrieval.enabled = false;
@@ -197,18 +302,37 @@ public class InstructionsManager : MonoBehaviour
                     break;
                 // yield return new WaitForSeconds(2f);
                 case 2:
+                    if ((exp.beginScreenSelect != 0) &&
+                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                    {
+                        uiController.spacebarContinue.alpha = 0f;
+                        uiController.selectionControls.alpha = 1f;
+                    }
                     uiController.spatialInstructionA.enabled = true;
                     uiController.spatialInstructionB.enabled = false;
                     uiController.retrievalPanel.alpha = 1f;
                     break;
                 //yield return StartCoroutine(WaitForActionButton());
                 case 3:
+                    if ((exp.beginScreenSelect != 0) &&
+                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                    {
+                        uiController.spacebarContinue.alpha = 0f;
+                        uiController.selectionControls.alpha = 1f;
+                    }
                     uiController.itemReactivationPanel.alpha = 0f;
                     uiController.spatialInstructionA.enabled = false;
                     uiController.spatialInstructionB.enabled = true;
                     break;
                 // yield return StartCoroutine(WaitForActionButton());
                 case 4:
+                    if ((exp.beginScreenSelect != 0) &&
+                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                    {
+                        uiController.spacebarContinue.alpha = 0f;
+                        uiController.selectionControls.alpha = 0f;
+                        uiController.selectControlsText.text = "Left/Right";
+                    }
                     uiController.itemReactivationPanel.alpha = 0f;
                     uiController.retrievalPanel.alpha = 0f;
                     break;
