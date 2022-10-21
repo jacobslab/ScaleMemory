@@ -2,7 +2,8 @@
     "niclServerIP": "127.0.0.1",
     "niclServerPort": 8889,
     //"elememServerIP": "192.168.0.114",
-    "elememServerIP": "127.0.0.1",
+    //"elememServerIP": "128.59.87.230",
+    "elememServerIP": "160.39.190.28",
     "elememServerPort": 8889,
     
 }

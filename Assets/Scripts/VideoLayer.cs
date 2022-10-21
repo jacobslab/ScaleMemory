@@ -193,16 +193,19 @@ public class VideoLayer : MonoBehaviour
                         findkey_for = KeyCode.Alpha6;
                         findkey_back = KeyCode.Alpha7;
                     }
-                    if ((exp.currentStage == Experiment.TaskStage.SpatialRetrieval) ||
-                            (exp.currentStage == Experiment.TaskStage.VerbalRetrieval))
+                    if ((exp.beginScreenSelect == 0) ||
+                        ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
+                        if ((exp.currentStage == Experiment.TaskStage.SpatialRetrieval) ||
+                            (exp.currentStage == Experiment.TaskStage.VerbalRetrieval))
+                        {
                             if (Input.GetKeyDown(findkey_inc))
                             {
                                 if (System.Math.Abs(speed - Configuration.slowSpeed) < 0.04f)
                                 {
                                     float A = speed;
                                     speed = Fixspeed;
-                                    Experiment.Instance.trialLogTrack.LogSpeedUp(A,speed);
+                                    Experiment.Instance.trialLogTrack.LogSpeedUp(A, speed);
                                 }
                                 else if ((System.Math.Abs(speed - Fixspeed) < 0.04f) ||
                                      (System.Math.Abs(speed - Configuration.fastSpeed) < 0.04f))
@@ -230,34 +233,44 @@ public class VideoLayer : MonoBehaviour
                                 }
                             }
 
-                        if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
-                        {
-                            if ((exp.beginScreenSelect == 0) ||
-                                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
+                            if (exp.currentStage == Experiment.TaskStage.SpatialRetrieval)
                             {
-                                if (Input.GetKey(findkey_for))
+                                if ((exp.beginScreenSelect == 0) ||
+                                    ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                                 {
-                                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+                                    if (Input.GetKey(findkey_for))
+                                    {
+                                        StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
 
-                                }
-                                else if (Input.GetKey(findkey_back))
-                                {
-                                    StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+                                    }
+                                    else if (Input.GetKey(findkey_back))
+                                    {
+                                        StartCoroutine(exp.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
 
+                                    }
                                 }
                             }
-                        }
 
-                     }
-                     else
-                     {
+                        }
+                        else
+                        {
                             float A = speed;
                             speed = Fixspeed;
                             if (System.Math.Abs(A - speed) > 0.04f)
                             {
                                 Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
                             }
-                     }
+                        }
+                    }
+                    else {
+                        float A = speed;
+                        speed = Fixspeed;
+                        if (System.Math.Abs(A - speed) > 0.04f)
+                        {
+                            Experiment.Instance.trialLogTrack.LogDefaultFixSpeed(speed);
+                        }
+                    }
+
                     //}
                     //speed = 1.05f;
                     if (playbackDirection == 1)

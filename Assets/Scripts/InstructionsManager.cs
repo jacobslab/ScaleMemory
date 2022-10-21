@@ -91,18 +91,20 @@ public class InstructionsManager : MonoBehaviour
         if ((exp.beginScreenSelect != 0) &&
             !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
         {
-            uiController.spacebarContinue.alpha = 1f;
+            uiController.spacebarContinue.alpha = 0f;
         }
         if (!exp.isdevmode)
         {
-            if(exp.beginScreenSelect == 0)
+            yield return StartCoroutine(exp.WaitForJitter(4));
+            /*if (exp.beginScreenSelect == 0)
                 yield return StartCoroutine(exp.WaitForJitter(4));
             else
                 yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+            */
         }
         else
         {
-            yield return StartCoroutine(exp.WaitForJitterAction());
+            yield return StartCoroutine(exp.WaitForJitter(4));
         }
         uiController.spacebarContinue.alpha = 0f;
         uiController.BeforeLoopTest.alpha = 0f;

@@ -2022,6 +2022,7 @@ if(!skipLog)
                     if (((recontinued == false) && (LastBlockNo < 0) && (isdevmode == false)) ||
                         ((beginScreenSelect == -1) && (isdevmode == false)) || (isdevmode == true))
                     {
+                        yield return StartCoroutine(DisplayExperimentBeginScreen());
                         yield return StartCoroutine(BeginPractice()); //runs both weather familarization and practice
                     }
                 }
@@ -2035,6 +2036,7 @@ if(!skipLog)
                         //yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
                         //yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
                         //yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
+                        yield return StartCoroutine(DisplayExperimentBeginScreen());
                         yield return StartCoroutine(BeginPractice());
                     }
                 }
@@ -3406,7 +3408,7 @@ if(!skipLog)
                 if ((beginScreenSelect != 0) &&
                     !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
                 {
-                    uiController.selectionControls.alpha = 1f;
+                    uiController.selectionControls.alpha = 0f;
                 }
                 checkForActionClicked = false;
                 uiController.spacebarText.text = "STOP";
@@ -3457,7 +3459,7 @@ if(!skipLog)
                 
 
             }
-            uiController.selectionControls.alpha = 0;
+            uiController.selectionControls.alpha = 0f;
             uiController.selectControlsText.text = "Left/Right";
             checkForActionClicked = false;
             uiController.spacebarPlaceItem.alpha = 0f;
@@ -3679,6 +3681,12 @@ if(!skipLog)
         int count = 1;
         float countms_window = 0f;
         uiController.DistractorTask.alpha = 1f;
+        if ((beginScreenSelect != 0) &&
+            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+        {
+            uiController.selectControlsText.text = "Even/Odd";
+            uiController.selectionControls.alpha = 1f;
+        }
         uiController.DistractorText.text = "";
         DistractorTime = 0f;
         trialLogTrack.LogDistractorTask(true);
@@ -3709,6 +3717,8 @@ if(!skipLog)
 
         }
         uiController.DistractorTask.alpha = 0f;
+        uiController.selectControlsText.text = "Left/Right";
+        uiController.selectionControls.alpha = 0f;
         trialLogTrack.LogDistractorTask(false);
         yield return null;
     }
@@ -3933,9 +3943,11 @@ if(!skipLog)
         if ((beginScreenSelect != 0) &&
             !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
+            uiController.spacebarContinue.alpha = 1f;
             uiController.selectionControls.alpha = 1f;
         }
             yield return StartCoroutine(WaitForSelection(selectionType));
+        uiController.spacebarContinue.alpha = 0f;
         uiController.selectionControls.alpha = 0f;
         _canSelect = false;
         uiController.ToggleSelection(false);
@@ -4061,8 +4073,8 @@ if(!skipLog)
                 !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
             {
                 uiController.driveControls.alpha = 1f; //reset this when the driving resumes
-                uiController.selectControlsText.text = "Slower/Faster";
-                uiController.selectionControls.alpha = 1f;
+                /*uiController.selectControlsText.text = "Slower/Faster";
+                uiController.selectionControls.alpha = 1f;*/
             }
             yield return StartCoroutine(uiController.SetItemRetrievalInstructions(stimObject.GetComponent<StimulusObject>().GetObjectName()));
         }
@@ -4126,8 +4138,8 @@ if(!skipLog)
         if ((beginScreenSelect != 0) &&
             !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
-            Experiment.Instance.uiController.selectControlsText.text = "Slower/Faster";
-            Experiment.Instance.uiController.selectionControls.alpha = 1f;
+            /*Experiment.Instance.uiController.selectControlsText.text = "Slower/Faster";
+            Experiment.Instance.uiController.selectionControls.alpha = 1f;*/
         }
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         yield return null;
