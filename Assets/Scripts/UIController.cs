@@ -41,6 +41,7 @@ public class UIController : MonoBehaviour
 
     //next trial screen
     public CanvasGroup experimentStartPanel;
+    public Text experimentPanelText;
     public CanvasGroup nextTrialPanel;
     public CanvasGroup nextTrialPanel2;
     
@@ -237,7 +238,7 @@ public class UIController : MonoBehaviour
 
 
     private int maxVerbalPages = 2;
-    private int maxSpatialPages = 4;
+    private int maxSpatialPages = 3;
 
     public bool showInstructions = false;
     public bool Loop2Instructions = false;

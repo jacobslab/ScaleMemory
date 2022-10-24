@@ -6138,7 +6138,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: 
 --- !u!222 &502445879
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8829,7 +8829,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -185.0499}
+  m_AnchoredPosition: {x: 600, y: -185.0499}
   m_SizeDelta: {x: 0, y: -370.10022}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &665506599
@@ -22788,6 +22788,7 @@ MonoBehaviour:
   blockInputField: {fileID: 1537189854}
   blockButton: {fileID: 1542632112}
   experimentStartPanel: {fileID: 1933399935}
+  experimentPanelText: {fileID: 1625099299}
   nextTrialPanel: {fileID: 46125295}
   nextTrialPanel2: {fileID: 599631244}
   trackScreeningPanel: {fileID: 26142846}

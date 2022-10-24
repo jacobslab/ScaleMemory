@@ -1868,6 +1868,7 @@ if(!skipLog)
             //_canSelect = true;
             SetSubjectName();
             yield return StartCoroutine(BeginMenuCanvas());
+            beginmenu = false;
             //_canSelect = false;
             selectionImage.transform.GetComponent<Image>().enabled = false;
             //selectionImage.transform.GetComponent<Image>().enabled = false;
@@ -1904,6 +1905,10 @@ if(!skipLog)
                 yield return null;
             }
 
+            if (!((beginScreenSelect == 0) ||
+                (beginScreenSelect == -1 && beginPracticeSelect == 0))) {
+                uiController.experimentPanelText.text = "Press SPACEBAR to begin";
+            }
             if (Directory.Exists(newPath2))
             {
                 UnityEngine.Debug.Log("welde welde Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
@@ -2280,7 +2285,7 @@ if(!skipLog)
             //Experiment.Instance.uiController.driveControls.alpha = 1f;
         }
             yield return StartCoroutine(videoLayerManager.ResumePlayback());
-        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Manual);
+        player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
 
         float timerVal = 0f;
         while(timerVal < Configuration.familiarizationMaxTime)
@@ -3284,11 +3289,14 @@ if(!skipLog)
 
         yield return StartCoroutine(videoLayerManager.ResumePlayback());
         player.GetComponent<CarMover>().SetDriveMode(CarMover.DriveMode.Auto);
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 1f;
 
         while (_retCount < _testLength)
         {
             yield return 0;
         }
+
+        Experiment.Instance.uiController.markerCirclePanel.alpha = 0f;
         Experiment.Instance.uiController.selectionControls.alpha = 0f;
         Experiment.Instance.uiController.selectControlsText.text = "Left/Right";
 
@@ -3399,6 +3407,7 @@ if(!skipLog)
                 !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
             {
                 uiController.spacebarPlaceItem.alpha = 1f;
+                
             }
 
             
@@ -4571,8 +4580,8 @@ if(!skipLog)
                 int minLureRange = spawnFrames[i] - Configuration.minGapToLure;
                 int maxLureRange = spawnFrames[i] + Configuration.minGapToLure;
 
-                minLureRange = Mathf.Clamp(minLureRange, 0, minLureRange);
-                maxLureRange = Mathf.Clamp(maxLureRange, maxLureRange,videoLayerManager.GetFrameRangeEnd());
+                minLureRange = Mathf.Clamp(minLureRange, 0, videoLayerManager.GetFrameRangeEnd());
+                maxLureRange = Mathf.Clamp(maxLureRange, 0,videoLayerManager.GetFrameRangeEnd());
                 for (int j = minLureRange; j < maxLureRange; j++)
                 {
 
@@ -4581,11 +4590,11 @@ if(!skipLog)
 
                     //this is just a predicate match to find a matching value in the list to our "j" frame
                    int res = validLureFrames.FindIndex(0,validLureFrames.Count-1,
-            delegate (int x)
-            {
-                return x == j;
-            }
-            );
+                        delegate (int x)
+                        {
+                          return x == j;
+                        }
+                    );
 
                     UnityEngine.Debug.Log("found it at " + res.ToString());
                     if(res!=-1)
@@ -4596,14 +4605,17 @@ if(!skipLog)
             }
 
             UnityEngine.Debug.Log("reduced possible options for lure spawning to " + validLureFrames.Count.ToString() + " frames");
-            
+
             //refresh the lists; remove points with existing stim items associated with them; lures are not constrained to be at a min distance from nearest object
 
             //cycle through this list TWO times; since we onl
-            for (int i = 0; i < 2; i++)
+            lureFrames.Clear();
+            for (int i = 0; i < Configuration.luresPerTrial; i++)
             {
                 int randStartingLureFrame = UnityEngine.Random.Range(0, validLureFrames.Count - 1);
                 int currFrame = validLureFrames[randStartingLureFrame];
+                lureFrames.Add(currFrame);
+
                 UnityEngine.Debug.Log("curr frame " + currFrame.ToString());
 
                     intPicker.Add(currFrame);
@@ -4612,7 +4624,13 @@ if(!skipLog)
                 for (int j = currFrame - Configuration.minGapToLure; j < (currFrame + Configuration.minGapToLure); j++)
                 {
                     int tempInt = j;
-                    tempInt = Mathf.Clamp(tempInt, 0, validLureFrames.Count - 1); //to ensure validity
+                    tempInt = Mathf.Clamp(tempInt, 0, videoLayerManager.GetFrameRangeEnd()); //to ensure validity
+                    int res = validLureFrames.FindIndex(0, validLureFrames.Count - 1,
+                        delegate (int x)
+                        {
+                            return x == j;
+                        }
+                    );
                     validLureFrames.Remove(tempInt);
                 }
                 //check immediately if i has exceeded updated bounds
@@ -4622,7 +4640,7 @@ if(!skipLog)
             }
 
             //2 lures per trial
-            for (int j = 0; j < Configuration.luresPerTrial; j++)
+            /*for (int j = 0; j < Configuration.luresPerTrial; j++)
             {
                 int randIndex = UnityEngine.Random.Range(0, validLureFrames.Count);
                 UnityEngine.Debug.Log("picking at " + randIndex.ToString() + " while intpicker count is: " + intPicker.Count.ToString());
@@ -4630,7 +4648,7 @@ if(!skipLog)
                 validLureFrames.RemoveAt(randIndex);
                 UnityEngine.Debug.Log("lure picked at " + randInt.ToString());
                 lureFrames.Add(randInt);
-            }
+            }*/
 
             UnityEngine.Debug.Log("finished picking lure frames");
 

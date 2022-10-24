@@ -284,9 +284,13 @@ public class InstructionsManager : MonoBehaviour
                     }
                     uiController.practiceInstructionPanel.alpha = 1f;
                     uiController.preSpatialRetrieval.enabled = true;
+                    uiController.retrievalPanel.alpha = 0f;
+                    uiController.itemReactivationPanel.alpha = 0f;
+                    uiController.spatialInstructionA.enabled = false;
+                    uiController.spatialInstructionB.enabled = false;
                     break;
                 //  yield return StartCoroutine(WaitForActionButton());
-                case 1:
+                /*case 1:
                     if ((exp.beginScreenSelect != 0) &&
                         !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
@@ -301,21 +305,29 @@ public class InstructionsManager : MonoBehaviour
                     string itemName = exp.objController.ReturnStimuliDisplayText();
                     uiController.itemReactivationText.text = itemName;
                     uiController.itemReactivationPanel.alpha = 1f;
-                    break;
+                    break;*/
                 // yield return new WaitForSeconds(2f);
-                case 2:
+                case 1:
                     if ((exp.beginScreenSelect != 0) &&
                         !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
                         uiController.spacebarContinue.alpha = 0f;
                         uiController.selectionControls.alpha = 1f;
                     }
+
+                    uiController.preSpatialRetrieval.enabled = false;
+                    uiController.practiceInstructionPanel.alpha = 0f;
+
                     uiController.spatialInstructionA.enabled = true;
                     uiController.spatialInstructionB.enabled = false;
                     uiController.retrievalPanel.alpha = 1f;
+
+                    string itemName = exp.objController.ReturnStimuliDisplayText();
+                    uiController.itemReactivationText.text = itemName;
+                    uiController.itemReactivationPanel.alpha = 1f;
                     break;
                 //yield return StartCoroutine(WaitForActionButton());
-                case 3:
+                case 2:
                     if ((exp.beginScreenSelect != 0) &&
                         !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
@@ -327,7 +339,7 @@ public class InstructionsManager : MonoBehaviour
                     uiController.spatialInstructionB.enabled = true;
                     break;
                 // yield return StartCoroutine(WaitForActionButton());
-                case 4:
+                case 3:
                     if ((exp.beginScreenSelect != 0) &&
                         !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
                     {
@@ -337,6 +349,8 @@ public class InstructionsManager : MonoBehaviour
                     }
                     uiController.itemReactivationPanel.alpha = 0f;
                     uiController.retrievalPanel.alpha = 0f;
+                    uiController.spatialInstructionA.enabled = false;
+                    uiController.spatialInstructionB.enabled = false;
                     break;
 
             }
