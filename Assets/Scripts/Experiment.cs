@@ -1892,8 +1892,8 @@ if(!skipLog)
             if ((beginScreenSelect == 1) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
                 {
-                    isElemem = true;
-                    tcpServer.RunServer();
+                    //isElemem = true;
+                    //tcpServer.RunServer();
                 }
             }
             if (beginScreenSelect == 3)
@@ -2991,7 +2991,11 @@ if(!skipLog)
             else
             {
                 uiController.nextTrialPanel2.alpha = 1f;
-                uiController.spacebarContinue.alpha = 1f;
+                if ((beginScreenSelect != 0) &&
+                    !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+                {
+                    uiController.spacebarContinue.alpha = 1f;
+                }
                 yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
                 uiController.spacebarContinue.alpha = 0f;
                 uiController.nextTrialPanel2.alpha = 0f;
@@ -3709,14 +3713,25 @@ if(!skipLog)
                 uiController.DistractorText.text = System.Convert.ToString(rnd.Next(10, 100));
                 trialLogTrack.LogDistractorTaskText();
                 countms_window = Time.time;
-                while (!(Input.GetKeyDown(KeyCode.LeftArrow)) &&
-                       !(Input.GetKeyDown(KeyCode.RightArrow)) &&
-                       !(Input.GetKeyDown(KeyCode.Alpha6)) &&
-                       !(Input.GetKeyDown(KeyCode.Alpha7)) &&
-                       !((Time.time - countms_window) > 0.5f)
-                    )
+
+                if ((beginScreenSelect == 0) || ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
                 {
-                    yield return 0;
+                    while (!(Input.GetKeyDown(KeyCode.Alpha6)) &&
+                            !(Input.GetKeyDown(KeyCode.Alpha7)) &&
+                            !((Time.time - countms_window) > 0.5f)
+                        )
+                    {
+                        yield return 0;
+                    }
+                }
+                else {
+                    while (!(Input.GetKeyDown(KeyCode.LeftArrow)) &&
+                            !(Input.GetKeyDown(KeyCode.RightArrow)) &&
+                            !((Time.time - countms_window) > 0.5f)
+                        )
+                    {
+                        yield return 0;
+                    }
                 }
                 count = count + 1;
             }

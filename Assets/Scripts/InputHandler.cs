@@ -49,7 +49,6 @@ public class InputHandler : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Alpha7))
                 {
                     exp.uiController.PerformUIPageChange(UIController.OptionSelection.Right);
-
                 }
             }
             else {

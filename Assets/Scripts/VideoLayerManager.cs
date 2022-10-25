@@ -374,14 +374,18 @@ public class VideoLayerManager : MonoBehaviour
 
         if (isManual && !(exp.CanSelectUI()))
         {
-            if (Input.GetKeyDown(KeyCode.Alpha6))
+            if ((exp.beginScreenSelect == 0) ||
+                ((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
             {
-                StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
-            }
+                if (Input.GetKeyDown(KeyCode.Alpha6))
+                {
+                    StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Forward));
+                }
 
-            if (Input.GetKeyDown(KeyCode.Alpha7))
-            {
-                StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+                if (Input.GetKeyDown(KeyCode.Alpha7))
+                {
+                    StartCoroutine(Experiment.Instance.player.GetComponent<CarMover>().SetMovementDirection(CarMover.MovementDirection.Reverse));
+                }
             }
         }
 
