@@ -2,46 +2,181 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class InstructionsManager : MonoBehaviour
 {
     public UIController uiController;
     Experiment exp { get { return Experiment.Instance; } }
+    //IMG2Sprite img2sprite { get { return IMG2Sprite.instance; } }
     public IEnumerator ShowEncodingInstructions()
     {
         //Running only for Practice
-
-        if (exp.beginPracticeSelect == 1)
+        if (exp.isdevmode)
         {
-            uiController.ECOGencodingPanel.alpha = 1f;
+            uiController.encodingPanel.alpha = 1f;
+            yield return StartCoroutine(exp.WaitForJitterAction());
+            uiController.encodingPanel.alpha = 0f;
+        }
+        else if (exp.beginPracticeSelect == 1)
+        {
+            //uiController.ECOGencodingPanel.alpha = 1f;
+            string path = Application.dataPath + "/Resources_IGNORE/D1/01.png";
+            string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D1", "*.png", SearchOption.AllDirectories);
+            foreach (string path_n in Images) {
+                Debug.Log("InstManager: Path_n: " + path_n);
+                Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+                uiController.instructionRendererImage.sprite = image_new;
+                uiController.instructionRenderer.alpha = 1f;
+
+                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+                uiController.instructionRenderer.alpha = 0f;
+            }
+            Debug.Log("InstManager: Path: " + path);
+
+
         }
         else if (exp.beginPracticeSelect == 0)
         {
             uiController.encodingPanel.alpha = 1f;
-        }
-
-        if ((exp.beginScreenSelect != 0) &&
-            !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
-        {
-            uiController.spacebarContinue.alpha = 1f;
-        }
-        if (!exp.isdevmode)
-        {
             yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-        }
-        else
-        {
-            yield return StartCoroutine(exp.WaitForJitterAction());
-        }
-        uiController.spacebarContinue.alpha = 0f;
-        if (exp.beginPracticeSelect == 1)
-        {
-            uiController.ECOGencodingPanel.alpha = 0f;
-        }
-        else if (exp.beginPracticeSelect == 0)
-        {
             uiController.encodingPanel.alpha = 0f;
         }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowPreEncodingInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D2", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+            {
+                //Debug.Log("InstManager: Path_n: " + path_n);
+                Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+                uiController.instructionRendererImage.sprite = image_new;
+                uiController.instructionRenderer.alpha = 1f;
+
+                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+                uiController.instructionRenderer.alpha = 0f;
+            }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowSpatialInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D3", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowRemFamSpatialInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D4", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowVerbalInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D5", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowVerbalVoiceInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D6", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowThirdTrialInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D7", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ShowDistractorInstructions()
+    {
+        //Running only for Practice
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D8", "*.png", SearchOption.AllDirectories);
+        foreach (string path_n in Images)
+        {
+            //Debug.Log("InstManager: Path_n: " + path_n);
+            Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
+            uiController.instructionRendererImage.sprite = image_new;
+            uiController.instructionRenderer.alpha = 1f;
+
+            yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
+
+            uiController.instructionRenderer.alpha = 0f;
+        }
+
         yield return null;
     }
 
@@ -270,7 +405,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowRetrievalInstructions(int pageID)
     {
         UnityEngine.Debug.Log("setting spatial instruction to page : " + pageID.ToString());
-        if (exp.beginScreenSelect == -1)
+        if (exp.beginScreenSelect == -1 && exp.beginScreenSelect == 0)
         {
             switch (pageID)
             {
@@ -289,24 +424,6 @@ public class InstructionsManager : MonoBehaviour
                     uiController.spatialInstructionA.enabled = false;
                     uiController.spatialInstructionB.enabled = false;
                     break;
-                //  yield return StartCoroutine(WaitForActionButton());
-                /*case 1:
-                    if ((exp.beginScreenSelect != 0) &&
-                        !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
-                    {
-                        uiController.spacebarContinue.alpha = 0f;
-                        uiController.selectionControls.alpha = 1f;
-                    }
-                    uiController.preSpatialRetrieval.enabled = false;
-                    uiController.practiceInstructionPanel.alpha = 0f;
-                    uiController.preSpatialRetrieval.enabled = false;
-                    uiController.practiceInstructionPanel.alpha = 0f;
-
-                    string itemName = exp.objController.ReturnStimuliDisplayText();
-                    uiController.itemReactivationText.text = itemName;
-                    uiController.itemReactivationPanel.alpha = 1f;
-                    break;*/
-                // yield return new WaitForSeconds(2f);
                 case 1:
                     if ((exp.beginScreenSelect != 0) &&
                         !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))

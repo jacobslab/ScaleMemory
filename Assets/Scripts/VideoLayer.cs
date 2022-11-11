@@ -25,7 +25,7 @@ public class VideoLayer : MonoBehaviour
 
 
     public int numberOfFrames = 1130;
-    public float frameRate = 30;
+    public float frameRate = 15;
 
     private int playbackDirection = 1;
     public RawImage bgLayer;

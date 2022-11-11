@@ -298,6 +298,9 @@ public static bool isElemem=false;
 
     public string LastST_END_YN;   //"NNNN" is default
     public int LastBlockNo;  //(-1) is default
+    public IMG2Sprite img2sprite;
+    public bool verbalPracticeVoice_Showed;
+    public bool spatialPracticeMoving_Showed;
     public static Experiment Instance {
         get {
             return _instance;
@@ -352,6 +355,8 @@ public static bool isElemem=false;
     // Use this for initialization
     void Start()
     {
+        verbalPracticeVoice_Showed = false;
+        spatialPracticeMoving_Showed = false;
         checkForActionClicked = false;
         IsActionClicked = false;
         logMeta = true;
@@ -1840,6 +1845,8 @@ if(!skipLog)
 
         while (true)
         {
+            verbalPracticeVoice_Showed = false;
+            spatialPracticeMoving_Showed = false;
             skipPause = true;
             if (beginScreenSelect != 0)
             {
@@ -2315,7 +2322,8 @@ if(!skipLog)
 
         trialLogTrack.LogInstructions(true);
         yield return StartCoroutine(instructionsManager.ShowEncodingInstructions());
-        yield return StartCoroutine(instructionsManager.ShowEncodingInstructions1());
+        if (beginPracticeSelect == 0)
+            yield return StartCoroutine(instructionsManager.ShowEncodingInstructions1());
         trialLogTrack.LogInstructions(false);
 
 
@@ -2329,9 +2337,12 @@ if(!skipLog)
 
         stimuliBlockSequence = new List<GameObject>();
 
-        yield return StartCoroutine(instructionsManager.ShowPracticeInstructions("PreEncoding"));
+        if (beginPracticeSelect == 1)
+            yield return StartCoroutine(instructionsManager.ShowPreEncodingInstructions());
+        else
+            yield return StartCoroutine(instructionsManager.ShowPracticeInstructions("PreEncoding"));
 
-        _trialCount = 0;
+            _trialCount = 0;
 
         _currentWeather = new Weather(Weather.WeatherType.Sunny);
         ChangeLighting(_currentWeather);
@@ -2406,13 +2417,18 @@ if(!skipLog)
         List<int> randRetrievalOrder = UsefulFunctions.ReturnShuffledIntegerList(2);
 
         UnityEngine.Debug.Log("I passed this 222");
-        uiController.setLoop2Instructions(true);
-        yield return StartCoroutine(uiController.UpdateUILoop2Pages());
-        while (uiController.Loop2Instructions)
-        {
-            UnityEngine.Debug.Log("I m in a loop");
-            yield return 0;
-        }
+        if (beginPracticeSelect == 1)
+            yield return StartCoroutine(instructionsManager.ShowThirdTrialInstructions());
+        else
+                {
+                    uiController.setLoop2Instructions(true);
+                    yield return StartCoroutine(uiController.UpdateUILoop2Pages());
+                    while (uiController.Loop2Instructions)
+                    {
+                        UnityEngine.Debug.Log("I m in a loop");
+                        yield return 0;
+                    }
+                }
 
         for (int i = 0; i < 2; i++)
         {
@@ -3253,12 +3269,17 @@ if(!skipLog)
         {
 
             trialLogTrack.LogInstructions(true);
-            yield return StartCoroutine(uiController.SetActiveInstructionPage("Verbal"));
-
-            //wait until the instructions sequence is complete
-            while (uiController.showInstructions)
+            if (beginScreenSelect == -1 && beginPracticeSelect == 1)
+                yield return StartCoroutine(instructionsManager.ShowVerbalInstructions());
+            else
             {
-                yield return 0;
+                yield return StartCoroutine(uiController.SetActiveInstructionPage("Verbal"));
+
+                //wait until the instructions sequence is complete
+                while (uiController.showInstructions)
+                {
+                    yield return 0;
+                }
             }
 
             trialLogTrack.LogInstructions(false);
@@ -3348,12 +3369,17 @@ if(!skipLog)
             trialLogTrack.LogInstructions(true);
             UnityEngine.Debug.Log("setting instructions");
             //uiController.pageControls.alpha = 1f;
-            yield return StartCoroutine(uiController.SetActiveInstructionPage("Spatial"));
-
-            //wait until the instructions sequence is complete
-            while(uiController.showInstructions)
+            if (beginScreenSelect == -1 && beginPracticeSelect == 1)
+                yield return StartCoroutine(instructionsManager.ShowSpatialInstructions());
+            else
             {
-                yield return 0;
+                yield return StartCoroutine(uiController.SetActiveInstructionPage("Spatial"));
+
+                //wait until the instructions sequence is complete
+                while (uiController.showInstructions)
+                {
+                    yield return 0;
+                }
             }
             //   yield return StartCoroutine(ShowRetrievalInstructions());
             trialLogTrack.LogInstructions(false);
@@ -3397,7 +3423,7 @@ if(!skipLog)
             trialLogTrack.LogItemCuedReactivation(spatialTestList[j].gameObject, isLure, j);
 
             //ask the item cued question
-            yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject));
+            yield return StartCoroutine(ShowItemCuedReactivation(spatialTestList[j].gameObject, j));
 
             if (_retrievedAsNew == false)
             {
@@ -3693,14 +3719,19 @@ if(!skipLog)
     {
         int count = 1;
         float countms_window = 0f;
+
+        if ((beginScreenSelect == -1) && (beginPracticeSelect == 1))
+            yield return StartCoroutine(instructionsManager.ShowDistractorInstructions());
+
         uiController.DistractorTask.alpha = 1f;
         if ((beginScreenSelect != 0) &&
-            !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
+                !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
             uiController.selectControlsText.text = "Even/Odd";
             uiController.selectionControls.alpha = 1f;
         }
         uiController.DistractorText.text = "";
+
         DistractorTime = 0f;
         trialLogTrack.LogDistractorTask(true);
         while (DistractorTime < 16f)
@@ -4048,7 +4079,7 @@ if(!skipLog)
         return _canSelect;
     }
 
-    public IEnumerator ShowItemCuedReactivation(GameObject stimObject)
+    public IEnumerator ShowItemCuedReactivation(GameObject stimObject, int j)
     {
         uiController.ResetRetrievalInstructions();
         uiController.driveControls.alpha = 0f;
@@ -4093,6 +4124,11 @@ if(!skipLog)
         }
         else
         {
+            if ((beginScreenSelect == -1) && (beginPracticeSelect == 1) && (spatialPracticeMoving_Showed == false))
+            {
+                yield return StartCoroutine(instructionsManager.ShowRemFamSpatialInstructions());
+                spatialPracticeMoving_Showed = true;
+            }
             if ((beginScreenSelect != 0) &&
                 !((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
             {
@@ -4146,6 +4182,13 @@ if(!skipLog)
         }
         else
         {
+            if ((verbalPracticeVoice_Showed == false) && (beginScreenSelect == -1) && (beginPracticeSelect == 1))
+            {
+                yield return StartCoroutine(instructionsManager.ShowVerbalVoiceInstructions());
+                verbalPracticeVoice_Showed = true;
+            }
+
+            
             yield return StartCoroutine(uiController.SetLocationRetrievalInstructions());
 
             float randJitterTime = UnityEngine.Random.Range(Configuration.minJitterTime, Configuration.maxJitterTime);

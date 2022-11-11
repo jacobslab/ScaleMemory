@@ -129,7 +129,7 @@ public class VideoLayerManager : MonoBehaviour
     IEnumerator RunSpawnProcedure()
     {
         //inform Experiment about spawn procedure for logging
-
+        
         //pause all layers first
         yield return StartCoroutine(TogglePauseLayerPlayback(true));
         //itemLayer.ToggleLayerVisibility(true);

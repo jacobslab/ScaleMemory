@@ -42,6 +42,9 @@ public class UIController : MonoBehaviour
     //next trial screen
     public CanvasGroup experimentStartPanel;
     public Text experimentPanelText;
+
+    public CanvasGroup instructionRenderer;
+    public Image instructionRendererImage;
     public CanvasGroup nextTrialPanel;
     public CanvasGroup nextTrialPanel2;
     

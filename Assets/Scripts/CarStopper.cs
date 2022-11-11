@@ -76,7 +76,7 @@ public class CarStopper : MonoBehaviour
 
     IEnumerator BeginItemCuedRetrieval()
     {
-        yield return StartCoroutine(Experiment.Instance.ShowItemCuedReactivation(stimulusObject));
+        yield return StartCoroutine(Experiment.Instance.ShowItemCuedReactivation(stimulusObject, -1));
         yield return null;
     }
 
