@@ -1,8 +1,8 @@
 ﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Configuration.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
     <Files>
       <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/InputHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InputHandler.cs" />
       <File FileName="Assets/Scripts/SocketControl.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/Logger_Threading.cs" />
       <File FileName="Assets/Scripts/ItemLayer.cs" />
@@ -35,10 +35,10 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="2989" Column="56" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="1212" Column="13" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="67" Column="41" />
+      <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/UsefulFunctions.cs" />
       <File FileName="Assets/Scripts/AudioRecorder.cs" />
       <File FileName="Assets/Scripts/ObjectController.cs" />
@@ -47,57 +47,20 @@
       <File FileName="Assets/Scripts/Utility/DataPoint.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/CanvasGroupLogTrack.cs" />
       <File FileName="Assets/Prefabs/RamulatorInterface/usage_notes.txt" />
-      <File FileName="Assets/Scripts/InstructionsManager.cs" Line="18" Column="38" />
+      <File FileName="Assets/Scripts/InstructionsManager.cs" />
       <File FileName="Assets/Scripts/VideoLayerManager.cs" />
       <File FileName="Assets/Scripts/Weather.cs" />
       <File FileName="Assets/Scripts/WeatherPair.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="172" Column="43" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
       <File FileName="Assets/Scripts/CarStopper.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
       <File FileName="Assets/Scripts/CarMover.cs" />
-      <File FileName="Assets/Scripts/IMG2Sprite.cs" Line="6" Column="14" />
+      <File FileName="Assets/Scripts/IMG2Sprite.cs" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="ScaleMemory" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Editor" expanded="True" />
-              <Node name="Plugins" expanded="True">
-                <Node name="UnityComponents" expanded="True" />
-              </Node>
-              <Node name="Prefabs" expanded="True">
-                <Node name="RamulatorInterface" expanded="True" />
-              </Node>
-              <Node name="Scripts" expanded="True">
-                <Node name="EEG Communication" expanded="True" />
-                <Node name="SubjectSelection&amp;Saving" expanded="True">
-                  <Node name="Logging" expanded="True" />
-                </Node>
-                <Node name="Configuration.cs" selected="True" />
-              </Node>
-              <Node name="Standard Assets" expanded="True">
-                <Node name="Utility" expanded="True" />
-                <Node name="Vehicles" expanded="True">
-                  <Node name="Car" expanded="True">
-                    <Node name="Scripts" expanded="True" />
-                  </Node>
-                </Node>
-              </Node>
-              <Node name="UGUIKit Flat" expanded="True">
-                <Node name="Content" expanded="True">
-                  <Node name="Scripts" expanded="True" />
-                </Node>
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="d2af1953-9e62-41c5-b6f9-e804097a7a2e" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="de5ea650-d690-44b8-ae10-6270f28d9a6e" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

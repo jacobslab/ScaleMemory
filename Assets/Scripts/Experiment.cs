@@ -1899,7 +1899,7 @@ if(!skipLog)
             if ((beginScreenSelect == 1) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
                 {
-                    //isElemem = true;
+                    isElemem = true;
                     //tcpServer.RunServer();
                 }
             }
