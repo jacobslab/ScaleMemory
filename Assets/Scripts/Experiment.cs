@@ -3918,7 +3918,16 @@ if(!skipLog)
         secondItem = testPair.secondItem;
         uiController.temporalOrderItemA.text =firstItem.gameObject.name;
             uiController.temporalOrderItemB.text = secondItem.gameObject.name;
-        
+
+        Debug.Log("Experiment: BlockTests p1:" + firstItem.gameObject.name);
+        Debug.Log("Experiment: BlockTests p2:" + Experiment.Instance.StimuliDict[firstItem.gameObject.name]);
+        Debug.Log("Experiment: BlockTests p3:" + secondItem.gameObject.name);
+        Debug.Log("Experiment: BlockTests p4:" + Experiment.Instance.StimuliDict[secondItem.gameObject.name]);
+        Debug.Log("Experiment: BlockTests p5:" + objController.permanentImageList.Count);
+
+        uiController.blockTestItemImage1.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[firstItem.gameObject.name]];
+        uiController.blockTestItemImage2.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[secondItem.gameObject.name]];
+
 
         trialLogTrack.LogTemporalOrderTest(firstItem,secondItem,true);
 
@@ -3954,6 +3963,9 @@ if(!skipLog)
         uiController.temporalDistanceItemA.text = testPair.firstItem.gameObject.name;
         uiController.temporalDistanceItemB.text = testPair.secondItem.gameObject.name;
 
+        uiController.blockTestItemImage3.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testPair.firstItem.gameObject.name]];
+        uiController.blockTestItemImage4.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testPair.secondItem.gameObject.name]];
+
         trialLogTrack.LogTemporalDistanceTest(testPair, true);
         string selectionType = "TemporalDistance";
 
@@ -3984,6 +3996,8 @@ if(!skipLog)
     IEnumerator RunContextRecollectionTest(GameObject testGameObject)
     {
         uiController.contextRecollectionItem.text = testGameObject.name;
+        uiController.blockTestItemImage5.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testGameObject.name]];
+
         uiController.contextRecollectionTestPanel.alpha = 1f;
 
         trialLogTrack.LogContextRecollectionTest(testGameObject, true);

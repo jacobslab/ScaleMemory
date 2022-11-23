@@ -150,6 +150,14 @@ public class UIController : MonoBehaviour
     //blue marker indicator
     public CanvasGroup markerCirclePanel;
 
+    public RawImage blockTestItemImage1;
+    public RawImage blockTestItemImage2;
+
+    public RawImage blockTestItemImage3;
+    public RawImage blockTestItemImage4;
+
+    public RawImage blockTestItemImage5;
+
     //elemem connection
     public CanvasGroup elememConnectionPanel;
     public CanvasGroup connectionSuccessPanel;
@@ -468,7 +476,7 @@ public class UIController : MonoBehaviour
                 for (int i = 0; i < locationCuedSelectionPositions.Count; i++)
                 {
 
-                    Vector3 currPos = locationCuedSelectionPositions[i] - new Vector3(200f * Mathf.Sign(locationCuedSelectionPositions[i].x),-300f,0f);
+                    Vector3 currPos = locationCuedSelectionPositions[i] - new Vector3(200f * Mathf.Sign(locationCuedSelectionPositions[i].x),-5f,0f);
                     activeSelectionPositions.Add(currPos);
                 }
                 maxOptions = locationCuedSelectionPositions.Count;
@@ -481,7 +489,7 @@ public class UIController : MonoBehaviour
             case "TemporalDistance":
                 for (int i = 0; i < temporalDistancePositions.Count; i++)
                 {
-                    activeSelectionPositions.Add(temporalDistancePositions[i]);
+                    activeSelectionPositions.Add(temporalDistancePositions[i] - new Vector3(0, 50f, 0f));
                 }
                 maxOptions = temporalDistancePositions.Count;
                 UnityEngine.Debug.Log(maxOptions);
@@ -493,7 +501,7 @@ public class UIController : MonoBehaviour
             case "ContextRecollection":
                 for (int i = 0; i < itemCuedSelectionPositions.Count; i++)
                 {
-                    activeSelectionPositions.Add(itemCuedSelectionPositions[i]);
+                    activeSelectionPositions.Add(itemCuedSelectionPositions[i] - new Vector3(0, 40f, 0f));
                 }
                 maxOptions = itemCuedSelectionPositions.Count;
                 UnityEngine.Debug.Log(maxOptions);
