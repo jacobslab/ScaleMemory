@@ -38,7 +38,7 @@ public class TrialLogTrack : LogTrack {
 	public void LogBegin()
 	{
 		Debug.Log ("LOGGING BEGINS");
-		subjectLog.Log (GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "0" + separator + "B" + separator + "Logging Begins");
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "0" + separator + "B" + separator + "Logging Begins");
 	}
 	public void LogCorner(int frame)
 	{
@@ -437,7 +437,7 @@ public class TrialLogTrack : LogTrack {
 	{
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "Experiment" + separator + "Started");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Version" + separator + "CityBlock");
-		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Build" + separator + "V25_14");
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Build" + separator + "github::'CityBlock2508N_MRIIncluded'");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Language" + separator + "English");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "Platform" + separator + "Unity");
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "MetaData" + separator + "OS Platform" + separator + "MAC");

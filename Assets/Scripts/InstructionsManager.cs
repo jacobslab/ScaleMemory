@@ -22,7 +22,7 @@ public class InstructionsManager : MonoBehaviour
         {
             //uiController.ECOGencodingPanel.alpha = 1f;
             string path = Application.dataPath + "/Resources_IGNORE/D1/01.png";
-            string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D1", "*.png", SearchOption.AllDirectories);
+            string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D1", "0*.png", SearchOption.AllDirectories);
             foreach (string path_n in Images) {
                 Debug.Log("InstManager: Path_n: " + path_n);
                 Sprite image_new = exp.img2sprite.LoadNewSprite(path_n);
@@ -50,7 +50,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowPreEncodingInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D2", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D2", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
             {
                 //Debug.Log("InstManager: Path_n: " + path_n);
@@ -69,7 +69,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowSpatialInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D3", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D3", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -88,7 +88,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowRemFamSpatialInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D4", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D4", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -107,7 +107,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowVerbalInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D5", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D5", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -126,7 +126,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowVerbalVoiceInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D6", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D6", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -145,7 +145,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowThirdTrialInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D7", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D7", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -164,7 +164,7 @@ public class InstructionsManager : MonoBehaviour
     public IEnumerator ShowDistractorInstructions()
     {
         //Running only for Practice
-        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D8", "*.png", SearchOption.AllDirectories);
+        string[] Images = Directory.GetFiles(Application.dataPath + "/Resources_IGNORE/D8", "0*.png", SearchOption.AllDirectories);
         foreach (string path_n in Images)
         {
             //Debug.Log("InstManager: Path_n: " + path_n);
@@ -230,7 +230,7 @@ public class InstructionsManager : MonoBehaviour
         }
         if (!exp.isdevmode)
         {
-            yield return StartCoroutine(exp.WaitForJitter(4));
+            yield return StartCoroutine(exp.WaitForJitter(4f));
             /*if (exp.beginScreenSelect == 0)
                 yield return StartCoroutine(exp.WaitForJitter(4));
             else
@@ -239,7 +239,7 @@ public class InstructionsManager : MonoBehaviour
         }
         else
         {
-            yield return StartCoroutine(exp.WaitForJitter(4));
+            yield return StartCoroutine(exp.WaitForJitter(4f));
         }
         uiController.spacebarContinue.alpha = 0f;
         uiController.BeforeLoopTest.alpha = 0f;

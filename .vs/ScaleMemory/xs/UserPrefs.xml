@@ -1,5 +1,5 @@
-﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Experiment.cs">
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Configuration.cs">
     <Files>
       <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InputHandler.cs" />
@@ -35,7 +35,7 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="1212" Column="13" />
+      <File FileName="Assets/Scripts/Experiment.cs" Line="602" Column="24" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
@@ -51,16 +51,17 @@
       <File FileName="Assets/Scripts/VideoLayerManager.cs" />
       <File FileName="Assets/Scripts/Weather.cs" />
       <File FileName="Assets/Scripts/WeatherPair.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/Configuration.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/CarStopper.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
       <File FileName="Assets/Scripts/CarMover.cs" />
       <File FileName="Assets/Scripts/IMG2Sprite.cs" />
+      <File FileName="Assets/Scripts/BlockTestPair.cs" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="de5ea650-d690-44b8-ae10-6270f28d9a6e" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="205f3c53-0f22-4a8e-b7dd-368ba42f4370" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

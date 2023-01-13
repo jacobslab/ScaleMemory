@@ -86,6 +86,8 @@ public class Configuration : MonoBehaviour {
     private static object systemConfig = null;
     private static object experimentConfig = null;
 
+    public static int prev_ss = -10;
+    public static int prev_ps = -10;
 
     public static T Get<T>(Func<T> getProp, T defaultValue)
     {
@@ -151,7 +153,7 @@ public class Configuration : MonoBehaviour {
 
     private static object GetExperimentConfig()
     {
-        if (experimentConfig == null)
+        if (experimentConfig == null || !(prev_ss == exp.beginScreenSelect) || !(prev_ps == exp.beginPracticeSelect))
         {
 #if !UNITY_WEBGL
 
@@ -164,13 +166,23 @@ public class Configuration : MonoBehaviour {
                 "Configs");
             UnityEngine.Debug.Log("config path " + configPath);
             string text = "";
+            UnityEngine.Debug.Log("stimMode in Connect() 2: " + exp.beginScreenSelect);
+            prev_ss = exp.beginScreenSelect;
+            prev_ps = exp.beginPracticeSelect;
             if ((exp.beginScreenSelect != 0) && !((exp.beginScreenSelect == -1) && (exp.beginPracticeSelect == 0)))
             {
-#if BEHAVIORAL
+                if (exp.beginScreenSelect == 1)
+                {
+                    text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_ecog.json"));
+                }
+                else if (exp.beginScreenSelect == 2) {
+                    text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
+                }
+/*#if BEHAVIORAL
             string text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_behavioral.json"));
 #else
                 text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + ".json"));
-#endif
+#endif*/
             }
             else {
                 text = File.ReadAllText(Path.Combine(configPath, Experiment.ExpName + "_mri.json"));

@@ -1845,6 +1845,9 @@ if(!skipLog)
 
         while (true)
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             verbalPracticeVoice_Showed = false;
             spatialPracticeMoving_Showed = false;
             skipPause = true;
@@ -1937,6 +1940,8 @@ if(!skipLog)
                 UnityEngine.Debug.Log("I m here 2");
             }
             //SetSubjectName();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             if ((beginScreenSelect == 0) || (beginScreenSelect == 2))
             {
                 uiController.subjectInputField.gameObject.SetActive(false);
@@ -1949,8 +1954,9 @@ if(!skipLog)
                 uiController.blockButton.GetComponent<Button>().interactable = false;
                 //uiController.blockButton.GetComponent<Button>().enabled = false;
             }
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
 
-            
 
             UnityEngine.Debug.Log("set subject name: " + _subjectName);
             if (Directory.Exists(newPath2))
@@ -2026,6 +2032,7 @@ if(!skipLog)
             CreateSessionStartedFile();
 
             yield return StartCoroutine(InitialSetup());
+
             if (!((beginScreenSelect == 0) || (beginScreenSelect == 1) || (beginScreenSelect == 2)))
             {
                 //only perform practice if it is the first session
@@ -3001,7 +3008,7 @@ if(!skipLog)
             if (beginScreenSelect == 0)
             {
                 uiController.nextTrialPanel.alpha = 1f;
-                yield return StartCoroutine(WaitForJitter(5));
+                yield return StartCoroutine(WaitForJitter(5f));
                 uiController.nextTrialPanel.alpha = 0f;
             }
             else
@@ -3636,7 +3643,7 @@ if(!skipLog)
         uiController.followUpTestPanel.alpha = 0f;*/
 
         uiController.fixationPanel.alpha = 1f;
-        yield return StartCoroutine(WaitForJitter(5));
+        yield return StartCoroutine(WaitForJitter(5f));
         uiController.fixationPanel.alpha = 0f;
 
         yield return StartCoroutine(GenerateBlockTestPairs());
@@ -3918,7 +3925,16 @@ if(!skipLog)
         secondItem = testPair.secondItem;
         uiController.temporalOrderItemA.text =firstItem.gameObject.name;
             uiController.temporalOrderItemB.text = secondItem.gameObject.name;
-        
+
+        Debug.Log("Experiment: BlockTests p1:" + firstItem.gameObject.name);
+        Debug.Log("Experiment: BlockTests p2:" + Experiment.Instance.StimuliDict[firstItem.gameObject.name]);
+        Debug.Log("Experiment: BlockTests p3:" + secondItem.gameObject.name);
+        Debug.Log("Experiment: BlockTests p4:" + Experiment.Instance.StimuliDict[secondItem.gameObject.name]);
+        Debug.Log("Experiment: BlockTests p5:" + objController.permanentImageList.Count);
+
+        uiController.blockTestItemImage1.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[firstItem.gameObject.name]];
+        uiController.blockTestItemImage2.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[secondItem.gameObject.name]];
+
 
         trialLogTrack.LogTemporalOrderTest(firstItem,secondItem,true);
 
@@ -3926,7 +3942,39 @@ if(!skipLog)
 
         yield return StartCoroutine(uiController.SetupSelectionOptions(selectionType));
 
+
+        uiController.blockTestItemImage1.transform.localPosition = new Vector3(0f, 0f, 0f);
+        uiController.blockTestItemImage2.transform.localPosition = new Vector3(0f, 0f, 0f);
+
+        uiController.blockTestItemImage2.enabled = false;
+        uiController.blockTestItemImage1.enabled = false;
+        //uiController.blockTestItemText.enabled = false;
+        uiController.blockTestItemNames.alpha = 0f;
+
         uiController.temporalOrderTestPanel.alpha = 1f;
+
+        yield return StartCoroutine(WaitForJitter(0.4f));
+        uiController.blockTestItemImage1.enabled = true;
+
+        yield return StartCoroutine(WaitForJitter(1.6f));
+        uiController.blockTestItemImage1.enabled = false;
+        uiController.blockTestItemText.enabled = false;
+
+        yield return StartCoroutine(WaitForJitter(0.4f));
+        uiController.blockTestItemImage2.enabled = true;
+        uiController.blockTestItemText.enabled = true;
+
+        yield return StartCoroutine(WaitForJitter(1.6f));
+        uiController.blockTestItemImage2.enabled = false;
+        uiController.blockTestItemText.enabled = false;
+
+        yield return StartCoroutine(WaitForJitter(0.4f));
+        uiController.blockTestItemImage1.transform.localPosition = new Vector3(-300f, 0f, 0f);
+        uiController.blockTestItemImage2.transform.localPosition = new Vector3(300f, 0f, 0f);
+        uiController.blockTestItemImage2.enabled = true;
+        uiController.blockTestItemImage1.enabled = true;
+        uiController.blockTestItemText.enabled = true;
+        uiController.blockTestItemNames.alpha = 1f;
 
         uiController.ToggleSelection(true);
 
@@ -3936,8 +3984,10 @@ if(!skipLog)
             uiController.spacebarContinue.alpha = 1f;
             uiController.selectionControls.alpha = 1f;
         }
-            //wait for the options to be selected
-            _canSelect = true;
+
+
+        //wait for the options to be selected
+        _canSelect = true;
         yield return StartCoroutine(WaitForSelection(selectionType));
         _canSelect = false;
         uiController.ToggleSelection(false);
@@ -3953,6 +4003,9 @@ if(!skipLog)
     {
         uiController.temporalDistanceItemA.text = testPair.firstItem.gameObject.name;
         uiController.temporalDistanceItemB.text = testPair.secondItem.gameObject.name;
+
+        uiController.blockTestItemImage3.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testPair.firstItem.gameObject.name]];
+        uiController.blockTestItemImage4.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testPair.secondItem.gameObject.name]];
 
         trialLogTrack.LogTemporalDistanceTest(testPair, true);
         string selectionType = "TemporalDistance";
@@ -3984,6 +4037,8 @@ if(!skipLog)
     IEnumerator RunContextRecollectionTest(GameObject testGameObject)
     {
         uiController.contextRecollectionItem.text = testGameObject.name;
+        uiController.blockTestItemImage5.texture = objController.globalPermanentImageList[Experiment.Instance.StimuliDict[testGameObject.name]];
+
         uiController.contextRecollectionTestPanel.alpha = 1f;
 
         trialLogTrack.LogContextRecollectionTest(testGameObject, true);
@@ -4025,7 +4080,7 @@ if(!skipLog)
         yield return null;
     }
 
-    public IEnumerator WaitForJitter(int time)
+    public IEnumerator WaitForJitter(float time)
     {
 
         TempCurrentTime = 0f;
@@ -5177,8 +5232,8 @@ if(!skipLog)
 
         if ((isdevmode == false) && (beginmenu == true))
         {
-            if (Input.GetButtonDown("Development"))
-                SetDevelopment();
+            /*if (Input.GetButtonDown("Development"))
+                SetDevelopment();*/
         }
 
         foreach (KeyCode vKey in System.Enum.GetValues(typeof(KeyCode)))

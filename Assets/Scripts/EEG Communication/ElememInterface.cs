@@ -185,6 +185,7 @@ public class ElememInterfaceHelper : IHostPC
 
     public override void Connect(string ip, int port, string stimMode, string[] stimTags = null)
     {
+        UnityEngine.Debug.Log("StimMode in Connect(): " + stimMode);
         if (interfaceDisabled) return;
 
         elememServer = new TcpClient();
@@ -558,6 +559,14 @@ public class ElememInterface : MonoBehaviour
     }
 
 
+    public void SendMessageInternalInterface(string type, Dictionary<string, object> data = null)
+    {
+        if (elememInterfaceHelper != null)
+            if (data == null)
+                elememInterfaceHelper.SendMessageInternal(type);
+            else
+                elememInterfaceHelper.SendMessageInternal(type, data);
+    }
 
     // LC: Repeating Stimulation for U01 Courier
     public void DoRepeatingStim(int iterations, int delay, int interval)
