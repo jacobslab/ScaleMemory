@@ -467,4 +467,10 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "LogPosition" + separator + str + separator + frameNum.ToString() + separator + presentationTrans.position.x.ToString() + separator + presentationTrans.position.y.ToString() + separator + presentationTrans.position.z.ToString());
 
 	}
+
+	public void LogSession(int sessionno)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SessionNumber" + separator + sessionno.ToString());
+	}
+
 }

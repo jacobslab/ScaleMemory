@@ -33,6 +33,7 @@ public class UIController : MonoBehaviour
     //subject info entry panel
     public CanvasGroup subjectInfoPanel;
     public InputField subjectInputField;
+    public InputField sessionInputField;
     public Button subjectButton;
 
     public CanvasGroup blockInfoPanel;
@@ -198,6 +199,7 @@ public class UIController : MonoBehaviour
     public Text UsedBlockDisplayText;
     public Text WrongBlockDisplayText;
     public Text NumericalBlockDisplayText;
+    public Text SessionDisplayText;
 
     public CanvasGroup Loop2Image1;
     public CanvasGroup Loop2Image2;

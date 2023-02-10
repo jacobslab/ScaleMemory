@@ -162,7 +162,8 @@ public class ObjectController : MonoBehaviour
 						RandIndex = exp.LastRandIndex - 1;
 					}
 					else {
-						RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum)) - 1;
+						//RandIndex = permanentImageList.Count - (9 * 4 * (exp._currBlockNum)) - 1;
+						RandIndex = permanentImageList.Count - 1;
 					}
 
 				}

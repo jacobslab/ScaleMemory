@@ -1,7 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Configuration.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/AudioRecorder.cs">
     <Files>
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/BlockTestPair.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/BarrierManager.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
+      <File FileName="Assets/Scripts/Configuration.cs" />
+      <File FileName="Assets/Scripts/DefaultItem.cs" />
+      <File FileName="Assets/Scripts/ElememDataPoint.cs" />
       <File FileName="Assets/Scripts/InputHandler.cs" />
       <File FileName="Assets/Scripts/SocketControl.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/Logger_Threading.cs" />
@@ -15,11 +20,8 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" />
       <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" />
       <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
-      <File FileName="Assets/Scripts/ElememDataPoint.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ObjectLogTrack.cs" />
-      <File FileName="Assets/Scripts/DefaultItem.cs" />
       <File FileName="Assets/Scripts/ObjectSpawner.cs" />
-      <File FileName="Assets/Scripts/BarrierManager.cs" />
       <File FileName="Assets/Scripts/ObjectManager.cs" />
       <File FileName="Assets/Standard Assets/Vehicles/Car/Scripts/CarController.cs" />
       <File FileName="Assets/Standard Assets/Utility/CurveControlledBob.cs" />
@@ -35,7 +37,7 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/InstructionVideoLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogitechControllerLogTrack.cs" />
       <File FileName="Assets/Scripts/VideoLayer.cs" />
-      <File FileName="Assets/Scripts/Experiment.cs" Line="602" Column="24" />
+      <File FileName="Assets/Scripts/Experiment.cs" />
       <File FileName="Assets/Plugins/UnityComponents/SMIGazeController.cs" />
       <File FileName="Assets/Scripts/VideoScript.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
@@ -51,12 +53,14 @@
       <File FileName="Assets/Scripts/VideoLayerManager.cs" />
       <File FileName="Assets/Scripts/Weather.cs" />
       <File FileName="Assets/Scripts/WeatherPair.cs" />
-      <File FileName="Assets/Scripts/Configuration.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/CarStopper.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/TrialLogTrack.cs" />
       <File FileName="Assets/Scripts/CarMover.cs" />
       <File FileName="Assets/Scripts/IMG2Sprite.cs" />
-      <File FileName="Assets/Scripts/BlockTestPair.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/KeyboardLogTrack.cs" />
+      <File FileName="Assets/Scripts/CoinSpawner.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/LitJson/JsonReader.cs" />
+      <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ShopliftLogTrack.cs" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

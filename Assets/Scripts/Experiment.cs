@@ -202,8 +202,10 @@ public static bool isElemem=false;
     private int _sessionID;
 
     private string _subjectName = "";
+    private string _sessionName = "";
     private string _parseblockName = "";
     private int _intblockName = -1;
+    private int _intsessno = -1;
 
     private bool _canProceed = false;
 
@@ -578,13 +580,13 @@ public static bool isElemem=false;
 #else
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 #endif
-        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/" + "session_1" + "/";
+        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/";
         string newPath_isdev = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/" + "Development" + "/";
 
         if (!isdevmode)
         {
             _subjectDirectory = newPath + _subjectName + "/";
-            sessionDirectory = _subjectDirectory + "session_0" + "/";
+            sessionDirectory = _subjectDirectory;
         }
         else {
             _subjectDirectory = newPath + _subjectName + "/";
@@ -601,48 +603,49 @@ public static bool isElemem=false;
         {*/
         if (!isdevmode)
         {
-            while (Directory.Exists(sessionDirectory))
+            /*while (Directory.Exists(sessionDirectory))
             {
                 if (_sessionID < Configuration.totalSessions)
                 {
-                    _sessionID++;
+                   // _sessionID++;
 
                     sessionIDString = "_" + _sessionID.ToString();
 
-                    sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+                    sessionDirectory = _subjectDirectory;
                 }
 
-            }
+            }*/
+            _sessionID = 0;
             if (_sessionID > 0)
             {
-                _sessionID = _sessionID - 1;
+                //_sessionID = _sessionID - 1;
                 sessionIDString = "_" + _sessionID.ToString();
 
-                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+                sessionDirectory = _subjectDirectory;
             }
 
             UnityEngine.Debug.Log("subject directory sesssionID: " + _sessionID);
 
             if ((Directory.Exists(sessionDirectory)))
                 GetBlockWhereStoppedv2(_subjectDirectory);
-
+            
             psessionid = _sessionID;
             UnityEngine.Debug.Log("subject directory num_complete: " + num_complete);
             /*if ((((LastBlockNo == 2) && (LastST_END_YN == "ENDED"))) && (num_incomplete == 0) &&
                 (_sessionID < Configuration.totalSessions - 1))*/
-            if ((num_complete >= 3) &&
+            /*if ((num_complete >= 3) &&
                 (_sessionID < Configuration.totalSessions - 1))
             {
                 psessionid = _sessionID;
-                _sessionID++;
+                //_sessionID++;
 
                 sessionIDString = "_" + _sessionID.ToString();
 
-                sessionDirectory = _subjectDirectory + "session" + sessionIDString + "/";
+                sessionDirectory = _subjectDirectory;
 
 
-            }
-            else
+            }*/
+            //else
             {
                 if (LastBlockNo >= 0)
                 {
@@ -660,7 +663,7 @@ public static bool isElemem=false;
             Debug.Log("We are in a situation where sessionID 0 is completed and session1 doesnt contain any BLOCK information");
             _sessionID = 0;
             GetBlockWhereStoppedv2(_subjectDirectory);
-            _sessionID = 1;
+            //_sessionID = 1;
             num_complete = 0;
             recontinued = true;
             for (int i = 0; i <= LastBlockNo; i++)
@@ -773,9 +776,9 @@ public static bool isElemem=false;
         if (logMeta)
         {
             trialLogTrack.LogMetaData();
+            trialLogTrack.LogSession(_intsessno);
             logMeta = false;
         }
-
 
 
         yield return null;
@@ -873,7 +876,7 @@ if(!skipLog)
     //Gets created in TrialController after any hardware has conneinitcted and the instruction video has finished playing.
     public void CreateSessionStartedFile()
     {
-        StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
+        //StreamWriter newSR = new StreamWriter(sessionDirectory + sessionStartedFileName);
     }
 
 
@@ -890,8 +893,18 @@ if(!skipLog)
     public void ParseSubjectCode()
     {
         _subjectName = uiController.subjectInputField.text;
+        _sessionName = uiController.sessionInputField.text;
         UnityEngine.Debug.Log("got subject name");
-        _subjectInfoEntered = true;
+
+        bool isNumeric = int.TryParse(_sessionName, out _intsessno);
+        if (isNumeric && _subjectName.Length != 0 && _sessionName.Length != 0) {
+            _subjectInfoEntered = true;
+            uiController.SessionDisplayText.enabled = false;
+        }
+        else
+            uiController.SessionDisplayText.enabled = true;
+
+
         //GetBlockWhereStopped();
     }
 
@@ -905,14 +918,14 @@ if(!skipLog)
             UnityEngine.Debug.Log("What goes with 0: " + BlockStatus[0]);
             UnityEngine.Debug.Log("What goes with intBlock: " + BlockStatus[_intblockName]);
             uiController.NumericalBlockDisplayText.enabled = false;
-            if ((_intblockName < 6) && (BlockStatus[_intblockName] < 0))
+            if ((_intblockName < 100) && (BlockStatus[_intblockName] < 0))
             {
                 UnityEngine.Debug.Log("got Block name");
                 _blockInfoEntered = true;
                 uiController.UsedBlockDisplayText.enabled = false;
                 uiController.WrongBlockDisplayText.enabled = false;
             }
-            else if (_intblockName >= 6)
+            else if (_intblockName >= 100)
             {
                 uiController.UsedBlockDisplayText.enabled = false;
                 uiController.WrongBlockDisplayText.enabled = true;
@@ -1025,8 +1038,8 @@ if(!skipLog)
         subjectLog.close();
         //if(_sessionID )
         UnityEngine.Debug.Log(dir.Name);
-
-            UnityEngine.Debug.Log(uiController.subjectInputField.text);
+        int total_co = 0;
+        UnityEngine.Debug.Log(uiController.subjectInputField.text);
             if (uiController.subjectInputField.text == dir.Name)
             {
                 UnityEngine.Debug.Log("Matched zzzzzzzzzzzzzz");
@@ -1041,7 +1054,7 @@ if(!skipLog)
 
 
                 string fileName = dir.Name + "Log.txt";
-                string filePath = subjectDirectory + "/session_" + _sessionID.ToString() +"/" + fileName;
+                string filePath = subjectDirectory + "/" + fileName;
                 UnityEngine.Debug.Log(fileName);
                 UnityEngine.Debug.Log(filePath);
 
@@ -1059,14 +1072,17 @@ if(!skipLog)
                 if (File.Exists(filePath))
                 {
                     UnityEngine.Debug.Log("Entered!!!");
+                
                 try
                 {
                     using (StreamReader reader = new StreamReader(filePath))
                     {
                         UnityEngine.Debug.Log("Entered 222!!!");
                         string line;
+                        
                         while ((line = reader.ReadLine()) != null)
                         {
+                            total_co++;
                             string[] values = line.Split('\t');
                             /*for (int j = 0; j < values.Count(); j++)
                             {*/
@@ -1075,19 +1091,27 @@ if(!skipLog)
                             {
                                 if (values[2] == "BLOCK")
                                 {
-                                    if (values[4] == "STARTED")
+                                    int b_value = Convert.ToInt32(values[3]);
+                                    UnityEngine.Debug.Log("NEW BLOCK");
+                                    if (b_value >= 0)
                                     {
-                                        BlockStatus[Convert.ToInt32(values[3])] = 0;
-                                    }
-                                    else if (values[4] == "ENDED")
-                                    {
-                                        BlockStatus[Convert.ToInt32(values[3])] = 1;
-                                    }
+                                        if (values[4] == "STARTED")
+                                        {
+                                            BlockStatus[Convert.ToInt32(values[3])] = 0;
+                                            UnityEngine.Debug.Log("NEW BLOCK " + values[3] + " STARTED");
+                                        }
+                                        else if (values[4] == "ENDED")
+                                        {
+                                            BlockStatus[Convert.ToInt32(values[3])] = 1;
+                                            UnityEngine.Debug.Log("NEW BLOCK " + values[3] + " ENDED");
+                                        }
 
-                                    if (LastBlockNo <= Convert.ToInt32(values[3]))
-                                    {
-                                        LastST_END_YN = values[4];
-                                        LastBlockNo = Convert.ToInt32(values[3]);
+                                        if (LastBlockNo <= Convert.ToInt32(values[3]))
+                                        {
+                                            LastST_END_YN = values[4];
+                                            LastBlockNo = Convert.ToInt32(values[3]);
+                                            UnityEngine.Debug.Log("NEW BLOCK LastBlockNo " + values[3] + " " + LastST_END_YN);
+                                        }
                                     }
 
                                 }
@@ -1126,10 +1150,11 @@ if(!skipLog)
                             }
                             //}
 
-                            UnityEngine.Debug.Log(values.Count());
+                            //UnityEngine.Debug.Log(values.Count());
                             //break;
                             //Console.WriteLine(line);
                         }
+                        
                         for (int j = 0; j < LastBlockNo; j++)
                         {
                             if (BlockStatus[j] < 1)
@@ -1164,6 +1189,7 @@ if(!skipLog)
                     UnityEngine.Debug.Log("Why Now");
 
                 }
+                UnityEngine.Debug.Log("NEW BLOCK TOT_CO: " + total_co);
 
             }
 
@@ -1334,7 +1360,7 @@ if(!skipLog)
             else
             {
                 fileName2 = sessionDirectory + "sess_" + _sessionID + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
-                fileNamed2 = _subjectDirectory + "session0/" + "sess_" + _sessionID + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
+                fileNamed2 = _subjectDirectory + "/" + "sess_" + _sessionID + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
             }
 
                 if (!(File.Exists(fileNamed2)))
@@ -1400,7 +1426,7 @@ if(!skipLog)
         }
         else {
             UnityEngine.Debug.Log("CreateSessionData: Here we are with session_id: 1: " + sessionDirectory);
-            string fileName2 = _subjectDirectory + "session_0/" + "sess_0" + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            string fileName2 = _subjectDirectory + "/" + "sess_0" + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
             string fileName3 = sessionDirectory + "sess_" + _sessionID + "_stimuli535.txt"; // path of the file where we will store all the stimuli indices of that particular session
             //UnityEngine.Debug.Log("CreateSessionData: Here we are with session_id: 111111111: " + Directory.GetParent(Directory.GetParent(sessionDirectory)));
             UnityEngine.Debug.Log("CreateSessionData: Here we are with session_id: 11111: " + fileName2);
@@ -1431,7 +1457,7 @@ if(!skipLog)
             ((beginScreenSelect == -1) && (beginPracticeSelect == 0)))
         {
             string fileName3 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235.txt"; // path of the file where we will store all the stimuli indices of that particular session
-            string fileName2 = _subjectDirectory + "session_0/" + "sess_0_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
+            string fileName2 = _subjectDirectory + "/" + "sess_0_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
             string fileName4 = sessionDirectory + "sess_" + _sessionID + "_mri_stimuli235_reshuffle.txt"; // path of the file where we will store all the stimuli indices of that particular session
             /*if (!(File.Exists(fileName2)))
             {*/
@@ -1543,7 +1569,7 @@ if(!skipLog)
                 if (j == _sessionID)
                     currentstimuliIndices.Add(shuffledStimuliIndices[i]); 
             }
-                UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file            
+                //UsefulFunctions.WriteIntoTextFile(fileName, currList); //write the entire list into the sess_<sessionnumber>_stimuli.txt file            
             stim++;
         }
 
@@ -1782,7 +1808,7 @@ if(!skipLog)
         UnityEngine.Debug.Log("Before Enter");
         while (!((_subjectInfoEntered) || (isdevmode)))
         {
-            //UnityEngine.Debug.Log("Before Enter Returning");
+            UnityEngine.Debug.Log("Before Enter Returning");
             yield return 0;
         }
         UnityEngine.Debug.Log("Before Enter 222 Returning");
@@ -1832,7 +1858,7 @@ if(!skipLog)
 
         string newPath = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../"));
 
-        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/" + "session_1" + "/";
+        string newPath2 = Path.GetFullPath(Path.Combine(defaultLoggingPath, @"../../")) + _subjectName + "/";
 
         if (Directory.Exists(newPath2))
         {
@@ -1857,25 +1883,14 @@ if(!skipLog)
             }
             isPractice = false;
             practice_bloc = false;
-            //if (!isdevmode) {
-            //if (Directory.Exists(newPath + _subjectName + "/")) {
+
             _directoryexists = true;
             beginmenu = true;
             uiController.selectionControls.alpha = 1f;
             uiController.spacebarContinue.alpha = 1f;
-            //uiController.;
-            //Image img = selectionImage.transform.GetComponent<Image>();
-            //img.enabled = true;
-            //Destroy(img);
+     
             selectionImage.transform.GetComponent<Image>().enabled = true;
-            /*Component[] components = selectionImage.GetComponents(typeof(Component));
-            foreach (Component component in components)
-            {
-                Debug.Log(component.ToString());
-                Debug.Log(selectionImage.transform.GetComponent<Image>().enabled);
 
-            }*/
-            //_canSelect = true;
             SetSubjectName();
             yield return StartCoroutine(BeginMenuCanvas());
             beginmenu = false;
@@ -1899,6 +1914,7 @@ if(!skipLog)
                 uiController.selectionControls.alpha = 0f;
                 uiController.spacebarContinue.alpha = 0f;
             }
+
             if ((beginScreenSelect == 1) || (beginScreenSelect == 2)) {
                 if (isElemem == false)
                 {
@@ -1959,6 +1975,7 @@ if(!skipLog)
 
 
             UnityEngine.Debug.Log("set subject name: " + _subjectName);
+            UnityEngine.Debug.Log("[BeginExperiment]: num_complete   " + num_complete);
             if (Directory.Exists(newPath2))
             {
                 UnityEngine.Debug.Log("welde Session1 Existing:gkej3n4rio34ro3iro34: 111 ");
@@ -1968,17 +1985,6 @@ if(!skipLog)
                 UnityEngine.Debug.Log("welde Session1 Existing:gkej3n4rio34ro3iro34: 000 ");
             }
             trialLogTrack.LogBegin();
-
-
-            /*if (beginScreenSelect == 1) {
-                uiController.ShowSubject.alpha = 1f;
-                uiController.selectionControls.alpha = 1f;
-                yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-                uiController.selectionControls.alpha = 0f;
-                uiController.ShowSubject.alpha = 0f;
-            }*/
-
-
 
             //newPath2
             if (Directory.Exists(newPath2))
@@ -2051,10 +2057,6 @@ if(!skipLog)
                         ((beginScreenSelect == -1) && (isdevmode == false)) || (isdevmode == true))
                     {
                         //show second day intro
-
-                        //yield return StartCoroutine(instructionsManager.ShowSecondSessionWelcomeInstructions());
-                        //yield return StartCoroutine(RunWeatherFamiliarization()); //run weather familiarization sequence
-                        //yield return StartCoroutine(instructionsManager.ShowSecondEncodingInstructions());
                         yield return StartCoroutine(DisplayExperimentBeginScreen());
                         yield return StartCoroutine(BeginPractice());
                     }
@@ -2067,24 +2069,21 @@ if(!skipLog)
             UnityEngine.Debug.Log("finished prepping trials");
 
             _trialCount = LastTrailCount;
+
+            if ((LastRandIndex < 72)  && (LastRandIndex >= 0) && !(beginScreenSelect == -1))
+            {
+                uiController.endSessionPanel.alpha = 1f;
+                yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
+                UnityEngine.Debug.Log("Quitting Here!!");
+                Application.Quit();
+                yield return null;
+            }
+
             if ((beginScreenSelect == 1) || (isdevmode == true))
             {
-                /*uiController.postPracticePanel.alpha = 1f;
-                if (!isdevmode)
-                {
-                    yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-                }
-                else
-                {
-                    yield return StartCoroutine(WaitForJitterAction());
-                }
-                uiController.postPracticePanel.alpha = 0f;*/
+
                 yield return StartCoroutine(DisplayExperimentBeginScreen());
                 _trialCount = LastTrailCount;
-                /*if (_sessionID == 0)
-                    _trialCount = LastTrailCount;
-                else
-                    _trialCount = (totalTrials / Configuration.totalSessions) - 1;*/
 
                 UnityEngine.Debug.Log("starting trial count " + _trialCount.ToString());
                 //repeat blocks twice
@@ -2096,22 +2095,11 @@ if(!skipLog)
                 if (((recontinued == true) && (LastBlockNo >= 0) && (isdevmode == false)) ||
                     ((psessionid == 0) && (num_complete == 3)))
                 {
-                    /*if ((LastBlockNo == 2) && (LastST_END_YN == "STARTED"))
-                    {
-                        j = 2;
-                    }
-                    else
-                    {
-                        j = LastBlockNo + 1;
-                    }*/
-
                     j = LastBlockNo + 1;
                     if ((psessionid == 0) && (num_complete >= 3)) {
                         num_complete = 0;
 
                     }
-
-
                 }
                 else
                 {
@@ -2126,16 +2114,17 @@ if(!skipLog)
                 if (!((beginScreenSelect == -1) && (isdevmode == false)))
                 {
                     int comp = 0;
-                    for (int i = j; i < (j + 3 - num_complete); i++)
+
+                    for (int i = j; i < (j + 6); i++)
                     {
+                        if (LastRandIndex < 72 && (LastRandIndex >= 0))
+                        {
+                            break;
+                        }
                         _currBlockNum = i;
                         UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
 
                         //only show intermission instructions if it is a behavioral pilot
-#if BEHAVIORAL
-            if (_currBlockNum == 3)
-                yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
-#endif
 
                         trialLogTrack.LogBlock(i, true);
                         BlockStatus[i] = 0;
@@ -2154,14 +2143,12 @@ if(!skipLog)
                 else if (isdevmode == true) {
                     for (int i = 0; i < _blockCount; i++)
                     {
+     
+
                         _currBlockNum = i;
                         UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
 
                         //only show intermission instructions if it is a behavioral pilot
-#if BEHAVIORAL
-            if (_currBlockNum == 3)
-                yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
-#endif
 
                         trialLogTrack.LogBlock(i, true);
                         BlockStatus[i] = 0;
@@ -2175,26 +2162,13 @@ if(!skipLog)
             {
                 if (num_complete < 3)
                 {
-                    /*uiController.postPracticePanel.alpha = 1f;
-                    if (!isdevmode)
-                    {
-                        yield return StartCoroutine(UsefulFunctions.WaitForActionButton());
-                    }
-                    else
-                    {
-                        yield return StartCoroutine(WaitForJitterAction());
-                    }
-                    uiController.postPracticePanel.alpha = 0f;*/
+                    uiController.postPracticePanel.alpha = 0f;
                     yield return StartCoroutine(DisplayExperimentBeginScreen());
 
                     _currBlockNum = _intblockName;
                     UnityEngine.Debug.Log("HHHHHHHHHHHHHHHHHHHHHHHHH Cure_Block: " + _currBlockNum + " _blockCount: " + _blockCount);
 
                     //only show intermission instructions if it is a behavioral pilot
-#if BEHAVIORAL
-            if (_currBlockNum == 3)
-                yield return StartCoroutine(instructionsManager.ShowIntermissionInstructions());
-#endif
 
                     trialLogTrack.LogBlock(_intblockName, true);
                     BlockStatus[_intblockName] = 0;
@@ -2205,7 +2179,7 @@ if(!skipLog)
                     LastBlockNo = _currBlockNum;
                 }
             }
-
+            
             if (beginScreenSelect == 1)
             {
                 uiController.endSessionPanel.alpha = 1f;
@@ -2220,18 +2194,18 @@ if(!skipLog)
             _expActive = false;
             isdevmode = false;
             isElemem = false;
-            
+
+            /*uiController.endSessionPanel.alpha = 1f;
+            UnityEngine.Debug.Log("Quitting Here!!");
+            Application.Quit();
+            yield return null;*/
 
         }
-            uiController.endSessionPanel.alpha = 1f;
+
+        uiController.endSessionPanel.alpha = 1f;
         yield return StartCoroutine(UsefulFunctions.WaitForExitButton());
         _expActive = false;
 
-        /*#if !UNITY_WEBGL
-                Application.Quit();
-        #else
-                Application.Quit();
-        #endif*/
         UnityEngine.Debug.Log("Quitting Here!!");
         Application.Quit();
         yield return null;
@@ -2996,6 +2970,7 @@ if(!skipLog)
 
         trialLogTrack.LogBlock(_intblockName, false);
 
+        //LastRandIndex = LastRandIndex - 36;
         yield return null;
     }
 
