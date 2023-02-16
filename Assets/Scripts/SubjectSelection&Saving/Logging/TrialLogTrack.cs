@@ -473,4 +473,15 @@ public class TrialLogTrack : LogTrack {
 		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "SessionNumber" + separator + sessionno.ToString());
 	}
 
+	public void Sent_HB()
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "HEARTBEAT" + separator + "SENT");
+
+	}
+	public void Received_HB()
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "HEARTBEAT_OK" + separator + "RECEIVED");
+
+	}
+
 }

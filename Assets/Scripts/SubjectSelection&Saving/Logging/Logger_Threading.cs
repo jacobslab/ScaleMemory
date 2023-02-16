@@ -211,7 +211,7 @@ IEnumerator LogWriter()
 				UnityEngine.Debug.Log ("writing: " + msg);
 				logfile.WriteLine (msg);
 
-				if (Experiment.isElemem)
+				/*if (Experiment.isElemem)
 				{
 					string[] separatingStrings = { "\t" };
 					string[] words = msg.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
@@ -244,7 +244,7 @@ IEnumerator LogWriter()
 						Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG", data);
 					else
 						Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG");
-				}
+				}*/
 				yield return 0;
 			}
 			yield return 0;
@@ -285,12 +285,92 @@ IEnumerator LogWriter()
 		if (myLoggerQueue != null) {
 			myLoggerQueue.AddToLogQueue (timeLogged + LogTextSeparator + newLogInfo);
 		}
+
+		if (Experiment.isElemem)
+		{
+			string[] separatingStrings = { "\t" };
+			string[] words = newLogInfo.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+			var data = new Dictionary<string, object>();
+			data.Add("0_task_unix_time", timeLogged);
+
+			for (int i = 0; i < words.Length; i++)
+			{
+				switch (i)
+				{
+					/*case 0:
+						data.Add("0_task_unix_time", words[i]);
+						break;*/
+					case 0:
+						data.Add("1_unity_frame_no", words[i]);
+						break;
+					case 1:
+						data.Add("2_event", words[i]);
+						break;
+					case 2:
+						data.Add("3_subevent", words[i]);
+						break;
+					default:
+						data.Add((i + 1) + "_value" + (i - 3), words[i]);
+						break;
+				}
+
+				//data.Add("data" + i, words[i]);
+				//UnityEngine.Debug.Log("writing: " + words[i]);
+			}
+			//if (words.Length != 0)
+			Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG", data);
+			/*else
+				Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG");
+			*/
+		}
 	}
 
 	public void Log(long timeLogged, long frame, string newLogInfo){
-		if (myLoggerQueue != null) {
-			myLoggerQueue.AddToLogQueue (timeLogged + LogTextSeparator + frame + LogTextSeparator + newLogInfo);
+		if (myLoggerQueue != null)
+		{
+			myLoggerQueue.AddToLogQueue(timeLogged + LogTextSeparator + frame + LogTextSeparator + newLogInfo);
 		}
+
+		if (Experiment.isElemem)
+		{
+			string[] separatingStrings = { "\t" };
+			string[] words = newLogInfo.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+			var data = new Dictionary<string, object>();
+			data.Add("0_task_unix_time", timeLogged);
+			data.Add("1_unity_frame_no", frame);
+
+			for (int i = 0; i < words.Length; i++)
+			{
+				switch (i)
+				{
+					/*case 0:
+						data.Add("0_task_unix_time", words[i]);
+						break;
+					case 1:
+						data.Add("1_unity_frame_no", words[i]);
+						break;*/
+					case 0:
+						data.Add("2_event", words[i]);
+						break;
+					case 1:
+						data.Add("3_subevent", words[i]);
+						break;
+					default:
+						data.Add((i + 2) + "_value" + (i - 2), words[i]);
+						break;
+				}
+
+				//data.Add("data" + i, words[i]);
+				//UnityEngine.Debug.Log("writing: " + words[i]);
+			}
+			//if (words.Length != 0)
+			Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG", data);
+			/*else
+				Experiment.Instance.elememInterface.SendMessageInternalInterface("TASK_LOG");
+			*/
+		}
+
+
 	}
 
 	void OnApplicationQuit()

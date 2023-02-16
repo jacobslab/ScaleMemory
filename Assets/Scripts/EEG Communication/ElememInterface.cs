@@ -304,6 +304,7 @@ public class ElememInterfaceHelper : IHostPC
                 if (types.Contains(json["type"]?.Value<string>()))
                 {
                     listener.RemoveMessageQueue();
+                    
                     return json;
                 }
             }
@@ -364,6 +365,8 @@ public class ElememInterfaceHelper : IHostPC
 
         NetworkStream stream = GetWriteStream();
         stream.Write(bytes, 0, bytes.Length);
+        if (type == "HEARTBEAT")
+            Experiment.Instance.trialLogTrack.Sent_HB();
         ReportMessage(message, true);
     }
 
@@ -380,6 +383,7 @@ public class ElememInterfaceHelper : IHostPC
         heartbeatCount++;
         SendMessageInternal("HEARTBEAT", data);
         WaitForMessage("HEARTBEAT_OK", heartbeatTimeout);
+        Experiment.Instance.trialLogTrack.Received_HB();
     }
 
     private void ReportMessage(string message, bool sent)
