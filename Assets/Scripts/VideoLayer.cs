@@ -46,6 +46,8 @@ public class VideoLayer : MonoBehaviour
 
     public static bool isInvoked = false;
 
+    public static bool isSendTriggerInvoked = false;
+
     private int currentFrame = 0;
 
     public bool boolLoggingCorner;
@@ -163,6 +165,10 @@ public class VideoLayer : MonoBehaviour
         videoLayerManager.SpawnPointReached();
     }
 
+    public void OnNextSTIMFrameReached()
+    {
+        videoLayerManager.nextSTIMPointReached();
+    }
     public void OnRetrievalPointReached()
     {
         videoLayerManager.RetrievalPointReached();
@@ -299,6 +305,26 @@ public class VideoLayer : MonoBehaviour
                                 retrievalPointReachedEvent.Invoke();
                             }
 
+                        }
+                    }
+
+                    if (Experiment.Instance.beginScreenSelect == 2)
+                    {
+                        if (Mathf.Abs(currentFrame - Experiment.nextSendSTIMFrame) < 12)
+                        {
+                            if (!isSendTriggerInvoked)
+                            {
+                                isSendTriggerInvoked = true;
+                                if (Experiment.Instance.currentStage == Experiment.TaskStage.Encoding)
+                                {
+                                    UnityEngine.Debug.Log("[NewFeature - NextFrame] VideoLayer: SEND STIM TRIGGER POINT");
+                                    OnNextSTIMFrameReached();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            isSendTriggerInvoked = false;
                         }
                     }
                 }

@@ -126,6 +126,7 @@ public class Experiment : MonoBehaviour {
     public List<GameObject> spawnedObjects;
     //public List<Vector3> spawnLocations;
     public List<int> spawnFrames;
+    public List<int> sendTriggerFrames;
 
     private List<int> _sortedSpawnFrames;
     private List<int> _sorted_retrievalFrames;
@@ -292,6 +293,7 @@ public static bool isElemem=false;
     private bool _retrievedAsNew = false;
 
     public static int nextSpawnFrame = -10000; //if no spawn, then it will be at -1000
+    public static int nextSendSTIMFrame = -10000; //if no spawn, then it will be at -1000
 
     public Image selectionImage;
     public Image selectionImageMenu2;
@@ -391,6 +393,7 @@ public static bool isElemem=false;
         _spatialFeedbackPosition = new List<Vector3>();
         spawnedObjects = new List<GameObject>();
         spawnFrames = new List<int>();
+        sendTriggerFrames = new List<int>();
         lureObjects = new List<GameObject>();
         lureFrames = new List<int>();
         _retrievalObjList = new List<GameObject>();
@@ -2673,9 +2676,10 @@ if(!skipLog)
         spawnedObjects.Clear();
         //reset everything before the next block begins
         spawnFrames.Clear();
-      
+        sendTriggerFrames.Clear();
+
         //destroy all lure objects
-        for(int i=0;i<Configuration.luresPerTrial;i++)
+        for (int i=0;i<Configuration.luresPerTrial;i++)
         {
             if (i < lureObjects.Count)
             {
@@ -4434,13 +4438,16 @@ if(!skipLog)
             if (_sortedSpawnFrames.Count > 0)
             {
                 nextSpawnFrame = _sortedSpawnFrames[0];
+                nextSendSTIMFrame = _sortedSpawnFrames[0] - 22;
                 UnityEngine.Debug.Log("next spawn frame " + nextSpawnFrame.ToString());
+                UnityEngine.Debug.Log("[NewFeature - NextFrame] UpdateNextSpawnFrame: " + nextSendSTIMFrame.ToString());
                 _sortedSpawnFrames.RemoveAt(0);
                 encodingIndex++;
             }
             else
             {
                 nextSpawnFrame = -10000;   //arbitrary value
+                nextSendSTIMFrame = -10000;
             }
         }
 
@@ -4637,6 +4644,7 @@ if(!skipLog)
 
                     //add the chosen encoding frame for stimuli into a list; spawnFrames will be our main list
                     spawnFrames.Add(chosenEncodingFrames[i]);
+                    sendTriggerFrames.Add(chosenEncodingFrames[i] - 22);
                 }
 
             }
@@ -5032,6 +5040,7 @@ if(!skipLog)
                 //reset retrieval lists
                 spawnedObjects.Clear();
                 spawnFrames.Clear();
+                sendTriggerFrames.Clear();
                 yield return 0;
             }
             else

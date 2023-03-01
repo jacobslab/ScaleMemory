@@ -366,7 +366,15 @@ public class ElememInterfaceHelper : IHostPC
         NetworkStream stream = GetWriteStream();
         stream.Write(bytes, 0, bytes.Length);
         if (type == "HEARTBEAT")
+        {
             Experiment.Instance.trialLogTrack.Sent_HB();
+            UnityEngine.Debug.Log("HeartBeat Sent Message: " + message);
+        }
+        else if (type == "STIMSELECT")
+        {
+            Experiment.Instance.trialLogTrack.Sent_STIMSELECT(data["stimtag"]);
+            UnityEngine.Debug.Log("STIMSELECT Sent Message: " + message);
+        }
         ReportMessage(message, true);
     }
 
@@ -588,6 +596,11 @@ public class ElememInterface : MonoBehaviour
             elememInterfaceHelper.DoRepeating(new EventBase(SwitchStimFreq), iterations, delay, interval);
             //elememInterfaceHelper.DoRepeating(new RepeatingEvent(new EventBase(SwitchStimFreq), iterations, delay, interval));
         }
+    }
+
+    public void SendStimFreq()
+    {
+        SwitchStimFreq();
     }
 
     protected void SwitchStimFreq()

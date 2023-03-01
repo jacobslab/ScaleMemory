@@ -1,10 +1,11 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EEG Communication/ElememInterface.cs">
+﻿<Properties StartupConfiguration="{11C1DF62-7231-E71B-3015-DB84BC08708B}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/AssetBundleLoader.cs">
     <Files>
-      <File FileName="Assets/Scripts/CameraController.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/BlockTestPair.cs" />
+      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="168" Column="60" />
       <File FileName="Assets/Scripts/BarrierManager.cs" />
-      <File FileName="Assets/Scripts/AssetBundleLoader.cs" />
+      <File FileName="Assets/Scripts/CameraController.cs" />
+      <File FileName="Assets/Scripts/BlockTestPair.cs" />
+      <File FileName="Assets/Scripts/AssetBundleLoader.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Configuration.cs" />
       <File FileName="Assets/Scripts/DefaultItem.cs" />
       <File FileName="Assets/Scripts/ElememDataPoint.cs" />
@@ -19,7 +20,6 @@
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/AudioLogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/LogTrack.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ThreadedJob.cs" />
-      <File FileName="Assets/Scripts/EEG Communication/ElememInterface.cs" Line="385" Column="56" />
       <File FileName="Assets/Scripts/EEG Communication/TCPServer.cs" />
       <File FileName="Assets/Scripts/SubjectSelection&amp;Saving/Logging/ObjectLogTrack.cs" />
       <File FileName="Assets/Scripts/ObjectSpawner.cs" />
@@ -43,7 +43,7 @@
       <File FileName="Assets/Scripts/VideoScript.cs" />
       <File FileName="Assets/Scripts/UIController.cs" />
       <File FileName="Assets/Scripts/UsefulFunctions.cs" />
-      <File FileName="Assets/Scripts/AudioRecorder.cs" Line="7" Column="25" />
+      <File FileName="Assets/Scripts/AudioRecorder.cs" />
       <File FileName="Assets/Scripts/ObjectController.cs" />
       <File FileName="Assets/Scripts/FlexibleConfig.cs" />
       <File FileName="Assets/UGUIKit Flat/Content/Scripts/bl_ToggleSwitcher.cs" />
@@ -66,7 +66,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="205f3c53-0f22-4a8e-b7dd-368ba42f4370" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="a4cbf023-5715-4504-8c88-074ce0eed66f" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

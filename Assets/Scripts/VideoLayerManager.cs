@@ -116,6 +116,10 @@ public class VideoLayerManager : MonoBehaviour
         
     }
 
+    public void nextSTIMPointReached()
+    {
+        StartCoroutine("RunNextSTIMProcedure");
+    }
     public int GetMainLayerCurrentFrameNumber()
     {
         return backgroundLayer.GetCurrentFrameNumber();
@@ -126,6 +130,12 @@ public class VideoLayerManager : MonoBehaviour
         StartCoroutine("RunRetrievalProcedure");
     }
 
+    IEnumerator RunNextSTIMProcedure()
+    {
+        Experiment.Instance.elememInterface.SendStimFreq();
+        Experiment.nextSendSTIMFrame = -10000;
+        yield return null;
+    }
     IEnumerator RunSpawnProcedure()
     {
         //inform Experiment about spawn procedure for logging

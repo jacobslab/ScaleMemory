@@ -17037,7 +17037,8 @@ MonoBehaviour:
   ElememWarningText: {fileID: 1346575974}
   ElememWarning: {fileID: 1263458496}
   scriptedEventReporter: {fileID: 1263458497}
-  stimTags: []
+  stimTags:
+  - 8Hz
 --- !u!4 &1263458499
 Transform:
   m_ObjectHideFlags: 0
@@ -18326,6 +18327,7 @@ MonoBehaviour:
   _currBlockNum: 0
   spawnedObjects: []
   spawnFrames: 
+  sendTriggerFrames: 
   lureObjects: []
   lureFrames: 
   startableTransforms:

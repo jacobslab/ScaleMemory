@@ -484,4 +484,10 @@ public class TrialLogTrack : LogTrack {
 
 	}
 
+	public void Sent_STIMSELECT(object a)
+	{
+		subjectLog.Log(GameClock.SystemTime_Milliseconds, subjectLog.GetFrameCount(), "STIMSELECT" + separator + "SENT" + "stimtag" + separator + a.ToString());
+
+	}
+
 }
